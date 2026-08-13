@@ -24,8 +24,7 @@ class StockAdjustmentService
         User $actor,
         string $type = 'adjusted',
         ?Model $reference = null,
-    ): StockMovement
-    {
+    ): StockMovement {
         if ($product->type !== 'product') {
             throw new RuntimeException('Services cannot hold warehouse inventory.');
         }

@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Domain\ProductService\Services\CatalogLookupService;
+use App\Models\ProductServiceItem;
 use App\Models\SalesInvoice;
 use App\Models\SalesInvoiceItem;
-use App\Models\ProductServiceItem;
 use App\Models\SalesProposal;
 use App\Models\SalesProposalItem;
 use App\Models\Workspace;
@@ -52,7 +52,8 @@ class SalesProposalController extends Controller
             'issue_date' => 'required|date',
             'type' => 'nullable|string',
             'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|integer',
+            'items.*.product_id' => 'nullable|integer',
+            'items.*.item_name' => 'nullable|string',
             'items.*.quantity' => 'required|numeric|min:1',
             'items.*.price' => 'required|numeric|min:0',
             'items.*.tax' => 'nullable|numeric|min:0',
@@ -62,8 +63,14 @@ class SalesProposalController extends Controller
         $workspace = $this->workspace($request);
         $wsId = $workspace->id;
         $orgId = $workspace->organization_id;
-        $products = ProductServiceItem::forTenant($orgId, $wsId)->whereIn('id', collect($validated['items'])->pluck('product_id')->unique())->get()->keyBy('id');
-        abort_unless($products->count() === collect($validated['items'])->pluck('product_id')->unique()->count(), 422, 'A proposal item is outside the active tenant catalog.');
+
+        $productIds = collect($validated['items'])->pluck('product_id')->filter()->unique();
+        if ($productIds->isNotEmpty()) {
+            $products = ProductServiceItem::forTenant($orgId, $wsId)->whereIn('id', $productIds)->get()->keyBy('id');
+            abort_unless($products->count() === $productIds->count(), 422, 'A proposal item is outside the active tenant catalog.');
+        } else {
+            $products = collect();
+        }
 
         return DB::transaction(function () use ($validated, $wsId, $orgId, $products) {
             $proposalId = strtoupper(substr(uniqid('PROP-'), -10));
@@ -86,10 +93,14 @@ class SalesProposalController extends Controller
             ]);
 
             foreach ($validated['items'] as $item) {
+                $itemName = isset($item['product_id']) && isset($products[$item['product_id']])
+                    ? $products[$item['product_id']]->name
+                    : ($item['item_name'] ?? 'Proposal Item');
+
                 SalesProposalItem::create([
                     'proposal_id' => $proposal->id,
-                    'product_id' => $item['product_id'],
-                    'item_name' => $products[$item['product_id']]->name,
+                    'product_id' => $item['product_id'] ?? null,
+                    'item_name' => $itemName,
                     'quantity' => $item['quantity'],
                     'price' => $item['price'],
                     'tax' => $item['tax'] ?? 0,

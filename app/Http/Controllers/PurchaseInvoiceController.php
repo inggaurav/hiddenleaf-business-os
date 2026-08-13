@@ -56,7 +56,8 @@ class PurchaseInvoiceController extends Controller
             'due_date' => 'nullable|date',
             'category_id' => 'nullable|integer',
             'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|integer',
+            'items.*.product_id' => 'nullable|integer',
+            'items.*.item_name' => 'nullable|string',
             'items.*.quantity' => 'required|numeric|min:1',
             'items.*.price' => 'required|numeric|min:0',
             'items.*.tax' => 'nullable|numeric|min:0',
@@ -67,8 +68,14 @@ class PurchaseInvoiceController extends Controller
         $wsId = $workspace->id;
         $orgId = $workspace->organization_id;
         Warehouse::where('workspace_id', $wsId)->where('organization_id', $orgId)->findOrFail($validated['warehouse_id']);
-        $products = ProductServiceItem::forTenant($orgId, $wsId)->whereIn('id', collect($validated['items'])->pluck('product_id')->unique())->get()->keyBy('id');
-        abort_unless($products->count() === collect($validated['items'])->pluck('product_id')->unique()->count(), 422, 'An invoice item is outside the active tenant catalog.');
+
+        $productIds = collect($validated['items'])->pluck('product_id')->filter()->unique();
+        if ($productIds->isNotEmpty()) {
+            $products = ProductServiceItem::forTenant($orgId, $wsId)->whereIn('id', $productIds)->get()->keyBy('id');
+            abort_unless($products->count() === $productIds->count(), 422, 'An invoice item is outside the active tenant catalog.');
+        } else {
+            $products = collect();
+        }
 
         return DB::transaction(function () use ($validated, $wsId, $orgId, $products) {
             $invoiceId = strtoupper(substr(uniqid('PI-'), -10));
@@ -93,10 +100,14 @@ class PurchaseInvoiceController extends Controller
             ]);
 
             foreach ($validated['items'] as $item) {
+                $itemName = isset($item['product_id']) && isset($products[$item['product_id']])
+                    ? $products[$item['product_id']]->name
+                    : ($item['item_name'] ?? 'Purchase Item');
+
                 PurchaseInvoiceItem::create([
                     'invoice_id' => $invoice->id,
-                    'product_id' => $item['product_id'],
-                    'item_name' => $products[$item['product_id']]->name,
+                    'product_id' => $item['product_id'] ?? null,
+                    'item_name' => $itemName,
                     'quantity' => $item['quantity'],
                     'price' => $item['price'],
                     'tax' => $item['tax'] ?? 0,
