@@ -1,0 +1,1 @@
+import { createIndexPage } from '@/Components/ResourcePage'; export default createIndexPage({title:'Subscriptions',collectionKey:'subscriptions',columns:['plan','status','starts_at','ends_at','created_at']});

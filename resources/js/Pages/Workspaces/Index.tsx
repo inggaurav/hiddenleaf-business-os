@@ -1,0 +1,1 @@
+import { createIndexPage } from '@/Components/ResourcePage'; export default createIndexPage({title:'Workspaces',collectionKey:'workspaces',resourcePath:'/workspaces',columns:['name','slug','is_active']});

@@ -1,0 +1,1 @@
+import { createIndexPage } from '@/Components/ResourcePage'; export default createIndexPage({title:'Email Templates',collectionKey:'templates',resourcePath:'/email-templates',columns:['name','subject','created_at']});

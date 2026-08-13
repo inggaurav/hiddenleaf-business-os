@@ -1,0 +1,1 @@
+import { createIndexPage } from '@/Components/ResourcePage'; export default createIndexPage({title:'Sales Returns',collectionKey:'returns',resourcePath:'/sales-returns',columns:['return_id','customer_id','sales_invoice_id','date','total_amount','status']});

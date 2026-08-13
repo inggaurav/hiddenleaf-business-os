@@ -1,0 +1,1 @@
+import { createFormPage } from '@/Components/ResourcePage'; export default createFormPage({title:'Create Helpdesk Category',submitPath:'/helpdesk-categories',backPath:'/helpdesk-categories',fields:[{name:'name',label:'Name',required:true},{name:'color',label:'Color'}]});

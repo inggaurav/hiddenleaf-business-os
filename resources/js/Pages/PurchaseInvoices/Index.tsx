@@ -1,0 +1,1 @@
+import { createIndexPage } from '@/Components/ResourcePage'; export default createIndexPage({title:'Purchase Invoices',collectionKey:'invoices',resourcePath:'/purchase-invoices',columns:['invoice_id','vendor_id','warehouse','purchase_date','total_amount','status']});

@@ -1,0 +1,1 @@
+import { createFormPage } from '@/Components/ResourcePage'; export default createFormPage({title:'Edit Profile',recordKey:'user',submitPath:'/profile',backPath:'/dashboard',method:'put',fields:[{name:'name',label:'Name',required:true},{name:'email',label:'Email',type:'email',required:true}]});

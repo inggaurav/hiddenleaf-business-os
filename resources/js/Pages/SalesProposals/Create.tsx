@@ -1,0 +1,1 @@
+import { createFormPage } from '@/Components/ResourcePage'; export default createFormPage({title:'Create Sales Proposal',submitPath:'/sales-proposals',backPath:'/sales-proposals',lineItems:true,fields:[{name:'customer_id',label:'Customer ID',type:'number'},{name:'issue_date',label:'Issue date',type:'date',required:true},{name:'type',label:'Proposal type'}]});

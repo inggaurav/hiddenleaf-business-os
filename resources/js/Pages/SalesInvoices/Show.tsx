@@ -1,0 +1,1 @@
+import { createShowPage } from '@/Components/ResourcePage'; export default createShowPage({title:'Sales Invoice',recordKey:'invoice',backPath:'/sales-invoices',editPath:r=>`/sales-invoices/${r.id}/edit`});

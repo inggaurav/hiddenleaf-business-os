@@ -1,0 +1,1 @@
+import { createIndexPage } from '@/Components/ResourcePage'; export default createIndexPage({title:'Orders',collectionKey:'orders',resourcePath:'/orders',columns:['order_id','name','plan_name','price','currency','payment_status']});

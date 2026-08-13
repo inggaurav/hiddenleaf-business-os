@@ -1,0 +1,1 @@
+import { createFormPage } from '@/Components/ResourcePage'; export default createFormPage({title:'Edit User',recordKey:'user',submitPath:r=>`/users/${r.id}`,backPath:'/users',method:'put',fields:[{name:'name',label:'Name',required:true},{name:'email',label:'Email',type:'email',required:true},{name:'role_id',label:'Role',type:'select',optionsProp:'roles'}]});

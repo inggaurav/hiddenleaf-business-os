@@ -1,0 +1,1 @@
+import { createFormPage } from '@/Components/ResourcePage'; export default createFormPage({title:'Create Warehouse',submitPath:'/warehouses',backPath:'/warehouses',fields:[{name:'name',label:'Name',required:true},{name:'address',label:'Address',type:'textarea'},{name:'city',label:'City'},{name:'city_zip',label:'Postal code'}]});

@@ -1,0 +1,1 @@
+import { createShowPage } from '@/Components/ResourcePage'; export default createShowPage({title:'Sales Proposal',recordKey:'proposal',backPath:'/sales-proposals',editPath:r=>`/sales-proposals/${r.id}/edit`});

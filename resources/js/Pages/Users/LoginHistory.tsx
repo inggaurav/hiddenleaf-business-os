@@ -1,0 +1,1 @@
+import { createIndexPage } from '@/Components/ResourcePage'; export default createIndexPage({title:'Login History',collectionKey:'loginHistory',columns:['user','ip_address','user_agent','created_at']});

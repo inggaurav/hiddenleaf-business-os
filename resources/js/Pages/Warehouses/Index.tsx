@@ -1,0 +1,1 @@
+import { createIndexPage } from '@/Components/ResourcePage'; export default createIndexPage({title:'Warehouses',collectionKey:'warehouses',resourcePath:'/warehouses',columns:['name','address','city','city_zip']});

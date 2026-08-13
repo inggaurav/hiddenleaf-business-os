@@ -1,0 +1,1 @@
+import { createFormPage } from '@/Components/ResourcePage'; export default createFormPage({title:'Create Sales Return',submitPath:'/sales-returns',backPath:'/sales-returns',lineItems:true,fields:[{name:'customer_id',label:'Customer ID',type:'number'},{name:'sales_invoice_id',label:'Sales invoice ID',type:'number'},{name:'date',label:'Return date',type:'date',required:true}]});

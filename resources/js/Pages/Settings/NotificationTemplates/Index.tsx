@@ -1,0 +1,1 @@
+import { createIndexPage } from '@/Components/ResourcePage'; export default createIndexPage({title:'Notification Templates',collectionKey:'templates',resourcePath:'/notification-templates',columns:['name','created_at']});

@@ -1,0 +1,1 @@
+import { createIndexPage } from '@/Components/ResourcePage'; export default createIndexPage({title:'Helpdesk Categories',collectionKey:'categories',resourcePath:'/helpdesk-categories',columns:['name','color','tickets_count']});

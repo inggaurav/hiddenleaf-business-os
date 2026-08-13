@@ -1,0 +1,1 @@
+import { createFormPage } from '@/Components/ResourcePage'; export default createFormPage({title:'Edit Helpdesk Ticket',recordKey:'ticket',submitPath:r=>`/helpdesk-tickets/${r.id}`,backPath:'/helpdesk-tickets',method:'put',fields:[{name:'status',label:'Status'},{name:'priority',label:'Priority'},{name:'category_id',label:'Category',type:'select',optionsProp:'categories'}]});

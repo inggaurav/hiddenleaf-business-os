@@ -1,0 +1,1 @@
+import { createIndexPage } from '@/Components/ResourcePage'; export default createIndexPage({title:'Sales Proposals',collectionKey:'proposals',resourcePath:'/sales-proposals',columns:['proposal_id','customer_id','issue_date','type','total_amount','status']});

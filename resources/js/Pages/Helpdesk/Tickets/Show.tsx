@@ -1,0 +1,1 @@
+import { createShowPage } from '@/Components/ResourcePage'; export default createShowPage({title:'Helpdesk Ticket',recordKey:'ticket',backPath:'/helpdesk-tickets',editPath:r=>`/helpdesk-tickets/${r.id}/edit`});

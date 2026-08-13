@@ -1,0 +1,1 @@
+import DataPanel from '@/Components/DataPanel'; export default function Page(){return <DataPanel title="Installer" description="Complete requirements, environment, database, license, administrator, modules, and finalization."/>}

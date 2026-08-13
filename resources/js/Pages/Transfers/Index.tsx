@@ -1,0 +1,1 @@
+import { createIndexPage } from '@/Components/ResourcePage'; export default createIndexPage({title:'Warehouse Transfers',collectionKey:'transfers',resourcePath:'/transfers',columns:['date','from_warehouse','to_warehouse','product_id','quantity']});

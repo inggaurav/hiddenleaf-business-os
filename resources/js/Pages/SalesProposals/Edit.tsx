@@ -1,0 +1,1 @@
+import { createFormPage } from '@/Components/ResourcePage'; export default createFormPage({title:'Edit Sales Proposal',recordKey:'proposal',submitPath:r=>`/sales-proposals/${r.id}`,backPath:'/sales-proposals',method:'put',fields:[{name:'issue_date',label:'Issue date',type:'date',required:true},{name:'type',label:'Proposal type'}]});

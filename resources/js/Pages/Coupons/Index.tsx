@@ -1,0 +1,1 @@
+import { createIndexPage } from '@/Components/ResourcePage'; export default createIndexPage({title:'Coupons',collectionKey:'coupons',resourcePath:'/coupons',columns:['name','code','type','discount','status']});
