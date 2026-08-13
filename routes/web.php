@@ -26,6 +26,7 @@ use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\MultiTenancy\MemberController;
 use App\Http\Controllers\MultiTenancy\WorkspaceController;
 use App\Http\Controllers\NotificationTemplateController;
+use App\Http\Controllers\ProductServiceController;
 use App\Http\Controllers\PurchaseInvoiceController;
 use App\Http\Controllers\PurchaseReturnController;
 use App\Http\Controllers\SalesInvoiceController;
@@ -126,6 +127,15 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('bank-transfer/{payment}', [BankTransferPaymentController::class, 'destroy'])->name('bank-transfer.destroy');
 
     // Sales & Procurement Routes
+    Route::middleware('module.status:productservice')->prefix('product-service')->name('product-service.')->group(function () {
+        Route::post('categories', [ProductServiceController::class, 'storeCategory'])->name('categories.store');
+        Route::post('units', [ProductServiceController::class, 'storeUnit'])->name('units.store');
+        Route::post('taxes', [ProductServiceController::class, 'storeTax'])->name('taxes.store');
+        Route::post('{productService}/adjust-stock', [ProductServiceController::class, 'adjust'])->name('adjust-stock');
+    });
+    Route::resource('product-service', ProductServiceController::class)
+        ->except(['show'])
+        ->middleware('module.status:productservice');
     Route::resource('warehouses', WarehouseController::class);
     Route::resource('transfers', TransferController::class)->except(['edit', 'update']);
 

@@ -13,10 +13,12 @@ class ProductServiceItem extends Model
     protected $fillable = [
         'name',
         'sku',
+        'barcode',
         'description',
         'type',
         'sale_price',
         'purchase_price',
+        'reorder_level',
         'unit',
         'category_id',
         'is_active',
@@ -30,6 +32,7 @@ class ProductServiceItem extends Model
         return [
             'sale_price' => 'decimal:2',
             'purchase_price' => 'decimal:2',
+            'reorder_level' => 'decimal:2',
             'is_active' => 'boolean',
         ];
     }
@@ -49,5 +52,10 @@ class ProductServiceItem extends Model
     public function stocks()
     {
         return $this->hasMany(WarehouseStock::class, 'product_id');
+    }
+
+    public function taxes()
+    {
+        return $this->belongsToMany(ProductServiceTax::class, 'product_service_item_taxes');
     }
 }
