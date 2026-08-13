@@ -85,4 +85,12 @@ Route::middleware(['auth'])->group(function () {
     // Modules
     Route::get('/modules', [\App\Http\Controllers\ModuleController::class, 'index'])->name('modules.index');
     Route::post('/modules/toggle', [\App\Http\Controllers\ModuleController::class, 'toggle'])->name('modules.toggle');
+
+    // Settings (Phase 7 & 8)
+    Route::get('/settings/email-templates', [\App\Http\Controllers\Settings\EmailTemplateController::class, 'index'])->name('settings.email-templates.index');
+    Route::post('/settings/email-templates', [\App\Http\Controllers\Settings\EmailTemplateController::class, 'store'])->name('settings.email-templates.store');
+    
+    Route::get('/settings/api-tokens', [\App\Http\Controllers\Settings\ApiTokenController::class, 'index'])->name('settings.api-tokens.index');
+    Route::post('/settings/api-tokens', [\App\Http\Controllers\Settings\ApiTokenController::class, 'store'])->name('settings.api-tokens.store');
+    Route::delete('/settings/api-tokens/{id}', [\App\Http\Controllers\Settings\ApiTokenController::class, 'destroy'])->name('settings.api-tokens.destroy');
 });
