@@ -13,8 +13,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [
-            \HiddenLeaf\Http\Middleware\HandleInertiaRequests::class,
-            \HiddenLeaf\Http\Middleware\EnsureTenantContext::class,
+            \App\Http\Middleware\HandleInertiaRequests::class,
+            \App\Http\Middleware\EnsureTenantContext::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

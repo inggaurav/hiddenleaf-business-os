@@ -9,6 +9,7 @@
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "baseUrl": ".",
+        "types": ["vite/client"],
         "paths": {
             "@/*": ["resources/js/*"],
             "@ui/*": ["packages/hiddenleaf/ui/src/*"]

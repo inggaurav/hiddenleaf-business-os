@@ -1,0 +1,41 @@
+name: HiddenLeaf BusinessOS CI
+
+on:
+  push:
+    branches: [ "master", "stage-1-workdo-core-real-build" ]
+  pull_request:
+    branches: [ "master", "stage-1-workdo-core-real-build" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'
+        extensions: mbstring, dom, fileinfo, sqlite3, pdo_sqlite
+        coverage: none
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Copy .env
+      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+    - name: Install Composer Dependencies
+      run: composer install --prefer-dist --no-interaction
+
+    - name: Install NPM Dependencies
+      run: npm ci --legacy-peer-deps
+
+    - name: Run Frontend Production Build
+      run: npm run build
+
+    - name: Execute PHPUnit Test Suite
+      run: php artisan test

@@ -1,6 +1,6 @@
 <?php
 
-namespace HiddenLeaf\Http\Middleware;
+namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -26,9 +26,9 @@ class HandleInertiaRequests extends Middleware
                 ] : null,
             ],
             'tenant' => [
-                'organization_id' => $request->session()->get('active_organization_id', 1),
-                'workspace_id' => $request->session()->get('active_workspace_id', 1),
-                'workspace_title' => $request->session()->get('active_workspace_title', 'Main Operations'),
+                'organization_id' => $request->session()->get('active_organization_id'),
+                'workspace_id' => $request->session()->get('active_workspace_id'),
+                'workspace_title' => $request->session()->get('active_workspace_title'),
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),

@@ -25,8 +25,15 @@ Route::middleware('guest')->group(function () {
 // Authenticated Core Routes
 Route::middleware(['auth'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    // Email Verification Routes
     Route::get('/verify-email', [VerifyEmailController::class, 'prompt'])->name('verification.notice');
-    Route::get('/verify-email/{id}/{hash}', [VerifyEmailController::class, 'verify'])->name('verification.verify');
+    Route::get('/verify-email/{id}/{hash}', [VerifyEmailController::class, 'verify'])
+        ->middleware(['signed', 'throttle:6,1'])
+        ->name('verification.verify');
+    Route::post('/email/verification-notification', [VerifyEmailController::class, 'sendNotification'])
+        ->middleware('throttle:6,1')
+        ->name('verification.send');
 
     // Dashboard
     Route::get('/dashboard', function () {
@@ -45,10 +52,17 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/workspaces/{id}', [WorkspaceController::class, 'update'])->name('workspaces.update');
     Route::delete('/workspaces/{id}', [WorkspaceController::class, 'destroy'])->name('workspaces.destroy');
     Route::post('/workspaces/switch', [WorkspaceController::class, 'switchContext'])->name('workspaces.switch');
+
     Route::post('/members/invite', [MemberController::class, 'invite'])->name('members.invite');
     Route::delete('/members/{id}', [MemberController::class, 'remove'])->name('members.remove');
     Route::post('/members/{id}/role', [MemberController::class, 'assignRole'])->name('members.assign-role');
 
-    // RBAC Roles
-    Route::resource('roles', RoleController::class);
+    // User Administration Actions
+    Route::post('/users/{user}/change-password', [UserController::class, 'changePassword'])->name('users.change-password');
+    Route::patch('/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
+    Route::post('/users/{user}/impersonate', [UserController::class, 'impersonate'])->name('users.impersonate');
+    Route::post('/users/leave-impersonation', [UserController::class, 'leaveImpersonation'])->name('users.leave-impersonation');
+
+    // RBAC Roles (Explicit actions matching RoleController)
+    Route::resource('roles', RoleController::class)->except(['show']);
 });

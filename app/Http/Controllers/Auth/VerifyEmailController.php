@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -14,13 +15,21 @@ class VerifyEmailController
             : Inertia::render('Auth/VerifyEmail');
     }
 
-    public function verify(Request $request)
+    public function verify(EmailVerificationRequest $request)
+    {
+        $request->fulfill();
+
+        return redirect()->intended('/dashboard?verified=1')->with('success', 'Email verified successfully.');
+    }
+
+    public function sendNotification(Request $request)
     {
         if ($request->user()->hasVerifiedEmail()) {
-            return redirect()->intended('/dashboard?verified=1');
+            return redirect()->intended('/dashboard');
         }
 
-        $request->user()->markEmailAsVerified();
-        return redirect()->intended('/dashboard?verified=1');
+        $request->user()->sendEmailVerificationNotification();
+
+        return back()->with('success', 'Verification link sent!');
     }
 }
