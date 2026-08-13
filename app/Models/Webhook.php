@@ -9,5 +9,10 @@ class Webhook extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['url', 'event', 'method', 'workspace_id', 'created_by'];
+    protected $fillable = ['organization_id', 'workspace_id', 'url', 'event', 'method', 'secret', 'is_active', 'timeout_seconds', 'created_by'];
+
+    protected function casts(): array
+    {
+        return ['secret' => 'encrypted', 'is_active' => 'boolean'];
+    }
 }

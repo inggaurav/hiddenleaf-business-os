@@ -45,6 +45,7 @@ use App\Http\Controllers\TasklyController;
 use App\Http\Controllers\TransferController;
 use App\Http\Controllers\UpdateController;
 use App\Http\Controllers\WarehouseController;
+use App\Http\Controllers\WebhookController;
 use App\Http\Middleware\SuperAdminMiddleware;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
@@ -77,6 +78,10 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/webhooks', [WebhookController::class, 'index'])->name('webhooks.index');
+    Route::post('/webhooks', [WebhookController::class, 'store'])->name('webhooks.store');
+    Route::post('/webhooks/{webhook}/test', [WebhookController::class, 'test'])->name('webhooks.test');
+    Route::delete('/webhooks/{webhook}', [WebhookController::class, 'destroy'])->name('webhooks.destroy');
 
     // Email Verification Routes
     Route::get('/verify-email', [VerifyEmailController::class, 'prompt'])->name('verification.notice');
