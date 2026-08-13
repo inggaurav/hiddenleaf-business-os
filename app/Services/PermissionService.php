@@ -15,12 +15,7 @@ class PermissionService
             return true;
         }
 
-        // 2. Organization Owner has full management privileges in their organization
-        if ((int) $workspace->organization->owner_id === (int) $user->id) {
-            return true;
-        }
-
-        // 3. Verify user belongs to the workspace
+        // 2. Verify user belongs to the workspace
         $membership = $user->workspaces()
             ->where('workspaces.id', $workspace->id)
             ->first();
@@ -30,23 +25,28 @@ class PermissionService
         }
 
         $roleId = $membership->pivot->role_id;
+
+        // 3. Defense-in-depth: Role MUST be a global system role OR belong to workspace's organization
+        if ($roleId) {
+            $role = Role::find($roleId);
+            if (! $role || ($role->organization_id && (int) $role->organization_id !== (int) $workspace->organization_id)) {
+                // Poisoned membership pivot with cross-organization role -> DENY
+                return false;
+            }
+        }
+
+        // 4. Organization Owner has full management privileges in their organization
+        if ((int) $workspace->organization->owner_id === (int) $user->id) {
+            return true;
+        }
+
         if (! $roleId) {
             return false;
         }
 
-        // 4. Defense-in-depth: Role MUST be a global system role OR belong to workspace's organization
-        $role = Role::find($roleId);
-        if (! $role) {
-            return false;
-        }
-
-        if ($role->organization_id && (int) $role->organization_id !== (int) $workspace->organization_id) {
-            // Poisoned membership pivot with cross-organization role -> DENY
-            return false;
-        }
-
         // 5. Resolve assigned permissions for the member's role
-        return $role->permissions()
+        return Role::find($roleId)
+            ->permissions()
             ->where('name', $permission)
             ->exists();
     }
