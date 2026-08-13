@@ -13,6 +13,7 @@ use App\Http\Controllers\Domain\SaaS\CouponController;
 use App\Http\Controllers\Domain\SaaS\OrderController;
 use App\Http\Controllers\Domain\SaaS\PlanController;
 use App\Http\Controllers\Domain\SaaS\SubscriptionController;
+use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\HelpdeskCategoryController;
 use App\Http\Controllers\HelpdeskReplyController;
 use App\Http\Controllers\HelpdeskTicketController;
@@ -89,10 +90,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/members/{id}/role', [MemberController::class, 'assignRole'])->name('members.assign-role');
 
     // User Administration Actions
+    Route::resource('users', UserController::class);
     Route::post('/users/{user}/change-password', [UserController::class, 'changePassword'])->name('users.change-password');
     Route::patch('/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
     Route::post('/users/{user}/impersonate', [UserController::class, 'impersonate'])->name('users.impersonate');
     Route::post('/users/leave-impersonation', [UserController::class, 'leaveImpersonation'])->name('users.leave-impersonation');
+    Route::post('/users/{user}/assign-plan', [UserController::class, 'assignPlan'])->name('users.assign-plan');
+    Route::get('/users-login-history', [UserController::class, 'loginHistory'])->name('users.login-history');
 
     // SaaS Routes
     Route::resource('plans', PlanController::class);
@@ -215,7 +219,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('languages/save-data/{lang}', [LanguageController::class, 'saveLanguageData'])->name('languages.save-data');
 
     // Email Templates
-    Route::resource('email-templates', App\Http\Controllers\EmailTemplateController::class)->only(['index', 'show', 'update']);
+    Route::resource('email-templates', EmailTemplateController::class)->only(['index', 'show', 'update']);
 
     // Notification Templates
     Route::resource('notification-templates', NotificationTemplateController::class)->only(['index', 'show', 'update']);

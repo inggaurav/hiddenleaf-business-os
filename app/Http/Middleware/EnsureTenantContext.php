@@ -48,8 +48,8 @@ class EnsureTenantContext
             }
         }
 
-        // Super Admin bypasses membership restriction if accessing admin panel or has no tenant context
-        if ($user->isSuperAdmin()) {
+        // Super Admin or Impersonated session bypasses membership restriction if accessing admin panel or has no tenant context
+        if ($user->isSuperAdmin() || $request->session()->has('impersonator_id')) {
             if ($request->is('admin*') || $request->is('super-admin*') || ! $requestedOrgId) {
                 return $next($request);
             }
