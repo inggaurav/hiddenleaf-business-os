@@ -3,63 +3,38 @@
 namespace App\Http\Controllers;
 
 use App\Models\HelpdeskReply;
+use App\Models\HelpdeskTicket;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
-class HelpdeskReplyController
+class HelpdeskReplyController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function store(Request $request, HelpdeskTicket $ticket)
     {
-        //
+        $validated = $request->validate([
+            'description' => 'required|string',
+            'attachments' => 'nullable|array',
+        ]);
+
+        HelpdeskReply::create([
+            'ticket_id' => $ticket->id,
+            'user_id' => Auth::id(),
+            'description' => $validated['description'],
+            'attachments' => $validated['attachments'] ?? [],
+        ]);
+
+        return back()->with('success', 'Reply posted.');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function destroy(HelpdeskReply $reply)
     {
-        //
-    }
+        $user = Auth::user();
+        if (! $user->isSuperAdmin() && $reply->user_id !== $user->id) {
+            abort(403, 'Unauthorized.');
+        }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        $reply->delete();
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(HelpdeskReply $helpdeskReply)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(HelpdeskReply $helpdeskReply)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, HelpdeskReply $helpdeskReply)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(HelpdeskReply $helpdeskReply)
-    {
-        //
+        return back()->with('success', 'Reply deleted.');
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AIAgentChatController;
+use App\Http\Controllers\AIAgentChatPageController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\ProfileController;
@@ -11,8 +13,13 @@ use App\Http\Controllers\Domain\SaaS\CouponController;
 use App\Http\Controllers\Domain\SaaS\OrderController;
 use App\Http\Controllers\Domain\SaaS\PlanController;
 use App\Http\Controllers\Domain\SaaS\SubscriptionController;
+use App\Http\Controllers\HelpdeskCategoryController;
+use App\Http\Controllers\HelpdeskReplyController;
+use App\Http\Controllers\HelpdeskTicketController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InstallController;
+use App\Http\Controllers\MediaController;
+use App\Http\Controllers\MessengerController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\MultiTenancy\MemberController;
 use App\Http\Controllers\MultiTenancy\WorkspaceController;
@@ -147,6 +154,47 @@ Route::middleware(['auth'])->group(function () {
     Route::post('sales-proposals/{salesProposal}/convert-to-invoice', [SalesProposalController::class, 'convertToInvoice'])->name('sales-proposals.convert-to-invoice');
     Route::get('sales-proposals/warehouse/products', [SalesProposalController::class, 'getWarehouseProducts'])->name('sales-proposals.warehouse.products');
     Route::get('sales-proposals/services/list', [SalesProposalController::class, 'getServices'])->name('sales-proposals.services');
+
+    // Helpdesk
+    Route::resource('helpdesk-tickets', HelpdeskTicketController::class);
+    Route::get('helpdesk-tickets/today', [HelpdeskTicketController::class, 'today'])->name('helpdesk-tickets.today');
+    Route::resource('helpdesk-categories', HelpdeskCategoryController::class);
+    Route::post('helpdesk-tickets/{ticket}/replies', [HelpdeskReplyController::class, 'store'])->name('helpdesk-replies.store');
+    Route::delete('helpdesk-replies/{reply}', [HelpdeskReplyController::class, 'destroy'])->name('helpdesk-replies.destroy');
+
+    // Media Library
+    Route::get('media/page', [MediaController::class, 'page'])->name('media.page');
+    Route::get('media', [MediaController::class, 'index'])->name('media.index');
+    Route::post('media/batch-store', [MediaController::class, 'batchStore'])->name('media.batch-store');
+    Route::delete('media/{media}', [MediaController::class, 'destroy'])->name('media.destroy');
+    Route::post('media/directories', [MediaController::class, 'createDirectory'])->name('media.directories.create');
+    Route::put('media/directories/{directory}', [MediaController::class, 'updateDirectory'])->name('media.directories.update');
+    Route::delete('media/directories/{directory}', [MediaController::class, 'destroyDirectory'])->name('media.directories.destroy');
+    Route::post('media/update-directory', [MediaController::class, 'updateMediaDirectory'])->name('media.update-directory');
+
+    // Messenger Communications
+    Route::get('chats', [MessengerController::class, 'index'])->name('chats.index');
+    Route::post('chats/send', [MessengerController::class, 'send'])->name('chats.send');
+    Route::get('chats/get-contacts', [MessengerController::class, 'getContacts'])->name('chats.get-contacts');
+    Route::get('chats/get-messages', [MessengerController::class, 'getMessages'])->name('chats.get-messages');
+    Route::post('chats/toggle-favorite', [MessengerController::class, 'toggleFavorite'])->name('chats.toggle-favorite');
+    Route::get('chats/get-favorites', [MessengerController::class, 'getFavorites'])->name('chats.get-favorites');
+    Route::post('chats/edit-message', [MessengerController::class, 'editMessage'])->name('chats.edit-message');
+    Route::post('chats/delete-message', [MessengerController::class, 'deleteMessage'])->name('chats.delete-message');
+    Route::post('chats/set-offline', [MessengerController::class, 'setOffline'])->name('chats.set-offline');
+    Route::post('chats/update-presence', [MessengerController::class, 'updatePresence'])->name('chats.update-presence');
+    Route::get('chats/online-users', [MessengerController::class, 'getOnlineUsers'])->name('chats.online-users');
+    Route::post('chats/toggle-pin', [MessengerController::class, 'togglePin'])->name('chats.toggle-pin');
+    Route::get('chats/get-pinned', [MessengerController::class, 'getPinned'])->name('chats.get-pinned');
+    Route::get('chats/check-new-messages', [MessengerController::class, 'checkNewMessages'])->name('chats.check-new-messages');
+
+    // AI Assistant
+    Route::get('ai-agent/chat', [AIAgentChatPageController::class, 'index'])->name('ai-agent.chat');
+    Route::get('ai-agent/chat/sessions', [AIAgentChatPageController::class, 'getSessions'])->name('ai-agent.chat.sessions');
+    Route::post('ai-agent/chat/session', [AIAgentChatPageController::class, 'createSession'])->name('ai-agent.chat.session.create');
+    Route::delete('ai-agent/chat/session/{session}', [AIAgentChatPageController::class, 'destroySession'])->name('ai-agent.chat.session.destroy');
+    Route::get('ai-agent/chat/messages/{session}', [AIAgentChatPageController::class, 'getMessages'])->name('ai-agent.chat.messages');
+    Route::post('ai-agent/chat', [AIAgentChatController::class, 'chat'])->name('ai-agent.chat.send');
 
     // RBAC Roles (Explicit actions matching RoleController)
     Route::resource('roles', RoleController::class)->except(['show']);
