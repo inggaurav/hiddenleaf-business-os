@@ -23,7 +23,9 @@ class SettingsServiceProvider extends ServiceProvider
     {
         try {
             if (Schema::hasTable('settings')) {
-                $settings = Setting::all();
+                $settings = Schema::hasColumn('settings', 'scope')
+                    ? Setting::where('scope', 'platform')->where('scope_id', 0)->where('is_encrypted', false)->get()
+                    : Setting::whereNull('workspace_id')->get();
                 foreach ($settings as $setting) {
                     config()->set('settings.'.$setting->key, $setting->value);
                 }

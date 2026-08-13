@@ -3,6 +3,7 @@
 use App\Domain\SaaS\Services\SaaSSubscriptionService;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 if (! function_exists('creatorId')) {
     function creatorId(): int
@@ -18,7 +19,12 @@ if (! function_exists('creatorId')) {
 if (! function_exists('admin_setting')) {
     function admin_setting(string $key, mixed $default = null): mixed
     {
-        $setting = Setting::where('key', $key)->whereNull('workspace_id')->first();
+        $setting = Setting::where('key', $key)
+            ->when(
+                Schema::hasColumn('settings', 'scope'),
+                fn ($query) => $query->where('scope', 'platform')->where('scope_id', 0),
+                fn ($query) => $query->whereNull('workspace_id'),
+            )->first();
 
         return $setting ? $setting->value : $default;
     }
@@ -27,16 +33,23 @@ if (! function_exists('admin_setting')) {
 if (! function_exists('getAdminAllSetting')) {
     function getAdminAllSetting(): array
     {
-        return Setting::whereNull('workspace_id')->pluck('value', 'key')->toArray();
+        return Setting::query()
+            ->when(
+                Schema::hasColumn('settings', 'scope'),
+                fn ($query) => $query->where('scope', 'platform')->where('scope_id', 0)->where('is_encrypted', false),
+                fn ($query) => $query->whereNull('workspace_id'),
+            )->pluck('value', 'key')->toArray();
     }
 }
 
 if (! function_exists('setSetting')) {
     function setSetting(string $key, mixed $value, ?int $workspaceId = null, bool $forTenant = false): void
     {
+        $scope = $workspaceId ? 'workspace' : 'platform';
+        $scopeId = $workspaceId ?? 0;
         Setting::updateOrCreate(
-            ['key' => $key, 'workspace_id' => $workspaceId],
-            ['value' => is_array($value) ? json_encode($value) : $value]
+            ['key' => $key, 'scope' => $scope, 'scope_id' => $scopeId],
+            ['value' => is_array($value) ? json_encode($value) : $value, 'workspace_id' => $workspaceId]
         );
     }
 }

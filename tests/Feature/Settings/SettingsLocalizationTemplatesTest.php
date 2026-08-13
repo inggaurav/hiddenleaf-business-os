@@ -139,4 +139,41 @@ class SettingsLocalizationTemplatesTest extends TestCase
             'content' => 'Votre facture #{invoice_id} a été payée.',
         ]);
     }
+
+    public function test_hierarchical_settings_encrypt_secrets_and_enforce_scope_ownership(): void
+    {
+        $this->actingAs($this->companyAdmin)
+            ->withSession(['active_organization_id' => $this->org->id, 'active_workspace_id' => $this->ws->id])
+            ->post('/settings', [
+                '_scope' => 'organization',
+                'timezone' => 'Asia/Kolkata',
+                'smtp_password' => 'tenant-secret-password',
+            ])->assertRedirect();
+
+        $secret = Setting::where('scope', 'organization')
+            ->where('scope_id', $this->org->id)
+            ->where('key', 'smtp_password')
+            ->firstOrFail();
+        $this->assertTrue($secret->is_encrypted);
+        $this->assertNotSame('tenant-secret-password', $secret->value);
+
+        $member = User::factory()->create();
+        $member->organizations()->attach($this->org->id, ['role' => 'member']);
+        $member->workspaces()->attach($this->ws->id);
+        $this->actingAs($member)
+            ->withSession(['active_organization_id' => $this->org->id, 'active_workspace_id' => $this->ws->id])
+            ->post('/settings', ['_scope' => 'workspace', 'timezone' => 'UTC'])
+            ->assertForbidden();
+
+        $this->actingAs($member)
+            ->withSession(['active_organization_id' => $this->org->id, 'active_workspace_id' => $this->ws->id])
+            ->post('/settings', ['_scope' => 'user', 'timezone' => 'UTC'])
+            ->assertRedirect();
+        $this->assertDatabaseHas('settings', [
+            'scope' => 'user',
+            'scope_id' => $member->id,
+            'key' => 'timezone',
+            'value' => 'UTC',
+        ]);
+    }
 }

@@ -11,11 +11,21 @@ class Setting extends Model
 
     protected $fillable = [
         'key',
+        'scope',
+        'scope_id',
         'value',
         'is_public',
+        'is_encrypted',
+        'organization_id',
         'workspace_id',
+        'user_id',
         'created_by',
     ];
+
+    protected function casts(): array
+    {
+        return ['is_public' => 'boolean', 'is_encrypted' => 'boolean'];
+    }
 
     public function creator()
     {

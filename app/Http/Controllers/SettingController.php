@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Setting;
+use App\Models\Organization;
+use App\Models\Workspace;
+use App\Services\HierarchicalSettingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
@@ -12,17 +14,22 @@ use Inertia\Inertia;
 
 class SettingController extends Controller
 {
+    public function __construct(private HierarchicalSettingService $settings) {}
+
     public function index()
     {
         $user = Auth::user();
         $wsId = session('active_workspace_id');
+        $organization = Organization::find(session('active_organization_id'));
+        $workspace = $wsId ? Workspace::find($wsId) : null;
 
-        $systemSettings = Setting::whereNull('workspace_id')->pluck('value', 'key')->toArray();
-        $workspaceSettings = $wsId ? Setting::where('workspace_id', $wsId)->pluck('value', 'key')->toArray() : [];
+        $systemSettings = $this->settings->values('platform', 0);
+        $workspaceSettings = $workspace ? $this->settings->values('workspace', $workspace->id) : [];
 
         return Inertia::render('Settings/Index', [
             'systemSettings' => $systemSettings,
             'workspaceSettings' => $workspaceSettings,
+            'resolvedSettings' => $this->settings->resolved($user, $organization, $workspace),
             'isSuperAdmin' => $user->isSuperAdmin(),
         ]);
     }
@@ -31,28 +38,29 @@ class SettingController extends Controller
     {
         $user = Auth::user();
         $wsId = session('active_workspace_id');
-        $isTenant = ! $user->isSuperAdmin();
+        $organization = Organization::find(session('active_organization_id'));
+        $workspace = $wsId ? Workspace::find($wsId) : null;
+        $scope = $request->input('_scope', $user->isSuperAdmin() ? 'platform' : 'workspace');
+        $scopeId = $this->settings->authorize($user, $scope, $organization, $workspace);
 
-        $settings = $request->except(['_token', '_method']);
+        $settings = $request->except(['_token', '_method', '_scope']);
 
         foreach ($settings as $key => $value) {
             if ($request->hasFile($key)) {
                 $file = $request->file($key);
+                $request->validate([$key => ['file', 'max:5120', 'mimes:png,jpg,jpeg,webp,svg,ico']]);
                 $path = $file->store('brand', 'public');
                 $value = Storage::url($path);
-            } elseif (is_array($value)) {
-                $value = json_encode($value);
             }
 
-            Setting::updateOrCreate(
-                [
-                    'key' => $key,
-                    'workspace_id' => $isTenant ? $wsId : null,
-                ],
-                [
-                    'value' => (string) $value,
-                    'created_by' => $user->id,
-                ]
+            $this->settings->put(
+                $user,
+                $scope,
+                $scopeId,
+                $key,
+                $value,
+                $organization,
+                $workspace,
             );
         }
 
