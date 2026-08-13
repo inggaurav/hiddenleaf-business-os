@@ -4,34 +4,31 @@ import AppShell from '@/Layouts/AppShell';
 import { Card } from '@/Components/UI/Card';
 import { Button } from '@/Components/UI/Button';
 import { Input } from '@/Components/UI/Input';
+import { Checkbox } from '@/Components/UI/Checkbox';
 import { SectionHeader } from '@/Components/UI/SectionHeader';
-import { ArrowLeft, Save, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Save } from 'lucide-react';
 
-export default function RoleEdit() {
-  const { role, permissions = [] } = usePage<any>().props;
-
-  const currentPermIds = role?.permissions?.map((p: any) => p.id) || [];
+export default function RolesEdit() {
+  const { role, availablePermissions = [], rolePermissions = [] } = usePage<any>().props;
 
   const { data, setData, put, processing, errors } = useForm({
     name: role?.name || '',
-    display_name: role?.display_name || '',
-    permissions: currentPermIds as number[],
+    permissions: (rolePermissions || []).map((p: any) => p.name || p),
   });
 
-  const handleTogglePermission = (id: number) => {
-    const exists = data.permissions.includes(id);
-    if (exists) {
-      setData('permissions', data.permissions.filter((p) => p !== id));
+  const handleToggle = (permName: string) => {
+    if (data.permissions.includes(permName)) {
+      setData('permissions', data.permissions.filter((p: string) => p !== permName));
     } else {
-      setData('permissions', [...data.permissions, id]);
+      setData('permissions', [...data.permissions, permName]);
     }
   };
 
   const handleSelectAll = () => {
-    if (data.permissions.length === permissions.length) {
+    if (data.permissions.length === availablePermissions.length) {
       setData('permissions', []);
     } else {
-      setData('permissions', permissions.map((p: any) => p.id));
+      setData('permissions', availablePermissions.map((p: any) => p.name || p));
     }
   };
 
@@ -41,11 +38,11 @@ export default function RoleEdit() {
   };
 
   return (
-    <AppShell title={`Edit Role: ${role?.display_name || role?.name}`}>
+    <AppShell title={`Edit Role: ${role?.name}`}>
       <div className="max-w-4xl mx-auto space-y-6">
         <SectionHeader
-          title={`Edit Role: ${role?.display_name || role?.name}`}
-          description="Update capability assignments and privileges for this role."
+          title={`Edit Role: ${role?.name}`}
+          description="Update role title and security permission entitlements."
           actions={
             <Link href="/roles">
               <Button variant="ghost" size="sm" icon={<ArrowLeft className="w-4 h-4" />}>
@@ -55,76 +52,60 @@ export default function RoleEdit() {
           }
         />
 
-        <form onSubmit={handleSubmit}>
-          <Card level={0} className="space-y-6">
-            <div className="space-y-4">
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider text-gray-400">
-                Role Identity
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Input
-                  label="Role Display Name"
-                  value={data.display_name}
-                  onChange={(e) => setData('display_name', e.target.value)}
-                  error={errors.display_name}
-                  required
-                />
-                <Input
-                  label="System Key (Identifier)"
-                  value={data.name}
-                  onChange={(e) => setData('name', e.target.value)}
-                  error={errors.name}
-                  disabled={role?.is_system || ['super_admin', 'company', 'admin'].includes(role?.name)}
-                  required
-                />
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <Card level={0} className="space-y-4">
+            <Input
+              label="Role Title"
+              value={data.name}
+              onChange={(e) => setData('name', e.target.value)}
+              error={errors.name}
+              required
+            />
+          </Card>
+
+          <Card level={0} className="space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
+              <div>
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                  Permission Matrix
+                </h3>
+                <p className="text-xs text-gray-400">Select capabilities granted to this role</p>
               </div>
+              <Button type="button" variant="secondary" size="sm" onClick={handleSelectAll}>
+                {data.permissions.length === availablePermissions.length ? 'Deselect All' : 'Select All'}
+              </Button>
             </div>
 
-            {/* Permission Matrix */}
-            <div className="pt-4 border-t border-white/10 space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider text-gray-400">
-                    Permissions ({data.permissions.length}/{permissions.length})
-                  </h3>
-                  <p className="text-xs text-gray-400 mt-0.5">Toggle privileges permitted for members holding this role.</p>
-                </div>
-                <Button type="button" variant="outline" size="sm" onClick={handleSelectAll}>
-                  {data.permissions.length === permissions.length ? 'Deselect All' : 'Select All'}
-                </Button>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-96 overflow-y-auto pr-1">
+              {availablePermissions.map((perm: any) => {
+                const permName = perm.name || perm;
+                const isChecked = data.permissions.includes(permName);
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-4 rounded-xl bg-white/[0.02] border border-white/10 max-h-96 overflow-y-auto">
-                {permissions.map((perm: any) => {
-                  const checked = data.permissions.includes(perm.id);
-                  return (
-                    <div
-                      key={perm.id}
-                      onClick={() => handleTogglePermission(perm.id)}
-                      className={`
-                        p-2.5 rounded-lg border text-xs spring-transition cursor-pointer flex items-center justify-between select-none
-                        ${checked ? 'bg-violet-600/20 border-violet-500/40 text-white' : 'bg-white/[0.03] border-white/10 text-gray-400 hover:text-white'}
-                      `}
-                    >
-                      <span className="font-medium truncate">{perm.name}</span>
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={() => {}}
-                        className="rounded border-white/20 text-violet-600 focus:ring-0 ml-2 pointer-events-none"
-                      />
-                    </div>
-                  );
-                })}
-              </div>
+                return (
+                  <div
+                    key={permName}
+                    onClick={() => handleToggle(permName)}
+                    className={`
+                      p-3 rounded-xl border text-xs cursor-pointer spring-transition select-none
+                      ${isChecked ? 'bg-purple-600/20 border-purple-500/40 text-white font-medium' : 'bg-white/[0.02] border-white/5 text-gray-400 hover:bg-white/[0.05]'}
+                    `}
+                  >
+                    <Checkbox
+                      checked={isChecked}
+                      onChange={() => {}}
+                      label={permName.replace(/[._]/g, ' ')}
+                    />
+                  </div>
+                );
+              })}
             </div>
 
-            <div className="pt-6 border-t border-white/10 flex items-center justify-end gap-3">
+            <div className="pt-4 border-t border-[var(--border-subtle)] flex items-center justify-end gap-2">
               <Link href="/roles">
                 <Button variant="ghost">Cancel</Button>
               </Link>
               <Button type="submit" variant="primary" loading={processing} icon={<Save className="w-4 h-4" />}>
-                Update Permissions
+                Update Role
               </Button>
             </div>
           </Card>

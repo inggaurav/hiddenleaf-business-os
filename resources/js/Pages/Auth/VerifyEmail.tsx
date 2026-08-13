@@ -13,7 +13,7 @@ export default function VerifyEmail({ status }: { status?: string }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#060709] text-gray-100 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-[var(--bg-0)] text-[var(--text-primary)] flex items-center justify-center p-4 relative overflow-hidden">
       <div className="max-w-md w-full relative z-10 space-y-6">
         <div className="text-center space-y-2">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center text-white mx-auto shadow-xl">
@@ -44,8 +44,8 @@ export default function VerifyEmail({ status }: { status?: string }) {
             </Button>
           </form>
 
-          <div className="pt-4 border-t border-white/10 text-center">
-            <Link href="/logout" method="post" as="button" className="text-xs text-gray-400 hover:text-rose-400 inline-flex items-center gap-1.5">
+          <div className="pt-4 border-t border-[var(--border-subtle)] text-center">
+            <Link href="/logout" method="post" as="button" className="text-xs text-gray-400 hover:text-rose-400 inline-flex items-center gap-1.5 cursor-pointer">
               <LogOut className="w-3.5 h-3.5" /> Sign Out
             </Link>
           </div>

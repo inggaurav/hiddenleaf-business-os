@@ -22,10 +22,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-[#060709] text-gray-100 flex items-center justify-center p-4 relative overflow-hidden">
-      <div className="absolute -top-40 -right-40 w-96 h-96 bg-purple-900/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-indigo-900/20 rounded-full blur-3xl pointer-events-none" />
-
+    <div className="min-h-screen bg-[var(--bg-0)] text-[var(--text-primary)] flex items-center justify-center p-4 relative overflow-hidden">
       <div className="max-w-md w-full relative z-10 space-y-6">
         <div className="text-center space-y-2">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center text-white font-black text-xl shadow-xl shadow-purple-950/40 mx-auto">
@@ -111,9 +108,9 @@ export default function Register() {
             </div>
           </form>
 
-          <div className="pt-4 border-t border-white/10 text-center text-xs text-gray-400">
+          <div className="pt-4 border-t border-[var(--border-subtle)] text-center text-xs text-gray-400">
             Already have an active account?{' '}
-            <Link href="/login" className="text-violet-400 hover:text-white font-semibold">
+            <Link href="/login" className="text-purple-400 hover:text-white font-semibold">
               Sign In
             </Link>
           </div>

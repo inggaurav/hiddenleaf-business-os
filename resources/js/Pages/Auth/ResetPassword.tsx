@@ -21,7 +21,7 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-[#060709] text-gray-100 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-[var(--bg-0)] text-[var(--text-primary)] flex items-center justify-center p-4 relative overflow-hidden">
       <div className="max-w-md w-full relative z-10 space-y-6">
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-bold tracking-tight text-white">Choose New Password</h1>

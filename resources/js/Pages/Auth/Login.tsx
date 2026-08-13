@@ -4,8 +4,7 @@ import { Card } from '@/Components/UI/Card';
 import { Button } from '@/Components/UI/Button';
 import { Input } from '@/Components/UI/Input';
 import { Checkbox } from '@/Components/UI/Checkbox';
-import { Badge } from '@/Components/UI/Badge';
-import { Sparkles, Lock, Mail, ArrowRight } from 'lucide-react';
+import { Lock, Mail, ArrowRight } from 'lucide-react';
 
 export default function Login() {
   const { data, setData, post, processing, errors } = useForm({
@@ -20,13 +19,8 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#060709] text-gray-100 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Subtle Background Glow */}
-      <div className="absolute -top-40 -left-40 w-96 h-96 bg-purple-900/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-indigo-900/20 rounded-full blur-3xl pointer-events-none" />
-
+    <div className="min-h-screen bg-[var(--bg-0)] text-[var(--text-primary)] flex items-center justify-center p-4 relative overflow-hidden">
       <div className="max-w-md w-full relative z-10 space-y-6">
-        {/* Brand Header */}
         <div className="text-center space-y-2">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center text-white font-black text-xl shadow-xl shadow-purple-950/40 mx-auto">
             HL
@@ -35,7 +29,6 @@ export default function Login() {
           <p className="text-xs text-gray-400">Sign in to your enterprise tenant workspace</p>
         </div>
 
-        {/* Login Surface */}
         <Card level={1} className="p-6 sm:p-8 space-y-5">
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
@@ -66,7 +59,7 @@ export default function Login() {
                 checked={data.remember}
                 onChange={(e) => setData('remember', e.target.checked)}
               />
-              <Link href="/forgot-password" className="text-violet-400 hover:text-violet-300 font-medium">
+              <Link href="/forgot-password" className="text-purple-400 hover:text-purple-300 font-medium">
                 Forgot password?
               </Link>
             </div>
@@ -86,9 +79,9 @@ export default function Login() {
             </div>
           </form>
 
-          <div className="pt-4 border-t border-white/10 text-center text-xs text-gray-400">
+          <div className="pt-4 border-t border-[var(--border-subtle)] text-center text-xs text-gray-400">
             Don't have an enterprise account?{' '}
-            <Link href="/register" className="text-violet-400 hover:text-white font-semibold">
+            <Link href="/register" className="text-purple-400 hover:text-white font-semibold">
               Register Workspace
             </Link>
           </div>

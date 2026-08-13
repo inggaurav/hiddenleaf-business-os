@@ -7,12 +7,11 @@ import { Input } from '@/Components/UI/Input';
 import { SectionHeader } from '@/Components/UI/SectionHeader';
 import { ArrowLeft, Save } from 'lucide-react';
 
-export default function WorkspaceEdit() {
+export default function WorkspacesEdit() {
   const { workspace } = usePage<any>().props;
 
   const { data, setData, put, processing, errors } = useForm({
     name: workspace?.name || '',
-    slug: workspace?.slug || '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -24,8 +23,8 @@ export default function WorkspaceEdit() {
     <AppShell title={`Edit Workspace: ${workspace?.name}`}>
       <div className="max-w-2xl mx-auto space-y-6">
         <SectionHeader
-          title={`Edit ${workspace?.name}`}
-          description="Update workspace naming and slug identifier."
+          title={`Edit Workspace: ${workspace?.name}`}
+          description="Rename this workspace partition."
           actions={
             <Link href="/workspaces">
               <Button variant="ghost" size="sm" icon={<ArrowLeft className="w-4 h-4" />}>
@@ -44,19 +43,13 @@ export default function WorkspaceEdit() {
               error={errors.name}
               required
             />
-            <Input
-              label="Slug Identifier"
-              value={data.slug}
-              onChange={(e) => setData('slug', e.target.value)}
-              error={errors.slug}
-            />
 
-            <div className="pt-4 flex items-center justify-end gap-2">
+            <div className="pt-4 flex items-center justify-end gap-2 border-t border-[var(--border-subtle)]">
               <Link href="/workspaces">
                 <Button variant="ghost">Cancel</Button>
               </Link>
               <Button type="submit" variant="primary" loading={processing} icon={<Save className="w-4 h-4" />}>
-                Save Changes
+                Update Workspace
               </Button>
             </div>
           </Card>
