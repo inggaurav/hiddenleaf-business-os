@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\MessengerTransportContract;
 use App\Models\ChFavorite;
 use App\Models\ChMessage;
 use App\Models\ChPinned;
@@ -13,6 +14,8 @@ use Inertia\Inertia;
 
 class MessengerController extends Controller
 {
+    public function __construct(private MessengerTransportContract $transport) {}
+
     public function index(Request $request)
     {
         return Inertia::render('Messenger/Index', [
@@ -29,6 +32,7 @@ class MessengerController extends Controller
         ]);
 
         $wsId = session('active_workspace_id');
+        $this->assertWorkspaceContact((int) $validated['id'], (int) $wsId);
 
         $attachmentUrl = null;
         if ($request->hasFile('attachment')) {
@@ -44,6 +48,7 @@ class MessengerController extends Controller
             'seen' => false,
             'workspace_id' => $wsId,
         ]);
+        $this->transport->publish($message);
 
         return response()->json([
             'status' => 'success',
@@ -76,16 +81,22 @@ class MessengerController extends Controller
 
         $authId = Auth::id();
         $contactId = $validated['id'];
+        $wsId = (int) session('active_workspace_id');
+        $this->assertWorkspaceContact((int) $contactId, $wsId);
 
-        $messages = ChMessage::where(function ($q) use ($authId, $contactId) {
-            $q->where('from_id', $authId)->where('to_id', $contactId);
-        })->orWhere(function ($q) use ($authId, $contactId) {
-            $q->where('from_id', $contactId)->where('to_id', $authId);
-        })->oldest()->get();
+        $messages = ChMessage::where('workspace_id', $wsId)
+            ->where(function ($query) use ($authId, $contactId) {
+                $query->where(function ($q) use ($authId, $contactId) {
+                    $q->where('from_id', $authId)->where('to_id', $contactId);
+                })->orWhere(function ($q) use ($authId, $contactId) {
+                    $q->where('from_id', $contactId)->where('to_id', $authId);
+                });
+            })->oldest()->get();
 
         // Mark as seen
         ChMessage::where('from_id', $contactId)
             ->where('to_id', $authId)
+            ->where('workspace_id', $wsId)
             ->where('seen', false)
             ->update(['seen' => true]);
 
@@ -99,9 +110,12 @@ class MessengerController extends Controller
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
         ]);
+        $wsId = (int) session('active_workspace_id');
+        $this->assertWorkspaceContact((int) $validated['user_id'], $wsId);
 
         $existing = ChFavorite::where('user_id', Auth::id())
             ->where('favorite_id', $validated['user_id'])
+            ->where('workspace_id', $wsId)
             ->first();
 
         if ($existing) {
@@ -113,6 +127,7 @@ class MessengerController extends Controller
         ChFavorite::create([
             'user_id' => Auth::id(),
             'favorite_id' => $validated['user_id'],
+            'workspace_id' => $wsId,
         ]);
 
         return response()->json(['favorite' => true]);
@@ -120,8 +135,11 @@ class MessengerController extends Controller
 
     public function getFavorites()
     {
-        $favorites = ChFavorite::where('user_id', Auth::id())->pluck('favorite_id');
-        $users = User::whereIn('id', $favorites)->get();
+        $wsId = (int) session('active_workspace_id');
+        $favorites = ChFavorite::where('user_id', Auth::id())->where('workspace_id', $wsId)->pluck('favorite_id');
+        $users = User::whereIn('id', $favorites)
+            ->whereHas('workspaces', fn ($query) => $query->where('workspaces.id', $wsId))
+            ->get();
 
         return response()->json(['favorites' => $users]);
     }
@@ -133,7 +151,9 @@ class MessengerController extends Controller
             'message' => 'required|string',
         ]);
 
-        $msg = ChMessage::where('id', $validated['id'])->where('from_id', Auth::id())->firstOrFail();
+        $msg = ChMessage::where('id', $validated['id'])
+            ->where('workspace_id', session('active_workspace_id'))
+            ->where('from_id', Auth::id())->firstOrFail();
         $msg->update(['body' => $validated['message']]);
 
         return response()->json(['status' => 'success', 'message' => $msg]);
@@ -145,7 +165,9 @@ class MessengerController extends Controller
             'id' => 'required|exists:ch_messages,id',
         ]);
 
-        $msg = ChMessage::where('id', $validated['id'])->where('from_id', Auth::id())->firstOrFail();
+        $msg = ChMessage::where('id', $validated['id'])
+            ->where('workspace_id', session('active_workspace_id'))
+            ->where('from_id', Auth::id())->firstOrFail();
         $msg->delete();
 
         return response()->json(['status' => 'success']);
@@ -153,17 +175,27 @@ class MessengerController extends Controller
 
     public function setOffline()
     {
-        return response()->json(['status' => 'success']);
+        cache()->forget('messenger:presence:'.session('active_workspace_id').':'.Auth::id());
+
+        return response()->json(['status' => 'success', 'online' => false]);
     }
 
     public function updatePresence()
     {
-        return response()->json(['status' => 'success']);
+        $this->transport->markPresent((int) session('active_workspace_id'), (int) Auth::id());
+
+        return response()->json(['status' => 'success', 'online' => true]);
     }
 
     public function getOnlineUsers()
     {
-        return response()->json(['online' => []]);
+        $wsId = (int) session('active_workspace_id');
+        $online = Auth::user()->workspaces()->whereKey($wsId)->firstOrFail()
+            ->members()->where('users.id', '!=', Auth::id())->get(['users.id', 'users.name'])
+            ->filter(fn (User $user) => $this->transport->isPresent($wsId, $user->id))
+            ->values();
+
+        return response()->json(['online' => $online]);
     }
 
     public function togglePin(Request $request)
@@ -171,9 +203,12 @@ class MessengerController extends Controller
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
         ]);
+        $wsId = (int) session('active_workspace_id');
+        $this->assertWorkspaceContact((int) $validated['user_id'], $wsId);
 
         $existing = ChPinned::where('user_id', Auth::id())
             ->where('pinned_id', $validated['user_id'])
+            ->where('workspace_id', $wsId)
             ->first();
 
         if ($existing) {
@@ -185,6 +220,7 @@ class MessengerController extends Controller
         ChPinned::create([
             'user_id' => Auth::id(),
             'pinned_id' => $validated['user_id'],
+            'workspace_id' => $wsId,
         ]);
 
         return response()->json(['pinned' => true]);
@@ -192,16 +228,41 @@ class MessengerController extends Controller
 
     public function getPinned()
     {
-        $pinned = ChPinned::where('user_id', Auth::id())->pluck('pinned_id');
-        $users = User::whereIn('id', $pinned)->get();
+        $wsId = (int) session('active_workspace_id');
+        $pinned = ChPinned::where('user_id', Auth::id())->where('workspace_id', $wsId)->pluck('pinned_id');
+        $users = User::whereIn('id', $pinned)
+            ->whereHas('workspaces', fn ($query) => $query->where('workspaces.id', $wsId))
+            ->get();
 
         return response()->json(['pinned' => $users]);
     }
 
     public function checkNewMessages()
     {
-        $count = ChMessage::where('to_id', Auth::id())->where('seen', false)->count();
+        $count = ChMessage::where('workspace_id', session('active_workspace_id'))
+            ->where('to_id', Auth::id())->where('seen', false)->count();
 
         return response()->json(['new_messages' => $count]);
+    }
+
+    public function toggleMessagePin(Request $request)
+    {
+        $validated = $request->validate(['id' => ['required', 'integer']]);
+        $message = ChMessage::whereKey($validated['id'])
+            ->where('workspace_id', session('active_workspace_id'))
+            ->where(fn ($query) => $query->where('from_id', Auth::id())->orWhere('to_id', Auth::id()))
+            ->firstOrFail();
+        $message->update(['pinned_at' => $message->pinned_at ? null : now()]);
+
+        return response()->json(['pinned' => $message->pinned_at !== null, 'message' => $message]);
+    }
+
+    private function assertWorkspaceContact(int $contactId, int $workspaceId): void
+    {
+        abort_if($contactId === (int) Auth::id(), 422, 'You cannot message yourself.');
+        abort_unless(
+            User::whereKey($contactId)->whereHas('workspaces', fn ($query) => $query->where('workspaces.id', $workspaceId))->exists(),
+            404,
+        );
     }
 }

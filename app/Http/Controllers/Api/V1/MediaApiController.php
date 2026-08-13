@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\Media;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class MediaApiController extends Controller
 {
@@ -32,14 +31,15 @@ class MediaApiController extends Controller
         $file = $request->file('file');
         $wsId = $request->attributes->get('workspace')->id;
 
-        $path = $file->store('media', 'public');
+        $disk = config('filesystems.default', 'local');
+        $path = $file->store("workspaces/{$wsId}/media", $disk);
         $media = Media::create([
             'name' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
             'file_name' => $file->getClientOriginalName(),
             'mime_type' => $file->getMimeType(),
-            'disk' => 'public',
+            'disk' => $disk,
             'size' => $file->getSize(),
-            'path' => Storage::url($path),
+            'path' => $path,
             'workspace_id' => $wsId,
             'created_by' => $request->user()->id,
         ]);

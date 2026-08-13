@@ -27,7 +27,7 @@ class ApiV1SuiteTest extends TestCase
     {
         parent::setUp();
         $this->seed();
-        Storage::fake('public');
+        Storage::fake('local');
 
         $this->user = User::factory()->create([
             'email' => 'apiuser@hiddenleaf.test',

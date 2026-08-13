@@ -11,6 +11,7 @@ class HelpdeskReplyController extends Controller
 {
     public function store(Request $request, HelpdeskTicket $ticket)
     {
+        $this->authorizeTicket($ticket);
         $validated = $request->validate([
             'description' => 'required|string',
             'attachments' => 'nullable|array',
@@ -28,6 +29,8 @@ class HelpdeskReplyController extends Controller
 
     public function destroy(HelpdeskReply $reply)
     {
+        $reply->loadMissing('ticket');
+        $this->authorizeTicket($reply->ticket);
         $user = Auth::user();
         if (! $user->isSuperAdmin() && $reply->user_id !== $user->id) {
             abort(403, 'Unauthorized.');
@@ -36,5 +39,14 @@ class HelpdeskReplyController extends Controller
         $reply->delete();
 
         return back()->with('success', 'Reply deleted.');
+    }
+
+    private function authorizeTicket(HelpdeskTicket $ticket): void
+    {
+        abort_unless(
+            (int) $ticket->workspace_id === (int) session('active_workspace_id')
+            && (int) $ticket->organization_id === (int) session('active_organization_id'),
+            404,
+        );
     }
 }

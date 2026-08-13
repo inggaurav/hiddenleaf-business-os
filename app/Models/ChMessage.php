@@ -18,10 +18,12 @@ class ChMessage extends Model
         'attachment',
         'seen',
         'workspace_id',
+        'pinned_at',
     ];
 
     protected $casts = [
         'seen' => 'boolean',
+        'pinned_at' => 'datetime',
     ];
 
     public function fromUser()

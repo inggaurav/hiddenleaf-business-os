@@ -50,6 +50,10 @@ use App\Http\Middleware\SuperAdminMiddleware;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/', function () {
+    return auth()->check() ? redirect()->route('dashboard') : redirect()->route('login');
+});
+
 Route::get('/install', [InstallController::class, 'index'])->name('install.index');
 Route::post('/install', [InstallController::class, 'setup'])->name('install.setup');
 Route::post('/install/test-db', [InstallController::class, 'testDatabase'])->name('install.test-db');
@@ -268,6 +272,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('media', [MediaController::class, 'index'])->name('media.index');
     Route::post('media/batch-store', [MediaController::class, 'batchStore'])->name('media.batch-store');
     Route::delete('media/{media}', [MediaController::class, 'destroy'])->name('media.destroy');
+    Route::get('media/{media}/download', [MediaController::class, 'download'])->name('media.download');
+    Route::get('media/{media}/preview', [MediaController::class, 'preview'])->name('media.preview');
     Route::post('media/directories', [MediaController::class, 'createDirectory'])->name('media.directories.create');
     Route::put('media/directories/{directory}', [MediaController::class, 'updateDirectory'])->name('media.directories.update');
     Route::delete('media/directories/{directory}', [MediaController::class, 'destroyDirectory'])->name('media.directories.destroy');
@@ -286,6 +292,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('chats/update-presence', [MessengerController::class, 'updatePresence'])->name('chats.update-presence');
     Route::get('chats/online-users', [MessengerController::class, 'getOnlineUsers'])->name('chats.online-users');
     Route::post('chats/toggle-pin', [MessengerController::class, 'togglePin'])->name('chats.toggle-pin');
+    Route::post('chats/toggle-message-pin', [MessengerController::class, 'toggleMessagePin'])->name('chats.toggle-message-pin');
     Route::get('chats/get-pinned', [MessengerController::class, 'getPinned'])->name('chats.get-pinned');
     Route::get('chats/check-new-messages', [MessengerController::class, 'checkNewMessages'])->name('chats.check-new-messages');
 

@@ -56,11 +56,13 @@ class SecureModuleInstaller
             File::deleteDirectory($stage);
             throw new RuntimeException('A module with this alias is already installed.');
         }File::ensureDirectoryExists(dirname($destination));
-        if (! File::moveDirectory($stage, $destination)) {
+        if (! File::moveDirectory($stage, $destination)
+            && (! File::copyDirectory($stage, $destination) || ! File::deleteDirectory($stage))) {
+            File::deleteDirectory($destination);
             throw new RuntimeException('Unable to install module files.');
         }
 
-return $manifest;
+        return $manifest;
     }
 
     private function verify(array $manifest): void

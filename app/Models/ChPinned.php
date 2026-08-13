@@ -14,5 +14,6 @@ class ChPinned extends Model
     protected $fillable = [
         'user_id',
         'pinned_id',
+        'workspace_id',
     ];
 }

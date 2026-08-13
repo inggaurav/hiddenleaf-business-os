@@ -6,6 +6,7 @@ use App\Models\HelpdeskCategory;
 use App\Models\HelpdeskTicket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class HelpdeskTicketController extends Controller
@@ -54,7 +55,7 @@ class HelpdeskTicketController extends Controller
     {
         $validated = $request->validate([
             'subject' => 'required|string|max:255',
-            'category_id' => 'nullable|exists:helpdesk_categories,id',
+            'category_id' => ['nullable', Rule::exists('helpdesk_categories', 'id')->where('workspace_id', session('active_workspace_id'))],
             'priority' => 'required|in:low,medium,high,urgent',
             'description' => 'required|string',
             'attachments' => 'nullable|array',
@@ -86,6 +87,7 @@ class HelpdeskTicketController extends Controller
 
     public function show(HelpdeskTicket $helpdeskTicket)
     {
+        $this->authorizeTicket($helpdeskTicket);
         $helpdeskTicket->load(['category', 'creator', 'replies.user']);
 
         return Inertia::render('Helpdesk/Tickets/Show', [
@@ -95,6 +97,7 @@ class HelpdeskTicketController extends Controller
 
     public function edit(HelpdeskTicket $helpdeskTicket)
     {
+        $this->authorizeTicket($helpdeskTicket);
         $wsId = session('active_workspace_id');
         $categories = HelpdeskCategory::when($wsId, fn ($q) => $q->where('workspace_id', $wsId))->get();
 
@@ -106,10 +109,11 @@ class HelpdeskTicketController extends Controller
 
     public function update(Request $request, HelpdeskTicket $helpdeskTicket)
     {
+        $this->authorizeTicket($helpdeskTicket);
         $validated = $request->validate([
             'status' => 'nullable|in:open,in_progress,closed,resolved',
             'priority' => 'nullable|in:low,medium,high,urgent',
-            'category_id' => 'nullable|exists:helpdesk_categories,id',
+            'category_id' => ['nullable', Rule::exists('helpdesk_categories', 'id')->where('workspace_id', session('active_workspace_id'))],
         ]);
 
         $helpdeskTicket->update(array_filter($validated));
@@ -119,6 +123,7 @@ class HelpdeskTicketController extends Controller
 
     public function destroy(HelpdeskTicket $helpdeskTicket)
     {
+        $this->authorizeTicket($helpdeskTicket);
         $helpdeskTicket->replies()->delete();
         $helpdeskTicket->delete();
 
@@ -136,5 +141,14 @@ class HelpdeskTicketController extends Controller
             ->get();
 
         return response()->json($tickets);
+    }
+
+    private function authorizeTicket(HelpdeskTicket $ticket): void
+    {
+        abort_unless(
+            (int) $ticket->workspace_id === (int) session('active_workspace_id')
+            && (int) $ticket->organization_id === (int) session('active_organization_id'),
+            404,
+        );
     }
 }
