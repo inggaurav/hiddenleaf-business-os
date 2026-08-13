@@ -37,6 +37,9 @@ class DatabaseSeeder extends Seeder
 
             // Module Runtime Permissions
             ['module' => 'modules', 'resource' => 'modules', 'action' => 'manage', 'name' => 'modules.manage'],
+            ['module' => 'productservice', 'resource' => 'catalog', 'action' => 'manage', 'name' => 'product_service.manage'],
+            ['module' => 'productservice', 'resource' => 'inventory', 'action' => 'adjust', 'name' => 'inventory.adjust'],
+            ['module' => 'productservice', 'resource' => 'inventory', 'action' => 'manage', 'name' => 'inventory.manage'],
         ];
 
         foreach ($permissions as $p) {
