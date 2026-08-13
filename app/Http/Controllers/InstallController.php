@@ -2,101 +2,115 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Setting;
-use App\Models\User;
+use App\Domain\Installation\DatabaseConfigurator;
+use App\Domain\Installation\InstallationService;
+use App\Services\ModuleManager;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
+use Inertia\Response;
+use Throwable;
 
 class InstallController extends Controller
 {
-    public function index()
+    public function index(ModuleManager $modules): Response|RedirectResponse
     {
+        if ($this->installed()) {
+            return redirect()->route('login');
+        }
+
         $requirements = [
-            'php' => version_compare(PHP_VERSION, '8.2.0', '>='),
-            'extensions' => [
-                'bcmath' => extension_loaded('bcmath'),
-                'ctype' => extension_loaded('ctype'),
-                'fileinfo' => extension_loaded('fileinfo'),
-                'json' => extension_loaded('json'),
-                'mbstring' => extension_loaded('mbstring'),
-                'openssl' => extension_loaded('openssl'),
-                'pdo' => extension_loaded('pdo'),
-                'tokenizer' => extension_loaded('tokenizer'),
-                'xml' => extension_loaded('xml'),
-            ],
+            'php' => version_compare(PHP_VERSION, config('installer.minimum_php'), '>='),
+            'php_version' => PHP_VERSION,
+            'minimum_php' => config('installer.minimum_php'),
+            'extensions' => collect(['bcmath', 'ctype', 'fileinfo', 'json', 'mbstring', 'openssl', 'pdo', 'tokenizer', 'xml'])->mapWithKeys(fn ($extension) => [$extension => extension_loaded($extension)]),
             'permissions' => [
                 'storage' => is_writable(storage_path()),
                 'bootstrap_cache' => is_writable(base_path('bootstrap/cache')),
+                'environment' => is_writable(base_path('.env')) || (! is_file(base_path('.env')) && is_writable(base_path())),
             ],
         ];
 
         return Inertia::render('Install/Index', [
+            'steps' => ['Welcome', 'Requirements', 'Permissions', 'Environment', 'Database', 'License', 'Super Admin', 'Modules', 'Finalize'],
             'requirements' => $requirements,
-            'isInstalled' => File::exists(storage_path('installed')),
+            'isInstalled' => false,
+            'modules' => collect($modules->getAllModules())->map(fn ($module) => ['alias' => $module->getAlias(), 'name' => $module->getName()])->values(),
         ]);
     }
 
-    public function testDatabase(Request $request)
+    public function testDatabase(Request $request, DatabaseConfigurator $database): JsonResponse
     {
-        $validated = $request->validate([
-            'db_connection' => 'nullable|string',
-            'db_host' => 'required|string',
-            'db_port' => 'required|numeric',
-            'db_database' => 'required|string',
-            'db_username' => 'required|string',
-            'db_password' => 'nullable|string',
-        ]);
+        $this->abortWhenInstalled();
+        $validated = $request->validate($this->databaseRules());
 
         try {
-            $driver = $validated['db_connection'] ?? 'mysql';
-            $dsn = "{$driver}:host={$validated['db_host']};port={$validated['db_port']};dbname={$validated['db_database']}";
-            $pdo = new \PDO($dsn, $validated['db_username'], $validated['db_password'] ?? '', [
-                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-                \PDO::ATTR_TIMEOUT => 5,
-            ]);
+            $database->test($validated);
 
             return response()->json(['success' => true, 'message' => 'Database connection successful.']);
-        } catch (\Throwable $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return response()->json(['success' => false, 'message' => 'Database connection failed. Verify the driver, host, credentials, database, and TLS/network configuration.'], 422);
         }
     }
 
-    public function setup(Request $request)
+    public function setup(Request $request, InstallationService $installer, ModuleManager $modules): RedirectResponse
     {
-        $validated = $request->validate([
-            'site_name' => 'required|string|max:255',
-            'admin_name' => 'required|string|max:255',
-            'admin_email' => 'required|email|max:255',
-            'admin_password' => 'required|string|min:8|confirmed',
+        $this->abortWhenInstalled();
+        $availableModules = array_keys($modules->getAllModules());
+        $validated = $request->validate($this->databaseRules() + [
+            'site_name' => ['required', 'string', 'max:255'],
+            'app_url' => ['required', 'url', 'max:2048'],
+            'app_environment' => ['required', Rule::in(['production', 'staging', 'local'])],
+            'license_token' => ['required', 'string'],
+            'license_domain' => ['required', 'string', 'max:253'],
+            'admin_name' => ['required', 'string', 'max:255'],
+            'admin_email' => ['required', 'email', 'max:255'],
+            'admin_password' => ['required', 'string', 'min:12', 'confirmed'],
+            'modules' => ['required', 'array', 'min:1'],
+            'modules.*' => ['string', Rule::in($availableModules)],
+            'language' => ['required', 'string', 'max:10'],
+            'currency' => ['required', 'string', 'size:3'],
+            'timezone' => ['required', 'timezone'],
+            'storage_driver' => ['required', Rule::in(['local', 's3'])],
         ]);
 
-        // Run migrations
-        Artisan::call('migrate', ['--force' => true]);
+        try {
+            $installer->install($validated);
+        } catch (Throwable $exception) {
+            report($exception);
 
-        // Create or update Super Admin user
-        $admin = User::updateOrCreate(
-            ['email' => $validated['admin_email']],
-            [
-                'name' => $validated['admin_name'],
-                'password' => Hash::make($validated['admin_password']),
-                'role' => 'super_admin',
-                'is_active' => true,
-                'email_verified_at' => now(),
-            ]
-        );
+            return back()->withInput($request->except(['admin_password', 'admin_password_confirmation', 'db_password', 'license_token']))
+                ->withErrors(['installation' => $exception->getMessage()]);
+        }
 
-        // Store site settings
-        Setting::updateOrCreate(
-            ['key' => 'site_name', 'workspace_id' => null],
-            ['value' => $validated['site_name'], 'created_by' => $admin->id]
-        );
+        return redirect()->route('login')->with('success', 'Installation completed successfully. Sign in with the administrator account.');
+    }
 
-        // Write installed lock file
-        File::put(storage_path('installed'), 'Installed successfully on '.now()->toIso8601String());
+    private function databaseRules(): array
+    {
+        $drivers = app()->environment('testing') ? ['pgsql', 'mysql', 'sqlite'] : ['pgsql', 'mysql'];
 
-        return redirect()->route('login')->with('success', 'Installation completed successfully. Please sign in with your administrator account.');
+        return [
+            'db_connection' => ['required', Rule::in($drivers)],
+            'db_host' => ['required_unless:db_connection,sqlite', 'nullable', 'string', 'max:253'],
+            'db_port' => ['required_unless:db_connection,sqlite', 'nullable', 'integer', 'between:1,65535'],
+            'db_database' => ['required', 'string', 'max:1024'],
+            'db_username' => ['required_unless:db_connection,sqlite', 'nullable', 'string', 'max:255'],
+            'db_password' => ['nullable', 'string', 'max:2048'],
+        ];
+    }
+
+    private function abortWhenInstalled(): void
+    {
+        abort_if($this->installed(), 404);
+    }
+
+    private function installed(): bool
+    {
+        return is_file(config('installer.lock_file'));
     }
 }

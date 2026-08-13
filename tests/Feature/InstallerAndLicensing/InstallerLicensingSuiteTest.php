@@ -6,6 +6,7 @@ use App\Models\Setting;
 use App\Models\User;
 use HiddenLeaf\Domain\Licensing\Services\LicenseManager;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Tests\Support\LicenseTestKeys;
@@ -18,6 +19,11 @@ class InstallerLicensingSuiteTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $keys = LicenseTestKeys::get();
+        config()->set('licensing.private_key', $keys['private']);
+        config()->set('licensing.public_key', $keys['public']);
+        config()->set('installer.persist_environment', false);
+        $this->app->instance(LicenseManager::class, new LicenseManager($keys['private'], $keys['public'], 14));
         if (File::exists(storage_path('installed'))) {
             File::delete(storage_path('installed'));
         }
@@ -28,6 +34,8 @@ class InstallerLicensingSuiteTest extends TestCase
         if (File::exists(storage_path('installed'))) {
             File::delete(storage_path('installed'));
         }
+        DB::purge('installer');
+        config()->set('database.default', 'sqlite');
         parent::tearDown();
     }
 
@@ -43,10 +51,25 @@ class InstallerLicensingSuiteTest extends TestCase
 
         $setupData = [
             'site_name' => 'HiddenLeaf Enterprise Production',
+            'app_url' => 'https://app.hiddenleaf-corp.com',
+            'app_environment' => 'production',
+            'db_connection' => 'sqlite',
+            'db_database' => ':memory:',
+            'license_token' => app(LicenseManager::class)->createSignedToken([
+                'domain' => 'app.hiddenleaf-corp.com',
+                'entitlements' => ['modules' => ['account', 'productservice']],
+                'exp' => time() + 86400,
+            ]),
+            'license_domain' => 'app.hiddenleaf-corp.com',
             'admin_name' => 'Master Administrator',
             'admin_email' => 'admin@hiddenleaf-corp.com',
             'admin_password' => 'supersecurepassword123',
             'admin_password_confirmation' => 'supersecurepassword123',
+            'modules' => ['account', 'productservice'],
+            'language' => 'en',
+            'currency' => 'USD',
+            'timezone' => 'UTC',
+            'storage_driver' => 'local',
         ];
 
         $response = $this->post('/install', $setupData);
@@ -64,6 +87,34 @@ class InstallerLicensingSuiteTest extends TestCase
         $setting = Setting::where('key', 'site_name')->whereNull('workspace_id')->first();
         $this->assertNotNull($setting);
         $this->assertEquals('HiddenLeaf Enterprise Production', $setting->value);
+        $this->assertDatabaseHas('settings', ['key' => 'installed_modules', 'value' => '["account","productservice"]']);
+        $this->assertDatabaseHas('plans', ['name' => 'Free', 'free_plan' => true]);
+
+        $this->post('/install', $setupData)->assertNotFound();
+    }
+
+    public function test_installer_rejects_an_invalid_offline_license_token(): void
+    {
+        $this->post('/install', [
+            'site_name' => 'Invalid Install',
+            'app_url' => 'https://invalid.example',
+            'app_environment' => 'production',
+            'db_connection' => 'sqlite',
+            'db_database' => ':memory:',
+            'license_token' => 'tampered-token',
+            'license_domain' => 'invalid.example',
+            'admin_name' => 'Administrator',
+            'admin_email' => 'admin@invalid.example',
+            'admin_password' => 'supersecurepassword123',
+            'admin_password_confirmation' => 'supersecurepassword123',
+            'modules' => ['account'],
+            'language' => 'en',
+            'currency' => 'USD',
+            'timezone' => 'UTC',
+            'storage_driver' => 'local',
+        ])->assertSessionHasErrors('installation');
+
+        $this->assertFalse(File::exists(storage_path('installed')));
     }
 
     public function test_updater_lifecycle(): void

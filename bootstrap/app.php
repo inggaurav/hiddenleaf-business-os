@@ -1,5 +1,6 @@
 <?php
 
+use App\Console\Commands\InstallBusinessOs;
 use App\Http\Middleware\CheckModuleStatus;
 use App\Http\Middleware\EnsureTenantContext;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -17,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
+    ->withCommands([InstallBusinessOs::class])
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [
             Installed::class,
