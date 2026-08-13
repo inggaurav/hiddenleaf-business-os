@@ -19,6 +19,7 @@ use App\Http\Controllers\HelpdeskCategoryController;
 use App\Http\Controllers\HelpdeskReplyController;
 use App\Http\Controllers\HelpdeskTicketController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\HrmController;
 use App\Http\Controllers\InstallController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\MediaController;
@@ -138,6 +139,21 @@ Route::middleware(['auth'])->group(function () {
         Route::get('reports', [AccountingController::class, 'reports'])->name('reports');
         Route::post('bank-transfers', [AccountingController::class, 'bankTransfer'])->name('bank-transfers.store');
         Route::post('bank-reconciliations', [AccountingController::class, 'reconcile'])->name('bank-reconciliations.store');
+    });
+    Route::middleware('module.status:hrm')->prefix('hrm')->name('hrm.')->group(function () {
+        Route::get('/', [HrmController::class, 'index'])->name('index');
+        Route::post('structure/{resource}', [HrmController::class, 'storeStructure'])->name('structure.store');
+        Route::post('employees', [HrmController::class, 'storeEmployee'])->name('employees.store');
+        Route::post('attendance', [HrmController::class, 'attendance'])->name('attendance.store');
+        Route::post('leave-types', [HrmController::class, 'storeLeaveType'])->name('leave-types.store');
+        Route::post('leaves', [HrmController::class, 'requestLeave'])->name('leaves.store');
+        Route::post('leaves/{leave}/review', [HrmController::class, 'reviewLeave'])->name('leaves.review');
+        Route::post('salary-components', [HrmController::class, 'storeComponent'])->name('salary-components.store');
+        Route::post('salary-components/assign', [HrmController::class, 'assignComponent'])->name('salary-components.assign');
+        Route::post('payslips', [HrmController::class, 'generatePayslip'])->name('payslips.store');
+        Route::post('appraisals', [HrmController::class, 'appraisal'])->name('appraisals.store');
+        Route::post('documents', [HrmController::class, 'uploadDocument'])->name('documents.store');
+        Route::get('documents/{document}/download', [HrmController::class, 'downloadDocument'])->name('documents.download');
     });
 
     Route::middleware('module.status:productservice')->prefix('product-service')->name('product-service.')->group(function () {
