@@ -2,70 +2,74 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AIAgentChatSession;
+use App\Models\AssistantSession;
+use App\Services\AssistantConversationService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class AIAgentChatPageController extends Controller
 {
-    public function index()
+    public function __construct(private AssistantConversationService $conversations) {}
+
+    public function index(Request $request)
     {
-        $wsId = session('active_workspace_id');
-
-        $sessions = AIAgentChatSession::where('user_id', Auth::id())
-            ->when($wsId, fn ($q) => $q->where('workspace_id', $wsId))
-            ->latest()
-            ->get();
-
         return Inertia::render('AIAssistant/Index', [
-            'sessions' => $sessions,
+            'sessions' => $this->sessions($request),
         ]);
     }
 
-    public function getSessions()
+    public function getSessions(Request $request)
     {
-        $wsId = session('active_workspace_id');
-
-        $sessions = AIAgentChatSession::where('user_id', Auth::id())
-            ->when($wsId, fn ($q) => $q->where('workspace_id', $wsId))
-            ->latest()
-            ->get();
-
-        return response()->json(['sessions' => $sessions]);
+        return response()->json(['sessions' => $this->sessions($request)]);
     }
 
     public function createSession(Request $request)
     {
-        $wsId = session('active_workspace_id');
-
-        $session = AIAgentChatSession::create([
-            'title' => $request->input('title', 'New Chat Session'),
-            'user_id' => Auth::id(),
-            'workspace_id' => $wsId,
-        ]);
+        $validated = $request->validate(['title' => ['nullable', 'string', 'max:255']]);
+        $session = $this->conversations->create(
+            $request->user(),
+            (int) $request->session()->get('active_workspace_id'),
+            $validated['title'] ?? 'New Chat Session',
+        );
 
         return response()->json(['success' => true, 'session' => $session]);
     }
 
-    public function destroySession(AIAgentChatSession $session)
+    public function destroySession(Request $request, AssistantSession $session)
     {
-        if ($session->user_id !== Auth::id()) {
-            abort(403, 'Unauthorized');
-        }
-
-        $session->messages()->delete();
-        $session->delete();
+        $owned = $this->owned($request, $session);
+        $this->conversations->delete($owned);
 
         return response()->json(['success' => true]);
     }
 
-    public function getMessages(AIAgentChatSession $session)
+    public function archiveSession(Request $request, AssistantSession $session)
     {
-        if ($session->user_id !== Auth::id()) {
-            abort(403, 'Unauthorized');
-        }
+        $owned = $this->owned($request, $session);
+        $this->conversations->archive($owned);
 
-        return response()->json(['messages' => $session->messages()->oldest()->get()]);
+        return response()->json(['success' => true]);
+    }
+
+    public function getMessages(Request $request, AssistantSession $session)
+    {
+        return response()->json(['messages' => $this->owned($request, $session)->messages()->oldest()->get()]);
+    }
+
+    private function sessions(Request $request)
+    {
+        return $this->conversations->sessions(
+            $request->user(),
+            (int) $request->session()->get('active_workspace_id'),
+        );
+    }
+
+    private function owned(Request $request, AssistantSession $session): AssistantSession
+    {
+        return $this->conversations->ownedSession(
+            $request->user(),
+            (int) $request->session()->get('active_workspace_id'),
+            $session->id,
+        );
     }
 }

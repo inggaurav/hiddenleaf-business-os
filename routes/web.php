@@ -301,6 +301,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('ai-agent/chat/sessions', [AIAgentChatPageController::class, 'getSessions'])->name('ai-agent.chat.sessions');
     Route::post('ai-agent/chat/session', [AIAgentChatPageController::class, 'createSession'])->name('ai-agent.chat.session.create');
     Route::delete('ai-agent/chat/session/{session}', [AIAgentChatPageController::class, 'destroySession'])->name('ai-agent.chat.session.destroy');
+    Route::patch('ai-agent/chat/session/{session}/archive', [AIAgentChatPageController::class, 'archiveSession'])->name('ai-agent.chat.session.archive');
     Route::get('ai-agent/chat/messages/{session}', [AIAgentChatPageController::class, 'getMessages'])->name('ai-agent.chat.messages');
     Route::post('ai-agent/chat', [AIAgentChatController::class, 'chat'])->name('ai-agent.chat.send');
 

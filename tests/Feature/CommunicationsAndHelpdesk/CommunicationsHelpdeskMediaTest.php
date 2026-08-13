@@ -180,6 +180,20 @@ class CommunicationsHelpdeskMediaTest extends TestCase
             'session_id' => $session['id'],
             'role' => 'assistant',
         ]);
+
+        $this->actingAs($this->user2)
+            ->withSession(['active_organization_id' => $this->org->id, 'active_workspace_id' => $this->ws->id])
+            ->getJson("/ai-agent/chat/messages/{$session['id']}")
+            ->assertNotFound();
+
+        $this->actingAs($this->user1)
+            ->withSession(['active_organization_id' => $this->org->id, 'active_workspace_id' => $this->ws->id])
+            ->patchJson("/ai-agent/chat/session/{$session['id']}/archive")
+            ->assertOk();
+        $this->assertDatabaseMissing('ai_agent_chat_sessions', [
+            'id' => $session['id'],
+            'archived_at' => null,
+        ]);
     }
 
     public function test_helpdesk_media_and_messenger_reject_cross_workspace_idor(): void
