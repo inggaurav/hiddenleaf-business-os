@@ -16,11 +16,18 @@ use App\Http\Controllers\InstallController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\MultiTenancy\MemberController;
 use App\Http\Controllers\MultiTenancy\WorkspaceController;
+use App\Http\Controllers\PurchaseInvoiceController;
+use App\Http\Controllers\PurchaseReturnController;
+use App\Http\Controllers\SalesInvoiceController;
+use App\Http\Controllers\SalesProposalController;
+use App\Http\Controllers\SalesReturnController;
 use App\Http\Controllers\Settings\ApiTokenController;
 use App\Http\Controllers\Settings\EmailTemplateController;
 use App\Http\Controllers\SuperAdmin\DashboardController;
 use App\Http\Controllers\SuperAdmin\SettingController;
 use App\Http\Controllers\SuperAdmin\TranslationController;
+use App\Http\Controllers\TransferController;
+use App\Http\Controllers\WarehouseController;
 use App\Http\Middleware\SuperAdminMiddleware;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
@@ -96,6 +103,50 @@ Route::middleware(['auth'])->group(function () {
     Route::post('bank-transfer/update/{id}', [BankTransferPaymentController::class, 'update'])->name('bank-transfer.update');
     Route::post('bank-transfer/{payment}/reject', [BankTransferPaymentController::class, 'reject'])->name('bank-transfer.reject');
     Route::delete('bank-transfer/{payment}', [BankTransferPaymentController::class, 'destroy'])->name('bank-transfer.destroy');
+
+    // Sales & Procurement Routes
+    Route::resource('warehouses', WarehouseController::class);
+    Route::resource('transfers', TransferController::class)->except(['edit', 'update']);
+
+    // Purchase Invoices
+    Route::resource('purchase-invoices', PurchaseInvoiceController::class);
+    Route::post('purchase-invoices/{purchaseInvoice}/post', [PurchaseInvoiceController::class, 'post'])->name('purchase-invoices.post');
+    Route::get('purchase-invoices/{purchaseInvoice}/print', [PurchaseInvoiceController::class, 'print'])->name('purchase-invoices.print');
+
+    // Sales Invoices
+    Route::resource('sales-invoices', SalesInvoiceController::class);
+    Route::post('sales-invoices/{salesInvoice}/post', [SalesInvoiceController::class, 'post'])->name('sales-invoices.post');
+    Route::get('sales-invoices/{salesInvoice}/print', [SalesInvoiceController::class, 'print'])->name('sales-invoices.print');
+    Route::get('sales-invoices/warehouse/products', [SalesInvoiceController::class, 'getWarehouseProducts'])->name('sales-invoices.warehouse.products');
+    Route::get('sales-invoices/services/list', [SalesInvoiceController::class, 'getServices'])->name('sales-invoices.services');
+
+    // Purchase Returns
+    Route::get('purchase-returns', [PurchaseReturnController::class, 'index'])->name('purchase-returns.index');
+    Route::get('purchase-returns/create', [PurchaseReturnController::class, 'create'])->name('purchase-returns.create');
+    Route::post('purchase-returns', [PurchaseReturnController::class, 'store'])->name('purchase-returns.store');
+    Route::get('purchase-returns/{return}', [PurchaseReturnController::class, 'show'])->name('purchase-returns.show');
+    Route::delete('purchase-returns/{return}', [PurchaseReturnController::class, 'destroy'])->name('purchase-returns.destroy');
+    Route::post('purchase-returns/{return}/approve', [PurchaseReturnController::class, 'approve'])->name('purchase-returns.approve');
+    Route::post('purchase-returns/{return}/complete', [PurchaseReturnController::class, 'complete'])->name('purchase-returns.complete');
+
+    // Sales Returns
+    Route::get('sales-returns', [SalesReturnController::class, 'index'])->name('sales-returns.index');
+    Route::get('sales-returns/create', [SalesReturnController::class, 'create'])->name('sales-returns.create');
+    Route::post('sales-returns', [SalesReturnController::class, 'store'])->name('sales-returns.store');
+    Route::get('sales-returns/{salesReturn}', [SalesReturnController::class, 'show'])->name('sales-returns.show');
+    Route::delete('sales-returns/{salesReturn}', [SalesReturnController::class, 'destroy'])->name('sales-returns.destroy');
+    Route::post('sales-returns/{salesReturn}/approve', [SalesReturnController::class, 'approve'])->name('sales-returns.approve');
+    Route::post('sales-returns/{salesReturn}/complete', [SalesReturnController::class, 'complete'])->name('sales-returns.complete');
+
+    // Sales Proposals
+    Route::resource('sales-proposals', SalesProposalController::class);
+    Route::get('sales-proposals/{salesProposal}/print', [SalesProposalController::class, 'print'])->name('sales-proposals.print');
+    Route::post('sales-proposals/{salesProposal}/sent', [SalesProposalController::class, 'sent'])->name('sales-proposals.sent');
+    Route::post('sales-proposals/{salesProposal}/accept', [SalesProposalController::class, 'accept'])->name('sales-proposals.accept');
+    Route::post('sales-proposals/{salesProposal}/reject', [SalesProposalController::class, 'reject'])->name('sales-proposals.reject');
+    Route::post('sales-proposals/{salesProposal}/convert-to-invoice', [SalesProposalController::class, 'convertToInvoice'])->name('sales-proposals.convert-to-invoice');
+    Route::get('sales-proposals/warehouse/products', [SalesProposalController::class, 'getWarehouseProducts'])->name('sales-proposals.warehouse.products');
+    Route::get('sales-proposals/services/list', [SalesProposalController::class, 'getServices'])->name('sales-proposals.services');
 
     // RBAC Roles (Explicit actions matching RoleController)
     Route::resource('roles', RoleController::class)->except(['show']);
