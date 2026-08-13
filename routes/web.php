@@ -29,6 +29,7 @@ use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\MultiTenancy\MemberController;
 use App\Http\Controllers\MultiTenancy\WorkspaceController;
 use App\Http\Controllers\NotificationTemplateController;
+use App\Http\Controllers\PosController;
 use App\Http\Controllers\ProductServiceController;
 use App\Http\Controllers\PurchaseInvoiceController;
 use App\Http\Controllers\PurchaseReturnController;
@@ -177,6 +178,15 @@ Route::middleware(['auth'])->group(function () {
         Route::post('timesheets', [TasklyController::class, 'timesheet'])->name('timesheets.store');
         Route::post('timesheets/{timesheet}/approve', [TasklyController::class, 'approveTime'])->name('timesheets.approve');
         Route::post('issues', [TasklyController::class, 'issue'])->name('issues.store');
+    });
+    Route::middleware('module.status:pos')->prefix('pos')->name('pos.')->group(function () {
+        Route::get('/', [PosController::class, 'index'])->name('index');
+        Route::post('registers', [PosController::class, 'storeRegister'])->name('registers.store');
+        Route::post('registers/{register}/open', [PosController::class, 'open'])->name('registers.open');
+        Route::get('products', [PosController::class, 'lookup'])->name('products');
+        Route::post('sessions/{session}/checkout', [PosController::class, 'checkout'])->name('checkout');
+        Route::post('sessions/{session}/close', [PosController::class, 'close'])->name('sessions.close');
+        Route::post('orders/{order}/refund', [PosController::class, 'refund'])->name('orders.refund');
     });
 
     Route::middleware('module.status:productservice')->prefix('product-service')->name('product-service.')->group(function () {
