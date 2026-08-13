@@ -51,6 +51,7 @@ class DatabaseSeeder extends Seeder
             ['module' => 'taskly', 'resource' => 'projects', 'action' => 'view', 'name' => 'taskly.view'],
             ['module' => 'taskly', 'resource' => 'projects', 'action' => 'manage', 'name' => 'taskly.manage'],
             ['module' => 'pos', 'resource' => 'registers', 'action' => 'manage', 'name' => 'pos.manage'],
+            ['module' => 'landingpage', 'resource' => 'landing', 'action' => 'manage', 'name' => 'landing.manage'],
         ];
 
         foreach ($permissions as $p) {

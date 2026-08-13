@@ -22,6 +22,7 @@ use App\Http\Controllers\HelpdeskTicketController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\HrmController;
 use App\Http\Controllers\InstallController;
+use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\MessengerController;
@@ -51,6 +52,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/install', [InstallController::class, 'index'])->name('install.index');
 Route::post('/install', [InstallController::class, 'setup'])->name('install.setup');
 Route::post('/install/test-db', [InstallController::class, 'testDatabase'])->name('install.test-db');
+Route::get('/site/{slug}', [LandingPageController::class, 'publicSite'])->name('landing.public');
+Route::get('/site/{slug}/{page}', [LandingPageController::class, 'publicPage'])->name('landing.page');
 
 // Public & Guest Routes
 Route::middleware('guest')->group(function () {
@@ -187,6 +190,13 @@ Route::middleware(['auth'])->group(function () {
         Route::post('sessions/{session}/checkout', [PosController::class, 'checkout'])->name('checkout');
         Route::post('sessions/{session}/close', [PosController::class, 'close'])->name('sessions.close');
         Route::post('orders/{order}/refund', [PosController::class, 'refund'])->name('orders.refund');
+    });
+    Route::middleware('module.status:landingpage')->prefix('landing')->name('landing.')->group(function () {
+        Route::get('/', [LandingPageController::class, 'manage'])->name('manage');
+        Route::post('sites', [LandingPageController::class, 'storeSite'])->name('sites.store');
+        Route::post('sites/{site}/sections', [LandingPageController::class, 'section'])->name('sections.store');
+        Route::post('sites/{site}/pages', [LandingPageController::class, 'page'])->name('pages.store');
+        Route::post('sites/{site}/publish', [LandingPageController::class, 'publish'])->name('publish');
     });
 
     Route::middleware('module.status:productservice')->prefix('product-service')->name('product-service.')->group(function () {
