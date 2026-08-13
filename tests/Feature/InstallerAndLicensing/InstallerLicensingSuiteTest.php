@@ -8,6 +8,7 @@ use HiddenLeaf\Domain\Licensing\Services\LicenseManager;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
+use Tests\Support\LicenseTestKeys;
 use Tests\TestCase;
 
 class InstallerLicensingSuiteTest extends TestCase
@@ -79,7 +80,8 @@ class InstallerLicensingSuiteTest extends TestCase
 
     public function test_commercial_licensing_verification_and_domain_binding(): void
     {
-        $licenseManager = new LicenseManager('test_secret_key_12345', 14);
+        $keys = LicenseTestKeys::get();
+        $licenseManager = new LicenseManager($keys['private'], $keys['public'], 14);
 
         // 1. Generate license key
         $key = $licenseManager->generateLicenseKey('saas', 'ENTERPRISE');

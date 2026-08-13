@@ -8,13 +8,18 @@ createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: (name: string) => {
         const pages = import.meta.glob<{ default: React.ComponentType }>('./Pages/**/*.tsx', { eager: true });
-        return pages[`./Pages/${name}.tsx`].default;
+        const page = pages[`./Pages/${name}.tsx`];
+        if (!page) {
+            throw new Error(`Inertia page component not found: ${name}`);
+        }
+
+        return page.default;
     },
     setup({ el, App, props }) {
         const root = createRoot(el);
         root.render(<App {...props} />);
     },
     progress: {
-        color: '#10b981',
+        color: '#8b5cf6',
     },
 });

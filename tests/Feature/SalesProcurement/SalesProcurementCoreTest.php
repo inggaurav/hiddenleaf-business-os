@@ -3,6 +3,7 @@
 namespace Tests\Feature\SalesProcurement;
 
 use App\Models\Organization;
+use App\Models\ProductServiceItem;
 use App\Models\PurchaseInvoice;
 use App\Models\PurchaseReturn;
 use App\Models\SalesInvoice;
@@ -10,6 +11,7 @@ use App\Models\SalesInvoiceReturn;
 use App\Models\SalesProposal;
 use App\Models\User;
 use App\Models\Warehouse;
+use App\Models\WarehouseStock;
 use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -216,5 +218,92 @@ class SalesProcurementCoreTest extends TestCase
         $this->actingAs($this->user)->post("/sales-returns/{$salesReturn->id}/approve");
         $salesReturn->refresh();
         $this->assertEquals(1, $salesReturn->status);
+    }
+
+    public function test_invoice_catalog_endpoints_return_real_tenant_scoped_products_and_services(): void
+    {
+        $warehouse = Warehouse::create([
+            'name' => 'Catalog Depot',
+            'organization_id' => $this->org->id,
+            'workspace_id' => $this->ws->id,
+            'created_by' => $this->user->id,
+        ]);
+        $product = ProductServiceItem::create([
+            'name' => 'Industrial Router',
+            'sku' => 'RTR-100',
+            'type' => 'product',
+            'sale_price' => 499.99,
+            'purchase_price' => 300,
+            'organization_id' => $this->org->id,
+            'workspace_id' => $this->ws->id,
+            'created_by' => $this->user->id,
+        ]);
+        $service = ProductServiceItem::create([
+            'name' => 'Network Installation',
+            'sku' => 'SVC-100',
+            'type' => 'service',
+            'sale_price' => 150,
+            'organization_id' => $this->org->id,
+            'workspace_id' => $this->ws->id,
+            'created_by' => $this->user->id,
+        ]);
+        WarehouseStock::create([
+            'product_id' => $product->id,
+            'warehouse_id' => $warehouse->id,
+            'quantity' => 12,
+        ]);
+
+        $session = [
+            'active_organization_id' => $this->org->id,
+            'active_workspace_id' => $this->ws->id,
+        ];
+
+        $this->actingAs($this->user)
+            ->withSession($session)
+            ->getJson(route('sales-invoices.warehouse.products', ['warehouse_id' => $warehouse->id]))
+            ->assertOk()
+            ->assertJsonFragment([
+                'name' => 'Industrial Router',
+                'sku' => 'RTR-100',
+                'quantity' => '12.00',
+            ])
+            ->assertJsonMissing(['name' => 'Network Installation']);
+
+        $this->actingAs($this->user)
+            ->withSession($session)
+            ->getJson(route('sales-invoices.services'))
+            ->assertOk()
+            ->assertJsonFragment([
+                'name' => 'Network Installation',
+                'sku' => 'SVC-100',
+            ])
+            ->assertJsonMissing(['name' => 'Industrial Router']);
+
+        $this->actingAs($this->user)
+            ->withSession($session)
+            ->getJson(route('sales-proposals.warehouse.products', ['warehouse_id' => $warehouse->id]))
+            ->assertOk()
+            ->assertJsonFragment(['name' => 'Industrial Router']);
+    }
+
+    public function test_catalog_endpoint_rejects_a_warehouse_from_another_tenant(): void
+    {
+        $otherOwner = User::factory()->create();
+        $otherOrg = Organization::factory()->create(['owner_id' => $otherOwner->id]);
+        $otherWorkspace = Workspace::factory()->create(['organization_id' => $otherOrg->id]);
+        $foreignWarehouse = Warehouse::create([
+            'name' => 'Foreign Depot',
+            'organization_id' => $otherOrg->id,
+            'workspace_id' => $otherWorkspace->id,
+            'created_by' => $otherOwner->id,
+        ]);
+
+        $this->actingAs($this->user)
+            ->withSession([
+                'active_organization_id' => $this->org->id,
+                'active_workspace_id' => $this->ws->id,
+            ])
+            ->getJson(route('sales-invoices.warehouse.products', ['warehouse_id' => $foreignWarehouse->id]))
+            ->assertNotFound();
     }
 }
