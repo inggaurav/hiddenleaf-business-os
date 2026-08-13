@@ -1,36 +1,31 @@
 import React from 'react';
-import { clsx } from 'clsx';
-import { ArrowUpRight, ArrowDownRight, Minus } from 'lucide-react';
 
-export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   level?: 0 | 1 | 2;
-  interactive?: boolean;
+  children: React.ReactNode;
+  className?: string;
   padded?: boolean;
 }
 
 export const Card: React.FC<CardProps> = ({
-  children,
-  className,
   level = 0,
-  interactive = false,
+  children,
+  className = '',
   padded = true,
   ...props
 }) => {
-  const levelStyles = {
-    0: 'glass-0 shadow-sm shadow-black/20',
-    1: 'glass-1 shadow-lg shadow-black/40',
-    2: 'glass-2 shadow-xl shadow-purple-950/20',
-  };
+  const levelClass =
+    level === 2
+      ? 'glass-2'
+      : level === 1
+      ? 'glass-1'
+      : 'glass-0';
 
   return (
     <div
-      className={clsx(
-        'rounded-xl relative overflow-hidden spring-transition',
-        levelStyles[level],
-        padded && 'p-5 sm:p-6',
-        interactive && 'hover:border-white/20 hover:scale-[1.01] cursor-pointer active:scale-[0.99]',
-        className
-      )}
+      className={`rounded-2xl ${levelClass} ${
+        padded ? 'p-5 sm:p-6' : ''
+      } spring-transition ${className}`}
       {...props}
     >
       {children}
@@ -41,16 +36,10 @@ export const Card: React.FC<CardProps> = ({
 export interface MetricCardProps {
   title: string;
   value: string | number;
-  icon?: React.ReactNode;
-  trend?: {
-    value: string | number;
-    positive?: boolean;
-    neutral?: boolean;
-    label?: string;
-  };
+  icon: React.ReactNode;
+  trend?: string | { value: string; positive?: boolean; neutral?: boolean; label?: string };
+  trendDirection?: 'up' | 'down' | 'neutral';
   subtitle?: string;
-  level?: 0 | 1 | 2;
-  className?: string;
 }
 
 export const MetricCard: React.FC<MetricCardProps> = ({
@@ -58,54 +47,51 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   value,
   icon,
   trend,
+  trendDirection = 'neutral',
   subtitle,
-  level = 0,
-  className,
 }) => {
+  const trendText = typeof trend === 'object' && trend !== null ? trend.value : trend;
+  const trendSub = typeof trend === 'object' && trend !== null ? trend.label : subtitle;
+  const direction =
+    typeof trend === 'object' && trend !== null
+      ? trend.positive
+        ? 'up'
+        : trend.neutral
+        ? 'neutral'
+        : 'down'
+      : trendDirection;
+
   return (
-    <Card level={level} className={clsx('flex flex-col justify-between group', className)}>
-      <div className="flex items-start justify-between gap-3 mb-3">
-        <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 select-none">
+    <Card level={0} className="space-y-3">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
           {title}
         </span>
-        {icon && (
-          <div className="p-2 rounded-lg bg-white/[0.05] text-gray-300 group-hover:text-white group-hover:bg-white/[0.1] spring-transition">
-            {icon}
-          </div>
-        )}
+        <div className="p-2 rounded-xl bg-[var(--surface-2)] text-[var(--text-secondary)] border border-[var(--border-subtle)]">
+          {icon}
+        </div>
       </div>
 
-      <div>
-        <div className="text-2xl sm:text-3xl font-bold tracking-tight text-white tabular-nums mb-1">
+      <div className="space-y-1">
+        <div className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">
           {value}
         </div>
-
-        {(trend || subtitle) && (
-          <div className="flex items-center gap-2 text-xs flex-wrap">
-            {trend && (
+        {(trendText || trendSub) && (
+          <div className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
+            {trendText && (
               <span
-                className={clsx(
-                  'inline-flex items-center gap-0.5 font-semibold px-1.5 py-0.5 rounded',
-                  trend.neutral
-                    ? 'text-gray-400 bg-white/5'
-                    : trend.positive
-                    ? 'text-emerald-400 bg-emerald-500/10'
-                    : 'text-rose-400 bg-rose-500/10'
-                )}
+                className={`font-semibold ${
+                  direction === 'up'
+                    ? 'text-emerald-400'
+                    : direction === 'down'
+                    ? 'text-rose-400'
+                    : 'text-[var(--text-tertiary)]'
+                }`}
               >
-                {trend.neutral ? (
-                  <Minus className="w-3 h-3" />
-                ) : trend.positive ? (
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                ) : (
-                  <ArrowDownRight className="w-3.5 h-3.5" />
-                )}
-                {trend.value}
+                {trendText}
               </span>
             )}
-            {(trend?.label || subtitle) && (
-              <span className="text-gray-400">{trend?.label || subtitle}</span>
-            )}
+            {trendSub && <span className="text-[var(--text-tertiary)]">{trendSub}</span>}
           </div>
         )}
       </div>

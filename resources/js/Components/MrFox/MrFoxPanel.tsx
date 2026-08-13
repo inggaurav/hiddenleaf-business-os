@@ -1,20 +1,17 @@
 import React, { useState } from 'react';
 import { 
   X, 
-  Sparkles, 
   Send, 
-  CheckCircle, 
-  AlertTriangle, 
   ArrowRight, 
   FileText, 
   DollarSign, 
-  Bot,
-  TrendingUp,
-  Clock
+  Headphones, 
+  Settings
 } from 'lucide-react';
 import { Button } from '../UI/Button';
 import { IconButton } from '../UI/IconButton';
 import { Badge } from '../UI/Badge';
+import { MrFoxMark } from './MrFoxMark';
 
 interface MrFoxPanelProps {
   isOpen: boolean;
@@ -27,17 +24,6 @@ interface Message {
   id: string;
   sender: 'fox' | 'user';
   text: string;
-  insight?: {
-    type: 'recommendation' | 'alert' | 'opportunity';
-    title: string;
-    description: string;
-    actionLabel?: string;
-    actionUrl?: string;
-  };
-  actions?: Array<{
-    label: string;
-    action: () => void;
-  }>;
 }
 
 export const MrFoxPanel: React.FC<MrFoxPanelProps> = ({
@@ -51,24 +37,7 @@ export const MrFoxPanel: React.FC<MrFoxPanelProps> = ({
     {
       id: '1',
       sender: 'fox',
-      text: `Hello! I am Mr Fox, your autonomous BusinessOS intelligence. I am monitoring your **${contextPage}** in real time.`,
-      insight: {
-        type: 'recommendation',
-        title: '2 Bank Transfers Awaiting Review',
-        description: 'New subscription bank transfer receipts submitted today totaling $450.00.',
-        actionLabel: 'Review Bank Transfers',
-        actionUrl: '/bank-transfer',
-      },
-    },
-    {
-      id: '2',
-      sender: 'fox',
-      text: 'Here are quick proactive operations you can perform right now:',
-      actions: [
-        { label: 'Summarize Today\'s Sales Invoices', action: () => handleSend('Summarize today sales invoices') },
-        { label: 'Check Overdue Receivables', action: () => handleSend('Show overdue receivables') },
-        { label: 'Audit High Priority Tickets', action: () => handleSend('Check urgent helpdesk tickets') },
-      ],
+      text: `Mr Fox Intelligence service is ready for connection. Configure your AI API credentials in Workspace Settings to enable real-time operational assistance and insights for **${contextPage}**.`,
     },
   ]);
 
@@ -82,56 +51,48 @@ export const MrFoxPanel: React.FC<MrFoxPanelProps> = ({
       text,
     };
 
-    setMessages((prev) => [...prev, userMsg]);
-    setPrompt('');
+    const reply: Message = {
+      id: String(Date.now() + 1),
+      sender: 'fox',
+      text: `Intelligence service provider is not yet connected. To process "${text}", please configure your AI credentials in Workspace Settings.`,
+    };
 
-    // Dynamic simulated Mr Fox response with structured action card
-    setTimeout(() => {
-      const foxReply: Message = {
-        id: String(Date.now() + 1),
-        sender: 'fox',
-        text: `Analysis complete for "${text}". All verified ledger and multi-tenant parameters pass policy requirements.`,
-        insight: {
-          type: 'opportunity',
-          title: 'Automated Recommendation',
-          description: 'No anomalies detected across tenant workspace boundaries.',
-          actionLabel: 'View Detailed Report',
-        },
-      };
-      setMessages((prev) => [...prev, foxReply]);
-    }, 600);
+    setMessages((prev) => [...prev, userMsg, reply]);
+    setPrompt('');
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden">
+    <div className="fixed inset-0 z-50 overflow-hidden" role="dialog" aria-modal="true" aria-labelledby="mrfox-panel-title">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm spring-transition animate-in fade-in duration-200"
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm spring-transition"
         onClick={onClose}
       />
 
       {/* Floating Right Sheet Surface */}
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-6 sm:pl-10">
-        <div className="w-screen max-w-md sm:max-w-lg glass-2 border-l border-purple-500/20 shadow-2xl flex flex-col justify-between overflow-hidden animate-in slide-in-from-right duration-300 spring-transition">
+        <div className="w-screen max-w-md sm:max-w-lg glass-2 border-l border-[var(--border-medium)] shadow-2xl flex flex-col justify-between overflow-hidden spring-transition bg-[var(--surface-1)]">
           {/* Header */}
-          <div className="p-4 sm:p-5 border-b border-white/10 bg-purple-950/30 flex items-center justify-between">
+          <div className="p-4 sm:p-5 border-b border-[var(--border-subtle)] bg-purple-950/20 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-purple-600 flex items-center justify-center text-white shadow-md">
-                <Sparkles className="w-5 h-5 animate-fox-pulse" />
+              <div className="w-9 h-9 rounded-xl bg-purple-900/30 border border-purple-500/30 flex items-center justify-center shadow-md">
+                <MrFoxMark size={22} />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-base font-bold text-white tracking-tight">Mr Fox Intelligence</h3>
-                  <Badge variant="purple" size="sm" dot>Live</Badge>
+                  <h2 id="mrfox-panel-title" className="text-sm sm:text-base font-bold text-[var(--text-primary)] tracking-tight">
+                    Mr Fox Intelligence
+                  </h2>
+                  <Badge variant="neutral" size="sm">Disconnected / Ready</Badge>
                 </div>
-                <p className="text-[11px] text-purple-300">Context: {contextPage}</p>
+                <p className="text-[11px] text-[var(--text-tertiary)]">Context: {contextPage}</p>
               </div>
             </div>
 
             <IconButton label="Close Mr Fox" size="sm" onClick={onClose}>
-              <X className="w-4 h-4" />
+              <X className="w-4 h-4 text-[var(--text-secondary)]" />
             </IconButton>
           </div>
 
@@ -144,76 +105,85 @@ export const MrFoxPanel: React.FC<MrFoxPanelProps> = ({
               >
                 <div
                   className={`
-                    max-w-[85%] rounded-2xl p-3.5 text-sm leading-relaxed
+                    max-w-[85%] rounded-2xl p-3.5 text-xs sm:text-sm leading-relaxed
                     ${msg.sender === 'user' 
-                      ? 'bg-violet-600 text-white rounded-tr-sm shadow-md' 
-                      : 'glass-1 text-gray-200 border border-white/10 rounded-tl-sm'}
+                      ? 'bg-purple-600 text-white rounded-tr-sm shadow-md' 
+                      : 'glass-1 text-[var(--text-primary)] border border-[var(--border-subtle)] rounded-tl-sm'}
                   `}
                 >
                   <p>{msg.text}</p>
                 </div>
-
-                {/* Structured Insight Card */}
-                {msg.insight && (
-                  <div className="mt-2.5 w-full max-w-[95%] p-3.5 rounded-xl bg-purple-900/20 border border-purple-500/30 shadow-inner">
-                    <div className="flex items-center gap-2 text-xs font-semibold text-purple-300 mb-1">
-                      {msg.insight.type === 'alert' ? (
-                        <AlertTriangle className="w-4 h-4 text-amber-400" />
-                      ) : (
-                        <TrendingUp className="w-4 h-4 text-emerald-400" />
-                      )}
-                      <span>{msg.insight.title}</span>
-                    </div>
-                    <p className="text-xs text-gray-300 mb-3">{msg.insight.description}</p>
-                    {msg.insight.actionLabel && (
-                      <Button
-                        variant="intelligence"
-                        size="sm"
-                        icon={<ArrowRight className="w-3.5 h-3.5" />}
-                        iconPosition="right"
-                        onClick={() => {
-                          if (msg.insight?.actionUrl) window.location.href = msg.insight.actionUrl;
-                        }}
-                      >
-                        {msg.insight.actionLabel}
-                      </Button>
-                    )}
-                  </div>
-                )}
-
-                {/* Quick Action Buttons */}
-                {msg.actions && (
-                  <div className="mt-2.5 flex flex-col gap-1.5 w-full max-w-[95%]">
-                    {msg.actions.map((act, i) => (
-                      <button
-                        key={i}
-                        onClick={act.action}
-                        className="text-left text-xs px-3 py-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-purple-200 hover:text-white border border-white/10 spring-transition cursor-pointer"
-                      >
-                        ⚡ {act.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
               </div>
             ))}
+
+            {/* Suggested Navigation Shortcuts */}
+            <div className="pt-2">
+              <div className="text-[11px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-2">
+                Operational Shortcuts
+              </div>
+              <div className="space-y-1.5">
+                <a
+                  href="/sales-invoices"
+                  className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-2)] hover:bg-white/[0.05] border border-[var(--border-subtle)] text-xs text-[var(--text-primary)] spring-transition"
+                >
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-3.5 h-3.5 text-purple-400" />
+                    <span>View Sales Invoices</span>
+                  </div>
+                  <ArrowRight className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
+                </a>
+
+                <a
+                  href="/bank-transfer"
+                  className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-2)] hover:bg-white/[0.05] border border-[var(--border-subtle)] text-xs text-[var(--text-primary)] spring-transition"
+                >
+                  <div className="flex items-center gap-2">
+                    <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Review Bank Transfers</span>
+                  </div>
+                  <ArrowRight className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
+                </a>
+
+                <a
+                  href="/helpdesk-tickets"
+                  className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-2)] hover:bg-white/[0.05] border border-[var(--border-subtle)] text-xs text-[var(--text-primary)] spring-transition"
+                >
+                  <div className="flex items-center gap-2">
+                    <Headphones className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Customer Support Tickets</span>
+                  </div>
+                  <ArrowRight className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
+                </a>
+
+                <a
+                  href="/settings"
+                  className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-2)] hover:bg-white/[0.05] border border-[var(--border-subtle)] text-xs text-[var(--text-primary)] spring-transition"
+                >
+                  <div className="flex items-center gap-2">
+                    <Settings className="w-3.5 h-3.5 text-indigo-400" />
+                    <span>Configure AI Provider Credentials</span>
+                  </div>
+                  <ArrowRight className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
+                </a>
+              </div>
+            </div>
           </div>
 
           {/* Prompt Input Box */}
-          <div className="p-4 border-t border-white/10 bg-black/40">
+          <div className="p-4 border-t border-[var(--border-subtle)] bg-[var(--surface-1)]">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 handleSend();
               }}
-              className="flex items-center gap-2 bg-[#12161E] rounded-xl border border-white/15 p-1.5 focus-within:border-purple-500 spring-transition"
+              className="flex items-center gap-2 bg-[var(--surface-2)] rounded-xl border border-[var(--border-medium)] p-1.5 focus-within:border-purple-500 spring-transition"
             >
               <input
                 type="text"
-                placeholder="Ask Mr Fox anything or give an instruction..."
+                placeholder="Ask Mr Fox or enter an operational instruction..."
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                className="flex-1 bg-transparent px-3 py-1.5 text-sm text-white placeholder:text-gray-500 outline-none"
+                className="flex-1 bg-transparent px-3 py-1.5 text-xs sm:text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none"
               />
               <Button
                 type="submit"
@@ -225,8 +195,8 @@ export const MrFoxPanel: React.FC<MrFoxPanelProps> = ({
                 Send
               </Button>
             </form>
-            <p className="text-[10px] text-gray-400 text-center mt-2">
-              Mr Fox uses deterministic multi-tenant security verification before executing actions.
+            <p className="text-[10px] text-[var(--text-tertiary)] text-center mt-2">
+              Connect an AI provider in Workspace Settings to enable live reasoning.
             </p>
           </div>
         </div>

@@ -1,14 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Bell, CheckCheck, Inbox, ShieldCheck, X } from 'lucide-react';
-import { Badge } from '../UI/Badge';
-import { Button } from '../UI/Button';
+import React, { useState, useRef, useEffect } from 'react';
+import { usePage } from '@inertiajs/react';
+import { Bell, Check, Trash2, Clock, AlertCircle, Info, Inbox } from 'lucide-react';
+import { IconButton } from '../UI/IconButton';
 
-export interface NotificationItem {
-  id: string | number;
+interface NotificationItem {
+  id: string;
   title: string;
   message: string;
-  read: boolean;
-  time: string;
+  read_at: string | null;
+  created_at: string;
+  type?: 'info' | 'warning' | 'security';
 }
 
 interface NotificationCenterProps {
@@ -16,99 +17,152 @@ interface NotificationCenterProps {
 }
 
 export const NotificationCenter: React.FC<NotificationCenterProps> = ({
-  initialNotifications = [],
+  initialNotifications,
 }) => {
-  const [open, setOpen] = useState(false);
-  const [notifications, setNotifications] = useState<NotificationItem[]>(initialNotifications);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const { auth } = usePage<any>().props;
+  const sharedNotifications: NotificationItem[] = auth?.notifications || initialNotifications || [];
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const [isOpen, setIsOpen] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationItem[]>(sharedNotifications);
+  const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle');
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const unreadCount = notifications.filter((n) => !n.read_at).length;
 
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setOpen(false);
+    if (auth?.notifications) {
+      setNotifications(auth.notifications);
+    }
+  }, [auth?.notifications]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleMarkAllRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  const markAsRead = (id: string) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read_at: new Date().toISOString() } : n))
+    );
   };
 
-  const handleMarkRead = (id: string | number) => {
+  const markAllAsRead = () => {
     setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+      prev.map((n) => ({ ...n, read_at: new Date().toISOString() }))
     );
   };
 
   return (
-    <div ref={dropdownRef} className="relative inline-block text-left">
-      <button
-        type="button"
-        onClick={() => setOpen((prev) => !prev)}
-        aria-expanded={open}
-        aria-label={`Notifications (${unreadCount} unread)`}
-        className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-gray-300 hover:text-white spring-transition cursor-pointer relative"
-      >
-        <Bell className="w-4 h-4" />
-        {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-violet-600 text-white text-[10px] font-bold flex items-center justify-center shadow-md">
-            {unreadCount}
-          </span>
-        )}
-      </button>
+    <div className="relative inline-block text-left" ref={containerRef}>
+      <div className="relative">
+        <IconButton
+          label={`Notifications (${unreadCount} unread)`}
+          variant="secondary"
+          size="sm"
+          onClick={() => setIsOpen(!isOpen)}
+          aria-expanded={isOpen}
+          aria-haspopup="dialog"
+        >
+          <Bell className="w-4 h-4 text-[var(--text-secondary)]" />
+        </IconButton>
 
-      {open && (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 glass-dropdown rounded-xl border border-white/15 shadow-2xl p-3 z-50 animate-in zoom-in-95 duration-150 space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b border-white/10">
+        {unreadCount > 0 && (
+          <span className="absolute top-1 right-1 w-2 h-2 bg-purple-500 rounded-full animate-pulse" />
+        )}
+      </div>
+
+      {isOpen && (
+        <div
+          role="dialog"
+          aria-label="Notification Center"
+          className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-[var(--surface-1)] border border-[var(--border-medium)] shadow-2xl overflow-hidden z-50 spring-transition"
+        >
+          <div className="p-4 border-b border-[var(--border-subtle)] flex items-center justify-between bg-[var(--surface-2)]">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-white tracking-tight uppercase">
-                Activity & Alerts
-              </span>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
+                Notifications
+              </h3>
               {unreadCount > 0 && (
-                <Badge variant="purple" size="sm">
+                <span className="px-1.5 py-0.5 rounded-full bg-purple-600/20 text-purple-300 text-[10px] font-bold border border-purple-500/30">
                   {unreadCount} new
-                </Badge>
+                </span>
               )}
             </div>
 
             {unreadCount > 0 && (
               <button
                 type="button"
-                onClick={handleMarkAllRead}
-                className="text-[11px] text-purple-300 hover:text-white flex items-center gap-1 font-medium cursor-pointer"
+                onClick={markAllAsRead}
+                className="text-[11px] text-purple-400 hover:text-purple-300 font-medium cursor-pointer"
               >
-                <CheckCheck className="w-3.5 h-3.5" /> Mark all read
+                Mark all read
               </button>
             )}
           </div>
 
-          <div className="max-h-72 overflow-y-auto space-y-2 pr-1">
-            {notifications.length > 0 ? (
-              notifications.map((item) => (
-                <div
-                  key={item.id}
-                  onClick={() => handleMarkRead(item.id)}
-                  className={`
-                    p-3 rounded-lg border text-xs cursor-pointer spring-transition select-none
-                    ${item.read ? 'bg-white/[0.02] border-white/5 opacity-70' : 'bg-purple-950/20 border-purple-500/30'}
-                  `}
-                >
-                  <div className="flex items-center justify-between font-semibold text-white">
-                    <span>{item.title}</span>
-                    <span className="text-[10px] text-gray-500 font-normal">{item.time}</span>
+          <div className="max-h-80 overflow-y-auto divide-y divide-[var(--border-subtle)]">
+            {status === 'loading' ? (
+              <div className="py-12 text-center text-xs text-[var(--text-tertiary)]">
+                Loading notifications...
+              </div>
+            ) : status === 'error' ? (
+              <div className="py-12 text-center text-xs text-rose-400">
+                Failed to load notifications.
+              </div>
+            ) : notifications.length > 0 ? (
+              notifications.map((n) => {
+                const isUnread = !n.read_at;
+
+                return (
+                  <div
+                    key={n.id}
+                    className={`p-3.5 flex items-start gap-3 text-xs spring-transition ${
+                      isUnread ? 'bg-purple-950/20' : 'hover:bg-white/[0.02]'
+                    }`}
+                  >
+                    <div className="mt-0.5">
+                      {n.type === 'warning' ? (
+                        <AlertCircle className="w-4 h-4 text-amber-400" />
+                      ) : (
+                        <Info className="w-4 h-4 text-purple-400" />
+                      )}
+                    </div>
+
+                    <div className="flex-1 space-y-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className={`font-semibold truncate ${isUnread ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>
+                          {n.title}
+                        </span>
+                        <span className="text-[10px] text-[var(--text-tertiary)] whitespace-nowrap">
+                          {n.created_at}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">{n.message}</p>
+                    </div>
+
+                    {isUnread && (
+                      <button
+                        type="button"
+                        onClick={() => markAsRead(n.id)}
+                        className="p-1 text-[var(--text-tertiary)] hover:text-purple-300 spring-transition"
+                        title="Mark as read"
+                      >
+                        <Check className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                   </div>
-                  <p className="text-[11px] text-gray-400 mt-1 leading-relaxed">{item.message}</p>
-                </div>
-              ))
+                );
+              })
             ) : (
-              <div className="py-8 text-center space-y-2">
-                <Inbox className="w-8 h-8 text-gray-600 mx-auto" />
-                <p className="text-xs font-semibold text-white">No active alerts</p>
-                <p className="text-[11px] text-gray-400">All tenant events and orders are caught up.</p>
+              <div className="py-12 text-center space-y-2">
+                <Inbox className="w-8 h-8 text-[var(--text-tertiary)] mx-auto opacity-50" />
+                <p className="text-xs font-semibold text-[var(--text-primary)]">No notifications</p>
+                <p className="text-[11px] text-[var(--text-tertiary)]">You have no unread alerts at this time.</p>
               </div>
             )}
           </div>

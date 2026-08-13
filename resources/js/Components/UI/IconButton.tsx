@@ -1,49 +1,43 @@
 import React from 'react';
-import { clsx } from 'clsx';
 
-export interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'intelligence';
-  size?: 'sm' | 'md' | 'lg';
+interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   label: string;
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
+  size?: 'sm' | 'md' | 'lg';
+  children: React.ReactNode;
+  className?: string;
 }
 
-export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(({
-  children,
-  className,
+export const IconButton: React.FC<IconButtonProps> = ({
+  label,
   variant = 'ghost',
   size = 'md',
-  label,
-  disabled = false,
+  children,
+  className = '',
   ...props
-}, ref) => {
-  const baseStyles = 'inline-flex items-center justify-center rounded-lg spring-transition focus-ring disabled:opacity-50 disabled:cursor-not-allowed select-none cursor-pointer active:scale-95';
-
-  const sizeStyles = {
-    sm: 'w-7 h-7 p-1 text-xs',
-    md: 'w-9 h-9 p-2 text-sm',
-    lg: 'w-11 h-11 p-2.5 text-base rounded-xl',
+}) => {
+  const sizeClasses = {
+    sm: 'p-1.5 rounded-lg',
+    md: 'p-2 rounded-xl',
+    lg: 'p-2.5 rounded-xl',
   };
 
-  const variantStyles = {
-    primary: 'bg-violet-600 hover:bg-violet-500 text-white border border-violet-500/30 shadow-sm',
-    secondary: 'bg-white/[0.06] hover:bg-white/[0.12] text-gray-300 hover:text-white border border-white/10',
-    ghost: 'bg-transparent hover:bg-white/[0.08] text-gray-400 hover:text-white',
-    danger: 'bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/20',
-    intelligence: 'bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-400/30',
+  const variantClasses = {
+    primary: 'bg-purple-600 hover:bg-purple-500 text-white shadow-md',
+    secondary: 'bg-[var(--surface-1)] hover:bg-[var(--surface-2)] text-[var(--text-secondary)] border border-[var(--border-subtle)]',
+    ghost: 'hover:bg-white/[0.06] text-[var(--text-secondary)] hover:text-[var(--text-primary)]',
+    danger: 'hover:bg-rose-500/10 text-[var(--text-secondary)] hover:text-rose-400',
   };
 
   return (
     <button
-      ref={ref}
-      disabled={disabled}
+      type="button"
       aria-label={label}
       title={label}
-      className={clsx(baseStyles, sizeStyles[size], variantStyles[variant], className)}
+      className={`inline-flex items-center justify-center spring-transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${sizeClasses[size]} ${variantClasses[variant]} ${className}`}
       {...props}
     >
       {children}
     </button>
   );
-});
-
-IconButton.displayName = 'IconButton';
+};

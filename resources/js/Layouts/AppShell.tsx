@@ -1,34 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { Link, usePage, router, Head } from '@inertiajs/react';
-import { 
-  LayoutDashboard, 
-  Layers, 
-  Users, 
-  Settings, 
-  CreditCard, 
-  LogOut, 
-  Menu, 
-  X, 
-  Search, 
-  FileText, 
-  DollarSign, 
-  Headphones, 
-  Image, 
-  MessageSquare, 
-  Building, 
-  ShieldCheck, 
-  Tag, 
-  Globe, 
-  Mail, 
-  Sliders, 
-  Bot,
-  Package,
-  Activity,
-  ArrowRightLeft,
-  Calendar,
+import { usePage, Link, router } from '@inertiajs/react';
+import {
+  Menu,
+  X,
+  Search,
+  ChevronRight,
+  LogOut,
+  User,
+  ShieldCheck,
+  Building,
   Sparkles,
-  UserCheck
+  Command,
+  HelpCircle,
+  FileText,
+  Warehouse,
+  ShoppingBag,
+  Layers,
+  ArrowRight,
+  Check,
+  Laptop,
 } from 'lucide-react';
+import {
+  ALL_NAVIGATION_GROUPS,
+  filterNavigation,
+  NavigationGroup,
+  NavigationItem,
+} from '@/Navigation/NavigationRegistry';
 import { CommandPalette } from '@/Components/Navigation/CommandPalette';
 import { WorkspaceSwitcher } from '@/Components/Navigation/WorkspaceSwitcher';
 import { NotificationCenter } from '@/Components/Navigation/NotificationCenter';
@@ -38,261 +35,295 @@ import { MrFoxPanel } from '@/Components/MrFox/MrFoxPanel';
 import { MrFoxMark } from '@/Components/MrFox/MrFoxMark';
 import { MrFoxOrb } from '@/Components/MrFox/MrFoxOrb';
 import { Badge } from '@/Components/UI/Badge';
-import { 
-  ALL_NAVIGATION_GROUPS, 
-  filterNavigation, 
-  NavigationItem 
-} from '@/Navigation/NavigationRegistry';
 
 interface AppShellProps {
   title?: string;
   children: React.ReactNode;
+  breadcrumbs?: Array<{ label: string; href?: string }>;
 }
 
-export default function AppShell({ title, children }: AppShellProps) {
-  const { auth, tenant, impersonating } = usePage<any>().props;
+export default function AppShell({ title, children, breadcrumbs }: AppShellProps) {
+  const { auth, tenant, flash } = usePage<any>().props;
+  const user = auth?.user;
+  const isSuperAdmin = Boolean(user?.is_super_admin);
+  const userPermissions = user?.permissions || [];
+  const enabledModules = tenant?.modules || [];
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
-  const [foxPanelOpen, setFoxPanelOpen] = useState(false);
+  const [mrFoxOpen, setMrFoxOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
-  const isSuperAdmin = Boolean(auth?.user?.is_super_admin);
-  const userPermissions = auth?.user?.permissions || [];
-
-  const navigationGroups = filterNavigation(
+  // Filter groups authorized for current user
+  const authorizedGroups: NavigationGroup[] = filterNavigation(
     ALL_NAVIGATION_GROUPS,
-    auth?.user,
+    user,
     isSuperAdmin,
-    userPermissions
+    userPermissions,
+    enabledModules
   );
 
+  // Global keyboard shortcuts (Cmd+K and Cmd+J)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         setCommandPaletteOpen((prev) => !prev);
-      }
-      if ((e.metaKey || e.ctrlKey) && e.key === 'j') {
+      } else if ((e.metaKey || e.ctrlKey) && e.key === 'j') {
         e.preventDefault();
-        setFoxPanelOpen((prev) => !prev);
+        setMrFoxOpen((prev) => !prev);
       }
     };
+
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const handleLeaveImpersonation = () => {
-    router.post('/impersonate/leave');
+  const handleLogout = () => {
+    router.post('/logout');
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-0)] text-[var(--text-primary)] flex flex-col antialiased selection:bg-purple-600 selection:text-white">
-      {title && <Head title={title} />}
+    <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] font-sans antialiased selection:bg-purple-500/30">
+      {/* ========================================================================= */}
+      {/* SIDEBAR NAVIGATION (Desktop: fixed w-64, Mobile: off-canvas drawer) */}
+      {/* ========================================================================= */}
 
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 z-50 px-4 py-2 bg-purple-600 text-white rounded-lg font-bold shadow-lg"
-      >
-        Skip to main content
-      </a>
-
-      {impersonating && (
-        <div className="bg-gradient-to-r from-amber-500 to-rose-600 px-4 py-1.5 text-xs text-black font-bold flex items-center justify-between z-50">
-          <div className="flex items-center gap-2">
-            <UserCheck className="w-4 h-4" />
-            <span>Active Impersonation Session: <strong>{auth?.user?.name}</strong></span>
-          </div>
-          <button
-            type="button"
-            onClick={handleLeaveImpersonation}
-            className="underline hover:text-white font-black cursor-pointer"
-          >
-            Leave Impersonation
-          </button>
-        </div>
+      {/* Mobile Drawer Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden spring-transition"
+          onClick={() => setSidebarOpen(false)}
+        />
       )}
 
-      <div className="flex flex-1 min-h-0 relative">
-        {sidebarOpen && (
-          <div
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden spring-transition"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
-
-        <aside
-          aria-label="Sidebar Navigation"
-          className={`
-            fixed inset-y-0 left-0 z-40 w-64 glass-1 border-r border-[var(--border-subtle)] flex flex-col justify-between transform lg:relative lg:translate-x-0 spring-transition
-            ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-          `}
-        >
-          <div className="h-16 px-4 border-b border-[var(--border-subtle)] flex items-center justify-between">
-            <Link href="/dashboard" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-md">
-                HL
+      {/* Sidebar Container */}
+      <aside
+        aria-label="Main Navigation"
+        className={`
+          fixed top-0 bottom-0 left-0 z-40 w-64 glass-1 border-r border-[var(--border-subtle)] flex flex-col justify-between
+          spring-transition lg:translate-x-0 bg-[var(--surface-1)]
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        `}
+      >
+        {/* Brand Header */}
+        <div>
+          <div className="h-16 flex items-center justify-between px-5 border-b border-[var(--border-subtle)]">
+            <Link href="/dashboard" className="flex items-center gap-2.5 group">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center shadow-md shadow-purple-500/20 group-hover:scale-105 spring-transition">
+                <MrFoxMark size={20} />
               </div>
-              <div>
-                <span className="text-sm font-bold tracking-tight text-white block">HiddenLeaf</span>
-                <span className="text-[10px] font-medium text-violet-400 block -mt-1">BusinessOS</span>
+              <div className="flex flex-col">
+                <span className="font-bold text-sm tracking-tight text-[var(--text-primary)] flex items-center gap-1.5">
+                  HiddenLeaf
+                  <Badge variant="purple" size="sm">OS</Badge>
+                </span>
+                <span className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wider font-semibold">
+                  BusinessOS
+                </span>
               </div>
             </Link>
 
             <button
               type="button"
-              className="lg:hidden p-1 text-gray-400 hover:text-white"
               onClick={() => setSidebarOpen(false)}
+              className="lg:hidden p-1 rounded-lg text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-white/5"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto py-4 px-3 space-y-5">
-            {navigationGroups.map((group) => (
-              <div key={group.group} className="space-y-1">
+          {/* Navigation Items */}
+          <nav className="p-3 space-y-6 overflow-y-auto max-h-[calc(100vh-140px)]">
+            {authorizedGroups.map((group) => (
+              <div key={group.id} className="space-y-1">
                 <div className="px-3 text-[10px] font-bold uppercase tracking-wider text-[var(--text-tertiary)]">
-                  {group.group}
+                  {group.title}
                 </div>
-                {group.items.map((item) => {
-                  const isActive = typeof window !== 'undefined' && window.location.pathname.startsWith(item.href);
-                  const Icon = item.icon;
 
-                  return (
-                    <Link
-                      key={item.id}
-                      href={item.href}
-                      className={`
-                        flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium spring-transition group select-none
-                        ${isActive 
-                          ? 'bg-purple-600/20 text-white font-semibold border border-purple-500/30' 
-                          : 'text-[var(--text-secondary)] hover:text-white hover:bg-white/[0.04]'}
-                      `}
-                    >
-                      <Icon className={`w-4 h-4 ${isActive ? 'text-purple-400' : 'text-gray-400 group-hover:text-purple-300'}`} />
-                      <span className="truncate">{item.name}</span>
-                    </Link>
-                  );
-                })}
+                <div className="space-y-0.5 mt-1">
+                  {group.items.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = window.location.pathname === item.href;
+
+                    return (
+                      <Link
+                        key={item.id}
+                        href={item.href}
+                        className={`
+                          flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium spring-transition group select-none
+                          ${isActive 
+                            ? 'bg-purple-600/20 text-[var(--text-primary)] font-semibold border border-purple-500/30' 
+                            : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/[0.04]'}
+                        `}
+                      >
+                        <Icon
+                          className={`w-4 h-4 spring-transition ${
+                            isActive ? 'text-purple-400' : 'text-[var(--text-tertiary)] group-hover:text-purple-300'
+                          }`}
+                        />
+                        <span className="truncate">{item.name}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
               </div>
             ))}
-          </div>
+          </nav>
+        </div>
 
-          <div className="p-3 border-t border-[var(--border-subtle)] space-y-2 bg-[var(--surface-1)]">
-            <div className="flex items-center justify-between text-xs px-2 py-1">
-              <span className="text-[11px] text-[var(--text-tertiary)]">Theme</span>
-              <ThemeSwitcher />
-            </div>
-
-            <div className="p-2 rounded-xl bg-white/[0.02] border border-[var(--border-subtle)] flex items-center justify-between">
-              <div className="flex items-center gap-2.5 truncate">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white font-bold text-xs">
-                  {auth?.user?.name?.charAt(0) || 'U'}
+        {/* User Profile Mini Bar */}
+        <div className="p-3 border-t border-[var(--border-subtle)] bg-[var(--surface-2)]">
+          <div className="flex items-center justify-between">
+            <Link
+              href="/profile"
+              className="flex items-center gap-2.5 min-w-0 group hover:opacity-80 spring-transition"
+            >
+              <div className="w-8 h-8 rounded-full bg-purple-900/40 border border-purple-500/30 flex items-center justify-center text-purple-300 text-xs font-bold flex-shrink-0">
+                {user?.name?.charAt(0) || 'U'}
+              </div>
+              <div className="truncate">
+                <div className="text-xs font-semibold text-[var(--text-primary)] truncate">
+                  {user?.name || 'User'}
                 </div>
-                <div className="truncate">
-                  <span className="text-xs font-semibold text-white block truncate">{auth?.user?.name || 'User'}</span>
-                  <span className="text-[10px] text-gray-400 block truncate">{auth?.user?.email}</span>
+                <div className="text-[10px] text-[var(--text-tertiary)] truncate">
+                  {user?.email || 'user@example.com'}
                 </div>
               </div>
+            </Link>
 
-              <Link
-                href="/logout"
-                method="post"
-                as="button"
-                className="p-1.5 text-gray-400 hover:text-rose-400 spring-transition cursor-pointer"
-                title="Sign Out"
-              >
-                <LogOut className="w-4 h-4" />
-              </Link>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="p-1.5 rounded-lg text-[var(--text-tertiary)] hover:text-rose-400 hover:bg-rose-500/10 spring-transition cursor-pointer"
+              title="Sign Out"
+              aria-label="Sign Out"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* ========================================================================= */}
+      {/* MAIN CONTENT AREA */}
+      {/* ========================================================================= */}
+      <div className="lg:pl-64 flex flex-col min-h-screen">
+        {/* Top Header Navbar */}
+        <header className="sticky top-0 z-30 h-16 glass-1 border-b border-[var(--border-subtle)] px-4 sm:px-6 flex items-center justify-between gap-4 bg-[var(--surface-1)]">
+          <div className="flex items-center gap-3">
+            {/* Mobile Menu Trigger */}
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden p-2 rounded-xl bg-[var(--surface-2)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              aria-label="Open Navigation Sidebar"
+            >
+              <Menu className="w-4 h-4" />
+            </button>
+
+            {/* Workspace Switcher */}
+            <WorkspaceSwitcher />
+          </div>
+
+          {/* Center Search / Command Trigger */}
+          <div className="flex-1 max-w-md hidden sm:block">
+            <button
+              type="button"
+              onClick={() => setCommandPaletteOpen(true)}
+              className="w-full flex items-center justify-between px-3 py-1.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border-subtle)] hover:border-purple-500/50 text-xs text-[var(--text-tertiary)] spring-transition cursor-pointer"
+            >
+              <div className="flex items-center gap-2">
+                <Search className="w-3.5 h-3.5" />
+                <span>Search features, actions, tools...</span>
+              </div>
+              <kbd className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/10 text-[var(--text-tertiary)]">
+                ⌘K
+              </kbd>
+            </button>
+          </div>
+
+          {/* Right Header Actions */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Theme Mode Switcher */}
+            <ThemeSwitcher />
+
+            {/* Notification Center */}
+            <NotificationCenter />
+
+            {/* Ask Mr Fox Header Shortcut */}
+            <button
+              type="button"
+              onClick={() => setMrFoxOpen(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-purple-600/10 hover:bg-purple-600/20 text-purple-300 border border-purple-500/30 text-xs font-semibold spring-transition cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+              <span className="hidden md:inline">Mr Fox</span>
+            </button>
+          </div>
+        </header>
+
+        {/* Page Breadcrumbs */}
+        {breadcrumbs && breadcrumbs.length > 0 && (
+          <div className="px-4 sm:px-6 py-2.5 border-b border-[var(--border-subtle)] bg-[var(--surface-1)] flex items-center gap-1.5 text-xs text-[var(--text-tertiary)]">
+            <Link href="/dashboard" className="hover:text-[var(--text-primary)] spring-transition">
+              Home
+            </Link>
+            {breadcrumbs.map((crumb, idx) => (
+              <React.Fragment key={idx}>
+                <ChevronRight className="w-3 h-3 text-[var(--text-tertiary)]" />
+                {crumb.href ? (
+                  <Link href={crumb.href} className="hover:text-[var(--text-primary)] spring-transition">
+                    {crumb.label}
+                  </Link>
+                ) : (
+                  <span className="font-semibold text-[var(--text-primary)]">{crumb.label}</span>
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+        )}
+
+        {/* Flash Notifications */}
+        {flash?.success && (
+          <div className="mx-4 sm:mx-6 mt-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Check className="w-4 h-4" />
+              <span>{flash.success}</span>
             </div>
           </div>
-        </aside>
+        )}
 
-        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          <header className="h-16 glass-1 border-b border-[var(--border-subtle)] px-4 sm:px-6 flex items-center justify-between gap-3 z-30">
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                className="lg:hidden p-2 rounded-lg bg-white/[0.04] text-gray-300 hover:text-white"
-                onClick={() => setSidebarOpen(true)}
-                aria-label="Open sidebar menu"
-              >
-                <Menu className="w-5 h-5" />
-              </button>
-
-              <WorkspaceSwitcher />
+        {flash?.error && (
+          <div className="mx-4 sm:mx-6 mt-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <X className="w-4 h-4" />
+              <span>{flash.error}</span>
             </div>
+          </div>
+        )}
 
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setCommandPaletteOpen(true)}
-                className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-[var(--border-medium)] text-xs text-gray-400 hover:text-gray-200 spring-transition cursor-pointer"
-              >
-                <Search className="w-3.5 h-3.5" />
-                <span>Search everything...</span>
-                <kbd className="text-[10px] font-mono bg-white/10 px-1.5 py-0.5 rounded text-gray-300">⌘K</kbd>
-              </button>
-
-              <NotificationCenter />
-            </div>
-          </header>
-
-          <main id="main-content" className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8">
-            {children}
-          </main>
-        </div>
+        {/* Main Content Body */}
+        <main className="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto">
+          {children}
+        </main>
       </div>
 
-      <nav
-        aria-label="Mobile Navigation"
-        className="lg:hidden fixed bottom-0 inset-x-0 z-30 glass-dropdown border-t border-[var(--border-subtle)] px-4 py-2 flex items-center justify-around text-[10px] font-medium"
-      >
-        <Link href="/dashboard" className="flex flex-col items-center gap-1 text-gray-400 hover:text-white">
-          <LayoutDashboard className="w-5 h-5" />
-          <span>Dashboard</span>
-        </Link>
-        <Link href="/sales-invoices" className="flex flex-col items-center gap-1 text-gray-400 hover:text-white">
-          <FileText className="w-5 h-5" />
-          <span>Work</span>
-        </Link>
-        
-        <button
-          type="button"
-          onClick={() => setFoxPanelOpen(true)}
-          className="flex flex-col items-center -mt-5"
-          aria-label="Ask Mr Fox Copilot"
-        >
-          <MrFoxOrb size="sm" />
-          <span className="text-[10px] text-purple-300 font-bold mt-1">Mr Fox</span>
-        </button>
+      {/* Floating Mr Fox AI Launcher */}
+      <MrFoxLauncher onClick={() => setMrFoxOpen(true)} unreadCount={0} />
 
-        <Link href="/chats" className="flex flex-col items-center gap-1 text-gray-400 hover:text-white">
-          <MessageSquare className="w-5 h-5" />
-          <span>Inbox</span>
-        </Link>
-        <button
-          type="button"
-          onClick={() => setSidebarOpen(true)}
-          className="flex flex-col items-center gap-1 text-gray-400 hover:text-white"
-        >
-          <Menu className="w-5 h-5" />
-          <span>More</span>
-        </button>
-      </nav>
-
-      <div className="hidden lg:block">
-        <MrFoxLauncher onClick={() => setFoxPanelOpen(true)} />
-      </div>
-
+      {/* Right-Sheet Mr Fox Drawer */}
       <MrFoxPanel
-        isOpen={foxPanelOpen}
-        onClose={() => setFoxPanelOpen(false)}
-        contextPage={title || 'Executive Dashboard'}
+        isOpen={mrFoxOpen}
+        onClose={() => setMrFoxOpen(false)}
+        contextPage={title || 'Workspace'}
       />
 
+      {/* Command Palette (Cmd+K) */}
       <CommandPalette
         isOpen={commandPaletteOpen}
         onClose={() => setCommandPaletteOpen(false)}
+        onOpenMrFox={() => setMrFoxOpen(true)}
       />
     </div>
   );

@@ -1,26 +1,27 @@
 import React from 'react';
-import { 
-  LayoutDashboard, 
-  Layers, 
-  Users, 
-  Settings, 
-  CreditCard, 
-  FileText, 
-  DollarSign, 
-  Headphones, 
-  Image, 
-  MessageSquare, 
-  Building, 
-  ShieldCheck, 
-  Tag, 
-  Globe, 
-  Mail, 
-  Sliders, 
+import {
+  LayoutDashboard,
+  FileText,
+  FileSpreadsheet,
+  RotateCcw,
+  ShoppingCart,
+  Warehouse,
+  ArrowLeftRight,
+  Truck,
+  CreditCard,
+  Tag,
+  Repeat,
+  DollarSign,
+  Headphones,
+  FolderOpen,
+  MessageSquare,
   Bot,
-  Package,
-  Activity,
-  ArrowRightLeft,
-  Calendar
+  Layers,
+  Shield,
+  Users,
+  Cpu,
+  Settings,
+  Sparkles,
 } from 'lucide-react';
 
 export interface NavigationItem {
@@ -30,93 +31,312 @@ export interface NavigationItem {
   icon: React.ComponentType<{ className?: string }>;
   permission?: string;
   module?: string;
+  roles?: string[];
   superAdminOnly?: boolean;
-  companyAdminOnly?: boolean;
-  category?: 'Navigation' | 'Actions' | 'Mr Fox Intelligence';
+  description?: string;
+  category?: string;
 }
 
 export interface NavigationGroup {
-  group: string;
+  id: string;
+  title: string;
   items: NavigationItem[];
 }
 
 export const ALL_NAVIGATION_GROUPS: NavigationGroup[] = [
   {
-    group: 'Overview',
+    id: 'core',
+    title: 'Core & Overview',
     items: [
-      { id: 'nav-dashboard', name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, category: 'Navigation' },
+      {
+        id: 'nav-dashboard',
+        name: 'Dashboard',
+        href: '/dashboard',
+        icon: LayoutDashboard,
+        category: 'Overview',
+        description: 'Tenant executive metrics and workspace overview',
+      },
     ],
   },
   {
-    group: 'Sales & Invoicing',
+    id: 'sales',
+    title: 'Sales & Invoicing',
     items: [
-      { id: 'nav-sales-invoices', name: 'Sales Invoices', href: '/sales-invoices', icon: FileText, category: 'Navigation' },
-      { id: 'nav-sales-proposals', name: 'Sales Proposals', href: '/sales-proposals', icon: FileText, category: 'Navigation' },
-      { id: 'nav-sales-returns', name: 'Sales Returns', href: '/sales-returns', icon: ArrowRightLeft, category: 'Navigation' },
-      { id: 'nav-orders', name: 'Orders & Billing', href: '/orders', icon: DollarSign, category: 'Navigation' },
+      {
+        id: 'nav-sales-invoices',
+        name: 'Sales Invoices',
+        href: '/sales-invoices',
+        icon: FileText,
+        permission: 'sales.invoice.view',
+        category: 'Sales',
+        description: 'Customer invoices, line items, and payment tracking',
+      },
+      {
+        id: 'nav-sales-proposals',
+        name: 'Sales Proposals',
+        href: '/sales-proposals',
+        icon: FileSpreadsheet,
+        permission: 'sales.proposal.view',
+        category: 'Sales',
+        description: 'Estimates, quotations, and proposal conversion',
+      },
+      {
+        id: 'nav-sales-returns',
+        name: 'Sales Returns',
+        href: '/sales-returns',
+        icon: RotateCcw,
+        permission: 'sales.return.view',
+        category: 'Sales',
+        description: 'Credit notes and customer return authorizations',
+      },
+      {
+        id: 'nav-orders',
+        name: 'Plan Orders',
+        href: '/orders',
+        icon: ShoppingCart,
+        permission: 'orders.view',
+        category: 'Billing',
+        description: 'Subscription order history and plan receipts',
+      },
     ],
   },
   {
-    group: 'Operations & Inventory',
+    id: 'procurement',
+    title: 'Procurement & Inventory',
     items: [
-      { id: 'nav-warehouses', name: 'Warehouses', href: '/warehouses', icon: Building, category: 'Navigation' },
-      { id: 'nav-transfers', name: 'Stock Transfers', href: '/transfers', icon: ArrowRightLeft, category: 'Navigation' },
-      { id: 'nav-purchase-invoices', name: 'Purchase Invoices', href: '/purchase-invoices', icon: FileText, category: 'Navigation' },
-      { id: 'nav-purchase-returns', name: 'Purchase Returns', href: '/purchase-returns', icon: ArrowRightLeft, category: 'Navigation' },
+      {
+        id: 'nav-warehouses',
+        name: 'Warehouses',
+        href: '/warehouses',
+        icon: Warehouse,
+        permission: 'warehouses.view',
+        category: 'Inventory',
+        description: 'Storage locations, inventory tracking, and stock levels',
+      },
+      {
+        id: 'nav-transfers',
+        name: 'Transfers',
+        href: '/transfers',
+        icon: ArrowLeftRight,
+        permission: 'transfers.view',
+        category: 'Inventory',
+        description: 'Inter-warehouse inventory stock transfers',
+      },
+      {
+        id: 'nav-purchase-invoices',
+        name: 'Purchase Invoices',
+        href: '/purchase-invoices',
+        icon: Truck,
+        permission: 'purchase.invoice.view',
+        category: 'Procurement',
+        description: 'Vendor bills and supplier purchasing accounts',
+      },
+      {
+        id: 'nav-purchase-returns',
+        name: 'Purchase Returns',
+        href: '/purchase-returns',
+        icon: RotateCcw,
+        permission: 'purchase.return.view',
+        category: 'Procurement',
+        description: 'Debit notes and vendor return adjustments',
+      },
     ],
   },
   {
-    group: 'Finance & SaaS',
+    id: 'billing',
+    title: 'Plans & Subscriptions',
     items: [
-      { id: 'nav-plans', name: 'Plans & Pricing', href: '/plans', icon: CreditCard, category: 'Navigation' },
-      { id: 'nav-coupons', name: 'Promo Coupons', href: '/coupons', icon: Tag, category: 'Navigation' },
-      { id: 'nav-subscriptions', name: 'Subscriptions', href: '/subscriptions', icon: Calendar, category: 'Navigation' },
-      { id: 'nav-bank-transfer', name: 'Bank Transfers', href: '/bank-transfer', icon: DollarSign, category: 'Navigation' },
+      {
+        id: 'nav-plans',
+        name: 'Subscription Plans',
+        href: '/plans',
+        icon: CreditCard,
+        permission: 'plans.view',
+        category: 'Billing',
+        description: 'Tiered plan catalog and pricing tiers',
+      },
+      {
+        id: 'nav-coupons',
+        name: 'Coupons',
+        href: '/coupons',
+        icon: Tag,
+        permission: 'coupons.view',
+        category: 'Billing',
+        description: 'Discount codes and promotional campaigns',
+      },
+      {
+        id: 'nav-subscriptions',
+        name: 'Active Subscriptions',
+        href: '/subscriptions',
+        icon: Repeat,
+        permission: 'subscriptions.view',
+        category: 'Billing',
+        description: 'Tenant active licenses and recurrence cycles',
+      },
+      {
+        id: 'nav-bank-transfers',
+        name: 'Bank Transfers',
+        href: '/bank-transfer',
+        icon: DollarSign,
+        permission: 'bank-transfer.view',
+        category: 'Billing',
+        description: 'Offline wire payment review and reconciliation',
+      },
     ],
   },
   {
-    group: 'Communications',
+    id: 'operations',
+    title: 'Operations & Workspace',
     items: [
-      { id: 'nav-helpdesk', name: 'Helpdesk Tickets', href: '/helpdesk-tickets', icon: Headphones, category: 'Navigation' },
-      { id: 'nav-media', name: 'Media Library', href: '/media/page', icon: Image, category: 'Navigation' },
-      { id: 'nav-chat', name: 'Team Messenger', href: '/chats', icon: MessageSquare, category: 'Navigation' },
-      { id: 'nav-ai-agent', name: 'AI Copilot', href: '/ai-agent/chat', icon: Bot, category: 'Navigation' },
+      {
+        id: 'nav-helpdesk',
+        name: 'Helpdesk & Support',
+        href: '/helpdesk-tickets',
+        icon: Headphones,
+        permission: 'helpdesk.view',
+        category: 'Operations',
+        description: 'Customer ticket dispatch and issue resolution',
+      },
+      {
+        id: 'nav-media',
+        name: 'Media Library',
+        href: '/media',
+        icon: FolderOpen,
+        permission: 'media.view',
+        category: 'Storage',
+        description: 'S3 asset management and shared file storage',
+      },
+      {
+        id: 'nav-messenger',
+        name: 'Live Chat',
+        href: '/messenger',
+        icon: MessageSquare,
+        permission: 'chat.view',
+        category: 'Communication',
+        description: 'Internal team messaging and customer communications',
+      },
+      {
+        id: 'nav-ai-agent',
+        name: 'Mr Fox AI Assistant',
+        href: '/ai-agent',
+        icon: Bot,
+        permission: 'ai-agent.view',
+        category: 'Intelligence',
+        description: 'Neural reasoning copilot and workspace insights',
+      },
+      {
+        id: 'nav-workspaces',
+        name: 'Workspaces',
+        href: '/workspaces',
+        icon: Layers,
+        permission: 'workspace.view',
+        category: 'Workspace',
+        description: 'Tenant workspace configuration and isolation settings',
+      },
     ],
   },
   {
-    group: 'Administration',
+    id: 'admin',
+    title: 'Access & System',
     items: [
-      { id: 'nav-workspaces', name: 'Workspaces', href: '/workspaces', icon: Layers, category: 'Navigation' },
-      { id: 'nav-roles', name: 'Roles & RBAC', href: '/roles', icon: ShieldCheck, category: 'Navigation' },
-      { id: 'nav-users', name: 'Team & Users', href: '/users', icon: Users, category: 'Navigation' },
-      { id: 'nav-login-history', name: 'Login History', href: '/users-login-history', icon: Activity, category: 'Navigation' },
-      { id: 'nav-modules', name: 'Module Catalog', href: '/modules', icon: Package, category: 'Navigation' },
-      { id: 'nav-languages', name: 'Languages', href: '/languages', icon: Globe, category: 'Navigation' },
-      { id: 'nav-email-templates', name: 'Email Templates', href: '/email-templates', icon: Mail, category: 'Navigation' },
-      { id: 'nav-settings', name: 'Settings', href: '/settings', icon: Sliders, category: 'Navigation' },
-      { id: 'nav-superadmin', name: 'Super Admin', href: '/super-admin/dashboard', icon: ShieldCheck, superAdminOnly: true, category: 'Navigation' },
+      {
+        id: 'nav-roles',
+        name: 'Roles & Permissions',
+        href: '/roles',
+        icon: Shield,
+        permission: 'roles.view',
+        category: 'Security',
+        description: 'RBAC role definitions and granular capabilities',
+      },
+      {
+        id: 'nav-users',
+        name: 'User Management',
+        href: '/users',
+        icon: Users,
+        permission: 'users.view',
+        category: 'Security',
+        description: 'Team members, user invitations, and access status',
+      },
+      {
+        id: 'nav-modules',
+        name: 'Module Catalog',
+        href: '/modules',
+        icon: Cpu,
+        permission: 'modules.manage',
+        category: 'System',
+        description: 'Modular feature discovery, activation, and licenses',
+      },
+      {
+        id: 'nav-settings',
+        name: 'System Settings',
+        href: '/settings',
+        icon: Settings,
+        permission: 'settings.view',
+        category: 'System',
+        description: 'Branding, mail, webhooks, and security preferences',
+      },
     ],
   },
 ];
+
+export function isItemAuthorized(
+  item: NavigationItem,
+  user: any,
+  isSuperAdmin: boolean,
+  userPermissions: string[],
+  enabledModules: string[] = []
+): boolean {
+  if (isSuperAdmin) {
+    return true;
+  }
+
+  if (item.superAdminOnly) {
+    return false;
+  }
+
+  // Company admins and owner role have broad access
+  if (user?.role === 'company_admin' || user?.role === 'company') {
+    if (item.module && !enabledModules.includes(item.module)) {
+      return false;
+    }
+    return true;
+  }
+
+  // Module check
+  if (item.module && !enabledModules.includes(item.module)) {
+    return false;
+  }
+
+  // Role check
+  if (item.roles && item.roles.length > 0) {
+    if (!item.roles.includes(user?.role)) {
+      return false;
+    }
+  }
+
+  // Permission check
+  if (item.permission) {
+    if (!userPermissions.includes(item.permission)) {
+      return false;
+    }
+  }
+
+  return true;
+}
 
 export function filterNavigation(
   groups: NavigationGroup[],
   user: any,
   isSuperAdmin: boolean,
-  userPermissions: string[] = []
+  userPermissions: string[],
+  enabledModules: string[] = []
 ): NavigationGroup[] {
   return groups
     .map((grp) => ({
-      group: grp.group,
-      items: grp.items.filter((item) => {
-        if (item.superAdminOnly && !isSuperAdmin) {
-          return false;
-        }
-        if (item.permission && !isSuperAdmin && !userPermissions.includes(item.permission)) {
-          return false;
-        }
-        return true;
-      }),
+      ...grp,
+      items: grp.items.filter((item) =>
+        isItemAuthorized(item, user, isSuperAdmin, userPermissions, enabledModules)
+      ),
     }))
     .filter((grp) => grp.items.length > 0);
 }

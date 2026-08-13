@@ -4,204 +4,173 @@ import AppShell from '@/Layouts/AppShell';
 import { Card, MetricCard } from '@/Components/UI/Card';
 import { Button } from '@/Components/UI/Button';
 import { Badge } from '@/Components/UI/Badge';
-import { SectionHeader } from '@/Components/UI/SectionHeader';
 import { MrFoxMark } from '@/Components/MrFox/MrFoxMark';
 import { 
   Users, 
   Layers, 
-  Headphones, 
-  Activity, 
+  CreditCard, 
+  TrendingUp, 
   ArrowRight, 
-  FileText, 
-  Plus, 
-  DollarSign, 
   ShieldCheck, 
-  Clock,
-  Inbox
+  Sparkles,
+  FileText,
+  Warehouse,
+  ShoppingBag,
+  Activity
 } from 'lucide-react';
 
 export default function Dashboard() {
-  const { auth, tenant, stats = {}, recentLogs = [] } = usePage<any>().props;
+  const { auth, tenant, metrics } = usePage<any>().props;
+  const user = auth?.user;
+  const workspaceTitle = tenant?.workspace_title || 'Default Workspace';
 
-  const usersCount = stats?.users ?? 0;
-  const workspacesCount = stats?.workspaces ?? 0;
-  const ticketsCount = stats?.tickets ?? 0;
-  const activeContext = tenant?.workspace_title || 'Main Workspace';
+  const userCount = metrics?.users_count ?? 1;
+  const workspaceCount = metrics?.workspaces_count ?? (tenant?.available_workspaces?.length || 1);
+  const activePlan = metrics?.active_plan_name || 'Standard Plan';
+  const roleTitle = user?.role ? String(user.role).replace('_', ' ').toUpperCase() : 'MEMBER';
 
   return (
-    <AppShell title="Executive Dashboard">
-      <div className="space-y-6">
-        {/* Contextual Executive Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <AppShell title="Dashboard">
+      <div className="space-y-8">
+        {/* Welcome Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[var(--border-subtle)]">
           <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-purple-400">
-                Workspace Operations
-              </span>
-              <Badge variant="purple" size="sm">
-                {activeContext}
-              </Badge>
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)]">
+                Welcome back, {user?.name || 'User'}
+              </h1>
+              <Badge variant="purple" size="sm">{roleTitle}</Badge>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-              Welcome back, {auth?.user?.name || 'Executive'}
-            </h1>
-            <p className="text-xs sm:text-sm text-gray-400">
-              Overview of active records, team capacity, and recent system audit events.
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)]">
+              Operational executive overview for <span className="font-semibold text-[var(--text-primary)]">{workspaceTitle}</span>.
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Link href="/sales-invoices/create">
-              <Button variant="secondary" size="sm" icon={<FileText className="w-3.5 h-3.5" />}>
+              <Button variant="primary" size="sm" icon={<FileText className="w-3.5 h-3.5" />}>
                 New Invoice
-              </Button>
-            </Link>
-            <Link href="/users/create">
-              <Button variant="primary" size="sm" icon={<Plus className="w-3.5 h-3.5" />}>
-                Invite Member
               </Button>
             </Link>
           </div>
         </div>
 
-        {/* 4 Tabular Metric Cards */}
+        {/* Real Operational Metrics */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <MetricCard
+            title="Active Workspaces"
+            value={workspaceCount}
+            icon={<Layers className="w-5 h-5 text-purple-400" />}
+            subtitle="Scoped tenant contexts"
+          />
+
+          <MetricCard
             title="Team Members"
-            value={usersCount}
-            icon={<Users className="w-5 h-5 text-purple-400" />}
+            value={userCount}
+            icon={<Users className="w-5 h-5 text-indigo-400" />}
             subtitle="Active workspace accounts"
           />
 
           <MetricCard
-            title="Active Workspaces"
-            value={workspacesCount}
-            icon={<Layers className="w-5 h-5 text-indigo-400" />}
-            subtitle="Operational namespaces"
+            title="Subscription Tier"
+            value={activePlan}
+            icon={<CreditCard className="w-5 h-5 text-emerald-400" />}
+            subtitle="Current billing plan"
           />
 
           <MetricCard
-            title="Helpdesk Tickets"
-            value={ticketsCount}
-            icon={<Headphones className="w-5 h-5 text-amber-400" />}
-            subtitle="Customer support requests"
-          />
-
-          <MetricCard
-            title="Tenant Context"
-            value={activeContext}
-            icon={<Activity className="w-5 h-5 text-emerald-400" />}
-            subtitle="Current active boundary"
+            title="System Security"
+            value="Enforced"
+            icon={<ShieldCheck className="w-5 h-5 text-amber-400" />}
+            subtitle="Tenant RBAC & Isolation"
           />
         </div>
 
-        {/* Mr Fox Intelligence Briefing Card (Level 2 Glass) */}
-        <Card level={2} className="relative overflow-hidden p-6 border-purple-500/30">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500/20 via-purple-600/30 to-cyan-500/20 border border-purple-500/30 flex items-center justify-center shadow-lg">
-                <MrFoxMark size={28} />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-base font-bold text-white tracking-tight">Mr Fox Autonomous Assistant</h3>
-                  <Badge variant="purple" size="sm">Ready</Badge>
+        {/* Quick Launch & Operational Hub */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Mr Fox Intelligence Spotlight */}
+          <Card level={1} className="lg:col-span-2 space-y-4 border-purple-500/20 bg-purple-950/10">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-purple-900/40 border border-purple-500/30 flex items-center justify-center shadow-lg">
+                  <MrFoxMark size={24} />
                 </div>
-                <p className="text-xs text-gray-300 mt-0.5">
-                  Intelligence engine ready to assist with invoices, ledger reviews, and operational queries.
-                </p>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-base font-bold text-[var(--text-primary)]">
+                      Mr Fox Intelligence Platform
+                    </h2>
+                    <Badge variant="neutral" size="sm">Disconnected / Ready</Badge>
+                  </div>
+                  <p className="text-xs text-[var(--text-secondary)]">
+                    Autonomous workspace reasoning and execution assistant
+                  </p>
+                </div>
               </div>
+
+              <Link href="/ai-agent">
+                <Button variant="intelligence" size="sm" icon={<Sparkles className="w-3.5 h-3.5" />}>
+                  Open Assistant
+                </Button>
+              </Link>
             </div>
 
-            <Link href="/ai-agent/chat">
-              <Button variant="intelligence" size="sm" icon={<ArrowRight className="w-3.5 h-3.5" />} iconPosition="right">
-                Open Assistant
-              </Button>
-            </Link>
-          </div>
-        </Card>
-
-        {/* Quick Operations & Recent Audit Ledger */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Card level={0} className="space-y-4 lg:col-span-1">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400">
-              Operational Shortcuts
-            </h3>
-            <div className="space-y-2">
-              <Link href="/sales-invoices" className="block">
-                <div className="p-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/5 flex items-center justify-between text-xs font-medium text-gray-200 hover:text-white spring-transition">
-                  <span className="flex items-center gap-2.5">
-                    <FileText className="w-4 h-4 text-purple-400" />
-                    Sales Invoices
-                  </span>
-                  <ArrowRight className="w-3.5 h-3.5 text-gray-500" />
-                </div>
-              </Link>
-
-              <Link href="/bank-transfer" className="block">
-                <div className="p-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/5 flex items-center justify-between text-xs font-medium text-gray-200 hover:text-white spring-transition">
-                  <span className="flex items-center gap-2.5">
-                    <DollarSign className="w-4 h-4 text-emerald-400" />
-                    Bank Transfers
-                  </span>
-                  <ArrowRight className="w-3.5 h-3.5 text-gray-500" />
-                </div>
-              </Link>
-
-              <Link href="/helpdesk-tickets" className="block">
-                <div className="p-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/5 flex items-center justify-between text-xs font-medium text-gray-200 hover:text-white spring-transition">
-                  <span className="flex items-center gap-2.5">
-                    <Headphones className="w-4 h-4 text-amber-400" />
-                    Support Tickets
-                  </span>
-                  <ArrowRight className="w-3.5 h-3.5 text-gray-500" />
-                </div>
-              </Link>
-
-              <Link href="/settings" className="block">
-                <div className="p-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/5 flex items-center justify-between text-xs font-medium text-gray-200 hover:text-white spring-transition">
-                  <span className="flex items-center gap-2.5">
-                    <ShieldCheck className="w-4 h-4 text-indigo-400" />
-                    Workspace Settings
-                  </span>
-                  <ArrowRight className="w-3.5 h-3.5 text-gray-500" />
-                </div>
-              </Link>
+            <div className="p-4 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] space-y-2">
+              <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                Connect your AI provider API key in Workspace Settings to unlock natural language operations, invoice extraction, and automated cross-workspace workflows.
+              </p>
+              <div className="flex items-center gap-2 pt-1">
+                <Link
+                  href="/settings"
+                  className="text-xs font-semibold text-purple-400 hover:text-purple-300 flex items-center gap-1 spring-transition"
+                >
+                  <span>Configure AI Credentials</span>
+                  <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
             </div>
           </Card>
 
-          <Card level={0} className="space-y-4 lg:col-span-2">
-            <div className="flex items-center justify-between pb-2 border-b border-white/10">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400">
-                Recent Audit Ledger
-              </h3>
-              <span className="text-[11px] text-gray-500 font-mono">Real-Time</span>
-            </div>
+          {/* Quick Operations */}
+          <Card level={0} className="space-y-3">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)]">
+              Quick Operations
+            </h2>
 
-            {recentLogs && recentLogs.length > 0 ? (
-              <div className="divide-y divide-white/[0.04] space-y-2">
-                {recentLogs.map((log: any) => (
-                  <div key={log.id} className="pt-2 flex items-start justify-between gap-3 text-xs">
-                    <div className="space-y-0.5">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-white">{log.user?.name || 'System User'}</span>
-                        <span className="text-[10px] text-gray-500 font-mono">({log.ip_address || '127.0.0.1'})</span>
-                      </div>
-                      <p className="text-gray-400">{log.action}</p>
-                    </div>
-                    <span className="text-[10px] text-gray-500 whitespace-nowrap">
-                      {new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="py-12 text-center space-y-2">
-                <Inbox className="w-8 h-8 text-gray-600 mx-auto" />
-                <p className="text-xs font-semibold text-white">No recent audit events</p>
-                <p className="text-[11px] text-gray-400">Activity will stream as actions are performed.</p>
-              </div>
-            )}
+            <div className="space-y-2">
+              <Link
+                href="/sales-invoices"
+                className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-2)] hover:bg-white/[0.04] border border-[var(--border-subtle)] spring-transition text-xs text-[var(--text-primary)]"
+              >
+                <div className="flex items-center gap-2.5">
+                  <FileText className="w-4 h-4 text-purple-400" />
+                  <span className="font-semibold">Manage Sales Invoices</span>
+                </div>
+                <ArrowRight className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
+              </Link>
+
+              <Link
+                href="/warehouses"
+                className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-2)] hover:bg-white/[0.04] border border-[var(--border-subtle)] spring-transition text-xs text-[var(--text-primary)]"
+              >
+                <div className="flex items-center gap-2.5">
+                  <Warehouse className="w-4 h-4 text-indigo-400" />
+                  <span className="font-semibold">Warehouse Inventory</span>
+                </div>
+                <ArrowRight className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
+              </Link>
+
+              <Link
+                href="/users"
+                className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-2)] hover:bg-white/[0.04] border border-[var(--border-subtle)] spring-transition text-xs text-[var(--text-primary)]"
+              >
+                <div className="flex items-center gap-2.5">
+                  <Users className="w-4 h-4 text-emerald-400" />
+                  <span className="font-semibold">Team & Permissions</span>
+                </div>
+                <ArrowRight className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
+              </Link>
+            </div>
           </Card>
         </div>
       </div>

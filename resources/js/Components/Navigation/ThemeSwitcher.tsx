@@ -1,28 +1,46 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Sun, Moon, Laptop } from 'lucide-react';
-import { clsx } from 'clsx';
 
-export type ThemeMode = 'system' | 'dark' | 'light';
+type ThemeMode = 'system' | 'dark' | 'light';
 
-export const ThemeSwitcher: React.FC<{ className?: string }> = ({ className }) => {
+export const ThemeSwitcher: React.FC = () => {
   const [theme, setTheme] = useState<ThemeMode>('dark');
 
   useEffect(() => {
-    const saved = localStorage.getItem('hl_theme') as ThemeMode | null;
-    if (saved) {
-      setTheme(saved);
-      applyTheme(saved);
-    } else {
-      applyTheme('dark');
-    }
+    const saved = (localStorage.getItem('hl_theme') as ThemeMode) || 'dark';
+    setTheme(saved);
+    applyTheme(saved);
+
+    // Runtime OS listener for system theme
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = () => {
+      const current = localStorage.getItem('hl_theme') as ThemeMode;
+      if (current === 'system') {
+        applyTheme('system');
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
   const applyTheme = (mode: ThemeMode) => {
+    const root = document.documentElement;
     if (mode === 'system') {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+      const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (systemDark) {
+        root.classList.add('dark');
+        root.classList.remove('light');
+      } else {
+        root.classList.add('light');
+        root.classList.remove('dark');
+      }
+    } else if (mode === 'light') {
+      root.classList.add('light');
+      root.classList.remove('dark');
     } else {
-      document.documentElement.setAttribute('data-theme', mode);
+      root.classList.add('dark');
+      root.classList.remove('light');
     }
   };
 
@@ -33,39 +51,55 @@ export const ThemeSwitcher: React.FC<{ className?: string }> = ({ className }) =
   };
 
   return (
-    <div className={clsx('flex items-center p-0.5 rounded-lg bg-white/[0.04] border border-white/10 text-xs', className)}>
+    <div
+      role="radiogroup"
+      aria-label="Color Theme Switcher"
+      className="flex items-center p-1 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)]"
+    >
       <button
         type="button"
-        title="Light Theme"
-        onClick={() => handleSelect('light')}
-        className={clsx(
-          'p-1.5 rounded-md spring-transition cursor-pointer',
-          theme === 'light' ? 'bg-purple-600 text-white shadow' : 'text-gray-400 hover:text-white'
-        )}
-      >
-        <Sun className="w-3.5 h-3.5" />
-      </button>
-
-      <button
-        type="button"
-        title="Dark Theme"
+        role="radio"
+        aria-checked={theme === 'dark'}
         onClick={() => handleSelect('dark')}
-        className={clsx(
-          'p-1.5 rounded-md spring-transition cursor-pointer',
-          theme === 'dark' ? 'bg-purple-600 text-white shadow' : 'text-gray-400 hover:text-white'
-        )}
+        className={`p-1.5 rounded-lg text-xs spring-transition cursor-pointer ${
+          theme === 'dark' 
+            ? 'bg-purple-600/30 text-purple-300 font-semibold shadow-sm' 
+            : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'
+        }`}
+        title="Dark Mode"
+        aria-label="Dark Mode"
       >
         <Moon className="w-3.5 h-3.5" />
       </button>
 
       <button
         type="button"
-        title="System Match"
+        role="radio"
+        aria-checked={theme === 'light'}
+        onClick={() => handleSelect('light')}
+        className={`p-1.5 rounded-lg text-xs spring-transition cursor-pointer ${
+          theme === 'light' 
+            ? 'bg-purple-600/30 text-purple-300 font-semibold shadow-sm' 
+            : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'
+        }`}
+        title="Light Mode"
+        aria-label="Light Mode"
+      >
+        <Sun className="w-3.5 h-3.5" />
+      </button>
+
+      <button
+        type="button"
+        role="radio"
+        aria-checked={theme === 'system'}
         onClick={() => handleSelect('system')}
-        className={clsx(
-          'p-1.5 rounded-md spring-transition cursor-pointer',
-          theme === 'system' ? 'bg-purple-600 text-white shadow' : 'text-gray-400 hover:text-white'
-        )}
+        className={`p-1.5 rounded-lg text-xs spring-transition cursor-pointer ${
+          theme === 'system' 
+            ? 'bg-purple-600/30 text-purple-300 font-semibold shadow-sm' 
+            : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'
+        }`}
+        title="System Preference"
+        aria-label="System Preference"
       >
         <Laptop className="w-3.5 h-3.5" />
       </button>

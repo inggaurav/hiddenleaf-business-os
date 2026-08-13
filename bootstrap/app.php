@@ -20,8 +20,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [
             Installed::class,
-            HandleInertiaRequests::class,
             EnsureTenantContext::class,
+            HandleInertiaRequests::class,
         ]);
 
         $middleware->alias([
