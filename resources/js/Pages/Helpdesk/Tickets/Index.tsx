@@ -1,0 +1,1 @@
+import { createIndexPage } from '@/Components/ResourcePage'; export default createIndexPage({title:'Helpdesk Tickets',collectionKey:'tickets',resourcePath:'/helpdesk-tickets',columns:['ticket_id','subject','category','priority','status','creator']});

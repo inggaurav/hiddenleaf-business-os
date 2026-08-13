@@ -1,0 +1,1 @@
+import { createFormPage } from '@/Components/ResourcePage'; export default createFormPage({title:'Create Language',submitPath:'/languages',backPath:'/languages',fields:[{name:'code',label:'Language code',required:true},{name:'name',label:'Name',required:true}]});
