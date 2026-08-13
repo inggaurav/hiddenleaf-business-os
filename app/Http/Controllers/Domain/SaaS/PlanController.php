@@ -59,21 +59,25 @@ class PlanController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
-        if (! $user->isSuperAdmin()) {
+        if (! $user || (! $user->isSuperAdmin() && $user->role !== 'super_admin')) {
             return redirect()->route('plans.index')->with('error', 'Unauthorized');
         }
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'package_price_monthly' => 'required|numeric|min:0',
-            'package_price_yearly' => 'required|numeric|min:0',
+            'package_price_monthly' => 'nullable|numeric|min:0',
+            'price_monthly' => 'nullable|numeric|min:0',
+            'package_price_yearly' => 'nullable|numeric|min:0',
+            'price_yearly' => 'nullable|numeric|min:0',
             'price_per_user_monthly' => 'nullable|numeric|min:0',
             'price_per_user_yearly' => 'nullable|numeric|min:0',
             'price_per_storage_monthly' => 'nullable|numeric|min:0',
             'price_per_storage_yearly' => 'nullable|numeric|min:0',
-            'number_of_users' => 'required|integer|min:1',
-            'storage_limit' => 'required|integer|min:0',
+            'number_of_users' => 'nullable|integer|min:1',
+            'max_users' => 'nullable|integer|min:1',
+            'storage_limit' => 'nullable|integer|min:0',
+            'max_storage' => 'nullable|integer|min:0',
             'workspace_limit' => 'nullable|integer|min:1',
             'modules' => 'nullable|array',
             'trial' => 'nullable|boolean',
@@ -82,17 +86,22 @@ class PlanController extends Controller
             'status' => 'nullable|boolean',
         ]);
 
+        $monthly = $validated['package_price_monthly'] ?? $validated['price_monthly'] ?? 0;
+        $yearly = $validated['package_price_yearly'] ?? $validated['price_yearly'] ?? 0;
+        $users = $validated['number_of_users'] ?? $validated['max_users'] ?? 1;
+        $storage = $validated['storage_limit'] ?? $validated['max_storage'] ?? 0;
+
         $plan = new Plan;
         $plan->name = $validated['name'];
         $plan->description = $validated['description'] ?? null;
-        $plan->package_price_monthly = $validated['package_price_monthly'];
-        $plan->package_price_yearly = $validated['package_price_yearly'];
+        $plan->package_price_monthly = $monthly;
+        $plan->package_price_yearly = $yearly;
         $plan->price_per_user_monthly = $validated['price_per_user_monthly'] ?? 0;
         $plan->price_per_user_yearly = $validated['price_per_user_yearly'] ?? 0;
         $plan->price_per_storage_monthly = $validated['price_per_storage_monthly'] ?? 0;
         $plan->price_per_storage_yearly = $validated['price_per_storage_yearly'] ?? 0;
-        $plan->number_of_users = $validated['number_of_users'];
-        $plan->storage_limit = $validated['storage_limit'] * 1024 * 1024;
+        $plan->number_of_users = $users;
+        $plan->storage_limit = $storage * 1024 * 1024;
         $plan->workspace_limit = $validated['workspace_limit'] ?? 1;
         $plan->modules = $validated['modules'] ?? [];
         $plan->trial = $request->boolean('trial', false);
@@ -100,7 +109,7 @@ class PlanController extends Controller
         $plan->free_plan = $request->boolean('free_plan', false);
         $plan->status = $request->boolean('status', true);
         $plan->custom_plan = false;
-        $plan->created_by = $user->id;
+        $plan->created_by = $user?->id;
         $plan->save();
 
         return redirect()->route('plans.index')->with('success', 'Plan created successfully.');

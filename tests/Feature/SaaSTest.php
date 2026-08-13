@@ -13,7 +13,7 @@ class SaaSTest extends TestCase
     public function test_can_create_plan()
     {
         $this->withoutMiddleware();
-        $user = User::factory()->create();
+        $user = User::factory()->create(['role' => 'super_admin']);
         $response = $this->actingAs($user)->post('/plans', [
             'name' => 'Pro',
             'price_monthly' => 10,

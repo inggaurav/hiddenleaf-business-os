@@ -110,8 +110,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('plans/{plan}/assign-free', [PlanController::class, 'assignFreePlan'])->name('plans.assign-free');
     Route::post('plans/apply-coupon', [PlanController::class, 'applyCoupon'])->name('plans.apply-coupon');
     Route::resource('coupons', CouponController::class);
-    Route::resource('orders', OrderController::class);
-    Route::resource('subscriptions', SubscriptionController::class);
+    Route::resource('orders', OrderController::class)->only(['index', 'show', 'destroy']);
+    Route::resource('subscriptions', SubscriptionController::class)->only(['index', 'store']);
     Route::post('subscriptions/{subscription}/cancel', [SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
 
     // Bank Transfer Payment routes
@@ -224,7 +224,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('languages/save-data/{lang}', [LanguageController::class, 'saveLanguageData'])->name('languages.save-data');
 
     // Email Templates
-    Route::resource('email-templates', EmailTemplateController::class)->only(['index', 'show', 'update']);
+    Route::resource('email-templates', EmailTemplateController::class)->only(['index', 'show', 'store', 'update']);
+    Route::get('settings/email-templates', [EmailTemplateController::class, 'index'])->name('settings.email-templates.index');
+    Route::post('settings/email-templates', [EmailTemplateController::class, 'store'])->name('settings.email-templates.store');
 
     // Notification Templates
     Route::resource('notification-templates', NotificationTemplateController::class)->only(['index', 'show', 'update']);

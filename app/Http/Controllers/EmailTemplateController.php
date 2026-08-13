@@ -21,6 +21,24 @@ class EmailTemplateController extends Controller
         ]);
     }
 
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'subject' => 'nullable|string',
+            'body' => 'nullable|string',
+        ]);
+
+        EmailTemplate::create([
+            'name' => $validated['name'],
+            'subject' => $validated['subject'] ?? 'Notification',
+            'body' => $validated['body'] ?? '',
+            'created_by' => auth()->id(),
+        ]);
+
+        return redirect()->back()->with('success', 'Email template created successfully.');
+    }
+
     public function show(EmailTemplate $emailTemplate, Request $request)
     {
         $lang = $request->input('lang', 'en');

@@ -57,6 +57,23 @@ class LanguageController extends Controller
         return redirect()->back()->with('success', 'Language switched successfully.');
     }
 
+    public function edit(Language $language)
+    {
+        return $this->show($language->code);
+    }
+
+    public function update(Request $request, Language $language)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:100',
+            'status' => 'nullable|boolean',
+        ]);
+
+        $language->update($validated);
+
+        return redirect()->route('languages.index')->with('success', 'Language updated successfully.');
+    }
+
     public function show(string $lang)
     {
         $language = Language::where('code', $lang)->first();

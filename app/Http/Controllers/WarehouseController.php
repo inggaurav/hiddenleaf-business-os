@@ -57,6 +57,11 @@ class WarehouseController extends Controller
         return redirect()->route('warehouses.index')->with('success', 'Warehouse created successfully.');
     }
 
+    public function show(Warehouse $warehouse)
+    {
+        return redirect()->route('warehouses.edit', $warehouse);
+    }
+
     public function edit(Warehouse $warehouse)
     {
         return Inertia::render('Warehouses/Edit', [

@@ -53,6 +53,11 @@ class HelpdeskCategoryController extends Controller
         return redirect()->route('helpdesk-categories.index')->with('success', 'Helpdesk category created.');
     }
 
+    public function show(HelpdeskCategory $helpdeskCategory)
+    {
+        return redirect()->route('helpdesk-categories.edit', $helpdeskCategory);
+    }
+
     public function edit(HelpdeskCategory $helpdeskCategory)
     {
         return Inertia::render('Helpdesk/Categories/Edit', [

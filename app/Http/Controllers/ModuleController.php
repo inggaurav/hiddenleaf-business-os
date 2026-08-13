@@ -60,22 +60,23 @@ class ModuleController extends Controller
             abort(403, 'No active workspace');
         }
 
-        $alias = strtolower($validated['module_name']);
+        $moduleName = $validated['module_name'];
+        $alias = strtolower($moduleName);
 
         if ($request->boolean('active')) {
             UserActiveModule::updateOrCreate([
                 'workspace_id' => $workspaceId,
-                'module_name' => $alias,
+                'module_name' => $moduleName,
             ], [
                 'module' => $alias,
                 'user_id' => $user->id,
             ]);
         } else {
             UserActiveModule::where('workspace_id', $workspaceId)
-                ->where(function ($q) use ($alias, $validated) {
+                ->where(function ($q) use ($alias, $moduleName) {
                     $q->where('module_name', $alias)
                         ->orWhere('module', $alias)
-                        ->orWhere('module_name', $validated['module_name']);
+                        ->orWhere('module_name', $moduleName);
                 })
                 ->delete();
         }
