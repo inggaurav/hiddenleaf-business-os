@@ -36,6 +36,7 @@ use App\Http\Controllers\SuperAdmin\DashboardController;
 use App\Http\Controllers\SuperAdmin\SettingController;
 use App\Http\Controllers\SuperAdmin\TranslationController;
 use App\Http\Controllers\TransferController;
+use App\Http\Controllers\UpdateController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Middleware\SuperAdminMiddleware;
 use App\Models\User;
@@ -43,6 +44,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/install', [InstallController::class, 'index'])->name('install.index');
 Route::post('/install', [InstallController::class, 'setup'])->name('install.setup');
+Route::post('/install/test-db', [InstallController::class, 'testDatabase'])->name('install.test-db');
+
+Route::get('/update', [UpdateController::class, 'index'])->name('update.index');
+Route::post('/update', [UpdateController::class, 'update'])->name('update.run');
 
 // Public & Guest Routes
 Route::middleware('guest')->group(function () {
