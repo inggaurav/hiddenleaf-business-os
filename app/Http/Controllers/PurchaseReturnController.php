@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Inventory\ReturnPostingService;
+use App\Models\PurchaseInvoice;
 use App\Models\PurchaseReturn;
 use App\Models\PurchaseReturnItem;
+use App\Models\Workspace;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
@@ -13,102 +15,91 @@ class PurchaseReturnController extends Controller
 {
     public function index(Request $request)
     {
-        $wsId = session('active_workspace_id');
-        $orgId = session('active_organization_id');
+        $workspace = $this->workspace($request);
 
-        $returns = PurchaseReturn::query()
-            ->when($wsId, fn ($q) => $q->where('workspace_id', $wsId))
-            ->when($orgId, fn ($q) => $q->where('organization_id', $orgId))
-            ->latest()
-            ->paginate($request->input('per_page', 10))
-            ->withQueryString();
-
-        return Inertia::render('PurchaseReturns/Index', [
-            'returns' => $returns,
-        ]);
+        return Inertia::render('PurchaseReturns/Index', ['returns' => PurchaseReturn::where('organization_id', $workspace->organization_id)->where('workspace_id', $workspace->id)->latest()->paginate(20)]);
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        return Inertia::render('PurchaseReturns/Create');
+        $workspace = $this->workspace($request);
+
+        return Inertia::render('PurchaseReturns/Create', ['invoices' => PurchaseInvoice::with('items')->where('organization_id', $workspace->organization_id)->where('workspace_id', $workspace->id)->where('status', 1)->get()]);
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'vendor_id' => 'nullable|integer',
-            'purchase_invoice_id' => 'nullable|integer',
-            'date' => 'required|date',
-            'items' => 'required|array|min:1',
-            'items.*.item_name' => 'required|string',
-            'items.*.quantity' => 'required|numeric|min:1',
-            'items.*.price' => 'required|numeric|min:0',
+        $data = $request->validate([
+            'purchase_invoice_id' => ['required', 'integer'], 'date' => ['required', 'date'],
+            'items' => ['required', 'array', 'min:1'], 'items.*.product_id' => ['required', 'integer'],
+            'items.*.quantity' => ['required', 'numeric', 'gt:0'], 'items.*.price' => ['required', 'numeric', 'min:0'],
         ]);
+        $workspace = $this->workspace($request);
+        $invoice = PurchaseInvoice::with('items')->where('organization_id', $workspace->organization_id)->where('workspace_id', $workspace->id)->where('status', 1)->findOrFail($data['purchase_invoice_id']);
+        $lines = $invoice->items->groupBy('product_id');
+        foreach ($data['items'] as $item) {
+            abort_unless((float) $item['quantity'] <= (float) $lines->get($item['product_id'], collect())->sum('quantity'), 422, 'Return quantity exceeds the purchase invoice.');
+        }
 
-        $wsId = session('active_workspace_id');
-        $orgId = session('active_organization_id');
-
-        return DB::transaction(function () use ($validated, $wsId, $orgId) {
-            $returnId = strtoupper(substr(uniqid('PR-'), -10));
-
-            $total = 0;
-            foreach ($validated['items'] as $item) {
-                $total += $item['quantity'] * $item['price'];
-            }
-
+        return DB::transaction(function () use ($data, $workspace, $invoice, $request, $lines) {
             $return = PurchaseReturn::create([
-                'return_id' => $returnId,
-                'vendor_id' => $validated['vendor_id'] ?? null,
-                'purchase_invoice_id' => $validated['purchase_invoice_id'] ?? null,
-                'date' => $validated['date'],
-                'total_amount' => $total,
-                'status' => 0, // Pending
-                'organization_id' => $orgId,
-                'workspace_id' => $wsId,
-                'created_by' => Auth::id(),
+                'return_id' => strtoupper(substr(uniqid('PR-'), -10)), 'vendor_id' => $invoice->vendor_id,
+                'purchase_invoice_id' => $invoice->id, 'date' => $data['date'],
+                'total_amount' => collect($data['items'])->sum(fn ($item) => $item['quantity'] * $item['price']),
+                'status' => 0, 'organization_id' => $workspace->organization_id, 'workspace_id' => $workspace->id, 'created_by' => $request->user()->id,
             ]);
-
-            foreach ($validated['items'] as $item) {
-                PurchaseReturnItem::create([
-                    'purchase_return_id' => $return->id,
-                    'item_name' => $item['item_name'],
-                    'quantity' => $item['quantity'],
-                    'price' => $item['price'],
-                ]);
+            foreach ($data['items'] as $item) {
+                PurchaseReturnItem::create($item + ['purchase_return_id' => $return->id, 'item_name' => $lines[$item['product_id']]->first()->item_name]);
             }
 
-            return redirect()->route('purchase-returns.index')->with('success', 'Purchase return recorded.');
+            return to_route('purchase-returns.index')->with('success', 'Purchase return recorded.');
         });
     }
 
-    public function show(PurchaseReturn $return)
+    public function show(Request $request, PurchaseReturn $return)
     {
-        $return->load(['items']);
+        $this->assertReturn($return, $this->workspace($request));
 
-        return Inertia::render('PurchaseReturns/Show', [
-            'return' => $return,
-        ]);
+        return Inertia::render('PurchaseReturns/Show', ['return' => $return->load('items')]);
     }
 
-    public function destroy(PurchaseReturn $return)
+    public function destroy(Request $request, PurchaseReturn $return)
     {
+        $this->assertReturn($return, $this->workspace($request));
+        abort_unless((int) $return->status === 0, 422, 'Only pending returns can be deleted.');
         $return->items()->delete();
         $return->delete();
 
-        return redirect()->route('purchase-returns.index')->with('success', 'Purchase return deleted.');
+        return to_route('purchase-returns.index')->with('success', 'Purchase return deleted.');
     }
 
-    public function approve(PurchaseReturn $return)
+    public function approve(Request $request, PurchaseReturn $return)
     {
-        $return->update(['status' => 1]); // Approved
+        $this->assertReturn($return, $this->workspace($request));
+        abort_unless((int) $return->status === 0, 422, 'Only pending returns can be approved.');
+        $return->update(['status' => 1]);
 
         return back()->with('success', 'Purchase return approved.');
     }
 
-    public function complete(PurchaseReturn $return)
+    public function complete(Request $request, PurchaseReturn $return, ReturnPostingService $posting)
     {
-        $return->update(['status' => 2]); // Completed
+        $this->assertReturn($return, $this->workspace($request));
+        $posting->completePurchase($return, $request->user());
 
         return back()->with('success', 'Purchase return completed.');
+    }
+
+    private function workspace(Request $request): Workspace
+    {
+        $workspace = Workspace::with('organization')->find($request->session()->get('active_workspace_id'));
+        abort_unless($workspace && $request->user()->canInWorkspace('procurement.manage', $workspace), 403);
+
+        return $workspace;
+    }
+
+    private function assertReturn(PurchaseReturn $return, Workspace $workspace): void
+    {
+        abort_unless((int) $return->organization_id === (int) $workspace->organization_id && (int) $return->workspace_id === (int) $workspace->id, 404);
     }
 }

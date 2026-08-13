@@ -142,7 +142,7 @@ class SalesProcurementCoreTest extends TestCase
                 'purchase_invoice_id' => $invoice->id,
                 'date' => now()->toDateString(),
                 'items' => [
-                    ['item_name' => 'Defective Cable Reel', 'quantity' => 1, 'price' => 50.00],
+                    ['product_id' => $cable->id, 'quantity' => 1, 'price' => 50.00],
                 ],
             ]);
 
@@ -158,6 +158,7 @@ class SalesProcurementCoreTest extends TestCase
         $this->actingAs($this->user)->post("/purchase-returns/{$return->id}/complete");
         $return->refresh();
         $this->assertEquals(2, $return->status);
+        $this->assertDatabaseHas('warehouse_stocks', ['warehouse_id' => $wh->id, 'product_id' => $cable->id, 'quantity' => 4]);
     }
 
     public function test_sales_proposal_conversion_and_sales_invoice_return(): void
@@ -218,7 +219,7 @@ class SalesProcurementCoreTest extends TestCase
                 'sales_invoice_id' => $invoice->id,
                 'date' => now()->toDateString(),
                 'items' => [
-                    ['item_name' => 'Unused Consulting Hours', 'quantity' => 2, 'price' => 150.00],
+                    ['product_id' => $consulting->id, 'quantity' => 2, 'price' => 150.00],
                 ],
             ]);
 
@@ -229,6 +230,8 @@ class SalesProcurementCoreTest extends TestCase
         $this->actingAs($this->user)->post("/sales-returns/{$salesReturn->id}/approve");
         $salesReturn->refresh();
         $this->assertEquals(1, $salesReturn->status);
+        $this->actingAs($this->user)->post("/sales-returns/{$salesReturn->id}/complete");
+        $this->assertEquals(2, $salesReturn->refresh()->status);
     }
 
     public function test_invoice_catalog_endpoints_return_real_tenant_scoped_products_and_services(): void
