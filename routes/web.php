@@ -81,4 +81,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/translations', [\App\Http\Controllers\SuperAdmin\TranslationController::class, 'index'])->name('translations.index');
         Route::post('/translations', [\App\Http\Controllers\SuperAdmin\TranslationController::class, 'store'])->name('translations.store');
     });
+
+    // Modules
+    Route::get('/modules', [\App\Http\Controllers\ModuleController::class, 'index'])->name('modules.index');
+    Route::post('/modules/toggle', [\App\Http\Controllers\ModuleController::class, 'toggle'])->name('modules.toggle');
 });

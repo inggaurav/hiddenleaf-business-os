@@ -18,6 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             EnsureTenantContext::class,
         ]);
+        
+        $middleware->alias([
+            'module.status' => \App\Http\Middleware\CheckModuleStatus::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
