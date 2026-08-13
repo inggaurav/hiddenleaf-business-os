@@ -72,4 +72,13 @@ Route::middleware(['auth'])->group(function () {
 
     // RBAC Roles (Explicit actions matching RoleController)
     Route::resource('roles', RoleController::class)->except(['show']);
+
+    // Super Admin Routes
+    Route::middleware([\App\Http\Middleware\SuperAdminMiddleware::class])->prefix('super-admin')->name('super-admin.')->group(function () {
+        Route::get('/dashboard', [\App\Http\Controllers\SuperAdmin\DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/settings', [\App\Http\Controllers\SuperAdmin\SettingController::class, 'index'])->name('settings.index');
+        Route::post('/settings', [\App\Http\Controllers\SuperAdmin\SettingController::class, 'store'])->name('settings.store');
+        Route::get('/translations', [\App\Http\Controllers\SuperAdmin\TranslationController::class, 'index'])->name('translations.index');
+        Route::post('/translations', [\App\Http\Controllers\SuperAdmin\TranslationController::class, 'store'])->name('translations.store');
+    });
 });

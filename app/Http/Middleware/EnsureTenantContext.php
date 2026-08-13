@@ -31,7 +31,7 @@ class EnsureTenantContext
         }
 
         // Super Admin bypasses membership restriction if accessing admin panel
-        if ($user->isSuperAdmin() && $request->is('admin*')) {
+        if ($user->isSuperAdmin() && ($request->is('admin*') || $request->is('super-admin*'))) {
             return $next($request);
         }
 
