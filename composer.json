@@ -5,13 +5,13 @@
     "keywords": ["hiddenleaf", "business-os", "saas", "laravel", "inertia", "react"],
     "license": "proprietary",
     "require": {
-        "php": "^8.2 || ^8.3 || ^8.4",
+        "php": "^8.4",
         "inertiajs/inertia-laravel": "^3.0",
-        "laravel/framework": "^12.0 || ^13.0",
+        "laravel/framework": "^13.0",
         "laravel/sanctum": "^4.0",
-        "laravel/tinker": "^2.10",
+        "laravel/tinker": "^3.0",
         "league/flysystem-aws-s3-v3": "^3.0",
-        "nwidart/laravel-modules": "^12.0"
+        "nwidart/laravel-modules": "^13.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -49,6 +49,9 @@
         "sort-packages": true,
         "allow-plugins": {
             "wikimedia/composer-merge-plugin": true
+        },
+        "platform": {
+            "php": "8.4.0"
         }
     },
     "minimum-stability": "stable",
