@@ -64,6 +64,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/users/{user}/impersonate', [UserController::class, 'impersonate'])->name('users.impersonate');
     Route::post('/users/leave-impersonation', [UserController::class, 'leaveImpersonation'])->name('users.leave-impersonation');
 
+    // SaaS Routes
+    Route::resource('plans', \App\Http\Controllers\Domain\SaaS\PlanController::class);
+    Route::resource('coupons', \App\Http\Controllers\Domain\SaaS\CouponController::class);
+    Route::resource('orders', \App\Http\Controllers\Domain\SaaS\OrderController::class);
+    Route::resource('subscriptions', \App\Http\Controllers\Domain\SaaS\SubscriptionController::class);
+
     // RBAC Roles (Explicit actions matching RoleController)
     Route::resource('roles', RoleController::class)->except(['show']);
 });

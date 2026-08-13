@@ -1,0 +1,239 @@
+{
+  "system": "WorkDo ERP OS",
+  "metadata": {
+    "description": "Complete Forensic Capability Inventory",
+    "inspectedPaths": [
+      "app/",
+      "packages/workdo/",
+      "routes/",
+      "database/",
+      "config/"
+    ]
+  },
+  "capabilities": [
+    {
+      "name": "SaaS Platform Core",
+      "category": "WORKDO_CORE",
+      "subCapabilities": [
+        "Authentication & Identity",
+        "Plans & Subscriptions",
+        "Multi-Workspace Setup",
+        "Roles & Permissions",
+        "Module/Add-On Management"
+      ],
+      "keyFiles": [
+        "app/Models/User.php",
+        "app/Models/Plan.php",
+        "app/Models/Order.php",
+        "app/Models/UserActiveModule.php",
+        "app/Models/AddOn.php",
+        "app/Http/Controllers/AuthApiController.php",
+        "app/Http/Controllers/RoleController.php"
+      ]
+    },
+    {
+      "name": "Helpdesk & Support",
+      "category": "WORKDO_CORE",
+      "subCapabilities": [
+        "Ticketing System",
+        "Replies & Attachments",
+        "Categories"
+      ],
+      "keyFiles": [
+        "app/Models/HelpdeskTicket.php",
+        "app/Models/HelpdeskReply.php",
+        "app/Models/HelpdeskCategory.php"
+      ]
+    },
+    {
+      "name": "Communications Engine",
+      "category": "WORKDO_CORE",
+      "subCapabilities": [
+        "Email Templates",
+        "Notifications",
+        "Chat/Messenger (Chatify)",
+        "AI Agent Chat"
+      ],
+      "keyFiles": [
+        "app/Models/EmailTemplate.php",
+        "app/Models/Notification.php",
+        "app/Models/ChMessage.php",
+        "app/Models/AIAgentChatSession.php"
+      ]
+    },
+    {
+      "name": "System Configuration & Media",
+      "category": "WORKDO_CORE",
+      "subCapabilities": [
+        "Global Settings",
+        "Dynamic Storage",
+        "Media Directory",
+        "Localization"
+      ],
+      "keyFiles": [
+        "app/Models/Setting.php",
+        "app/Models/MediaDirectory.php",
+        "app/Services/DynamicStorageService.php",
+        "app/Http/Controllers/TranslationController.php"
+      ]
+    },
+    {
+      "name": "Sales & Procurement Core Engine",
+      "category": "WORKDO_CORE",
+      "subCapabilities": [
+        "Sales Proposals",
+        "Invoices",
+        "Purchase Orders",
+        "Returns",
+        "Warehouses",
+        "Transfers"
+      ],
+      "keyFiles": [
+        "app/Models/SalesInvoice.php",
+        "app/Models/PurchaseInvoice.php",
+        "app/Models/Warehouse.php",
+        "app/Models/Transfer.php"
+      ]
+    },
+    {
+      "name": "Accounting Module (Account)",
+      "category": "BUNDLED_CORE_MODULE",
+      "subCapabilities": [
+        "Chart of Accounts",
+        "Banking & Transactions",
+        "Journals",
+        "Vendor & Customer Payments",
+        "Notes"
+      ],
+      "keyFiles": [
+        "packages/workdo/Account/src/Models/ChartOfAccount.php",
+        "packages/workdo/Account/src/Models/JournalEntry.php",
+        "packages/workdo/Account/src/Models/BankTransaction.php"
+      ]
+    },
+    {
+      "name": "HR & Payroll Module (Hrm)",
+      "category": "BUNDLED_CORE_MODULE",
+      "subCapabilities": [
+        "Employee Management",
+        "Attendance & Leaves",
+        "Payroll Processing",
+        "Policies & Documents"
+      ],
+      "keyFiles": [
+        "packages/workdo/Hrm/src/Models/Employee.php",
+        "packages/workdo/Hrm/src/Models/Payroll.php",
+        "packages/workdo/Hrm/src/Models/LeaveApplication.php"
+      ]
+    },
+    {
+      "name": "CRM & Leads Module (Lead)",
+      "category": "BUNDLED_CORE_MODULE",
+      "subCapabilities": [
+        "Pipelines & Stages",
+        "Lead Tracking",
+        "Deal Management",
+        "Activity Logging"
+      ],
+      "keyFiles": [
+        "packages/workdo/Lead/src/Models/Lead.php",
+        "packages/workdo/Lead/src/Models/Deal.php",
+        "packages/workdo/Lead/src/Models/Pipeline.php"
+      ]
+    },
+    {
+      "name": "Project Management Module (Taskly)",
+      "category": "BUNDLED_CORE_MODULE",
+      "subCapabilities": [
+        "Projects & Milestones",
+        "Tasks & Subtasks",
+        "Bug Tracking",
+        "Kanban & Gantt"
+      ],
+      "keyFiles": [
+        "packages/workdo/Taskly/src/Models/Project.php",
+        "packages/workdo/Taskly/src/Models/ProjectTask.php",
+        "packages/workdo/Taskly/src/Models/ProjectBug.php"
+      ]
+    },
+    {
+      "name": "Point of Sale Module (Pos)",
+      "category": "BUNDLED_CORE_MODULE",
+      "subCapabilities": [
+        "POS Registers",
+        "Billing Counters",
+        "Cart & Discounts",
+        "Payments & Returns"
+      ],
+      "keyFiles": [
+        "packages/workdo/Pos/src/Models/Pos.php",
+        "packages/workdo/Pos/src/Models/PosPayment.php",
+        "packages/workdo/Pos/src/Models/PosReturn.php"
+      ]
+    },
+    {
+      "name": "Product & Inventory Module (ProductService)",
+      "category": "BUNDLED_CORE_MODULE",
+      "subCapabilities": [
+        "Products & Services",
+        "Categories & Units",
+        "Warehouse Stock Tracking"
+      ],
+      "keyFiles": [
+        "packages/workdo/ProductService/src/Models/ProductServiceItem.php",
+        "packages/workdo/ProductService/src/Models/WarehouseStock.php"
+      ]
+    },
+    {
+      "name": "Frontend CMS (LandingPage)",
+      "category": "BUNDLED_CORE_MODULE",
+      "subCapabilities": [
+        "Custom Pages",
+        "Marketplace Configuration",
+        "Newsletter Subscribers"
+      ],
+      "keyFiles": [
+        "packages/workdo/LandingPage/src/Models/CustomPage.php",
+        "packages/workdo/LandingPage/src/Models/MarketplaceSetting.php"
+      ]
+    },
+    {
+      "name": "Payment Gateways",
+      "category": "DEFERRED_ADDON",
+      "subCapabilities": [
+        "Paypal Integration",
+        "Stripe Integration"
+      ],
+      "keyFiles": [
+        "packages/workdo/Paypal",
+        "packages/workdo/Stripe"
+      ]
+    },
+    {
+      "name": "Development & Deployment Infrastructure",
+      "category": "REFERENCE_INFRASTRUCTURE",
+      "subCapabilities": [
+        "Module Installer",
+        "Translation Extraction",
+        "Console Crud Generators",
+        "Server Requirements Check"
+      ],
+      "keyFiles": [
+        "app/Console/Commands/MakeCrudlyCommand.php",
+        "app/Console/Commands/InstallCommand.php",
+        "server-requirements.php",
+        "extract-translations.php"
+      ]
+    },
+    {
+      "name": "Obsolete / Superceded Features",
+      "category": "DEPRECATED",
+      "subCapabilities": [
+        "Legacy Trial Data (from migrations)"
+      ],
+      "keyFiles": [
+        "database/migrations/2026_04_29_102148_drop_trial_expire_date_from_users_table.php"
+      ]
+    }
+  ]
+}
