@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\ProductService\Services\CatalogLookupService;
 use App\Models\SalesInvoice;
 use App\Models\SalesInvoiceItem;
 use App\Models\SalesProposal;
@@ -188,13 +189,24 @@ class SalesProposalController extends Controller
         return redirect()->route('sales-invoices.show', $invoice->id)->with('success', 'Proposal converted to invoice.');
     }
 
-    public function getWarehouseProducts(Request $request)
+    public function getWarehouseProducts(Request $request, CatalogLookupService $catalog)
     {
-        return response()->json([]);
+        $validated = $request->validate([
+            'warehouse_id' => ['required', 'integer'],
+        ]);
+
+        return response()->json($catalog->productsForWarehouse(
+            (int) $validated['warehouse_id'],
+            (int) session('active_organization_id'),
+            (int) session('active_workspace_id'),
+        ));
     }
 
-    public function getServices(Request $request)
+    public function getServices(Request $request, CatalogLookupService $catalog)
     {
-        return response()->json([]);
+        return response()->json($catalog->services(
+            (int) session('active_organization_id'),
+            (int) session('active_workspace_id'),
+        ));
     }
 }

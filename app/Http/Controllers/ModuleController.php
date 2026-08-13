@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\UserActiveModule;
+use App\Models\Workspace;
 use App\Services\ModuleManager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -56,8 +57,14 @@ class ModuleController extends Controller
         $workspaceId = $request->session()->get('active_workspace_id');
         $user = Auth::user();
 
-        if (! $workspaceId && ! $user->isSuperAdmin()) {
+        if (! $workspaceId) {
             abort(403, 'No active workspace');
+        }
+
+        $workspace = Workspace::query()->with('organization')->find($workspaceId);
+
+        if (! $workspace || ! $user->canInWorkspace('modules.manage', $workspace)) {
+            abort(403, 'You are not authorized to manage modules for this workspace.');
         }
 
         $moduleName = $validated['module_name'];

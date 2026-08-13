@@ -5,22 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Warehouse extends Model
+class ProductServiceCategory extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'name',
-        'address',
-        'city',
-        'city_zip',
+        'type',
         'organization_id',
         'workspace_id',
         'created_by',
     ];
 
-    public function stocks()
+    public function items()
     {
-        return $this->hasMany(WarehouseStock::class);
+        return $this->hasMany(ProductServiceItem::class, 'category_id');
     }
 }

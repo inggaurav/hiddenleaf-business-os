@@ -34,6 +34,9 @@ class DatabaseSeeder extends Seeder
             // User Administration Permissions
             ['module' => 'admin', 'resource' => 'users', 'action' => 'change_password', 'name' => 'users.change_password'],
             ['module' => 'admin', 'resource' => 'users', 'action' => 'toggle_status', 'name' => 'users.toggle_status'],
+
+            // Module Runtime Permissions
+            ['module' => 'modules', 'resource' => 'modules', 'action' => 'manage', 'name' => 'modules.manage'],
         ];
 
         foreach ($permissions as $p) {
