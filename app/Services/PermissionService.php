@@ -34,11 +34,20 @@ class PermissionService
             return false;
         }
 
-        // 4. Resolve assigned permissions for the member's role in this workspace
-        return Role::where('id', $roleId)
-            ->whereHas('permissions', function ($q) use ($permission) {
-                $q->where('name', $permission);
-            })
+        // 4. Defense-in-depth: Role MUST be a global system role OR belong to workspace's organization
+        $role = Role::find($roleId);
+        if (! $role) {
+            return false;
+        }
+
+        if ($role->organization_id && (int) $role->organization_id !== (int) $workspace->organization_id) {
+            // Poisoned membership pivot with cross-organization role -> DENY
+            return false;
+        }
+
+        // 5. Resolve assigned permissions for the member's role
+        return $role->permissions()
+            ->where('name', $permission)
             ->exists();
     }
 }

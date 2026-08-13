@@ -6,6 +6,7 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Workspace;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
@@ -52,6 +53,8 @@ class RoleController
     public function store(Request $request)
     {
         $workspace = $this->getActiveWorkspace($request);
+
+        // 1. Authorize roles.create BEFORE mutation
         if (! $request->user()->canInWorkspace('roles.create', $workspace)) {
             abort(403, 'Unauthorized to create roles.');
         }
@@ -62,26 +65,32 @@ class RoleController
             'permissions' => 'array',
         ]);
 
-        $role = Role::create([
-            'organization_id' => $workspace->organization_id,
-            'name' => Str::slug($validated['name']),
-            'display_name' => $validated['display_name'],
-            'is_system' => false,
-        ]);
-
+        // 2. Authorize roles.assign_permissions BEFORE mutation if permissions are supplied
         if (! empty($validated['permissions'])) {
             if (! $request->user()->canInWorkspace('roles.assign_permissions', $workspace)) {
                 abort(403, 'Unauthorized to assign permissions to roles.');
             }
-            $role->permissions()->sync($validated['permissions']);
         }
+
+        // 3. Execute atomic transaction
+        DB::transaction(function () use ($workspace, $validated) {
+            $role = Role::create([
+                'organization_id' => $workspace->organization_id,
+                'name' => Str::slug($validated['name']),
+                'display_name' => $validated['display_name'],
+                'is_system' => false,
+            ]);
+
+            if (! empty($validated['permissions'])) {
+                $role->permissions()->sync($validated['permissions']);
+            }
+        });
 
         return redirect()->route('roles.index')->with('success', 'Role created successfully.');
     }
 
     public function edit(Request $request, Role $role)
     {
-        $workspace = $this->getActiveWorkspace($request);
         $this->authorizeRoleAccess($request, $role, 'roles.update');
 
         return Inertia::render('Roles/Edit', [
@@ -93,6 +102,13 @@ class RoleController
     public function update(Request $request, Role $role)
     {
         $workspace = $this->getActiveWorkspace($request);
+
+        // 1. System roles protection
+        if ($role->is_system && ! $request->user()->isSuperAdmin()) {
+            abort(403, 'System roles cannot be mutated by tenant administrators.');
+        }
+
+        // 2. Authorize roles.update BEFORE mutation
         $this->authorizeRoleAccess($request, $role, 'roles.update');
 
         $validated = $request->validate([
@@ -100,27 +116,32 @@ class RoleController
             'permissions' => 'array',
         ]);
 
-        $role->update(['display_name' => $validated['display_name']]);
-
+        // 3. Authorize roles.assign_permissions BEFORE mutation if permissions are supplied
         if (isset($validated['permissions'])) {
             if (! $request->user()->canInWorkspace('roles.assign_permissions', $workspace)) {
                 abort(403, 'Unauthorized to assign permissions to roles.');
             }
-            $role->permissions()->sync($validated['permissions']);
         }
+
+        // 4. Execute atomic transaction
+        DB::transaction(function () use ($role, $validated) {
+            $role->update(['display_name' => $validated['display_name']]);
+
+            if (isset($validated['permissions'])) {
+                $role->permissions()->sync($validated['permissions']);
+            }
+        });
 
         return redirect()->route('roles.index')->with('success', 'Role updated successfully.');
     }
 
     public function destroy(Request $request, Role $role)
     {
-        $workspace = $this->getActiveWorkspace($request);
-        $this->authorizeRoleAccess($request, $role, 'roles.delete');
-
         if ($role->is_system) {
             return back()->with('error', 'System roles cannot be deleted.');
         }
 
+        $this->authorizeRoleAccess($request, $role, 'roles.delete');
         $role->delete();
 
         return redirect()->route('roles.index')->with('success', 'Role deleted successfully.');

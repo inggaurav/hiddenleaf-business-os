@@ -23,15 +23,15 @@ class UserController
         $wsId = $request->session()->get('active_workspace_id');
         $orgId = $request->session()->get('active_organization_id');
 
-        if ((int)$actor->id !== (int)$user->id) {
-            if (!$actor->isSuperAdmin()) {
+        if ((int) $actor->id !== (int) $user->id) {
+            if (! $actor->isSuperAdmin()) {
                 $sharesOrg = $user->organizations()->where('organizations.id', $orgId)->exists();
-                if (!$sharesOrg) {
+                if (! $sharesOrg) {
                     abort(403, 'Unauthorized cross-organization user password mutation.');
                 }
 
                 $workspace = Workspace::where('id', $wsId)->where('organization_id', $orgId)->firstOrFail();
-                if (!$actor->canInWorkspace('users.change_password', $workspace)) {
+                if (! $actor->canInWorkspace('users.change_password', $workspace)) {
                     abort(403, 'Unauthorized to change user passwords.');
                 }
             }
@@ -40,7 +40,7 @@ class UserController
         $request->validate(['password' => 'required|min:8|confirmed']);
         $user->update(['password' => Hash::make($request->password)]);
 
-        return back()->with('success', 'Password updated for ' . $user->name);
+        return back()->with('success', 'Password updated for '.$user->name);
     }
 
     public function toggleStatus(Request $request, User $user)
@@ -49,19 +49,19 @@ class UserController
         $wsId = $request->session()->get('active_workspace_id');
         $orgId = $request->session()->get('active_organization_id');
 
-        if (!$actor->isSuperAdmin()) {
+        if (! $actor->isSuperAdmin()) {
             $sharesOrg = $user->organizations()->where('organizations.id', $orgId)->exists();
-            if (!$sharesOrg) {
+            if (! $sharesOrg) {
                 abort(403, 'Unauthorized cross-organization user status mutation.');
             }
 
             $workspace = Workspace::where('id', $wsId)->where('organization_id', $orgId)->firstOrFail();
-            if (!$actor->canInWorkspace('users.toggle_status', $workspace)) {
+            if (! $actor->canInWorkspace('users.toggle_status', $workspace)) {
                 abort(403, 'Unauthorized to toggle user account status.');
             }
         }
 
-        if ((int)$actor->id === (int)$user->id) {
+        if ((int) $actor->id === (int) $user->id) {
             return back()->with('error', 'You cannot deactivate your own account.');
         }
 
@@ -69,7 +69,7 @@ class UserController
             return back()->with('error', 'Super Admin accounts cannot be deactivated.');
         }
 
-        $user->update(['is_active' => !$user->is_active]);
+        $user->update(['is_active' => ! $user->is_active]);
 
         return back()->with('success', 'User account status updated.');
     }
@@ -80,7 +80,7 @@ class UserController
         $wsId = $request->session()->get('active_workspace_id');
         $orgId = $request->session()->get('active_organization_id');
 
-        if (!$actor->isSuperAdmin()) {
+        if (! $actor->isSuperAdmin()) {
             abort(403, 'Impersonation requires Super Administrator privileges.');
         }
 
@@ -97,7 +97,7 @@ class UserController
             $wsId,
             'impersonation.start',
             'user',
-            (string)$user->id,
+            (string) $user->id,
             ['target_email' => $user->email],
             $request->ip(),
             $request->userAgent()
@@ -105,7 +105,7 @@ class UserController
 
         auth()->login($user);
 
-        return redirect('/dashboard')->with('success', 'Now impersonating ' . $user->name);
+        return redirect('/dashboard')->with('success', 'Now impersonating '.$user->name);
     }
 
     public function leaveImpersonation(Request $request)
@@ -127,13 +127,14 @@ class UserController
                 $wsId,
                 'impersonation.end',
                 'user',
-                (string)$targetUser->id,
+                (string) $targetUser->id,
                 ['target_email' => $targetUser->email],
                 $request->ip(),
                 $request->userAgent()
             );
 
             auth()->login($impersonator);
+
             return redirect('/dashboard')->with('success', 'Returned to super admin account.');
         }
 

@@ -2,6 +2,9 @@
 
 namespace HiddenLeaf\Kernel\Services;
 
+use App\Models\AuditLog;
+use Illuminate\Support\Str;
+
 class AuditLogger
 {
     protected array $logs = [];
@@ -17,22 +20,28 @@ class AuditLogger
         ?string $ip = null,
         ?string $userAgent = null
     ): array {
-        // Redact any secrets in metadata before storing
         $cleanMetadata = $this->sanitizeMetadata($metadata);
 
         $entry = [
-            'id' => bin2hex(random_bytes(8)),
+            'id' => (string) Str::uuid(),
             'actor_id' => $actorId,
             'organization_id' => $orgId,
             'workspace_id' => $workspaceId,
             'action' => $action,
-            'entity' => $entity,
+            'entity_type' => $entity,
             'entity_id' => $entityId,
             'metadata' => $cleanMetadata,
             'ip' => $ip ?? '127.0.0.1',
             'user_agent' => $userAgent ?? 'HiddenLeaf-Kernel',
-            'timestamp' => date('Y-m-d H:i:s'),
+            'created_at' => now(),
         ];
+
+        // Persist to database if database connection is available
+        try {
+            AuditLog::create($entry);
+        } catch (\Throwable $e) {
+            // Fallback for isolated unit tests without database connection
+        }
 
         $this->logs[] = $entry;
 

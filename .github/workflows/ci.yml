@@ -28,14 +28,28 @@ jobs:
     - name: Copy .env
       run: php -r "file_exists('.env') || copy('.env.example', '.env');"
 
+    - name: Validate Composer Configuration
+      run: composer validate --strict
+
     - name: Install Composer Dependencies
       run: composer install --prefer-dist --no-interaction
 
-    - name: Install NPM Dependencies
-      run: npm ci --legacy-peer-deps
+    - name: Install NPM Dependencies Cleanly
+      run: npm ci
 
-    - name: Run Frontend Production Build
-      run: npm run build
+    - name: Run Database Migrations & Seeders
+      run: |
+        touch database/database.sqlite
+        php artisan migrate:fresh --seed --force
 
     - name: Execute PHPUnit Test Suite
       run: php artisan test
+
+    - name: Verify Code Style (Laravel Pint)
+      run: ./vendor/bin/pint --test
+
+    - name: Run TypeScript Compiler Check
+      run: npm run lint
+
+    - name: Run Frontend Production Build
+      run: npm run build
