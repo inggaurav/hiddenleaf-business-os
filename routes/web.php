@@ -11,6 +11,11 @@ use App\Http\Controllers\MultiTenancy\WorkspaceController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+use App\Http\Controllers\InstallController;
+
+Route::get('/install', [InstallController::class, 'index'])->name('install.index');
+Route::post('/install', [InstallController::class, 'setup'])->name('install.setup');
+
 // Public & Guest Routes
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'loginView'])->name('login');
@@ -38,7 +43,19 @@ Route::middleware(['auth'])->group(function () {
 
     // Dashboard
     Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
+        $usersCount = \App\Models\User::count();
+        $workspacesCount = \App\Models\Workspace::count();
+        $recentLogs = \App\Models\AuditLog::with('user')->latest()->take(5)->get();
+        $ticketsCount = \App\Models\HelpdeskTicket::count();
+
+        return Inertia::render('Dashboard', [
+            'stats' => [
+                'users' => $usersCount,
+                'workspaces' => $workspacesCount,
+                'tickets' => $ticketsCount,
+            ],
+            'recentLogs' => $recentLogs,
+        ]);
     })->name('dashboard');
 
     // Profile Management
