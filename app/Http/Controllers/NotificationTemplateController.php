@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Language;
 use App\Models\NotificationTemplate;
 use App\Models\NotificationTemplateLang;
+use App\Services\LocalizedTemplateRenderer;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class NotificationTemplateController extends Controller
 {
+    public function __construct(private LocalizedTemplateRenderer $renderer) {}
+
     public function index()
     {
         $templates = NotificationTemplate::all();
@@ -56,5 +59,20 @@ class NotificationTemplateController extends Controller
         );
 
         return redirect()->back()->with('success', 'Notification template updated successfully.');
+    }
+
+    public function preview(Request $request, NotificationTemplate $notificationTemplate)
+    {
+        $validated = $request->validate([
+            'lang' => ['nullable', 'string', 'max:10'],
+            'variables' => ['nullable', 'array'],
+            'variables.*' => ['string', 'max:10000'],
+        ]);
+
+        return response()->json($this->renderer->notification(
+            $notificationTemplate,
+            $validated['lang'] ?? $request->user()->lang ?? 'en',
+            $validated['variables'] ?? [],
+        ));
     }
 }

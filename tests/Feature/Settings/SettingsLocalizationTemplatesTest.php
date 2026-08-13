@@ -9,6 +9,7 @@ use App\Models\Organization;
 use App\Models\Setting;
 use App\Models\User;
 use App\Models\Workspace;
+use App\Notifications\BusinessNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -175,5 +176,44 @@ class SettingsLocalizationTemplatesTest extends TestCase
             'key' => 'timezone',
             'value' => 'UTC',
         ]);
+    }
+
+    public function test_localized_template_preview_and_database_notification_lifecycle(): void
+    {
+        $template = EmailTemplate::create([
+            'name' => 'Security Alert',
+            'subject' => 'Alert for {name}',
+            'body' => 'Login from {ip}',
+        ]);
+
+        $this->actingAs($this->companyAdmin)
+            ->withSession(['active_organization_id' => $this->org->id, 'active_workspace_id' => $this->ws->id])
+            ->postJson("/email-templates/{$template->id}/preview", [
+                'variables' => ['name' => 'Alice', 'ip' => '127.0.0.1'],
+            ])->assertOk()
+            ->assertJsonPath('subject', 'Alert for Alice')
+            ->assertJsonPath('content', 'Login from 127.0.0.1');
+
+        $this->companyAdmin->notifyNow(new BusinessNotification(
+            'security.login',
+            'New login',
+            'A new login was detected.',
+            $this->org->id,
+            $this->ws->id,
+        ));
+
+        $notification = $this->companyAdmin->notifications()->firstOrFail();
+        $this->actingAs($this->companyAdmin)
+            ->withSession(['active_organization_id' => $this->org->id, 'active_workspace_id' => $this->ws->id])
+            ->getJson('/notifications?unread=1')
+            ->assertOk()
+            ->assertJsonPath('unread_count', 1)
+            ->assertJsonFragment(['event' => 'security.login']);
+
+        $this->actingAs($this->companyAdmin)
+            ->withSession(['active_organization_id' => $this->org->id, 'active_workspace_id' => $this->ws->id])
+            ->patchJson("/notifications/{$notification->id}/read")
+            ->assertNoContent();
+        $this->assertNotNull($notification->fresh()->read_at);
     }
 }

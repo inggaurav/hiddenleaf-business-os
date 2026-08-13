@@ -10,6 +10,7 @@ use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\BankTransferPaymentController;
 use App\Http\Controllers\CrmController;
+use App\Http\Controllers\DatabaseNotificationController;
 use App\Http\Controllers\Domain\Auth\RoleController;
 use App\Http\Controllers\Domain\SaaS\CouponController;
 use App\Http\Controllers\Domain\SaaS\OrderController;
@@ -324,11 +325,16 @@ Route::middleware(['auth'])->group(function () {
 
     // Email Templates
     Route::resource('email-templates', EmailTemplateController::class)->only(['index', 'show', 'store', 'update']);
+    Route::post('email-templates/{emailTemplate}/preview', [EmailTemplateController::class, 'preview'])->name('email-templates.preview');
     Route::get('settings/email-templates', [EmailTemplateController::class, 'index'])->name('settings.email-templates.index');
     Route::post('settings/email-templates', [EmailTemplateController::class, 'store'])->name('settings.email-templates.store');
 
     // Notification Templates
     Route::resource('notification-templates', NotificationTemplateController::class)->only(['index', 'show', 'update']);
+    Route::post('notification-templates/{notificationTemplate}/preview', [NotificationTemplateController::class, 'preview'])->name('notification-templates.preview');
+    Route::get('notifications', [DatabaseNotificationController::class, 'index'])->name('notifications.index');
+    Route::patch('notifications/read-all', [DatabaseNotificationController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::patch('notifications/{notification}/read', [DatabaseNotificationController::class, 'markRead'])->name('notifications.read');
 
     // RBAC Roles (Explicit actions matching RoleController)
     Route::resource('roles', RoleController::class)->except(['show']);

@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\EmailTemplate;
 use App\Models\EmailTemplateLang;
 use App\Models\Language;
+use App\Services\LocalizedTemplateRenderer;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class EmailTemplateController extends Controller
 {
+    public function __construct(private LocalizedTemplateRenderer $renderer) {}
+
     public function index()
     {
         $templates = EmailTemplate::all();
@@ -77,5 +80,20 @@ class EmailTemplateController extends Controller
         );
 
         return redirect()->back()->with('success', 'Email template updated successfully.');
+    }
+
+    public function preview(Request $request, EmailTemplate $emailTemplate)
+    {
+        $validated = $request->validate([
+            'lang' => ['nullable', 'string', 'max:10'],
+            'variables' => ['nullable', 'array'],
+            'variables.*' => ['string', 'max:10000'],
+        ]);
+
+        return response()->json($this->renderer->email(
+            $emailTemplate,
+            $validated['lang'] ?? $request->user()->lang ?? 'en',
+            $validated['variables'] ?? [],
+        ));
     }
 }
