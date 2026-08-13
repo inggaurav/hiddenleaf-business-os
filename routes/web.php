@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\ProfileController;
 use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\BankTransferPaymentController;
+use App\Http\Controllers\CrmController;
 use App\Http\Controllers\Domain\Auth\RoleController;
 use App\Http\Controllers\Domain\SaaS\CouponController;
 use App\Http\Controllers\Domain\SaaS\OrderController;
@@ -154,6 +155,16 @@ Route::middleware(['auth'])->group(function () {
         Route::post('appraisals', [HrmController::class, 'appraisal'])->name('appraisals.store');
         Route::post('documents', [HrmController::class, 'uploadDocument'])->name('documents.store');
         Route::get('documents/{document}/download', [HrmController::class, 'downloadDocument'])->name('documents.download');
+    });
+    Route::middleware('module.status:lead')->prefix('crm')->name('crm.')->group(function () {
+        Route::get('/', [CrmController::class, 'index'])->name('index');
+        Route::post('pipelines', [CrmController::class, 'storePipeline'])->name('pipelines.store');
+        Route::post('leads', [CrmController::class, 'storeLead'])->name('leads.store');
+        Route::post('leads/{lead}/move', [CrmController::class, 'moveLead'])->name('leads.move');
+        Route::post('leads/{lead}/convert', [CrmController::class, 'convertLead'])->name('leads.convert');
+        Route::post('deals/{deal}/move', [CrmController::class, 'moveDeal'])->name('deals.move');
+        Route::post('{type}/{id}/notes', [CrmController::class, 'addNote'])->name('notes.store');
+        Route::post('{type}/{id}/activities', [CrmController::class, 'addActivity'])->name('activities.store');
     });
 
     Route::middleware('module.status:productservice')->prefix('product-service')->name('product-service.')->group(function () {
