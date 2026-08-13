@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers\SuperAdmin;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Setting;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class SettingController
@@ -12,6 +11,7 @@ class SettingController
     public function index()
     {
         $settings = Setting::all()->pluck('value', 'key');
+
         return Inertia::render('SuperAdmin/Settings/Index', [
             'settings' => $settings,
         ]);

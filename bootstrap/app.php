@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Middleware\CheckModuleStatus;
 use App\Http\Middleware\EnsureTenantContext;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\Installed;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -15,13 +17,13 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [
-            \App\Http\Middleware\Installed::class,
+            Installed::class,
             HandleInertiaRequests::class,
             EnsureTenantContext::class,
         ]);
-        
+
         $middleware->alias([
-            'module.status' => \App\Http\Middleware\CheckModuleStatus::class,
+            'module.status' => CheckModuleStatus::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

@@ -5,22 +5,28 @@ import {
   Users, 
   Settings, 
   LifeBuoy, 
-  MessageSquare,
+  Layers,
+  CreditCard,
   LogOut,
   Menu,
   X
 } from 'lucide-react';
 
-export default function AppShell({ children }) {
-  const { auth } = usePage().props;
+interface AppShellProps {
+  children: React.ReactNode;
+}
+
+export default function AppShell({ children }: AppShellProps) {
+  const { auth, tenant } = usePage<any>().props;
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const navigation = [
-    { name: 'Dashboard', href: route('dashboard'), icon: LayoutDashboard },
-    { name: 'Users', href: '#', icon: Users },
-    { name: 'Helpdesk', href: '#', icon: LifeBuoy },
-    { name: 'Chat', href: '#', icon: MessageSquare },
-    { name: 'Settings', href: '#', icon: Settings },
+    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { name: 'Workspaces', href: '/workspaces', icon: Layers },
+    { name: 'Roles & Permissions', href: '/roles', icon: Users },
+    { name: 'Plans & Pricing', href: '/plans', icon: CreditCard },
+    { name: 'Modules', href: '/modules', icon: Layers },
+    { name: 'Settings', href: '/super-admin/settings', icon: Settings },
   ];
 
   return (
@@ -39,7 +45,7 @@ export default function AppShell({ children }) {
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="flex items-center justify-between h-16 px-4 bg-slate-950">
-          <span className="text-xl font-bold tracking-tight">WorkDo OS</span>
+          <span className="text-lg font-bold tracking-tight text-emerald-400">HiddenLeaf BusinessOS</span>
           <button className="md:hidden text-gray-400 hover:text-white" onClick={() => setSidebarOpen(false)}>
             <X size={20} />
           </button>
@@ -51,7 +57,7 @@ export default function AppShell({ children }) {
           </div>
           <nav className="space-y-1 px-2">
             {navigation.map((item) => {
-              const active = window.location.href === item.href;
+              const active = typeof window !== 'undefined' && window.location.pathname === item.href;
               return (
                 <Link
                   key={item.name}
@@ -67,6 +73,13 @@ export default function AppShell({ children }) {
               );
             })}
           </nav>
+
+          {tenant?.workspace_title && (
+            <div className="mt-8 px-4 py-3 mx-2 bg-slate-800/60 rounded-lg border border-slate-700/50">
+              <p className="text-xs uppercase tracking-wider text-slate-400 font-semibold">Workspace</p>
+              <p className="text-sm font-medium text-emerald-300 truncate mt-0.5">{tenant.workspace_title}</p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -83,11 +96,10 @@ export default function AppShell({ children }) {
           
           <div className="flex-1 px-4 flex justify-between">
             <div className="flex-1 flex items-center">
-              {/* Search or breadcrumbs could go here */}
             </div>
             <div className="ml-4 flex items-center md:ml-6 gap-4">
               <span className="text-sm font-medium text-gray-700">
-                {auth?.user?.name || 'Guest'}
+                {auth?.user?.name || 'User'}
               </span>
               <div className="relative">
                 <div className="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold">
@@ -95,7 +107,7 @@ export default function AppShell({ children }) {
                 </div>
               </div>
               <Link 
-                href={route('logout')} 
+                href="/logout" 
                 method="post" 
                 as="button" 
                 className="text-gray-500 hover:text-red-600 transition"

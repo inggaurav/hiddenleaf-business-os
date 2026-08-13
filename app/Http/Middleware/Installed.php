@@ -11,7 +11,7 @@ class Installed
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -19,10 +19,11 @@ class Installed
             return $next($request);
         }
 
-        if (!file_exists(storage_path('installed'))) {
+        if (! file_exists(storage_path('installed'))) {
             if ($request->is('install*')) {
                 return $next($request);
             }
+
             return redirect('/install');
         }
 

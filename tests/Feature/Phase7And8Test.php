@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\Organization;
+use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -19,6 +19,7 @@ class Phase7And8Test extends TestCase
         $ws = Workspace::factory()->create(['organization_id' => $org->id]);
         $user->organizations()->attach($org->id);
         $user->workspaces()->attach($ws->id);
+
         return $user;
     }
 
@@ -35,12 +36,12 @@ class Phase7And8Test extends TestCase
         $response = $this->actingAs($user)->post(route('settings.email-templates.store'), [
             'name' => 'Welcome Email',
             'subject' => 'Welcome to our platform',
-            'body' => '<p>Hello!</p>'
+            'body' => '<p>Hello!</p>',
         ]);
-        
+
         $response->assertStatus(302);
         $this->assertDatabaseHas('email_templates', [
-            'name' => 'Welcome Email'
+            'name' => 'Welcome Email',
         ]);
     }
 
@@ -55,12 +56,12 @@ class Phase7And8Test extends TestCase
     {
         $user = $this->setupUserWithTenant();
         $response = $this->actingAs($user)->post(route('settings.api-tokens.store'), [
-            'name' => 'Test Token'
+            'name' => 'Test Token',
         ]);
-        
+
         $response->assertStatus(302);
         $this->assertDatabaseHas('personal_access_tokens', [
-            'name' => 'Test Token'
+            'name' => 'Test Token',
         ]);
     }
 }

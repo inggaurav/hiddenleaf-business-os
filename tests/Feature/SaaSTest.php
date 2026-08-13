@@ -2,10 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use App\Models\Domain\SaaS\Plan;
-use App\Models\User;
 
 class SaaSTest extends TestCase
 {

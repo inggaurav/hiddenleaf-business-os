@@ -6,12 +6,26 @@ use App\Http\Controllers\Auth\ProfileController;
 use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Domain\Auth\RoleController;
+use App\Http\Controllers\Domain\SaaS\CouponController;
+use App\Http\Controllers\Domain\SaaS\OrderController;
+use App\Http\Controllers\Domain\SaaS\PlanController;
+use App\Http\Controllers\Domain\SaaS\SubscriptionController;
+use App\Http\Controllers\InstallController;
+use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\MultiTenancy\MemberController;
 use App\Http\Controllers\MultiTenancy\WorkspaceController;
+use App\Http\Controllers\Settings\ApiTokenController;
+use App\Http\Controllers\Settings\EmailTemplateController;
+use App\Http\Controllers\SuperAdmin\DashboardController;
+use App\Http\Controllers\SuperAdmin\SettingController;
+use App\Http\Controllers\SuperAdmin\TranslationController;
+use App\Http\Middleware\SuperAdminMiddleware;
+use App\Models\AuditLog;
+use App\Models\HelpdeskTicket;
+use App\Models\User;
+use App\Models\Workspace;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-
-use App\Http\Controllers\InstallController;
 
 Route::get('/install', [InstallController::class, 'index'])->name('install.index');
 Route::post('/install', [InstallController::class, 'setup'])->name('install.setup');
@@ -43,10 +57,10 @@ Route::middleware(['auth'])->group(function () {
 
     // Dashboard
     Route::get('/dashboard', function () {
-        $usersCount = \App\Models\User::count();
-        $workspacesCount = \App\Models\Workspace::count();
-        $recentLogs = \App\Models\AuditLog::with('user')->latest()->take(5)->get();
-        $ticketsCount = \App\Models\HelpdeskTicket::count();
+        $usersCount = User::count();
+        $workspacesCount = Workspace::count();
+        $recentLogs = AuditLog::with('user')->latest()->take(5)->get();
+        $ticketsCount = HelpdeskTicket::count();
 
         return Inertia::render('Dashboard', [
             'stats' => [
@@ -82,32 +96,32 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/users/leave-impersonation', [UserController::class, 'leaveImpersonation'])->name('users.leave-impersonation');
 
     // SaaS Routes
-    Route::resource('plans', \App\Http\Controllers\Domain\SaaS\PlanController::class);
-    Route::resource('coupons', \App\Http\Controllers\Domain\SaaS\CouponController::class);
-    Route::resource('orders', \App\Http\Controllers\Domain\SaaS\OrderController::class);
-    Route::resource('subscriptions', \App\Http\Controllers\Domain\SaaS\SubscriptionController::class);
+    Route::resource('plans', PlanController::class);
+    Route::resource('coupons', CouponController::class);
+    Route::resource('orders', OrderController::class);
+    Route::resource('subscriptions', SubscriptionController::class);
 
     // RBAC Roles (Explicit actions matching RoleController)
     Route::resource('roles', RoleController::class)->except(['show']);
 
     // Super Admin Routes
-    Route::middleware([\App\Http\Middleware\SuperAdminMiddleware::class])->prefix('super-admin')->name('super-admin.')->group(function () {
-        Route::get('/dashboard', [\App\Http\Controllers\SuperAdmin\DashboardController::class, 'index'])->name('dashboard');
-        Route::get('/settings', [\App\Http\Controllers\SuperAdmin\SettingController::class, 'index'])->name('settings.index');
-        Route::post('/settings', [\App\Http\Controllers\SuperAdmin\SettingController::class, 'store'])->name('settings.store');
-        Route::get('/translations', [\App\Http\Controllers\SuperAdmin\TranslationController::class, 'index'])->name('translations.index');
-        Route::post('/translations', [\App\Http\Controllers\SuperAdmin\TranslationController::class, 'store'])->name('translations.store');
+    Route::middleware([SuperAdminMiddleware::class])->prefix('super-admin')->name('super-admin.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+        Route::post('/settings', [SettingController::class, 'store'])->name('settings.store');
+        Route::get('/translations', [TranslationController::class, 'index'])->name('translations.index');
+        Route::post('/translations', [TranslationController::class, 'store'])->name('translations.store');
     });
 
     // Modules
-    Route::get('/modules', [\App\Http\Controllers\ModuleController::class, 'index'])->name('modules.index');
-    Route::post('/modules/toggle', [\App\Http\Controllers\ModuleController::class, 'toggle'])->name('modules.toggle');
+    Route::get('/modules', [ModuleController::class, 'index'])->name('modules.index');
+    Route::post('/modules/toggle', [ModuleController::class, 'toggle'])->name('modules.toggle');
 
     // Settings (Phase 7 & 8)
-    Route::get('/settings/email-templates', [\App\Http\Controllers\Settings\EmailTemplateController::class, 'index'])->name('settings.email-templates.index');
-    Route::post('/settings/email-templates', [\App\Http\Controllers\Settings\EmailTemplateController::class, 'store'])->name('settings.email-templates.store');
-    
-    Route::get('/settings/api-tokens', [\App\Http\Controllers\Settings\ApiTokenController::class, 'index'])->name('settings.api-tokens.index');
-    Route::post('/settings/api-tokens', [\App\Http\Controllers\Settings\ApiTokenController::class, 'store'])->name('settings.api-tokens.store');
-    Route::delete('/settings/api-tokens/{id}', [\App\Http\Controllers\Settings\ApiTokenController::class, 'destroy'])->name('settings.api-tokens.destroy');
+    Route::get('/settings/email-templates', [EmailTemplateController::class, 'index'])->name('settings.email-templates.index');
+    Route::post('/settings/email-templates', [EmailTemplateController::class, 'store'])->name('settings.email-templates.store');
+
+    Route::get('/settings/api-tokens', [ApiTokenController::class, 'index'])->name('settings.api-tokens.index');
+    Route::post('/settings/api-tokens', [ApiTokenController::class, 'store'])->name('settings.api-tokens.store');
+    Route::delete('/settings/api-tokens/{id}', [ApiTokenController::class, 'destroy'])->name('settings.api-tokens.destroy');
 });

@@ -3,9 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
+use Inertia\Inertia;
 
 class InstallController
 {
@@ -23,8 +22,8 @@ class InstallController
                     'pdo_mysql' => extension_loaded('pdo_mysql'),
                     'tokenizer' => extension_loaded('tokenizer'),
                     'xml' => extension_loaded('xml'),
-                ]
-            ]
+                ],
+            ],
         ]);
     }
 
@@ -43,7 +42,7 @@ class InstallController
         }
 
         // Just creating the installed file
-        File::put(storage_path('installed'), 'Installed at ' . now());
+        File::put(storage_path('installed'), 'Installed at '.now());
 
         return redirect('/login');
     }

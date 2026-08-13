@@ -11,7 +11,7 @@ class PlanController
     public function index()
     {
         return Inertia::render('SaaS/Plans/Index', [
-            'plans' => Plan::all()
+            'plans' => Plan::all(),
         ]);
     }
 
@@ -33,6 +33,7 @@ class PlanController
         ]);
 
         Plan::create($validated);
+
         return redirect()->route('plans.index');
     }
 
@@ -59,12 +60,14 @@ class PlanController
         ]);
 
         $plan->update($validated);
+
         return redirect()->route('plans.index');
     }
 
     public function destroy(Plan $plan)
     {
         $plan->delete();
+
         return redirect()->route('plans.index');
     }
 }

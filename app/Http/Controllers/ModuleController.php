@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\UserActiveModule;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Nwidart\Modules\Facades\Module;
-use App\Models\UserActiveModule;
-use App\Models\Workspace;
-use Illuminate\Support\Facades\Auth;
 
 class ModuleController
 {
     public function index(Request $request)
     {
         $workspaceId = $request->session()->get('active_workspace_id');
-        if (!$workspaceId) abort(403, 'No active workspace');
-        
+        if (! $workspaceId) {
+            abort(403, 'No active workspace');
+        }
+
         $modules = Module::all();
         $activeModules = UserActiveModule::where('workspace_id', $workspaceId)->pluck('module_name')->toArray();
 
@@ -29,7 +29,7 @@ class ModuleController
         }
 
         return Inertia::render('Modules/Index', [
-            'modules' => $formattedModules
+            'modules' => $formattedModules,
         ]);
     }
 
@@ -37,16 +37,18 @@ class ModuleController
     {
         $request->validate([
             'module_name' => 'required|string',
-            'active' => 'required|boolean'
+            'active' => 'required|boolean',
         ]);
 
         $workspaceId = $request->session()->get('active_workspace_id');
-        if (!$workspaceId) abort(403, 'No active workspace');
+        if (! $workspaceId) {
+            abort(403, 'No active workspace');
+        }
 
         if ($request->boolean('active')) {
             UserActiveModule::updateOrCreate([
                 'workspace_id' => $workspaceId,
-                'module_name' => $request->module_name
+                'module_name' => $request->module_name,
             ], []);
         } else {
             UserActiveModule::where('workspace_id', $workspaceId)

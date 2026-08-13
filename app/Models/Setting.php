@@ -13,7 +13,7 @@ class Setting extends Model
         'key',
         'value',
         'is_public',
-        'created_by'
+        'created_by',
     ];
 
     public function creator()

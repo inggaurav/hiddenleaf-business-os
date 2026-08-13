@@ -1,7 +1,11 @@
 <?php
 
+use App\Providers\AppServiceProvider;
+use App\Providers\ModuleLoaderServiceProvider;
+use App\Providers\SettingsServiceProvider;
+
 return [
-    App\Providers\AppServiceProvider::class,
-    App\Providers\ModuleLoaderServiceProvider::class,
-    App\Providers\SettingsServiceProvider::class,
+    AppServiceProvider::class,
+    ModuleLoaderServiceProvider::class,
+    SettingsServiceProvider::class,
 ];

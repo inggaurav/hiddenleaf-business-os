@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class UserCoupon extends Model
 {
     protected $fillable = [
-        'user_id', 'coupon_id', 'order_id'
+        'user_id', 'coupon_id', 'order_id',
     ];
 
     public function coupon()
