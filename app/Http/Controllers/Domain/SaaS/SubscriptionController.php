@@ -2,64 +2,68 @@
 
 namespace App\Http\Controllers\Domain\SaaS;
 
-use App\Models\Domain\SaaS\Subscription;
+use App\Http\Controllers\Controller;
+use App\Models\Plan;
+use App\Models\Subscription;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
-class SubscriptionController
+class SubscriptionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $user = Auth::user();
+        $orgId = session('active_organization_id');
+
+        $subscription = null;
+        if ($orgId) {
+            $subscription = Subscription::with('plan')->where('organization_id', $orgId)->first();
+        }
+
+        return Inertia::render('Subscriptions/Index', [
+            'subscription' => $subscription,
+            'plans' => Plan::where('status', true)->get(),
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'plan_id' => 'required|exists:plans,id',
+            'duration' => 'nullable|in:Month,Year,Lifetime,Trial',
+            'coupon_code' => 'nullable|string',
+        ]);
+
+        $user = Auth::user();
+        $plan = Plan::findOrFail($validated['plan_id']);
+        $duration = $validated['duration'] ?? 'Month';
+
+        $counter = [
+            'user_counter' => $plan->number_of_users,
+            'storage_limit' => $plan->storage_limit / (1024 * 1024),
+        ];
+
+        $result = assignPlan($plan->id, $duration, $plan->modules ?? [], $counter, $user->id);
+
+        if (! $result['is_success']) {
+            return back()->with('error', $result['error'] ?? 'Subscription failed.');
+        }
+
+        return redirect()->route('dashboard')->with('success', 'Subscription activated successfully.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Subscription $subscription)
+    public function cancel(Request $request, Subscription $subscription)
     {
-        //
-    }
+        $user = Auth::user();
+        $orgId = session('active_organization_id');
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Subscription $subscription)
-    {
-        //
-    }
+        if (! $user->isSuperAdmin() && $subscription->organization_id !== $orgId) {
+            abort(403, 'Unauthorized.');
+        }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Subscription $subscription)
-    {
-        //
-    }
+        $subscription->update(['status' => 'cancelled']);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Subscription $subscription)
-    {
-        //
+        return back()->with('success', 'Subscription cancelled.');
     }
 }

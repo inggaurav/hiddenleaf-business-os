@@ -15,6 +15,12 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('role')->default('user'); // super_admin, company_admin, member
+            $table->string('type')->default('company');
+            $table->unsignedBigInteger('active_plan')->nullable();
+            $table->date('plan_expire_date')->nullable();
+            $table->integer('is_trial_done')->default(0);
+            $table->integer('user_counter')->default(0);
+            $table->bigInteger('storage_limit')->default(0);
             $table->boolean('is_active')->default(true);
             $table->string('avatar')->nullable();
             $table->string('phone')->nullable();

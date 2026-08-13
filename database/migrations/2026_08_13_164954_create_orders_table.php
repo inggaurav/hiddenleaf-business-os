@@ -11,14 +11,23 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->string('order_id')->unique();
-            $table->foreignId('organization_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('plan_id')->constrained()->cascadeOnDelete();
-            $table->decimal('price', 10, 2);
+            $table->string('name')->nullable();
+            $table->string('email')->nullable();
+            $table->string('card_number')->nullable();
+            $table->string('card_exp_month')->nullable();
+            $table->string('card_exp_year')->nullable();
+            $table->string('plan_name')->nullable();
+            $table->unsignedBigInteger('plan_id')->nullable();
+            $table->decimal('price', 10, 2)->default(0);
             $table->decimal('discount_amount', 10, 2)->default(0);
-            $table->string('currency', 3)->default('USD');
-            $table->enum('payment_status', ['pending', 'succeeded', 'failed', 'refunded'])->default('pending');
+            $table->string('currency', 10)->default('USD');
+            $table->string('txn_id')->nullable();
             $table->string('payment_type')->default('bank_transfer');
+            $table->string('payment_status')->default('pending');
             $table->string('receipt')->nullable();
+            $table->unsignedBigInteger('organization_id')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->unsignedBigInteger('created_by')->nullable();
             $table->timestamps();
         });
     }
