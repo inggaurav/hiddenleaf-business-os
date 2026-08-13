@@ -46,9 +46,6 @@ Route::get('/install', [InstallController::class, 'index'])->name('install.index
 Route::post('/install', [InstallController::class, 'setup'])->name('install.setup');
 Route::post('/install/test-db', [InstallController::class, 'testDatabase'])->name('install.test-db');
 
-Route::get('/update', [UpdateController::class, 'index'])->name('update.index');
-Route::post('/update', [UpdateController::class, 'update'])->name('update.run');
-
 // Public & Guest Routes
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'loginView'])->name('login');
@@ -63,6 +60,13 @@ Route::middleware('guest')->group(function () {
 
 // Authenticated Core Routes
 Route::middleware(['auth'])->group(function () {
+    Route::middleware(SuperAdminMiddleware::class)->prefix('update')->name('update.')->group(function () {
+        Route::get('/', [UpdateController::class, 'index'])->name('index');
+        Route::post('/check', [UpdateController::class, 'check'])->middleware('throttle:10,1')->name('check');
+        Route::post('/', [UpdateController::class, 'update'])->middleware('throttle:3,10')->name('run');
+        Route::post('/{history}/rollback', [UpdateController::class, 'rollback'])->middleware('throttle:3,10')->name('rollback');
+    });
+
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     // Email Verification Routes

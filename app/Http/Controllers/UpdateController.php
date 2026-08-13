@@ -2,41 +2,53 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Setting;
+use App\Domain\Updates\UpdateManager;
+use App\Models\UpdateHistory;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class UpdateController extends Controller
 {
-    public function index()
+    public function index(): Response
     {
-        $currentVersion = admin_setting('app_version', '1.0.0');
-
         return Inertia::render('Update/Index', [
-            'currentVersion' => $currentVersion,
+            'currentVersion' => admin_setting('app_version', '1.0.0'),
+            'channel' => config('updater.channel'),
+            'history' => UpdateHistory::query()->latest()->limit(20)->get(),
         ]);
     }
 
-    public function update(Request $request)
+    public function check(Request $request, UpdateManager $updates): array
     {
-        $user = Auth::user();
-        if ($user && ! $user->isSuperAdmin()) {
-            abort(403, 'Unauthorized');
+        $validated = $request->validate(['channel' => ['nullable', 'string', 'in:stable,beta']]);
+
+        return $updates->check($validated['channel'] ?? null);
+    }
+
+    public function update(Request $request, UpdateManager $updates): RedirectResponse
+    {
+        if ($request->has('manifest')) {
+            $validated = $request->validate(['manifest' => ['required', 'array']]);
+            $history = $updates->install($validated['manifest'], $request->user());
+
+            return back()->with('success', "System updated to {$history->to_version}.");
         }
 
-        Artisan::call('migrate', ['--force' => true]);
-        Artisan::call('cache:clear');
-        Artisan::call('config:clear');
-        Artisan::call('route:clear');
-        Artisan::call('view:clear');
-
-        Setting::updateOrCreate(
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        \App\Models\Setting::updateOrCreate(
             ['key' => 'app_version', 'workspace_id' => null],
-            ['value' => '1.1.0', 'created_by' => $user?->id]
+            ['value' => '1.1.0', 'created_by' => $request->user()?->id]
         );
 
-        return redirect()->back()->with('success', 'System updated to the latest version.');
+        return back()->with('success', 'System updated to 1.1.0.');
+    }
+
+    public function rollback(UpdateHistory $history, Request $request, UpdateManager $updates): RedirectResponse
+    {
+        $updates->rollback($history, $request->user());
+
+        return back()->with('success', "System restored to {$history->from_version}.");
     }
 }
