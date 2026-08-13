@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountingController;
 use App\Http\Controllers\AIAgentChatController;
 use App\Http\Controllers\AIAgentChatPageController;
 use App\Http\Controllers\Auth\AuthController;
@@ -127,6 +128,16 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('bank-transfer/{payment}', [BankTransferPaymentController::class, 'destroy'])->name('bank-transfer.destroy');
 
     // Sales & Procurement Routes
+    Route::middleware('module.status:account')->prefix('accounting')->name('accounting.')->group(function () {
+        Route::get('accounts', [AccountingController::class, 'accounts'])->name('accounts');
+        Route::post('types', [AccountingController::class, 'storeType'])->name('types.store');
+        Route::post('accounts', [AccountingController::class, 'storeAccount'])->name('accounts.store');
+        Route::get('journals', [AccountingController::class, 'journals'])->name('journals');
+        Route::post('journals', [AccountingController::class, 'storeJournal'])->name('journals.store');
+        Route::post('journals/{entry}/post', [AccountingController::class, 'postJournal'])->name('journals.post');
+        Route::get('reports', [AccountingController::class, 'reports'])->name('reports');
+    });
+
     Route::middleware('module.status:productservice')->prefix('product-service')->name('product-service.')->group(function () {
         Route::post('categories', [ProductServiceController::class, 'storeCategory'])->name('categories.store');
         Route::post('units', [ProductServiceController::class, 'storeUnit'])->name('units.store');
