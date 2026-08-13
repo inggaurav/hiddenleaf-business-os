@@ -5,6 +5,7 @@ namespace Tests\Feature\Api;
 use App\Models\Organization;
 use App\Models\Plan;
 use App\Models\ProductServiceItem;
+use App\Models\Subscription;
 use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -227,5 +228,42 @@ class ApiV1SuiteTest extends TestCase
         ])->assertOk();
 
         $this->assertTrue(Hash::check('SecurePassword123', $this->user->fresh()->password));
+    }
+
+    public function test_role_directories_and_subscription_are_workspace_scoped(): void
+    {
+        $client = User::factory()->create(['role' => 'client', 'name' => 'Tenant Client']);
+        $client->organizations()->attach($this->org->id, ['role' => 'client']);
+        $client->workspaces()->attach($this->ws->id);
+        $foreignClient = User::factory()->create(['role' => 'client', 'name' => 'Foreign Client']);
+        $plan = Plan::create([
+            'name' => 'API Subscription',
+            'package_price_monthly' => 10,
+            'package_price_yearly' => 100,
+            'number_of_users' => 5,
+            'workspace_limit' => 2,
+            'storage_limit' => 512,
+            'status' => true,
+        ]);
+        Subscription::create([
+            'organization_id' => $this->org->id,
+            'plan_id' => $plan->id,
+            'status' => 'active',
+            'starts_at' => now(),
+            'expires_at' => now()->addMonth(),
+        ]);
+        $token = $this->user->createToken('directory-test')->plainTextToken;
+
+        $this->withToken($token)->withHeader('X-Workspace-ID', $this->ws->id)
+            ->getJson('/api/v1/client-users')
+            ->assertOk()
+            ->assertJsonFragment(['name' => 'Tenant Client'])
+            ->assertJsonMissing(['name' => $foreignClient->name]);
+
+        $this->withToken($token)->withHeader('X-Workspace-ID', $this->ws->id)
+            ->getJson('/api/v1/subscription')
+            ->assertOk()
+            ->assertJsonPath('data.plan.name', 'API Subscription')
+            ->assertJsonPath('data.is_active', true);
     }
 }

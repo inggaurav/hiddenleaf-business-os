@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\MediaApiController;
 use App\Http\Controllers\Api\V1\PlanApiController;
 use App\Http\Controllers\Api\V1\ProductServiceApiController;
 use App\Http\Controllers\Api\V1\SalesProcurementApiController;
+use App\Http\Controllers\Api\V1\UserDirectoryApiController;
 use App\Http\Controllers\Api\V1\WorkspaceApiController;
 use HiddenLeaf\Http\Controllers\Api\V1\LicensingController;
 use Illuminate\Support\Facades\Route;
@@ -41,6 +42,11 @@ Route::prefix('v1')->group(function () {
         Route::get('/workspaces/{workspace}', [WorkspaceApiController::class, 'show']);
 
         Route::middleware('api.workspace')->group(function () {
+            Route::get('/users', [UserDirectoryApiController::class, 'users']);
+            Route::get('/staff-users', [UserDirectoryApiController::class, 'users'])->defaults('type', 'staff');
+            Route::get('/client-users', [UserDirectoryApiController::class, 'users'])->defaults('type', 'client');
+            Route::get('/vendor-users', [UserDirectoryApiController::class, 'users'])->defaults('type', 'vendor');
+            Route::get('/subscription', [UserDirectoryApiController::class, 'subscription']);
             Route::get('/products-services', [ProductServiceApiController::class, 'index']);
             Route::get('/products-services/{item}', [ProductServiceApiController::class, 'show'])->whereNumber('item');
 
