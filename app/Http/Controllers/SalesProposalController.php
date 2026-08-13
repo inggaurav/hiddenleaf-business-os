@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Domain\ProductService\Services\CatalogLookupService;
 use App\Models\SalesInvoice;
 use App\Models\SalesInvoiceItem;
+use App\Models\ProductServiceItem;
 use App\Models\SalesProposal;
 use App\Models\SalesProposalItem;
+use App\Models\Workspace;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -16,8 +18,9 @@ class SalesProposalController extends Controller
 {
     public function index(Request $request)
     {
-        $wsId = session('active_workspace_id');
-        $orgId = session('active_organization_id');
+        $workspace = $this->workspace($request);
+        $wsId = $workspace->id;
+        $orgId = $workspace->organization_id;
 
         $proposals = SalesProposal::query()
             ->when($wsId, fn ($q) => $q->where('workspace_id', $wsId))
@@ -33,9 +36,13 @@ class SalesProposalController extends Controller
         ]);
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        return Inertia::render('SalesProposals/Create');
+        $workspace = $this->workspace($request);
+
+        return Inertia::render('SalesProposals/Create', [
+            'products' => ProductServiceItem::forTenant($workspace->organization_id, $workspace->id)->where('is_active', true)->get(),
+        ]);
     }
 
     public function store(Request $request)
@@ -45,20 +52,25 @@ class SalesProposalController extends Controller
             'issue_date' => 'required|date',
             'type' => 'nullable|string',
             'items' => 'required|array|min:1',
-            'items.*.item_name' => 'required|string',
+            'items.*.product_id' => 'required|integer',
             'items.*.quantity' => 'required|numeric|min:1',
             'items.*.price' => 'required|numeric|min:0',
+            'items.*.tax' => 'nullable|numeric|min:0',
+            'items.*.discount' => 'nullable|numeric|min:0',
         ]);
 
-        $wsId = session('active_workspace_id');
-        $orgId = session('active_organization_id');
+        $workspace = $this->workspace($request);
+        $wsId = $workspace->id;
+        $orgId = $workspace->organization_id;
+        $products = ProductServiceItem::forTenant($orgId, $wsId)->whereIn('id', collect($validated['items'])->pluck('product_id')->unique())->get()->keyBy('id');
+        abort_unless($products->count() === collect($validated['items'])->pluck('product_id')->unique()->count(), 422, 'A proposal item is outside the active tenant catalog.');
 
-        return DB::transaction(function () use ($validated, $wsId, $orgId) {
+        return DB::transaction(function () use ($validated, $wsId, $orgId, $products) {
             $proposalId = strtoupper(substr(uniqid('PROP-'), -10));
 
             $total = 0;
             foreach ($validated['items'] as $item) {
-                $total += $item['quantity'] * $item['price'];
+                $total += ($item['quantity'] * $item['price']) + ($item['tax'] ?? 0) - ($item['discount'] ?? 0);
             }
 
             $proposal = SalesProposal::create([
@@ -76,7 +88,8 @@ class SalesProposalController extends Controller
             foreach ($validated['items'] as $item) {
                 SalesProposalItem::create([
                     'proposal_id' => $proposal->id,
-                    'item_name' => $item['item_name'],
+                    'product_id' => $item['product_id'],
+                    'item_name' => $products[$item['product_id']]->name,
                     'quantity' => $item['quantity'],
                     'price' => $item['price'],
                     'tax' => $item['tax'] ?? 0,
@@ -88,8 +101,9 @@ class SalesProposalController extends Controller
         });
     }
 
-    public function show(SalesProposal $salesProposal)
+    public function show(Request $request, SalesProposal $salesProposal)
     {
+        $this->assertProposal($salesProposal, $this->workspace($request));
         $salesProposal->load(['items']);
 
         return Inertia::render('SalesProposals/Show', [
@@ -97,17 +111,23 @@ class SalesProposalController extends Controller
         ]);
     }
 
-    public function edit(SalesProposal $salesProposal)
+    public function edit(Request $request, SalesProposal $salesProposal)
     {
+        $workspace = $this->workspace($request);
+        $this->assertProposal($salesProposal, $workspace);
+        abort_unless((int) $salesProposal->status === 0, 422, 'Only draft proposals can be edited.');
         $salesProposal->load(['items']);
 
         return Inertia::render('SalesProposals/Edit', [
             'proposal' => $salesProposal,
+            'products' => ProductServiceItem::forTenant($workspace->organization_id, $workspace->id)->where('is_active', true)->get(),
         ]);
     }
 
     public function update(Request $request, SalesProposal $salesProposal)
     {
+        $this->assertProposal($salesProposal, $this->workspace($request));
+        abort_unless((int) $salesProposal->status === 0, 422, 'Only draft proposals can be edited.');
         $validated = $request->validate([
             'issue_date' => 'required|date',
             'type' => 'nullable|string',
@@ -118,44 +138,55 @@ class SalesProposalController extends Controller
         return redirect()->route('sales-proposals.index')->with('success', 'Sales proposal updated.');
     }
 
-    public function destroy(SalesProposal $salesProposal)
+    public function destroy(Request $request, SalesProposal $salesProposal)
     {
+        $this->assertProposal($salesProposal, $this->workspace($request));
+        abort_unless((int) $salesProposal->status === 0, 422, 'Only draft proposals can be deleted.');
         $salesProposal->items()->delete();
         $salesProposal->delete();
 
         return redirect()->route('sales-proposals.index')->with('success', 'Sales proposal deleted.');
     }
 
-    public function print(SalesProposal $salesProposal)
+    public function print(Request $request, SalesProposal $salesProposal)
     {
+        $this->assertProposal($salesProposal, $this->workspace($request));
         $salesProposal->load(['items']);
 
         return view('print.sales_proposal', ['proposal' => $salesProposal]);
     }
 
-    public function sent(SalesProposal $salesProposal)
+    public function sent(Request $request, SalesProposal $salesProposal)
     {
+        $this->assertProposal($salesProposal, $this->workspace($request));
+        abort_unless((int) $salesProposal->status === 0, 422, 'Only draft proposals can be sent.');
         $salesProposal->update(['status' => 1]); // Sent
 
         return back()->with('success', 'Proposal marked as sent.');
     }
 
-    public function accept(SalesProposal $salesProposal)
+    public function accept(Request $request, SalesProposal $salesProposal)
     {
+        $this->assertProposal($salesProposal, $this->workspace($request));
+        abort_unless((int) $salesProposal->status === 1, 422, 'Only sent proposals can be accepted.');
         $salesProposal->update(['status' => 2]); // Accepted
 
         return back()->with('success', 'Proposal accepted.');
     }
 
-    public function reject(SalesProposal $salesProposal)
+    public function reject(Request $request, SalesProposal $salesProposal)
     {
+        $this->assertProposal($salesProposal, $this->workspace($request));
+        abort_unless((int) $salesProposal->status === 1, 422, 'Only sent proposals can be rejected.');
         $salesProposal->update(['status' => 3]); // Rejected
 
         return back()->with('success', 'Proposal rejected.');
     }
 
-    public function convertToInvoice(SalesProposal $salesProposal)
+    public function convertToInvoice(Request $request, SalesProposal $salesProposal)
     {
+        $this->assertProposal($salesProposal, $this->workspace($request));
+        abort_unless((int) $salesProposal->status === 2, 422, 'Only accepted proposals can be converted.');
         $salesProposal->load(['items']);
 
         $invoiceId = strtoupper(substr(uniqid('SI-'), -10));
@@ -176,6 +207,7 @@ class SalesProposalController extends Controller
         foreach ($salesProposal->items as $pItem) {
             SalesInvoiceItem::create([
                 'invoice_id' => $invoice->id,
+                'product_id' => $pItem->product_id,
                 'item_name' => $pItem->item_name,
                 'quantity' => $pItem->quantity,
                 'price' => $pItem->price,
@@ -191,22 +223,38 @@ class SalesProposalController extends Controller
 
     public function getWarehouseProducts(Request $request, CatalogLookupService $catalog)
     {
+        $workspace = $this->workspace($request);
         $validated = $request->validate([
             'warehouse_id' => ['required', 'integer'],
         ]);
 
         return response()->json($catalog->productsForWarehouse(
             (int) $validated['warehouse_id'],
-            (int) session('active_organization_id'),
-            (int) session('active_workspace_id'),
+            (int) $workspace->organization_id,
+            (int) $workspace->id,
         ));
     }
 
     public function getServices(Request $request, CatalogLookupService $catalog)
     {
+        $workspace = $this->workspace($request);
+
         return response()->json($catalog->services(
-            (int) session('active_organization_id'),
-            (int) session('active_workspace_id'),
+            (int) $workspace->organization_id,
+            (int) $workspace->id,
         ));
+    }
+
+    private function workspace(Request $request): Workspace
+    {
+        $workspace = Workspace::query()->with('organization')->find($request->session()->get('active_workspace_id'));
+        abort_unless($workspace && $request->user()->canInWorkspace('sales.manage', $workspace), 403);
+
+        return $workspace;
+    }
+
+    private function assertProposal(SalesProposal $proposal, Workspace $workspace): void
+    {
+        abort_unless((int) $proposal->organization_id === (int) $workspace->organization_id && (int) $proposal->workspace_id === (int) $workspace->id, 404);
     }
 }
