@@ -1,0 +1,1514 @@
+{
+    "summary": {
+        "total_reference_routes": 159,
+        "total_controllers": 32,
+        "total_models": 40,
+        "total_migrations": 49,
+        "bundled_packages": [
+            "Account",
+            "Hrm",
+            "LandingPage",
+            "Lead",
+            "Paypal",
+            "Pos",
+            "ProductService",
+            "Stripe",
+            "Taskly"
+        ]
+    },
+    "routes": [
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "dashboard",
+            "action": "[HomeController::class, 'Dashboard']",
+            "name": "dashboard"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "\/profile",
+            "action": "[ProfileController::class, 'edit']",
+            "name": "profile.edit"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "patch",
+            "uri": "\/profile",
+            "action": "[ProfileController::class, 'update']",
+            "name": "profile.update"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "delete",
+            "uri": "\/profile",
+            "action": "[ProfileController::class, 'destroy']",
+            "name": "profile.destroy"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "patch",
+            "uri": "users\/{user}\/change-password",
+            "action": "[UserController::class, 'changePassword']",
+            "name": "users.change-password"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "users\/{user}\/impersonate",
+            "action": "[UserController::class, 'impersonate']",
+            "name": "users.impersonate"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "users\/leave-impersonation",
+            "action": "[UserController::class, 'leaveImpersonation']",
+            "name": "users.leave-impersonation"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "users\/login\/history",
+            "action": "[UserController::class, 'loginHistory']",
+            "name": "users.login-history"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "users\/{user}\/admin-hub",
+            "action": "[UserController::class, 'adminHub']",
+            "name": "users.admin-hub"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "patch",
+            "uri": "users\/{user}\/toggle-status",
+            "action": "[UserController::class, 'toggleStatus']",
+            "name": "users.toggle-status"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "users\/{user}\/assign-plan",
+            "action": "[UserController::class, 'assignPlan']",
+            "name": "users.assign-plan"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "purchase-invoices\/{purchaseInvoice}\/post",
+            "action": "[PurchaseInvoiceController::class, 'post']",
+            "name": "purchase-invoices.post"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "purchase-invoices\/{purchaseInvoice}\/print",
+            "action": "[PurchaseInvoiceController::class, 'print']",
+            "name": "purchase-invoices.print"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "sales-invoices\/{salesInvoice}\/post",
+            "action": "[SalesInvoiceController::class, 'post']",
+            "name": "sales-invoices.post"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "sales-invoices\/{salesInvoice}\/print",
+            "action": "[SalesInvoiceController::class, 'print']",
+            "name": "sales-invoices.print"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "sales-invoices\/warehouse\/products",
+            "action": "[SalesInvoiceController::class, 'getWarehouseProducts']",
+            "name": "sales-invoices.warehouse.products"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "sales-invoices\/services\/list",
+            "action": "[SalesInvoiceController::class, 'getServices']",
+            "name": "sales-invoices.services"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "purchase-returns",
+            "action": "[PurchaseReturnController::class, 'index']",
+            "name": "purchase-returns.index"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "purchase-returns\/create",
+            "action": "[PurchaseReturnController::class, 'create']",
+            "name": "purchase-returns.create"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "purchase-returns",
+            "action": "[PurchaseReturnController::class, 'store']",
+            "name": "purchase-returns.store"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "purchase-returns\/{return}",
+            "action": "[PurchaseReturnController::class, 'show']",
+            "name": "purchase-returns.show"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "delete",
+            "uri": "purchase-returns\/{return}",
+            "action": "[PurchaseReturnController::class, 'destroy']",
+            "name": "purchase-returns.destroy"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "purchase-returns\/{return}\/approve",
+            "action": "[PurchaseReturnController::class, 'approve']",
+            "name": "purchase-returns.approve"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "purchase-returns\/{return}\/complete",
+            "action": "[PurchaseReturnController::class, 'complete']",
+            "name": "purchase-returns.complete"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "sales-returns",
+            "action": "[SalesReturnController::class, 'index']",
+            "name": "sales-returns.index"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "sales-returns\/create",
+            "action": "[SalesReturnController::class, 'create']",
+            "name": "sales-returns.create"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "sales-returns",
+            "action": "[SalesReturnController::class, 'store']",
+            "name": "sales-returns.store"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "sales-returns\/{salesReturn}",
+            "action": "[SalesReturnController::class, 'show']",
+            "name": "sales-returns.show"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "delete",
+            "uri": "sales-returns\/{salesReturn}",
+            "action": "[SalesReturnController::class, 'destroy']",
+            "name": "sales-returns.destroy"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "sales-returns\/{salesReturn}\/approve",
+            "action": "[SalesReturnController::class, 'approve']",
+            "name": "sales-returns.approve"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "sales-returns\/{salesReturn}\/complete",
+            "action": "[SalesReturnController::class, 'complete']",
+            "name": "sales-returns.complete"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "helpdesk-ticket\/today",
+            "action": "[HelpdeskTicketController::class, 'today']",
+            "name": "helpdesk-tickets.today"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "helpdesk-tickets\/{ticket}\/replies",
+            "action": "[HelpdeskReplyController::class, 'store']",
+            "name": "helpdesk-replies.store"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "delete",
+            "uri": "helpdesk-replies\/{reply}",
+            "action": "[HelpdeskReplyController::class, 'destroy']",
+            "name": "helpdesk-replies.destroy"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "plans\/{plan}\/subscribe",
+            "action": "[PlanController::class, 'subscribe']",
+            "name": "plans.subscribe"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "plans\/{plan}\/start-trial",
+            "action": "[PlanController::class, 'startTrial']",
+            "name": "plans.start-trial"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "plans\/add-on\/update-price",
+            "action": "[PlanController::class, 'updateModulePrice']",
+            "name": "plans.add-on.update-price"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "plans\/apply-coupon",
+            "action": "[PlanController::class, 'applyCoupon']",
+            "name": "plans.apply-coupon"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "plans\/{plan}\/assign-free",
+            "action": "[PlanController::class, 'assignFreePlan']",
+            "name": "plans.assign-free"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "plans\/package-settings",
+            "action": "[PlanController::class, 'updatePackageSettings']",
+            "name": "plans.package-settings.update"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "subscriptions",
+            "action": "[PlanController::class, 'store']",
+            "name": "subscriptions.store"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "add-ons",
+            "action": "[ModuleController::class, 'index']",
+            "name": "add-ons.index"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "add-on\/upload",
+            "action": "[ModuleController::class, 'upload']",
+            "name": "add-on.upload"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "add-ons\/install",
+            "action": "[ModuleController::class, 'install']",
+            "name": "add-ons.install"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "add-on\/{name}\/enable",
+            "action": "[ModuleController::class, 'enable']",
+            "name": "add-on.enable"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "user\/active-modules",
+            "action": "[ModuleController::class, 'getUserActiveModules']",
+            "name": "user.active-modules"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "delete",
+            "uri": "user\/active-modules\/{moduleId}",
+            "action": "[ModuleController::class, 'removeUserActiveModule']",
+            "name": "user.active-modules.remove"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "settings",
+            "action": "[SettingController::class, 'index']",
+            "name": "settings.index"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "settings\/brand",
+            "action": "[SettingController::class, 'updateBrandSettings']",
+            "name": "settings.brand.update"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "settings\/company",
+            "action": "[SettingController::class, 'updateCompanySettings']",
+            "name": "settings.company.update"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "settings\/system",
+            "action": "[SettingController::class, 'updateSystemSettings']",
+            "name": "settings.system.update"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "settings\/currency",
+            "action": "[SettingController::class, 'updateCurrencySettings']",
+            "name": "settings.currency.update"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "settings\/cache\/clear",
+            "action": "[SettingController::class, 'clearCache']",
+            "name": "settings.cache.clear"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "settings\/optimize",
+            "action": "[SettingController::class, 'optimizeSite']",
+            "name": "settings.optimize"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "settings\/cookie",
+            "action": "[SettingController::class, 'updateCookieSettings']",
+            "name": "settings.cookie.update"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "settings\/seo",
+            "action": "[SettingController::class, 'updateSeoSettings']",
+            "name": "settings.seo.update"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "settings\/storage",
+            "action": "[SettingController::class, 'updateStorageSettings']",
+            "name": "settings.storage.update"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "settings\/cookie\/download",
+            "action": "[SettingController::class, 'downloadCookieData']",
+            "name": "settings.cookie.download"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "settings\/email",
+            "action": "[SettingController::class, 'updateEmailSettings']",
+            "name": "settings.email.update"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "settings\/email\/test",
+            "action": "[SettingController::class, 'testEmail']",
+            "name": "settings.email.test"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "settings\/pusher",
+            "action": "[SettingController::class, 'updatePusherSettings']",
+            "name": "settings.pusher.update"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "settings\/bank-transfer",
+            "action": "[SettingController::class, 'updateBankTransferSettings']",
+            "name": "settings.bank-transfer.update"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "settings\/ai-agent",
+            "action": "[SettingController::class, 'updateAIAgentSettings']",
+            "name": "settings.ai-agent.update"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "settings\/ai-agent\/providers",
+            "action": "[SettingController::class, 'getAIAgentProviders']",
+            "name": "settings.ai-agent.providers"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "email-notification-settings-save",
+            "action": "[SettingController::class, 'mailNotificationStore']",
+            "name": "email.notification.setting.store"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "bank-transfer",
+            "action": "[BankTransferPaymentController::class, 'store']",
+            "name": "payment.bank-transfer.store"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "bank-transfer",
+            "action": "[BankTransferPaymentController::class, 'index']",
+            "name": "bank-transfer.index"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "bank-transfer\/update\/{id}",
+            "action": "[BankTransferPaymentController::class, 'update']",
+            "name": "bank-transfer.update"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "bank-transfer\/{payment}\/reject",
+            "action": "[BankTransferPaymentController::class, 'reject']",
+            "name": "bank-transfer.reject"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "delete",
+            "uri": "bank-transfer\/{payment}",
+            "action": "[BankTransferPaymentController::class, 'destroy']",
+            "name": "bank-transfer.destroy"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "\/languages\/manage",
+            "action": "[TranslationController::class, 'manage']",
+            "name": "languages.manage"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "\/languages\/{locale}\/update",
+            "action": "[TranslationController::class, 'updateTranslations']",
+            "name": "languages.update"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "\/languages\/{locale}\/package\/{packageName}",
+            "action": "[TranslationController::class, 'getPackageTranslations']",
+            "name": "languages.package.translations"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "\/languages\/{locale}\/package\/{packageName}\/update",
+            "action": "[TranslationController::class, 'updatePackageTranslations']",
+            "name": "languages.package.update"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "\/languages\/create",
+            "action": "[TranslationController::class, 'createLanguage']",
+            "name": "languages.create"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "delete",
+            "uri": "\/languages\/{languageCode}",
+            "action": "[TranslationController::class, 'deleteLanguage']",
+            "name": "languages.delete"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "patch",
+            "uri": "\/languages\/{languageCode}\/toggle",
+            "action": "[TranslationController::class, 'toggleLanguageStatus']",
+            "name": "languages.toggle"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "\/languages\/change",
+            "action": "[TranslationController::class, 'changeLanguage']",
+            "name": "languages.change"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "email-templates",
+            "action": "[EmailTemplateController::class, 'index']",
+            "name": "email-templates.index"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "email-templates\/{emailTemplate}\/edit",
+            "action": "[EmailTemplateController::class, 'edit']",
+            "name": "email-templates.edit"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "email-templates\/{emailTemplate}\/language\/{lang}",
+            "action": "[EmailTemplateController::class, 'getLanguageContent']",
+            "name": "email-templates.language-content"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "put",
+            "uri": "email-templates\/{emailTemplate}",
+            "action": "[EmailTemplateController::class, 'update']",
+            "name": "email-templates.update"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "put",
+            "uri": "email-templates\/{emailTemplate}\/update-meta",
+            "action": "[EmailTemplateController::class, 'updateMeta']",
+            "name": "email-templates.update-meta"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "notification-templates",
+            "action": "[NotificationTemplateController::class, 'index']",
+            "name": "notification-templates.index"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "notification-templates\/{notificationTemplate}\/edit",
+            "action": "[NotificationTemplateController::class, 'edit']",
+            "name": "notification-templates.edit"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "notification-templates\/{notificationTemplate}\/language\/{lang}",
+            "action": "[NotificationTemplateController::class, 'getLanguageContent']",
+            "name": "notification-templates.language-content"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "put",
+            "uri": "notification-templates\/{notificationTemplate}",
+            "action": "[NotificationTemplateController::class, 'update']",
+            "name": "notification-templates.update"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "sales-proposals\/{salesProposal}\/print",
+            "action": "[SalesProposalController::class, 'print']",
+            "name": "sales-proposals.print"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "sales-proposals\/{salesProposal}\/sent",
+            "action": "[SalesProposalController::class, 'sent']",
+            "name": "sales-proposals.sent"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "sales-proposals\/{salesProposal}\/accept",
+            "action": "[SalesProposalController::class, 'accept']",
+            "name": "sales-proposals.accept"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "sales-proposals\/{salesProposal}\/reject",
+            "action": "[SalesProposalController::class, 'reject']",
+            "name": "sales-proposals.reject"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "sales-proposals\/{salesProposal}\/convert-to-invoice",
+            "action": "[SalesProposalController::class, 'convertToInvoice']",
+            "name": "sales-proposals.convert-to-invoice"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "sales-proposals\/warehouse\/products",
+            "action": "[SalesProposalController::class, 'getWarehouseProducts']",
+            "name": "sales-proposals.warehouse.products"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "sales-proposals\/services\/list",
+            "action": "[SalesProposalController::class, 'getServices']",
+            "name": "sales-proposals.services"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "messenger",
+            "action": "[MessengerController::class, 'index']",
+            "name": "messenger.index"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "messenger\/send",
+            "action": "[MessengerController::class, 'send']",
+            "name": "messenger.send"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "messenger\/contacts",
+            "action": "[MessengerController::class, 'getContacts']",
+            "name": "messenger.contacts"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "messenger\/messages\/{userId}",
+            "action": "[MessengerController::class, 'getMessages']",
+            "name": "messenger.messages"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "messenger\/toggle-favorite",
+            "action": "[MessengerController::class, 'toggleFavorite']",
+            "name": "messenger.toggle-favorite"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "messenger\/favorites",
+            "action": "[MessengerController::class, 'getFavorites']",
+            "name": "messenger.favorites"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "put",
+            "uri": "messenger\/messages\/{messageId}\/edit",
+            "action": "[MessengerController::class, 'editMessage']",
+            "name": "messenger.edit-message"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "delete",
+            "uri": "messenger\/messages\/{messageId}",
+            "action": "[MessengerController::class, 'deleteMessage']",
+            "name": "messenger.delete-message"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "\/messenger\/set-offline",
+            "action": "[MessengerController::class, 'setOffline']",
+            "name": "messenger.set-offline"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "\/messenger\/update-presence",
+            "action": "[MessengerController::class, 'updatePresence']",
+            "name": "messenger.update-presence"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "\/messenger\/online-users",
+            "action": "[MessengerController::class, 'getOnlineUsers']",
+            "name": "messenger.online-users"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "\/messenger\/toggle-pin",
+            "action": "[MessengerController::class, 'togglePin']",
+            "name": "messenger.toggle-pin"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "\/messenger\/pinned",
+            "action": "[MessengerController::class, 'getPinned']",
+            "name": "messenger.pinned"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "\/messenger\/check-new-messages",
+            "action": "[MessengerController::class, 'checkNewMessages']",
+            "name": "messenger.check-new-messages"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "\/chat-page",
+            "action": "[AIAgentChatPageController::class, 'index']",
+            "name": "chat.page"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "\/chat",
+            "action": "[AIAgentChatController::class, 'chat']",
+            "name": "chat"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "\/sessions",
+            "action": "[AIAgentChatPageController::class, 'getSessions']",
+            "name": "sessions.index"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "\/sessions",
+            "action": "[AIAgentChatPageController::class, 'createSession']",
+            "name": "sessions.store"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "delete",
+            "uri": "\/sessions\/{session}",
+            "action": "[AIAgentChatPageController::class, 'destroySession']",
+            "name": "sessions.destroy"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "\/sessions\/{session}\/messages",
+            "action": "[AIAgentChatPageController::class, 'getMessages']",
+            "name": "sessions.messages"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "media-library",
+            "action": "[MediaController::class, 'page']",
+            "name": "media-library"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "media",
+            "action": "[MediaController::class, 'index']",
+            "name": "media.index"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "media\/batch",
+            "action": "[MediaController::class, 'batchStore']",
+            "name": "media.batch"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "delete",
+            "uri": "media\/{id}",
+            "action": "[MediaController::class, 'destroy']",
+            "name": "media.destroy"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "media\/directories",
+            "action": "[MediaController::class, 'createDirectory']",
+            "name": "media.directories.create"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "put",
+            "uri": "media\/directories\/{id}",
+            "action": "[MediaController::class, 'updateDirectory']",
+            "name": "media.directories.update"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "delete",
+            "uri": "media\/directories\/{id}",
+            "action": "[MediaController::class, 'destroyDirectory']",
+            "name": "media.directories.destroy"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "patch",
+            "uri": "media\/{id}\/directory",
+            "action": "[MediaController::class, 'updateMediaDirectory']",
+            "name": "media.directory.update"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "get",
+            "uri": "\/translations\/{locale}",
+            "action": "[TranslationController::class, 'getTranslations']",
+            "name": "languages.translations"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "post",
+            "uri": "\/cookie-consent-log",
+            "action": "[SettingController::class, 'logCookieConsent']",
+            "name": "cookie.consent.log"
+        },
+        {
+            "file": "routes\/web.php",
+            "type": "any",
+            "uri": "\/meta\/callback",
+            "action": "[MetaController::class, 'handleWebhook']",
+            "name": "meta.callback"
+        },
+        {
+            "file": "routes\/api.php",
+            "type": "post",
+            "uri": "\/login",
+            "action": "[AuthApiController::class, 'login']",
+            "name": ""
+        },
+        {
+            "file": "routes\/api.php",
+            "type": "post",
+            "uri": "\/logout",
+            "action": "[AuthApiController::class, 'logout']",
+            "name": ""
+        },
+        {
+            "file": "routes\/api.php",
+            "type": "post",
+            "uri": "\/refresh",
+            "action": "[AuthApiController::class, 'refresh']",
+            "name": ""
+        },
+        {
+            "file": "routes\/api.php",
+            "type": "post",
+            "uri": "\/change-password",
+            "action": "[AuthApiController::class, 'changePassword']",
+            "name": ""
+        },
+        {
+            "file": "routes\/api.php",
+            "type": "post",
+            "uri": "\/edit-profile",
+            "action": "[AuthApiController::class, 'editProfile']",
+            "name": ""
+        },
+        {
+            "file": "routes\/api.php",
+            "type": "delete",
+            "uri": "\/delete-account",
+            "action": "[AuthApiController::class, 'deleteAccount']",
+            "name": ""
+        },
+        {
+            "file": "routes\/api.php",
+            "type": "get",
+            "uri": "\/staff-user",
+            "action": "[AuthApiController::class, 'getStaffUser']",
+            "name": ""
+        },
+        {
+            "file": "routes\/api.php",
+            "type": "get",
+            "uri": "\/client-user",
+            "action": "[AuthApiController::class, 'getClientUser']",
+            "name": ""
+        },
+        {
+            "file": "routes\/api.php",
+            "type": "get",
+            "uri": "\/vendor-user",
+            "action": "[AuthApiController::class, 'getVendorUser']",
+            "name": ""
+        },
+        {
+            "file": "routes\/auth.php",
+            "type": "get",
+            "uri": "register",
+            "action": "[RegisteredUserController::class, 'create']",
+            "name": ""
+        },
+        {
+            "file": "routes\/auth.php",
+            "type": "post",
+            "uri": "register",
+            "action": "[RegisteredUserController::class, 'store']",
+            "name": ""
+        },
+        {
+            "file": "routes\/auth.php",
+            "type": "get",
+            "uri": "login",
+            "action": "[AuthenticatedSessionController::class, 'create']",
+            "name": ""
+        },
+        {
+            "file": "routes\/auth.php",
+            "type": "post",
+            "uri": "login",
+            "action": "[AuthenticatedSessionController::class, 'store']",
+            "name": ""
+        },
+        {
+            "file": "routes\/auth.php",
+            "type": "get",
+            "uri": "forgot-password",
+            "action": "[PasswordResetLinkController::class, 'create']",
+            "name": ""
+        },
+        {
+            "file": "routes\/auth.php",
+            "type": "post",
+            "uri": "forgot-password",
+            "action": "[PasswordResetLinkController::class, 'store']",
+            "name": ""
+        },
+        {
+            "file": "routes\/auth.php",
+            "type": "get",
+            "uri": "reset-password\/{token}",
+            "action": "[NewPasswordController::class, 'create']",
+            "name": ""
+        },
+        {
+            "file": "routes\/auth.php",
+            "type": "post",
+            "uri": "reset-password",
+            "action": "[NewPasswordController::class, 'store']",
+            "name": ""
+        },
+        {
+            "file": "routes\/auth.php",
+            "type": "post",
+            "uri": "email\/verification-notification",
+            "action": "[EmailVerificationNotificationController::class, 'store']",
+            "name": ""
+        },
+        {
+            "file": "routes\/auth.php",
+            "type": "get",
+            "uri": "confirm-password",
+            "action": "[ConfirmablePasswordController::class, 'show']",
+            "name": ""
+        },
+        {
+            "file": "routes\/auth.php",
+            "type": "post",
+            "uri": "confirm-password",
+            "action": "[ConfirmablePasswordController::class, 'store']",
+            "name": ""
+        },
+        {
+            "file": "routes\/auth.php",
+            "type": "put",
+            "uri": "password",
+            "action": "[PasswordController::class, 'update']",
+            "name": "password.update"
+        },
+        {
+            "file": "routes\/auth.php",
+            "type": "post",
+            "uri": "logout",
+            "action": "[AuthenticatedSessionController::class, 'destroy']",
+            "name": ""
+        },
+        {
+            "file": "routes\/installer.php",
+            "type": "get",
+            "uri": "\/",
+            "action": "[InstallerController::class, 'welcome']",
+            "name": "welcome"
+        },
+        {
+            "file": "routes\/installer.php",
+            "type": "get",
+            "uri": "\/requirements",
+            "action": "[InstallerController::class, 'requirements']",
+            "name": "requirements"
+        },
+        {
+            "file": "routes\/installer.php",
+            "type": "get",
+            "uri": "\/permissions",
+            "action": "[InstallerController::class, 'permissions']",
+            "name": "permissions"
+        },
+        {
+            "file": "routes\/installer.php",
+            "type": "get",
+            "uri": "\/environment",
+            "action": "[InstallerController::class, 'environment']",
+            "name": "environment"
+        },
+        {
+            "file": "routes\/installer.php",
+            "type": "post",
+            "uri": "\/environment",
+            "action": "[InstallerController::class, 'environmentStore']",
+            "name": "environment.store"
+        },
+        {
+            "file": "routes\/installer.php",
+            "type": "get",
+            "uri": "\/database",
+            "action": "[InstallerController::class, 'database']",
+            "name": "database"
+        },
+        {
+            "file": "routes\/installer.php",
+            "type": "post",
+            "uri": "\/database",
+            "action": "[InstallerController::class, 'databaseStore']",
+            "name": "database.store"
+        },
+        {
+            "file": "routes\/installer.php",
+            "type": "get",
+            "uri": "\/addons",
+            "action": "[InstallerController::class, 'addons']",
+            "name": "addons"
+        },
+        {
+            "file": "routes\/installer.php",
+            "type": "post",
+            "uri": "\/addons",
+            "action": "[InstallerController::class, 'addonsStore']",
+            "name": "addons.store"
+        },
+        {
+            "file": "routes\/installer.php",
+            "type": "get",
+            "uri": "\/final",
+            "action": "[InstallerController::class, 'final']",
+            "name": "final"
+        },
+        {
+            "file": "routes\/updater.php",
+            "type": "get",
+            "uri": "\/",
+            "action": "[UpdaterController::class, 'index']",
+            "name": "index"
+        },
+        {
+            "file": "routes\/updater.php",
+            "type": "post",
+            "uri": "\/update",
+            "action": "[UpdaterController::class, 'update']",
+            "name": "update"
+        }
+    ],
+    "controllers": {
+        "AIAgentChatController": [
+            "chat"
+        ],
+        "AIAgentChatPageController": [
+            "index",
+            "getSessions",
+            "createSession",
+            "destroySession",
+            "getMessages"
+        ],
+        "BankTransferPaymentController": [
+            "store",
+            "index",
+            "update",
+            "reject",
+            "destroy"
+        ],
+        "Controller": [],
+        "CouponController": [
+            "index",
+            "store",
+            "update",
+            "destroy",
+            "show"
+        ],
+        "EmailTemplateController": [
+            "index",
+            "edit",
+            "getLanguageContent",
+            "update",
+            "updateMeta"
+        ],
+        "HelpdeskCategoryController": [
+            "index",
+            "store",
+            "update",
+            "destroy"
+        ],
+        "HelpdeskReplyController": [
+            "store",
+            "destroy"
+        ],
+        "HelpdeskTicketController": [
+            "today",
+            "index",
+            "store",
+            "show",
+            "update",
+            "destroy"
+        ],
+        "HomeController": [
+            "Dashboard"
+        ],
+        "InstallerController": [
+            "welcome",
+            "requirements",
+            "permissions",
+            "environment",
+            "environmentStore",
+            "database",
+            "databaseStore",
+            "addons",
+            "addonsStore",
+            "final"
+        ],
+        "MediaController": [
+            "page",
+            "index",
+            "batchStore",
+            "destroy",
+            "getImageUrl",
+            "createDirectory",
+            "updateMediaDirectory",
+            "updateDirectory",
+            "destroyDirectory"
+        ],
+        "MessengerController": [
+            "index",
+            "send",
+            "getContacts",
+            "getMessages",
+            "toggleFavorite",
+            "getFavorites",
+            "editMessage",
+            "deleteMessage",
+            "updatePresence",
+            "setOffline",
+            "getOnlineUsers",
+            "togglePin",
+            "getPinned",
+            "checkNewMessages"
+        ],
+        "MetaController": [
+            "handleWebhook"
+        ],
+        "ModuleController": [
+            "index",
+            "upload",
+            "enable",
+            "Check_Parent_Module",
+            "Check_Child_Module",
+            "install",
+            "getUserActiveModules",
+            "removeUserActiveModule"
+        ],
+        "NotificationTemplateController": [
+            "index",
+            "edit",
+            "getLanguageContent",
+            "update"
+        ],
+        "OrderController": [
+            "index"
+        ],
+        "PlanController": [
+            "index",
+            "create",
+            "store",
+            "show",
+            "edit",
+            "update",
+            "destroy",
+            "updateModulePrice",
+            "applyCoupon",
+            "subscribe",
+            "startTrial",
+            "assignFreePlan",
+            "updatePackageSettings"
+        ],
+        "ProfileController": [
+            "edit",
+            "update"
+        ],
+        "PurchaseInvoiceController": [
+            "index",
+            "create",
+            "store",
+            "show",
+            "edit",
+            "update",
+            "destroy",
+            "post",
+            "print"
+        ],
+        "PurchaseReturnController": [
+            "index",
+            "create",
+            "store",
+            "show",
+            "approve",
+            "complete",
+            "destroy"
+        ],
+        "RoleController": [
+            "index",
+            "create",
+            "store",
+            "edit",
+            "update",
+            "destroy"
+        ],
+        "SalesInvoiceController": [
+            "index",
+            "create",
+            "store",
+            "show",
+            "edit",
+            "update",
+            "destroy",
+            "post",
+            "getWarehouseProducts",
+            "getServices",
+            "print"
+        ],
+        "SalesProposalController": [
+            "index",
+            "create",
+            "store",
+            "show",
+            "edit",
+            "update",
+            "destroy",
+            "convertToInvoice",
+            "getWarehouseProducts",
+            "getServices",
+            "print",
+            "sent",
+            "accept",
+            "reject"
+        ],
+        "SalesReturnController": [
+            "index",
+            "create",
+            "store",
+            "show",
+            "approve",
+            "complete",
+            "destroy"
+        ],
+        "SettingController": [
+            "index",
+            "updateBrandSettings",
+            "updateCompanySettings",
+            "updateSystemSettings",
+            "updateCurrencySettings",
+            "clearCache",
+            "optimizeSite",
+            "getCacheSize",
+            "updateCookieSettings",
+            "updateEmailSettings",
+            "testEmail",
+            "updateSeoSettings",
+            "updateStorageSettings",
+            "downloadCookieData",
+            "logCookieConsent",
+            "updateBankTransferSettings",
+            "updatePusherSettings",
+            "updateAIAgentSettings",
+            "getAIAgentProviders",
+            "mailNotificationStore"
+        ],
+        "TransferController": [
+            "index",
+            "create",
+            "store",
+            "show",
+            "destroy"
+        ],
+        "TranslationController": [
+            "getTranslations",
+            "manage",
+            "updateTranslations",
+            "getPackageTranslations",
+            "updatePackageTranslations",
+            "createLanguage",
+            "deleteLanguage",
+            "toggleLanguageStatus",
+            "changeLanguage"
+        ],
+        "UpdaterController": [
+            "index",
+            "update"
+        ],
+        "UserController": [
+            "index",
+            "store",
+            "update",
+            "changePassword",
+            "destroy",
+            "impersonate",
+            "leaveImpersonation",
+            "adminHub",
+            "toggleStatus",
+            "assignPlan",
+            "loginHistory"
+        ],
+        "WarehouseController": [
+            "index",
+            "store",
+            "update",
+            "destroy"
+        ],
+        "AuthApiController": [
+            "login",
+            "getUserArray",
+            "logout",
+            "refresh",
+            "changePassword",
+            "editProfile",
+            "deleteAccount",
+            "getStaffUser",
+            "getClientUser",
+            "getVendorUser"
+        ]
+    },
+    "models": [
+        "AIAgentChatMessage",
+        "AIAgentChatSession",
+        "AddOn",
+        "BankTransferPayment",
+        "ChFavorite",
+        "ChMessage",
+        "ChPinned",
+        "Coupon",
+        "EmailTemplate",
+        "EmailTemplateLang",
+        "HelpdeskCategory",
+        "HelpdeskReply",
+        "HelpdeskTicket",
+        "LoginHistory",
+        "MediaDirectory",
+        "Notification",
+        "NotificationTemplateLang",
+        "Order",
+        "Plan",
+        "PurchaseInvoice",
+        "PurchaseInvoiceItem",
+        "PurchaseInvoiceItemTax",
+        "PurchaseReturn",
+        "PurchaseReturnItem",
+        "PurchaseReturnItemTax",
+        "SalesInvoice",
+        "SalesInvoiceItem",
+        "SalesInvoiceItemTax",
+        "SalesInvoiceReturn",
+        "SalesInvoiceReturnItem",
+        "SalesInvoiceReturnItemTax",
+        "SalesProposal",
+        "SalesProposalItem",
+        "SalesProposalItemTax",
+        "Setting",
+        "Transfer",
+        "User",
+        "UserActiveModule",
+        "UserCoupon",
+        "Warehouse"
+    ],
+    "migrations": [
+        "0001_01_01_000000_create_users_table.php",
+        "0001_01_01_000001_create_cache_table.php",
+        "0001_01_01_000002_create_jobs_table.php",
+        "0001_01_01_000003_create_personal_access_tokens_table.php",
+        "2024_01_15_000000_create_notifications_table.php",
+        "2024_02_12_034023_create_notification_template_langs_table.php",
+        "2025_01_15_120000_create_helpdesk_categories_table.php",
+        "2025_01_15_120001_create_helpdesk_tickets_table.php",
+        "2025_01_15_120002_create_helpdesk_replies_table.php",
+        "2025_08_12_105132_create_permission_tables.php",
+        "2025_08_12_105136_create_warehouses_table.php",
+        "2025_08_18_104001_create_settings_table.php",
+        "2025_08_25_032702_create_media_directories_table.php",
+        "2025_08_25_032809_create_media_table.php",
+        "2025_08_28_083657_create_add_ons_table.php",
+        "2025_08_28_083708_create_user_active_modules_table.php",
+        "2025_09_01_000001_create_plans_table.php",
+        "2025_09_02_043140_create_email_templates_table.php",
+        "2025_09_02_043357_create_email_template_langs_table.php",
+        "2025_09_02_120820_create_bank_transfer_payments_table.php",
+        "2025_09_03_055622_create_orders_table.php",
+        "2025_09_03_055623_create_coupons_table.php",
+        "2025_09_03_055624_create_user_coupons_table.php",
+        "2025_09_09_072036_create_login_histories_table.php",
+        "2025_09_13_000002_create_transfers_table.php",
+        "2025_09_16_112923_create_ch_messages_table.php",
+        "2025_09_16_112929_create_ch_favorites_table.php",
+        "2025_09_16_999999_add_active_status_to_users.php",
+        "2025_09_17_999999_create_ch_pinned_table.php",
+        "2025_09_26_102328_create_purchase_invoices_table.php",
+        "2025_09_26_102329_create_purchase_returns_table.php",
+        "2025_09_26_102334_create_purchase_invoice_items_table.php",
+        "2025_09_26_102335_create_purchase_invoice_item_taxes_table.php",
+        "2025_09_26_102336_create_purchase_return_items_table.php",
+        "2025_09_26_102337_create_purchase_return_item_taxes_table.php",
+        "2025_09_26_102340_create_sales_invoices_table.php",
+        "2025_09_26_102341_create_sales_invoice_items_table.php",
+        "2025_09_26_102342_create_sales_invoice_item_taxes_table.php",
+        "2025_09_26_102344_create_sales_invoice_returns_table.php",
+        "2025_09_26_102345_create_sales_invoice_return_items_table.php",
+        "2025_09_26_102346_create_sales_invoice_return_item_taxes_table.php",
+        "2025_11_10_120000_create_sales_proposals_table.php",
+        "2025_11_10_120001_create_sales_proposal_items_table.php",
+        "2025_11_10_120002_create_sales_proposal_item_taxes_table.php",
+        "2026_04_15_000001_create_ai_agent_chat_sessions_table.php",
+        "2026_04_15_000002_create_ai_agent_chat_messages_table.php",
+        "2026_04_29_102148_drop_trial_expire_date_from_users_table.php",
+        "2026_05_20_151615_add_layout_direction_to_users_table.php",
+        "2026_06_08_163838_add_type_column_to_sales_proposals_table.php"
+    ],
+    "bundled_packages": [
+        "Account",
+        "Hrm",
+        "LandingPage",
+        "Lead",
+        "Paypal",
+        "Pos",
+        "ProductService",
+        "Stripe",
+        "Taskly"
+    ]
+}

@@ -10,6 +10,7 @@ use App\Http\Controllers\Domain\SaaS\CouponController;
 use App\Http\Controllers\Domain\SaaS\OrderController;
 use App\Http\Controllers\Domain\SaaS\PlanController;
 use App\Http\Controllers\Domain\SaaS\SubscriptionController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InstallController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\MultiTenancy\MemberController;
@@ -20,12 +21,8 @@ use App\Http\Controllers\SuperAdmin\DashboardController;
 use App\Http\Controllers\SuperAdmin\SettingController;
 use App\Http\Controllers\SuperAdmin\TranslationController;
 use App\Http\Middleware\SuperAdminMiddleware;
-use App\Models\AuditLog;
-use App\Models\HelpdeskTicket;
 use App\Models\User;
-use App\Models\Workspace;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 Route::get('/install', [InstallController::class, 'index'])->name('install.index');
 Route::post('/install', [InstallController::class, 'setup'])->name('install.setup');
@@ -56,21 +53,7 @@ Route::middleware(['auth'])->group(function () {
         ->name('verification.send');
 
     // Dashboard
-    Route::get('/dashboard', function () {
-        $usersCount = User::count();
-        $workspacesCount = Workspace::count();
-        $recentLogs = AuditLog::with('user')->latest()->take(5)->get();
-        $ticketsCount = HelpdeskTicket::count();
-
-        return Inertia::render('Dashboard', [
-            'stats' => [
-                'users' => $usersCount,
-                'workspaces' => $workspacesCount,
-                'tickets' => $ticketsCount,
-            ],
-            'recentLogs' => $recentLogs,
-        ]);
-    })->name('dashboard');
+    Route::get('/dashboard', [HomeController::class, 'Dashboard'])->name('dashboard');
 
     // Profile Management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
