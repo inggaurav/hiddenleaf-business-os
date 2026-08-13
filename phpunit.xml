@@ -13,7 +13,7 @@
     </testsuites>
     <php>
         <env name="APP_ENV" value="testing"/>
-        <env name="APP_KEY" value="base64:TestEnvironmentApplicationSecretKey32Bytes!"/>
+        <env name="APP_KEY" value="base64:r03k9ThY08D30r38b97J1K1m0N3P5r7t9V1x3Y5z7A0="/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_STORE" value="array"/>
         <env name="DB_CONNECTION" value="sqlite"/>

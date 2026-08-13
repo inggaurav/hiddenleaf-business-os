@@ -22,7 +22,6 @@
     "autoload": {
         "psr-4": {
             "App\\": "app/",
-            "HiddenLeaf\\": "app/",
             "HiddenLeaf\\Kernel\\": "packages/hiddenleaf/kernel/src/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"

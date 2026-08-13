@@ -1,12 +1,12 @@
 <?php
 
-namespace HiddenLeaf\Console\Commands;
+namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 
 class InstallCommand extends Command
 {
-    protected $signature = 'app:install {--admin-email=admin@hiddenleaf.io} {--admin-password=SecretPassword123!}';
+    protected $signature = 'app:install {--admin-email=admin@hiddenleaf.io} {--admin-password=}';
     protected $description = 'Bootstrap and install HiddenLeaf BusinessOS core platform cleanly';
 
     public function handle(): int
@@ -20,12 +20,12 @@ class InstallCommand extends Command
         });
 
         $this->task('2. Initializing database schema & migrations...', function () {
-            // Run migrations programmatically
+            $this->call('migrate', ['--force' => true]);
             return true;
         });
 
         $this->task('3. Seeding default roles & system permissions...', function () {
-            // Seed roles
+            $this->call('db:seed', ['--force' => true]);
             return true;
         });
 
@@ -36,6 +36,7 @@ class InstallCommand extends Command
         });
 
         $this->task('5. Setting up storage disk symlinks & default brand tokens...', function () {
+            $this->call('storage:link');
             return true;
         });
 
