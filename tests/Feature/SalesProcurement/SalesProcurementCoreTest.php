@@ -63,6 +63,8 @@ class SalesProcurementCoreTest extends TestCase
             'workspace_id' => $this->ws->id,
             'created_by' => $this->user->id,
         ]);
+        $product = ProductServiceItem::create(['name' => 'Transfer Router', 'sku' => 'MOVE-1', 'type' => 'product', 'sale_price' => 100, 'purchase_price' => 50, 'organization_id' => $this->org->id, 'workspace_id' => $this->ws->id, 'created_by' => $this->user->id]);
+        WarehouseStock::create(['product_id' => $product->id, 'warehouse_id' => $wh1->id, 'quantity' => 50]);
 
         $response = $this->actingAs($this->user)
             ->withSession([
@@ -72,7 +74,7 @@ class SalesProcurementCoreTest extends TestCase
             ->post('/transfers', [
                 'from_warehouse' => $wh1->id,
                 'to_warehouse' => $wh2->id,
-                'product_id' => 10,
+                'product_id' => $product->id,
                 'quantity' => 25,
                 'date' => now()->toDateString(),
             ]);
@@ -83,6 +85,9 @@ class SalesProcurementCoreTest extends TestCase
             'to_warehouse' => $wh2->id,
             'quantity' => 25,
         ]);
+        $this->assertDatabaseHas('warehouse_stocks', ['warehouse_id' => $wh1->id, 'product_id' => $product->id, 'quantity' => 25]);
+        $this->assertDatabaseHas('warehouse_stocks', ['warehouse_id' => $wh2->id, 'product_id' => $product->id, 'quantity' => 25]);
+        $this->assertDatabaseCount('stock_movements', 2);
     }
 
     public function test_purchase_invoice_and_return_lifecycle(): void
@@ -93,6 +98,8 @@ class SalesProcurementCoreTest extends TestCase
             'workspace_id' => $this->ws->id,
             'created_by' => $this->user->id,
         ]);
+        $rack = ProductServiceItem::create(['name' => 'Server Rack Unit', 'sku' => 'RACK-1', 'type' => 'product', 'sale_price' => 750, 'purchase_price' => 500, 'organization_id' => $this->org->id, 'workspace_id' => $this->ws->id, 'created_by' => $this->user->id]);
+        $cable = ProductServiceItem::create(['name' => 'Cat6 Cable Reel', 'sku' => 'CAT6-1', 'type' => 'product', 'sale_price' => 80, 'purchase_price' => 50, 'organization_id' => $this->org->id, 'workspace_id' => $this->ws->id, 'created_by' => $this->user->id]);
 
         // Create Purchase Invoice
         $response = $this->actingAs($this->user)
@@ -104,8 +111,8 @@ class SalesProcurementCoreTest extends TestCase
                 'warehouse_id' => $wh->id,
                 'purchase_date' => now()->toDateString(),
                 'items' => [
-                    ['item_name' => 'Server Rack Unit', 'quantity' => 2, 'price' => 500.00],
-                    ['item_name' => 'Cat6 Cable Reel', 'quantity' => 5, 'price' => 50.00],
+                    ['product_id' => $rack->id, 'quantity' => 2, 'price' => 500.00],
+                    ['product_id' => $cable->id, 'quantity' => 5, 'price' => 50.00],
                 ],
             ]);
 
@@ -122,6 +129,8 @@ class SalesProcurementCoreTest extends TestCase
         $this->actingAs($this->user)->post("/purchase-invoices/{$invoice->id}/post");
         $invoice->refresh();
         $this->assertEquals(1, $invoice->status);
+        $this->assertDatabaseHas('warehouse_stocks', ['warehouse_id' => $wh->id, 'product_id' => $rack->id, 'quantity' => 2]);
+        $this->assertDatabaseHas('warehouse_stocks', ['warehouse_id' => $wh->id, 'product_id' => $cable->id, 'quantity' => 5]);
 
         // Record Purchase Return
         $returnResp = $this->actingAs($this->user)
@@ -159,6 +168,7 @@ class SalesProcurementCoreTest extends TestCase
             'workspace_id' => $this->ws->id,
             'created_by' => $this->user->id,
         ]);
+        $consulting = ProductServiceItem::create(['name' => 'Cloud Consulting Hours', 'sku' => 'SVC-CLOUD', 'type' => 'service', 'sale_price' => 150, 'purchase_price' => 0, 'organization_id' => $this->org->id, 'workspace_id' => $this->ws->id, 'created_by' => $this->user->id]);
 
         // 1. Create Sales Proposal
         $response = $this->actingAs($this->user)
@@ -170,7 +180,7 @@ class SalesProcurementCoreTest extends TestCase
                 'customer_id' => 42,
                 'issue_date' => now()->toDateString(),
                 'items' => [
-                    ['item_name' => 'Cloud Consulting Hours', 'quantity' => 10, 'price' => 150.00],
+                    ['product_id' => $consulting->id, 'quantity' => 10, 'price' => 150.00],
                 ],
             ]);
 
@@ -179,6 +189,7 @@ class SalesProcurementCoreTest extends TestCase
         $this->assertEquals(1500.00, $proposal->total_amount);
 
         // 2. Accept proposal and convert to sales invoice
+        $this->actingAs($this->user)->post("/sales-proposals/{$proposal->id}/sent");
         $this->actingAs($this->user)->post("/sales-proposals/{$proposal->id}/accept");
         $proposal->refresh();
         $this->assertEquals(2, $proposal->status);

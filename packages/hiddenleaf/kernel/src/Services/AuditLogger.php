@@ -3,6 +3,7 @@
 namespace HiddenLeaf\Kernel\Services;
 
 use App\Models\AuditLog;
+use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Throwable;
@@ -47,10 +48,12 @@ class AuditLogger
             if ($critical) {
                 throw $exception;
             }
-            Log::warning('Unable to persist a non-critical audit event.', [
-                'action' => $action,
-                'exception' => $exception::class,
-            ]);
+            if (Facade::getFacadeApplication()?->bound('log')) {
+                Log::warning('Unable to persist a non-critical audit event.', [
+                    'action' => $action,
+                    'exception' => $exception::class,
+                ]);
+            }
         }
 
         $this->logs[] = $entry;
@@ -79,11 +82,15 @@ class AuditLogger
 
     private function requestId(): ?string
     {
-        if (app()->bound('request_id')) {
-            return app('request_id');
+        $container = Facade::getFacadeApplication();
+        if (! $container) {
+            return null;
         }
-        if (app()->bound('request')) {
-            return request()->attributes->get('request_id');
+        if ($container->bound('request_id')) {
+            return $container->make('request_id');
+        }
+        if ($container->bound('request')) {
+            return $container->make('request')->attributes->get('request_id');
         }
 
         return null;

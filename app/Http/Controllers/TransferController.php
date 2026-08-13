@@ -2,81 +2,78 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Inventory\InventoryTransferService;
+use App\Models\ProductServiceItem;
 use App\Models\Transfer;
 use App\Models\Warehouse;
+use App\Models\Workspace;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class TransferController extends Controller
 {
     public function index(Request $request)
     {
-        $wsId = session('active_workspace_id');
-        $orgId = session('active_organization_id');
-
+        $workspace = $this->workspace($request);
         $transfers = Transfer::with(['fromWarehouse', 'toWarehouse'])
-            ->when($wsId, fn ($q) => $q->where('workspace_id', $wsId))
-            ->when($orgId, fn ($q) => $q->where('organization_id', $orgId))
-            ->latest()
-            ->paginate($request->input('per_page', 10))
-            ->withQueryString();
+            ->where('workspace_id', $workspace->id)
+            ->where('organization_id', $workspace->organization_id)
+            ->latest()->paginate($request->input('per_page', 10))->withQueryString();
 
-        return Inertia::render('Transfers/Index', [
-            'transfers' => $transfers,
-        ]);
+        return Inertia::render('Transfers/Index', ['transfers' => $transfers]);
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        $wsId = session('active_workspace_id');
-        $warehouses = Warehouse::where('workspace_id', $wsId)->get();
+        $workspace = $this->workspace($request);
 
         return Inertia::render('Transfers/Create', [
-            'warehouses' => $warehouses,
+            'warehouses' => Warehouse::where('workspace_id', $workspace->id)->get(),
+            'products' => ProductServiceItem::forTenant($workspace->organization_id, $workspace->id)->where('type', 'product')->where('is_active', true)->get(),
         ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request, InventoryTransferService $transfers)
     {
         $validated = $request->validate([
-            'from_warehouse' => 'required|exists:warehouses,id',
-            'to_warehouse' => 'required|different:from_warehouse|exists:warehouses,id',
-            'product_id' => 'nullable|integer',
-            'quantity' => 'required|integer|min:1',
+            'from_warehouse' => 'required|integer',
+            'to_warehouse' => 'required|integer|different:from_warehouse',
+            'product_id' => 'required|integer',
+            'quantity' => 'required|numeric|gt:0',
             'date' => 'required|date',
         ]);
+        $workspace = $this->workspace($request);
+        $warehouses = Warehouse::where('organization_id', $workspace->organization_id)->where('workspace_id', $workspace->id)->whereIn('id', [$validated['from_warehouse'], $validated['to_warehouse']])->get()->keyBy('id');
+        abort_unless($warehouses->count() === 2, 404);
+        $product = ProductServiceItem::forTenant($workspace->organization_id, $workspace->id)->where('type', 'product')->findOrFail($validated['product_id']);
+        $transfers->transfer($warehouses[$validated['from_warehouse']], $warehouses[$validated['to_warehouse']], $product, (float) $validated['quantity'], $validated['date'], $request->user());
 
-        $wsId = session('active_workspace_id');
-        $orgId = session('active_organization_id');
-
-        Transfer::create([
-            'from_warehouse' => $validated['from_warehouse'],
-            'to_warehouse' => $validated['to_warehouse'],
-            'product_id' => $validated['product_id'] ?? null,
-            'quantity' => $validated['quantity'],
-            'date' => $validated['date'],
-            'organization_id' => $orgId,
-            'workspace_id' => $wsId,
-            'created_by' => Auth::id(),
-        ]);
-
-        return redirect()->route('transfers.index')->with('success', 'Transfer recorded successfully.');
+        return to_route('transfers.index')->with('success', 'Inventory transferred.');
     }
 
-    public function show(Transfer $transfer)
+    public function show(Request $request, Transfer $transfer)
     {
-        $transfer->load(['fromWarehouse', 'toWarehouse']);
+        $this->assertTransfer($transfer, $this->workspace($request));
 
-        return Inertia::render('Transfers/Show', [
-            'transfer' => $transfer,
-        ]);
+        return Inertia::render('Transfers/Show', ['transfer' => $transfer->load(['fromWarehouse', 'toWarehouse'])]);
     }
 
-    public function destroy(Transfer $transfer)
+    public function destroy(Request $request, Transfer $transfer)
     {
-        $transfer->delete();
+        $this->assertTransfer($transfer, $this->workspace($request));
+        abort(422, 'Completed inventory transfers are immutable.');
+    }
 
-        return redirect()->route('transfers.index')->with('success', 'Transfer deleted.');
+    private function workspace(Request $request): Workspace
+    {
+        $workspace = Workspace::query()->with('organization')->find($request->session()->get('active_workspace_id'));
+        abort_unless($workspace && $request->user()->canInWorkspace('inventory.adjust', $workspace), 403);
+
+        return $workspace;
+    }
+
+    private function assertTransfer(Transfer $transfer, Workspace $workspace): void
+    {
+        abort_unless((int) $transfer->organization_id === (int) $workspace->organization_id && (int) $transfer->workspace_id === (int) $workspace->id, 404);
     }
 }

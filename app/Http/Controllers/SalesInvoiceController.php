@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Inventory\InvoicePostingService;
 use App\Domain\ProductService\Services\CatalogLookupService;
+use App\Models\ProductServiceItem;
 use App\Models\SalesInvoice;
 use App\Models\SalesInvoiceItem;
 use App\Models\Warehouse;
+use App\Models\Workspace;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -15,8 +18,9 @@ class SalesInvoiceController extends Controller
 {
     public function index(Request $request)
     {
-        $wsId = session('active_workspace_id');
-        $orgId = session('active_organization_id');
+        $workspace = $this->workspace($request);
+        $wsId = $workspace->id;
+        $orgId = $workspace->organization_id;
 
         $invoices = SalesInvoice::with(['warehouse'])
             ->when($wsId, fn ($q) => $q->where('workspace_id', $wsId))
@@ -32,13 +36,15 @@ class SalesInvoiceController extends Controller
         ]);
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        $wsId = session('active_workspace_id');
+        $workspace = $this->workspace($request);
+        $wsId = $workspace->id;
         $warehouses = Warehouse::where('workspace_id', $wsId)->get();
 
         return Inertia::render('SalesInvoices/Create', [
             'warehouses' => $warehouses,
+            'products' => ProductServiceItem::forTenant($workspace->organization_id, $workspace->id)->where('is_active', true)->get(),
         ]);
     }
 
@@ -46,25 +52,38 @@ class SalesInvoiceController extends Controller
     {
         $validated = $request->validate([
             'customer_id' => 'nullable|integer',
-            'warehouse_id' => 'required|exists:warehouses,id',
+            'warehouse_id' => 'required|integer',
             'issue_date' => 'required|date',
             'due_date' => 'nullable|date',
             'category_id' => 'nullable|integer',
             'items' => 'required|array|min:1',
-            'items.*.item_name' => 'required|string',
+            'items.*.product_id' => 'nullable|integer',
+            'items.*.item_name' => 'nullable|string',
             'items.*.quantity' => 'required|numeric|min:1',
             'items.*.price' => 'required|numeric|min:0',
+            'items.*.tax' => 'nullable|numeric|min:0',
+            'items.*.discount' => 'nullable|numeric|min:0',
         ]);
 
-        $wsId = session('active_workspace_id');
-        $orgId = session('active_organization_id');
+        $workspace = $this->workspace($request);
+        $wsId = $workspace->id;
+        $orgId = $workspace->organization_id;
+        Warehouse::where('workspace_id', $wsId)->where('organization_id', $orgId)->findOrFail($validated['warehouse_id']);
 
-        return DB::transaction(function () use ($validated, $wsId, $orgId) {
+        $productIds = collect($validated['items'])->pluck('product_id')->filter()->unique();
+        if ($productIds->isNotEmpty()) {
+            $products = ProductServiceItem::forTenant($orgId, $wsId)->whereIn('id', $productIds)->get()->keyBy('id');
+            abort_unless($products->count() === $productIds->count(), 422, 'An invoice item is outside the active tenant catalog.');
+        } else {
+            $products = collect();
+        }
+
+        return DB::transaction(function () use ($validated, $wsId, $orgId, $products) {
             $invoiceId = strtoupper(substr(uniqid('SI-'), -10));
 
             $total = 0;
             foreach ($validated['items'] as $item) {
-                $total += $item['quantity'] * $item['price'];
+                $total += ($item['quantity'] * $item['price']) + ($item['tax'] ?? 0) - ($item['discount'] ?? 0);
             }
 
             $invoice = SalesInvoice::create([
@@ -82,9 +101,14 @@ class SalesInvoiceController extends Controller
             ]);
 
             foreach ($validated['items'] as $item) {
+                $itemName = isset($item['product_id']) && isset($products[$item['product_id']])
+                    ? $products[$item['product_id']]->name
+                    : ($item['item_name'] ?? 'Invoice Item');
+
                 SalesInvoiceItem::create([
                     'invoice_id' => $invoice->id,
-                    'item_name' => $item['item_name'],
+                    'product_id' => $item['product_id'] ?? null,
+                    'item_name' => $itemName,
                     'quantity' => $item['quantity'],
                     'price' => $item['price'],
                     'tax' => $item['tax'] ?? 0,
@@ -96,8 +120,9 @@ class SalesInvoiceController extends Controller
         });
     }
 
-    public function show(SalesInvoice $salesInvoice)
+    public function show(Request $request, SalesInvoice $salesInvoice)
     {
+        $this->assertInvoice($salesInvoice, $this->workspace($request));
         $salesInvoice->load(['items', 'warehouse']);
 
         return Inertia::render('SalesInvoices/Show', [
@@ -105,48 +130,59 @@ class SalesInvoiceController extends Controller
         ]);
     }
 
-    public function edit(SalesInvoice $salesInvoice)
+    public function edit(Request $request, SalesInvoice $salesInvoice)
     {
-        $wsId = session('active_workspace_id');
+        $workspace = $this->workspace($request);
+        $this->assertInvoice($salesInvoice, $workspace);
+        $wsId = $workspace->id;
         $warehouses = Warehouse::where('workspace_id', $wsId)->get();
         $salesInvoice->load(['items']);
 
         return Inertia::render('SalesInvoices/Edit', [
             'invoice' => $salesInvoice,
             'warehouses' => $warehouses,
+            'products' => ProductServiceItem::forTenant($workspace->organization_id, $workspace->id)->where('is_active', true)->get(),
         ]);
     }
 
     public function update(Request $request, SalesInvoice $salesInvoice)
     {
+        $workspace = $this->workspace($request);
+        $this->assertInvoice($salesInvoice, $workspace);
+        abort_unless((int) $salesInvoice->status === 0, 422, 'Posted invoices cannot be edited.');
         $validated = $request->validate([
-            'warehouse_id' => 'required|exists:warehouses,id',
+            'warehouse_id' => 'required|integer',
             'issue_date' => 'required|date',
             'due_date' => 'nullable|date',
         ]);
+        Warehouse::where('workspace_id', $workspace->id)->where('organization_id', $workspace->organization_id)->findOrFail($validated['warehouse_id']);
 
         $salesInvoice->update($validated);
 
         return redirect()->route('sales-invoices.index')->with('success', 'Sales invoice updated.');
     }
 
-    public function destroy(SalesInvoice $salesInvoice)
+    public function destroy(Request $request, SalesInvoice $salesInvoice)
     {
+        $this->assertInvoice($salesInvoice, $this->workspace($request));
+        abort_unless((int) $salesInvoice->status === 0, 422, 'Posted invoices cannot be deleted.');
         $salesInvoice->items()->delete();
         $salesInvoice->delete();
 
         return redirect()->route('sales-invoices.index')->with('success', 'Sales invoice deleted.');
     }
 
-    public function post(SalesInvoice $salesInvoice)
+    public function post(Request $request, SalesInvoice $salesInvoice, InvoicePostingService $posting)
     {
-        $salesInvoice->update(['status' => 1]); // Posted
+        $this->assertInvoice($salesInvoice, $this->workspace($request));
+        $posting->postSale($salesInvoice, $request->user());
 
         return back()->with('success', 'Sales invoice posted.');
     }
 
-    public function print(SalesInvoice $salesInvoice)
+    public function print(Request $request, SalesInvoice $salesInvoice)
     {
+        $this->assertInvoice($salesInvoice, $this->workspace($request));
         $salesInvoice->load(['items', 'warehouse']);
 
         return view('print.sales_invoice', ['invoice' => $salesInvoice]);
@@ -154,22 +190,38 @@ class SalesInvoiceController extends Controller
 
     public function getWarehouseProducts(Request $request, CatalogLookupService $catalog)
     {
+        $workspace = $this->workspace($request);
         $validated = $request->validate([
             'warehouse_id' => ['required', 'integer'],
         ]);
 
         return response()->json($catalog->productsForWarehouse(
             (int) $validated['warehouse_id'],
-            (int) session('active_organization_id'),
-            (int) session('active_workspace_id'),
+            (int) $workspace->organization_id,
+            (int) $workspace->id,
         ));
     }
 
     public function getServices(Request $request, CatalogLookupService $catalog)
     {
+        $workspace = $this->workspace($request);
+
         return response()->json($catalog->services(
-            (int) session('active_organization_id'),
-            (int) session('active_workspace_id'),
+            (int) $workspace->organization_id,
+            (int) $workspace->id,
         ));
+    }
+
+    private function workspace(Request $request): Workspace
+    {
+        $workspace = Workspace::query()->with('organization')->find($request->session()->get('active_workspace_id'));
+        abort_unless($workspace && $request->user()->canInWorkspace('sales.manage', $workspace), 403);
+
+        return $workspace;
+    }
+
+    private function assertInvoice(SalesInvoice $invoice, Workspace $workspace): void
+    {
+        abort_unless((int) $invoice->organization_id === (int) $workspace->organization_id && (int) $invoice->workspace_id === (int) $workspace->id, 404);
     }
 }

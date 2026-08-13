@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Inventory\InvoicePostingService;
+use App\Models\ProductServiceItem;
 use App\Models\PurchaseInvoice;
 use App\Models\PurchaseInvoiceItem;
 use App\Models\Warehouse;
+use App\Models\Workspace;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -14,8 +17,9 @@ class PurchaseInvoiceController extends Controller
 {
     public function index(Request $request)
     {
-        $wsId = session('active_workspace_id');
-        $orgId = session('active_organization_id');
+        $workspace = $this->workspace($request);
+        $wsId = $workspace->id;
+        $orgId = $workspace->organization_id;
 
         $invoices = PurchaseInvoice::with(['warehouse'])
             ->when($wsId, fn ($q) => $q->where('workspace_id', $wsId))
@@ -31,13 +35,15 @@ class PurchaseInvoiceController extends Controller
         ]);
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        $wsId = session('active_workspace_id');
+        $workspace = $this->workspace($request);
+        $wsId = $workspace->id;
         $warehouses = Warehouse::where('workspace_id', $wsId)->get();
 
         return Inertia::render('PurchaseInvoices/Create', [
             'warehouses' => $warehouses,
+            'products' => ProductServiceItem::forTenant($workspace->organization_id, $workspace->id)->where('is_active', true)->get(),
         ]);
     }
 
@@ -45,25 +51,38 @@ class PurchaseInvoiceController extends Controller
     {
         $validated = $request->validate([
             'vendor_id' => 'nullable|integer',
-            'warehouse_id' => 'required|exists:warehouses,id',
+            'warehouse_id' => 'required|integer',
             'purchase_date' => 'required|date',
             'due_date' => 'nullable|date',
             'category_id' => 'nullable|integer',
             'items' => 'required|array|min:1',
-            'items.*.item_name' => 'required|string',
+            'items.*.product_id' => 'nullable|integer',
+            'items.*.item_name' => 'nullable|string',
             'items.*.quantity' => 'required|numeric|min:1',
             'items.*.price' => 'required|numeric|min:0',
+            'items.*.tax' => 'nullable|numeric|min:0',
+            'items.*.discount' => 'nullable|numeric|min:0',
         ]);
 
-        $wsId = session('active_workspace_id');
-        $orgId = session('active_organization_id');
+        $workspace = $this->workspace($request);
+        $wsId = $workspace->id;
+        $orgId = $workspace->organization_id;
+        Warehouse::where('workspace_id', $wsId)->where('organization_id', $orgId)->findOrFail($validated['warehouse_id']);
 
-        return DB::transaction(function () use ($validated, $wsId, $orgId) {
+        $productIds = collect($validated['items'])->pluck('product_id')->filter()->unique();
+        if ($productIds->isNotEmpty()) {
+            $products = ProductServiceItem::forTenant($orgId, $wsId)->whereIn('id', $productIds)->get()->keyBy('id');
+            abort_unless($products->count() === $productIds->count(), 422, 'An invoice item is outside the active tenant catalog.');
+        } else {
+            $products = collect();
+        }
+
+        return DB::transaction(function () use ($validated, $wsId, $orgId, $products) {
             $invoiceId = strtoupper(substr(uniqid('PI-'), -10));
 
             $total = 0;
             foreach ($validated['items'] as $item) {
-                $total += $item['quantity'] * $item['price'];
+                $total += ($item['quantity'] * $item['price']) + ($item['tax'] ?? 0) - ($item['discount'] ?? 0);
             }
 
             $invoice = PurchaseInvoice::create([
@@ -81,9 +100,14 @@ class PurchaseInvoiceController extends Controller
             ]);
 
             foreach ($validated['items'] as $item) {
+                $itemName = isset($item['product_id']) && isset($products[$item['product_id']])
+                    ? $products[$item['product_id']]->name
+                    : ($item['item_name'] ?? 'Purchase Item');
+
                 PurchaseInvoiceItem::create([
                     'invoice_id' => $invoice->id,
-                    'item_name' => $item['item_name'],
+                    'product_id' => $item['product_id'] ?? null,
+                    'item_name' => $itemName,
                     'quantity' => $item['quantity'],
                     'price' => $item['price'],
                     'tax' => $item['tax'] ?? 0,
@@ -95,8 +119,9 @@ class PurchaseInvoiceController extends Controller
         });
     }
 
-    public function show(PurchaseInvoice $purchaseInvoice)
+    public function show(Request $request, PurchaseInvoice $purchaseInvoice)
     {
+        $this->assertInvoice($purchaseInvoice, $this->workspace($request));
         $purchaseInvoice->load(['items', 'warehouse']);
 
         return Inertia::render('PurchaseInvoices/Show', [
@@ -104,50 +129,74 @@ class PurchaseInvoiceController extends Controller
         ]);
     }
 
-    public function edit(PurchaseInvoice $purchaseInvoice)
+    public function edit(Request $request, PurchaseInvoice $purchaseInvoice)
     {
-        $wsId = session('active_workspace_id');
+        $workspace = $this->workspace($request);
+        $this->assertInvoice($purchaseInvoice, $workspace);
+        $wsId = $workspace->id;
         $warehouses = Warehouse::where('workspace_id', $wsId)->get();
         $purchaseInvoice->load(['items']);
 
         return Inertia::render('PurchaseInvoices/Edit', [
             'invoice' => $purchaseInvoice,
             'warehouses' => $warehouses,
+            'products' => ProductServiceItem::forTenant($workspace->organization_id, $workspace->id)->where('is_active', true)->get(),
         ]);
     }
 
     public function update(Request $request, PurchaseInvoice $purchaseInvoice)
     {
+        $workspace = $this->workspace($request);
+        $this->assertInvoice($purchaseInvoice, $workspace);
+        abort_unless((int) $purchaseInvoice->status === 0, 422, 'Posted invoices cannot be edited.');
         $validated = $request->validate([
-            'warehouse_id' => 'required|exists:warehouses,id',
+            'warehouse_id' => 'required|integer',
             'purchase_date' => 'required|date',
             'due_date' => 'nullable|date',
         ]);
+        Warehouse::where('workspace_id', $workspace->id)->where('organization_id', $workspace->organization_id)->findOrFail($validated['warehouse_id']);
 
         $purchaseInvoice->update($validated);
 
         return redirect()->route('purchase-invoices.index')->with('success', 'Purchase invoice updated.');
     }
 
-    public function destroy(PurchaseInvoice $purchaseInvoice)
+    public function destroy(Request $request, PurchaseInvoice $purchaseInvoice)
     {
+        $this->assertInvoice($purchaseInvoice, $this->workspace($request));
+        abort_unless((int) $purchaseInvoice->status === 0, 422, 'Posted invoices cannot be deleted.');
         $purchaseInvoice->items()->delete();
         $purchaseInvoice->delete();
 
         return redirect()->route('purchase-invoices.index')->with('success', 'Purchase invoice deleted.');
     }
 
-    public function post(PurchaseInvoice $purchaseInvoice)
+    public function post(Request $request, PurchaseInvoice $purchaseInvoice, InvoicePostingService $posting)
     {
-        $purchaseInvoice->update(['status' => 1]); // Posted
+        $this->assertInvoice($purchaseInvoice, $this->workspace($request));
+        $posting->postPurchase($purchaseInvoice, $request->user());
 
         return back()->with('success', 'Purchase invoice posted.');
     }
 
-    public function print(PurchaseInvoice $purchaseInvoice)
+    public function print(Request $request, PurchaseInvoice $purchaseInvoice)
     {
+        $this->assertInvoice($purchaseInvoice, $this->workspace($request));
         $purchaseInvoice->load(['items', 'warehouse']);
 
         return view('print.purchase_invoice', ['invoice' => $purchaseInvoice]);
+    }
+
+    private function workspace(Request $request): Workspace
+    {
+        $workspace = Workspace::query()->with('organization')->find($request->session()->get('active_workspace_id'));
+        abort_unless($workspace && $request->user()->canInWorkspace('procurement.manage', $workspace), 403);
+
+        return $workspace;
+    }
+
+    private function assertInvoice(PurchaseInvoice $invoice, Workspace $workspace): void
+    {
+        abort_unless((int) $invoice->organization_id === (int) $workspace->organization_id && (int) $invoice->workspace_id === (int) $workspace->id, 404);
     }
 }
