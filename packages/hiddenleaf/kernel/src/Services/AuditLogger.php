@@ -3,7 +3,9 @@
 namespace HiddenLeaf\Kernel\Services;
 
 use App\Models\AuditLog;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Throwable;
 
 class AuditLogger
 {
@@ -18,7 +20,8 @@ class AuditLogger
         ?string $entityId = null,
         array $metadata = [],
         ?string $ip = null,
-        ?string $userAgent = null
+        ?string $userAgent = null,
+        bool $critical = false,
     ): array {
         $cleanMetadata = $this->sanitizeMetadata($metadata);
 
@@ -30,6 +33,7 @@ class AuditLogger
             'action' => $action,
             'entity_type' => $entity,
             'entity_id' => $entityId,
+            'request_id' => $this->requestId(),
             'metadata' => $cleanMetadata,
             'ip' => $ip ?? '127.0.0.1',
             'user_agent' => $userAgent ?? 'HiddenLeaf-Kernel',
@@ -39,8 +43,14 @@ class AuditLogger
         // Persist to database if database connection is available
         try {
             AuditLog::create($entry);
-        } catch (\Throwable $e) {
-            // Fallback for isolated unit tests without database connection
+        } catch (Throwable $exception) {
+            if ($critical) {
+                throw $exception;
+            }
+            Log::warning('Unable to persist a non-critical audit event.', [
+                'action' => $action,
+                'exception' => $exception::class,
+            ]);
         }
 
         $this->logs[] = $entry;
@@ -65,5 +75,17 @@ class AuditLogger
         }
 
         return $data;
+    }
+
+    private function requestId(): ?string
+    {
+        if (app()->bound('request_id')) {
+            return app('request_id');
+        }
+        if (app()->bound('request')) {
+            return request()->attributes->get('request_id');
+        }
+
+        return null;
     }
 }

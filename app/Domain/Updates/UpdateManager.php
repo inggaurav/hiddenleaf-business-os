@@ -5,6 +5,7 @@ namespace App\Domain\Updates;
 use App\Models\Setting;
 use App\Models\UpdateHistory;
 use App\Models\User;
+use HiddenLeaf\Kernel\Services\AuditLogger;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
@@ -18,6 +19,7 @@ class UpdateManager
         private readonly UpdateManifestService $manifests,
         private readonly SafeUpdateArchive $archives,
         private readonly UpdateBackupManager $backups,
+        private readonly AuditLogger $audit,
     ) {}
 
     public function check(?string $channel = null): array
@@ -53,6 +55,11 @@ class UpdateManager
         $maintenance = false;
 
         try {
+            $this->audit->log($user->id, null, null, 'update.install.started', 'update_history', (string) $history->id, [
+                'from_version' => $current,
+                'to_version' => $manifest['version'],
+                'channel' => $manifest['channel'],
+            ], critical: true);
             File::ensureDirectoryExists($staging);
             $response = Http::timeout(config('updater.download_timeout'))->get($manifest['package_url'])->throw();
             File::put($archive, $response->body());
@@ -79,6 +86,10 @@ class UpdateManager
                 ['value' => $manifest['version'], 'created_by' => $user->id],
             );
             $history->update(['status' => 'completed', 'completed_at' => now()]);
+            $this->audit->log($user->id, null, null, 'update.install.completed', 'update_history', (string) $history->id, [
+                'from_version' => $current,
+                'to_version' => $manifest['version'],
+            ], critical: true);
 
             return $history->refresh();
         } catch (Throwable $exception) {
@@ -101,6 +112,10 @@ class UpdateManager
             throw new RuntimeException('Only a completed update with a backup can be rolled back.');
         }
 
+        $this->audit->log($user->id, null, null, 'update.rollback.started', 'update_history', (string) $history->id, [
+            'from_version' => $history->to_version,
+            'to_version' => $history->from_version,
+        ], critical: true);
         Artisan::call('down');
         try {
             $this->backups->restore(config('updater.application_root'), $history->backup_path);
@@ -110,6 +125,9 @@ class UpdateManager
             );
             $this->refreshCaches();
             $history->update(['status' => 'rolled_back', 'rolled_back_at' => now()]);
+            $this->audit->log($user->id, null, null, 'update.rollback.completed', 'update_history', (string) $history->id, [
+                'restored_version' => $history->from_version,
+            ], critical: true);
 
             return $history->refresh();
         } finally {

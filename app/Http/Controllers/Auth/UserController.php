@@ -279,7 +279,8 @@ class UserController extends Controller
             (string) $user->id,
             ['target_email' => $user->email],
             $request->ip(),
-            $request->userAgent()
+            $request->userAgent(),
+            true,
         );
 
         auth()->login($user);
@@ -309,7 +310,8 @@ class UserController extends Controller
                 (string) $targetUser->id,
                 ['target_email' => $targetUser->email],
                 $request->ip(),
-                $request->userAgent()
+                $request->userAgent(),
+                true,
             );
 
             auth()->login($impersonator);

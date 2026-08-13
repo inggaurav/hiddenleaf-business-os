@@ -5,15 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\UserActiveModule;
 use App\Models\Workspace;
 use App\Services\ModuleManager;
+use HiddenLeaf\Kernel\Services\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class ModuleController extends Controller
 {
     protected ModuleManager $moduleManager;
 
-    public function __construct(ModuleManager $moduleManager)
+    public function __construct(ModuleManager $moduleManager, private readonly AuditLogger $auditLogger)
     {
         $this->moduleManager = $moduleManager;
     }
@@ -70,23 +72,35 @@ class ModuleController extends Controller
         $moduleName = $validated['module_name'];
         $alias = strtolower($moduleName);
 
-        if ($request->boolean('active')) {
-            UserActiveModule::updateOrCreate([
-                'workspace_id' => $workspaceId,
-                'module_name' => $moduleName,
-            ], [
-                'module' => $alias,
-                'user_id' => $user->id,
-            ]);
-        } else {
-            UserActiveModule::where('workspace_id', $workspaceId)
-                ->where(function ($q) use ($alias, $moduleName) {
-                    $q->where('module_name', $alias)
-                        ->orWhere('module', $alias)
-                        ->orWhere('module_name', $moduleName);
-                })
-                ->delete();
-        }
+        DB::transaction(function () use ($request, $workspaceId, $workspace, $user, $moduleName, $alias) {
+            if ($request->boolean('active')) {
+                UserActiveModule::updateOrCreate([
+                    'workspace_id' => $workspaceId,
+                    'module_name' => $moduleName,
+                ], [
+                    'module' => $alias,
+                    'user_id' => $user->id,
+                ]);
+            } else {
+                UserActiveModule::where('workspace_id', $workspaceId)
+                    ->where(function ($q) use ($alias, $moduleName) {
+                        $q->where('module_name', $alias)
+                            ->orWhere('module', $alias)
+                            ->orWhere('module_name', $moduleName);
+                    })
+                    ->delete();
+            }
+
+            $this->auditLogger->log(
+                $user->id,
+                $workspace->organization_id,
+                $workspace->id,
+                $request->boolean('active') ? 'module.activated' : 'module.deactivated',
+                'module',
+                $moduleName,
+                critical: true,
+            );
+        });
 
         return redirect()->back()->with('success', 'Module status updated.');
     }
