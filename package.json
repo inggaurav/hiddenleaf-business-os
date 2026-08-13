@@ -7,13 +7,12 @@
         "lint": "tsc --noEmit"
     },
     "devDependencies": {
-        "@inertiajs/react": "^2.0.3",
+        "@inertiajs/react": "^3.0.0",
         "@tailwindcss/vite": "^4.0.0",
         "@types/node": "^22.10.0",
         "@types/react": "^19.0.0",
         "@types/react-dom": "^19.0.0",
         "@vitejs/plugin-react": "^4.3.4",
-        "axios": "^1.7.9",
         "laravel-vite-plugin": "^1.2.0",
         "react": "^19.0.0",
         "react-dom": "^19.0.0",
