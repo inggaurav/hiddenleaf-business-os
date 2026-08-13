@@ -16,10 +16,12 @@ Route::prefix('v1')->group(function () {
     Route::get('/plans/{plan}', [PlanApiController::class, 'show']);
 
     // Licensing Endpoints
-    Route::post('/licensing/activate', [LicensingController::class, 'activate']);
-    Route::post('/licensing/deactivate', [LicensingController::class, 'deactivate']);
-    Route::post('/licensing/validate', [LicensingController::class, 'validateLicense']);
-    Route::get('/licensing/entitlements', [LicensingController::class, 'entitlements']);
+    Route::middleware('throttle:30,1')->group(function () {
+        Route::post('/licensing/activate', [LicensingController::class, 'activate']);
+        Route::post('/licensing/deactivate', [LicensingController::class, 'deactivate']);
+        Route::post('/licensing/validate', [LicensingController::class, 'validateLicense']);
+        Route::get('/licensing/entitlements', [LicensingController::class, 'entitlements']);
+    });
 
     // Authenticated Sanctum Routes
     Route::middleware('auth:sanctum')->group(function () {
