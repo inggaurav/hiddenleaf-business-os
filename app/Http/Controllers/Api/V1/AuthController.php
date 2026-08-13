@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Api\V1\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -39,13 +40,7 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'token' => $token,
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'role' => $user->role,
-                'active_plan' => $user->active_plan,
-            ],
+            'user' => new UserResource($user),
             'organizations' => $user->organizations,
             'workspaces' => $user->workspaces,
         ]);
@@ -58,13 +53,15 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'user' => $user,
+            'user' => new UserResource($user),
+            'organizations' => $user->organizations,
+            'workspaces' => $user->workspaces,
         ]);
     }
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $request->user()->currentAccessToken()?->delete();
 
         return response()->json([
             'success' => true,

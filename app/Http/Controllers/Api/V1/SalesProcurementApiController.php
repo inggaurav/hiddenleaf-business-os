@@ -13,8 +13,8 @@ class SalesProcurementApiController extends Controller
 {
     public function warehouses(Request $request)
     {
-        $wsId = $request->header('X-Workspace-ID') ?: session('active_workspace_id');
-        $warehouses = Warehouse::when($wsId, fn ($q) => $q->where('workspace_id', $wsId))->get();
+        $wsId = $request->attributes->get('workspace')->id;
+        $warehouses = Warehouse::where('workspace_id', $wsId)->orderBy('name')->paginate($this->perPage($request));
 
         return response()->json([
             'success' => true,
@@ -24,11 +24,11 @@ class SalesProcurementApiController extends Controller
 
     public function purchaseInvoices(Request $request)
     {
-        $wsId = $request->header('X-Workspace-ID') ?: session('active_workspace_id');
+        $wsId = $request->attributes->get('workspace')->id;
         $invoices = PurchaseInvoice::with('items')
             ->when($wsId, fn ($q) => $q->where('workspace_id', $wsId))
             ->latest()
-            ->paginate($request->input('per_page', 15));
+            ->paginate($this->perPage($request));
 
         return response()->json([
             'success' => true,
@@ -38,11 +38,11 @@ class SalesProcurementApiController extends Controller
 
     public function salesInvoices(Request $request)
     {
-        $wsId = $request->header('X-Workspace-ID') ?: session('active_workspace_id');
+        $wsId = $request->attributes->get('workspace')->id;
         $invoices = SalesInvoice::with('items')
             ->when($wsId, fn ($q) => $q->where('workspace_id', $wsId))
             ->latest()
-            ->paginate($request->input('per_page', 15));
+            ->paginate($this->perPage($request));
 
         return response()->json([
             'success' => true,
@@ -52,15 +52,20 @@ class SalesProcurementApiController extends Controller
 
     public function salesProposals(Request $request)
     {
-        $wsId = $request->header('X-Workspace-ID') ?: session('active_workspace_id');
+        $wsId = $request->attributes->get('workspace')->id;
         $proposals = SalesProposal::with('items')
             ->when($wsId, fn ($q) => $q->where('workspace_id', $wsId))
             ->latest()
-            ->paginate($request->input('per_page', 15));
+            ->paginate($this->perPage($request));
 
         return response()->json([
             'success' => true,
             'data' => $proposals,
         ]);
+    }
+
+    private function perPage(Request $request): int
+    {
+        return max(1, min((int) $request->input('per_page', 20), 100));
     }
 }

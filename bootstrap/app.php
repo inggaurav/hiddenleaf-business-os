@@ -2,6 +2,7 @@
 
 use App\Console\Commands\InstallBusinessOs;
 use App\Http\Middleware\CheckModuleStatus;
+use App\Http\Middleware\EnsureApiWorkspace;
 use App\Http\Middleware\EnsureTenantContext;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\Installed;
@@ -32,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'module.status' => CheckModuleStatus::class,
+            'api.workspace' => EnsureApiWorkspace::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

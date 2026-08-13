@@ -5,17 +5,18 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\HelpdeskTicket;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class HelpdeskApiController extends Controller
 {
     public function tickets(Request $request)
     {
-        $wsId = $request->header('X-Workspace-ID') ?: session('active_workspace_id');
+        $wsId = $request->attributes->get('workspace')->id;
 
         $tickets = HelpdeskTicket::with(['category', 'creator'])
             ->when($wsId, fn ($q) => $q->where('workspace_id', $wsId))
             ->latest()
-            ->paginate($request->input('per_page', 15));
+            ->paginate(max(1, min((int) $request->input('per_page', 20), 100)));
 
         return response()->json([
             'success' => true,
@@ -25,16 +26,17 @@ class HelpdeskApiController extends Controller
 
     public function storeTicket(Request $request)
     {
+        $workspace = $request->attributes->get('workspace');
         $validated = $request->validate([
             'subject' => 'required|string|max:255',
-            'category_id' => 'nullable|exists:helpdesk_categories,id',
+            'category_id' => ['nullable', Rule::exists('helpdesk_categories', 'id')->where('workspace_id', $workspace->id)],
             'priority' => 'required|in:low,medium,high,urgent',
             'description' => 'required|string',
         ]);
 
         $user = $request->user();
-        $wsId = $request->header('X-Workspace-ID') ?: session('active_workspace_id');
-        $orgId = $request->header('X-Organization-ID') ?: session('active_organization_id');
+        $wsId = $workspace->id;
+        $orgId = $workspace->organization_id;
 
         $ticketId = strtoupper(substr(uniqid('HD-'), -8));
 
@@ -58,8 +60,9 @@ class HelpdeskApiController extends Controller
         ], 201);
     }
 
-    public function ticketDetails(HelpdeskTicket $ticket)
+    public function ticketDetails(Request $request, HelpdeskTicket $ticket)
     {
+        abort_unless($ticket->workspace_id === $request->attributes->get('workspace')->id, 404);
         $ticket->load(['category', 'creator', 'replies.user']);
 
         return response()->json([

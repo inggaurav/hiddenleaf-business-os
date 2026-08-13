@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AccountController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\HelpdeskApiController;
 use App\Http\Controllers\Api\V1\MediaApiController;
 use App\Http\Controllers\Api\V1\PlanApiController;
+use App\Http\Controllers\Api\V1\ProductServiceApiController;
 use App\Http\Controllers\Api\V1\SalesProcurementApiController;
 use App\Http\Controllers\Api\V1\WorkspaceApiController;
 use HiddenLeaf\Http\Controllers\Api\V1\LicensingController;
@@ -27,24 +29,32 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/user', [AuthController::class, 'me']);
         Route::post('/auth/logout', [AuthController::class, 'logout']);
+        Route::patch('/profile', [AccountController::class, 'updateProfile']);
+        Route::put('/password', [AccountController::class, 'updatePassword']);
+        Route::delete('/account', [AccountController::class, 'destroy']);
+        Route::get('/tokens', [AccountController::class, 'tokens']);
+        Route::post('/tokens', [AccountController::class, 'storeToken']);
+        Route::delete('/tokens/{token}', [AccountController::class, 'destroyToken'])->whereNumber('token');
 
         // Workspaces
         Route::get('/workspaces', [WorkspaceApiController::class, 'index']);
         Route::get('/workspaces/{workspace}', [WorkspaceApiController::class, 'show']);
 
-        // Sales & Procurement
-        Route::get('/warehouses', [SalesProcurementApiController::class, 'warehouses']);
-        Route::get('/purchase-invoices', [SalesProcurementApiController::class, 'purchaseInvoices']);
-        Route::get('/sales-invoices', [SalesProcurementApiController::class, 'salesInvoices']);
-        Route::get('/sales-proposals', [SalesProcurementApiController::class, 'salesProposals']);
+        Route::middleware('api.workspace')->group(function () {
+            Route::get('/products-services', [ProductServiceApiController::class, 'index']);
+            Route::get('/products-services/{item}', [ProductServiceApiController::class, 'show'])->whereNumber('item');
 
-        // Helpdesk
-        Route::get('/helpdesk/tickets', [HelpdeskApiController::class, 'tickets']);
-        Route::post('/helpdesk/tickets', [HelpdeskApiController::class, 'storeTicket']);
-        Route::get('/helpdesk/tickets/{ticket}', [HelpdeskApiController::class, 'ticketDetails']);
+            Route::get('/warehouses', [SalesProcurementApiController::class, 'warehouses']);
+            Route::get('/purchase-invoices', [SalesProcurementApiController::class, 'purchaseInvoices']);
+            Route::get('/sales-invoices', [SalesProcurementApiController::class, 'salesInvoices']);
+            Route::get('/sales-proposals', [SalesProcurementApiController::class, 'salesProposals']);
 
-        // Media
-        Route::get('/media', [MediaApiController::class, 'index']);
-        Route::post('/media/upload', [MediaApiController::class, 'upload']);
+            Route::get('/helpdesk/tickets', [HelpdeskApiController::class, 'tickets']);
+            Route::post('/helpdesk/tickets', [HelpdeskApiController::class, 'storeTicket']);
+            Route::get('/helpdesk/tickets/{ticket}', [HelpdeskApiController::class, 'ticketDetails']);
+
+            Route::get('/media', [MediaApiController::class, 'index']);
+            Route::post('/media/upload', [MediaApiController::class, 'upload']);
+        });
     });
 });

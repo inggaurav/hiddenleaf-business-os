@@ -4,6 +4,7 @@ namespace Tests\Feature\Api;
 
 use App\Models\Organization;
 use App\Models\Plan;
+use App\Models\ProductServiceItem;
 use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -139,5 +140,92 @@ class ApiV1SuiteTest extends TestCase
 
         $logoutResp->assertStatus(200);
         $this->assertEquals(0, $this->user->tokens()->count());
+    }
+
+    public function test_tenant_endpoints_require_an_owned_workspace_context(): void
+    {
+        $token = $this->user->createToken('tenant-test')->plainTextToken;
+        $foreignOwner = User::factory()->create();
+        $foreignOrg = Organization::factory()->create(['owner_id' => $foreignOwner->id]);
+        $foreignWorkspace = Workspace::factory()->create([
+            'organization_id' => $foreignOrg->id,
+            'created_by' => $foreignOwner->id,
+        ]);
+
+        $this->withToken($token)->getJson('/api/v1/products-services')->assertUnprocessable();
+        $this->withToken($token)
+            ->withHeader('X-Workspace-ID', $foreignWorkspace->id)
+            ->getJson('/api/v1/products-services')
+            ->assertNotFound();
+    }
+
+    public function test_products_and_services_are_paginated_and_tenant_scoped(): void
+    {
+        ProductServiceItem::create([
+            'name' => 'Visible Product',
+            'sku' => 'VISIBLE-1',
+            'type' => 'product',
+            'organization_id' => $this->org->id,
+            'workspace_id' => $this->ws->id,
+            'created_by' => $this->user->id,
+        ]);
+
+        $foreignOwner = User::factory()->create();
+        $foreignOrg = Organization::factory()->create(['owner_id' => $foreignOwner->id]);
+        $foreignWorkspace = Workspace::factory()->create([
+            'organization_id' => $foreignOrg->id,
+            'created_by' => $foreignOwner->id,
+        ]);
+        ProductServiceItem::create([
+            'name' => 'Foreign Product',
+            'sku' => 'FOREIGN-1',
+            'type' => 'product',
+            'organization_id' => $foreignOrg->id,
+            'workspace_id' => $foreignWorkspace->id,
+            'created_by' => $foreignOwner->id,
+        ]);
+
+        $token = $this->user->createToken('catalog-test')->plainTextToken;
+        $response = $this->withToken($token)
+            ->withHeader('X-Workspace-ID', $this->ws->id)
+            ->getJson('/api/v1/products-services?type=product&per_page=1');
+
+        $response->assertOk()
+            ->assertJsonPath('data.0.name', 'Visible Product')
+            ->assertJsonPath('meta.per_page', 1)
+            ->assertJsonMissing(['name' => 'Foreign Product']);
+    }
+
+    public function test_profile_password_and_token_lifecycle(): void
+    {
+        $token = $this->user->createToken('current')->plainTextToken;
+
+        $this->withToken($token)->patchJson('/api/v1/profile', [
+            'name' => 'Updated API User',
+            'locale' => 'fr',
+        ])->assertOk()
+            ->assertJsonPath('data.name', 'Updated API User')
+            ->assertJsonPath('data.locale', 'fr');
+
+        $created = $this->withToken($token)->postJson('/api/v1/tokens', [
+            'name' => 'integration',
+            'abilities' => ['read'],
+        ])->assertCreated();
+
+        $tokenId = $created->json('token_id');
+        $this->withToken($token)->getJson('/api/v1/tokens')
+            ->assertOk()
+            ->assertJsonFragment(['id' => $tokenId, 'name' => 'integration']);
+
+        $this->withToken($token)->deleteJson("/api/v1/tokens/{$tokenId}")->assertNoContent();
+        $this->assertDatabaseMissing('personal_access_tokens', ['id' => $tokenId]);
+
+        $this->withToken($token)->putJson('/api/v1/password', [
+            'current_password' => 'password123',
+            'password' => 'SecurePassword123',
+            'password_confirmation' => 'SecurePassword123',
+        ])->assertOk();
+
+        $this->assertTrue(Hash::check('SecurePassword123', $this->user->fresh()->password));
     }
 }

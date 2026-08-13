@@ -11,11 +11,11 @@ class MediaApiController extends Controller
 {
     public function index(Request $request)
     {
-        $wsId = $request->header('X-Workspace-ID') ?: session('active_workspace_id');
+        $wsId = $request->attributes->get('workspace')->id;
 
         $media = Media::when($wsId, fn ($q) => $q->where('workspace_id', $wsId))
             ->latest()
-            ->paginate($request->input('per_page', 20));
+            ->paginate(max(1, min((int) $request->input('per_page', 20), 100)));
 
         return response()->json([
             'success' => true,
@@ -30,7 +30,7 @@ class MediaApiController extends Controller
         ]);
 
         $file = $request->file('file');
-        $wsId = $request->header('X-Workspace-ID') ?: session('active_workspace_id');
+        $wsId = $request->attributes->get('workspace')->id;
 
         $path = $file->store('media', 'public');
         $media = Media::create([
