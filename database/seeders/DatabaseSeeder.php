@@ -42,6 +42,8 @@ class DatabaseSeeder extends Seeder
             ['module' => 'productservice', 'resource' => 'inventory', 'action' => 'manage', 'name' => 'inventory.manage'],
             ['module' => 'sales', 'resource' => 'sales', 'action' => 'manage', 'name' => 'sales.manage'],
             ['module' => 'procurement', 'resource' => 'purchases', 'action' => 'manage', 'name' => 'procurement.manage'],
+            ['module' => 'account', 'resource' => 'ledger', 'action' => 'view', 'name' => 'account.view'],
+            ['module' => 'account', 'resource' => 'ledger', 'action' => 'manage', 'name' => 'account.manage'],
         ];
 
         foreach ($permissions as $p) {
