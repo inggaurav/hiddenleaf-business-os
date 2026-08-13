@@ -41,7 +41,9 @@
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
-        ]
+        ],
+        "parity:generate": "@php tools/generate-parity-registry.php",
+        "parity:validate": "@php tools/generate-parity-registry.php --check"
     },
     "config": {
         "optimize-autoloader": true,

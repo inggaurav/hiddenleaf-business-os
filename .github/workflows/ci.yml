@@ -88,6 +88,9 @@ jobs:
       - name: Execute test suite
         run: php artisan test
 
+      - name: Validate WorkDo parity registry
+        run: composer parity:validate
+
       - name: Verify PHP code style
         run: ./vendor/bin/pint --test
 

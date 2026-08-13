@@ -1,0 +1,1720 @@
+{
+    "schema_version": 1,
+    "reference_repository": "https://github.com/inggaurav/workdo-dash-reference",
+    "reference_sha": "0b996a0050abcdffa2770a82fbb9261eeb2805bd",
+    "generated_at": "2026-08-13T20:44:16+00:00",
+    "totals": {
+        "all": 50,
+        "MISSING": 0,
+        "PARTIAL": 0,
+        "IMPLEMENTED_UNVERIFIED": 0,
+        "VERIFIED": 50,
+        "DEFERRED_SEPARATELY_SOLD_ADDON": 0
+    },
+    "capabilities": [
+        {
+            "id": "foundation.tenant-isolation",
+            "classification": "foundation",
+            "reference_file": "app/Http/Controllers/UserController.php",
+            "reference_route": "users",
+            "reference_controller": "UserController",
+            "reference_method": "handle",
+            "reference_models": [
+                "Organization",
+                "Workspace"
+            ],
+            "reference_tables": [
+                "organizations",
+                "workspaces"
+            ],
+            "reference_screen": null,
+            "reference_permission": null,
+            "hiddenleaf_file": "app/Http/Middleware/EnsureTenantContext.php",
+            "hiddenleaf_route": "users",
+            "hiddenleaf_controller": "EnsureTenantContext",
+            "hiddenleaf_method": "handle",
+            "hiddenleaf_models": [
+                "Organization",
+                "Workspace"
+            ],
+            "hiddenleaf_tables": [
+                "organizations",
+                "workspaces"
+            ],
+            "hiddenleaf_screen": null,
+            "hiddenleaf_permission": null,
+            "hiddenleaf_tests": [
+                "tests/Feature/Tenancy/AdversarialTenancyTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "foundation.rbac",
+            "classification": "foundation",
+            "reference_file": "app/Http/Controllers/RoleController.php",
+            "reference_route": "roles",
+            "reference_controller": "RoleController",
+            "reference_method": "store",
+            "reference_models": [
+                "Role",
+                "Permission"
+            ],
+            "reference_tables": [
+                "roles",
+                "permissions"
+            ],
+            "reference_screen": "resources/js/Pages/Roles/Index.tsx",
+            "reference_permission": "roles.manage",
+            "hiddenleaf_file": "app/Http/Controllers/Domain/Auth/RoleController.php",
+            "hiddenleaf_route": "roles",
+            "hiddenleaf_controller": "RoleController",
+            "hiddenleaf_method": "store",
+            "hiddenleaf_models": [
+                "Role",
+                "Permission"
+            ],
+            "hiddenleaf_tables": [
+                "roles",
+                "permissions"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/Roles/Index.tsx",
+            "hiddenleaf_permission": "roles.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/RBAC/RbacEnforcementHttpTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "foundation.module-activation",
+            "classification": "foundation",
+            "reference_file": "app/Http/Controllers/ModuleController.php",
+            "reference_route": "modules",
+            "reference_controller": "ModuleController",
+            "reference_method": "toggle",
+            "reference_models": [
+                "UserActiveModule"
+            ],
+            "reference_tables": [
+                "user_active_modules"
+            ],
+            "reference_screen": "resources/js/Pages/Modules/Index.tsx",
+            "reference_permission": "modules.manage",
+            "hiddenleaf_file": "app/Http/Controllers/ModuleController.php",
+            "hiddenleaf_route": "modules",
+            "hiddenleaf_controller": "ModuleController",
+            "hiddenleaf_method": "toggle",
+            "hiddenleaf_models": [
+                "UserActiveModule"
+            ],
+            "hiddenleaf_tables": [
+                "user_active_modules"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/Modules/Index.tsx",
+            "hiddenleaf_permission": "modules.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/ModuleActivationTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "product-service.catalog",
+            "classification": "product-service",
+            "reference_file": "packages/workdo/ProductService/src/Http/Controllers/ProductServiceController.php",
+            "reference_route": "product-service",
+            "reference_controller": "ProductServiceController",
+            "reference_method": "store",
+            "reference_models": [
+                "ProductServiceItem"
+            ],
+            "reference_tables": [
+                "product_service_items"
+            ],
+            "reference_screen": "resources/js/Pages/ProductService/Index.tsx",
+            "reference_permission": "productservice.manage",
+            "hiddenleaf_file": "app/Http/Controllers/ProductServiceController.php",
+            "hiddenleaf_route": "product-service",
+            "hiddenleaf_controller": "ProductServiceController",
+            "hiddenleaf_method": "store",
+            "hiddenleaf_models": [
+                "ProductServiceItem"
+            ],
+            "hiddenleaf_tables": [
+                "product_service_items"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/ProductService/Index.tsx",
+            "hiddenleaf_permission": "productservice.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/ProductService/ProductServiceInventoryTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "product-service.categories-units-taxes",
+            "classification": "product-service",
+            "reference_file": "packages/workdo/ProductService/src/Routes/web.php",
+            "reference_route": "product-service",
+            "reference_controller": "web",
+            "reference_method": "storeTax",
+            "reference_models": [
+                "ProductServiceCategory",
+                "ProductServiceUnit",
+                "ProductServiceTax"
+            ],
+            "reference_tables": [
+                "product_service_categories",
+                "product_service_units",
+                "product_service_taxes"
+            ],
+            "reference_screen": "resources/js/Pages/ProductService/Index.tsx",
+            "reference_permission": "productservice.manage",
+            "hiddenleaf_file": "app/Http/Controllers/ProductServiceController.php",
+            "hiddenleaf_route": "product-service",
+            "hiddenleaf_controller": "ProductServiceController",
+            "hiddenleaf_method": "storeTax",
+            "hiddenleaf_models": [
+                "ProductServiceCategory",
+                "ProductServiceUnit",
+                "ProductServiceTax"
+            ],
+            "hiddenleaf_tables": [
+                "product_service_categories",
+                "product_service_units",
+                "product_service_taxes"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/ProductService/Index.tsx",
+            "hiddenleaf_permission": "productservice.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/ProductService/ProductServiceInventoryTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "product-service.warehouse-stock",
+            "classification": "product-service",
+            "reference_file": "app/Http/Controllers/WarehouseController.php",
+            "reference_route": "warehouses",
+            "reference_controller": "WarehouseController",
+            "reference_method": "index",
+            "reference_models": [
+                "Warehouse",
+                "WarehouseStock"
+            ],
+            "reference_tables": [
+                "warehouses",
+                "warehouse_stocks"
+            ],
+            "reference_screen": "resources/js/Pages/Warehouses/Index.tsx",
+            "reference_permission": "warehouses.view",
+            "hiddenleaf_file": "app/Http/Controllers/WarehouseController.php",
+            "hiddenleaf_route": "warehouses",
+            "hiddenleaf_controller": "WarehouseController",
+            "hiddenleaf_method": "index",
+            "hiddenleaf_models": [
+                "Warehouse",
+                "WarehouseStock"
+            ],
+            "hiddenleaf_tables": [
+                "warehouses",
+                "warehouse_stocks"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/Warehouses/Index.tsx",
+            "hiddenleaf_permission": "warehouses.view",
+            "hiddenleaf_tests": [
+                "tests/Feature/ProductService/ProductServiceInventoryTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "product-service.stock-adjustments",
+            "classification": "product-service",
+            "reference_file": "packages/workdo/ProductService/src/Routes/web.php",
+            "reference_route": "adjust-stock",
+            "reference_controller": "web",
+            "reference_method": "adjust",
+            "reference_models": [
+                "StockMovement"
+            ],
+            "reference_tables": [
+                "stock_movements"
+            ],
+            "reference_screen": "resources/js/Pages/ProductService/Index.tsx",
+            "reference_permission": "inventory.adjust",
+            "hiddenleaf_file": "app/Http/Controllers/ProductServiceController.php",
+            "hiddenleaf_route": "adjust-stock",
+            "hiddenleaf_controller": "ProductServiceController",
+            "hiddenleaf_method": "adjust",
+            "hiddenleaf_models": [
+                "StockMovement"
+            ],
+            "hiddenleaf_tables": [
+                "stock_movements"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/ProductService/Index.tsx",
+            "hiddenleaf_permission": "inventory.adjust",
+            "hiddenleaf_tests": [
+                "tests/Feature/ProductService/ProductServiceInventoryTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "product-service.stock-transfers",
+            "classification": "product-service",
+            "reference_file": "app/Http/Controllers/TransferController.php",
+            "reference_route": "transfers",
+            "reference_controller": "TransferController",
+            "reference_method": "store",
+            "reference_models": [
+                "Transfer"
+            ],
+            "reference_tables": [
+                "transfers"
+            ],
+            "reference_screen": "resources/js/Pages/Transfers/Index.tsx",
+            "reference_permission": "transfers.create",
+            "hiddenleaf_file": "app/Http/Controllers/TransferController.php",
+            "hiddenleaf_route": "transfers",
+            "hiddenleaf_controller": "TransferController",
+            "hiddenleaf_method": "store",
+            "hiddenleaf_models": [
+                "Transfer"
+            ],
+            "hiddenleaf_tables": [
+                "transfers"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/Transfers/Index.tsx",
+            "hiddenleaf_permission": "transfers.create",
+            "hiddenleaf_tests": [
+                "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "sales-procurement.purchase-invoices",
+            "classification": "sales-procurement",
+            "reference_file": "app/Http/Controllers/PurchaseInvoiceController.php",
+            "reference_route": "purchase-invoices",
+            "reference_controller": "PurchaseInvoiceController",
+            "reference_method": "post",
+            "reference_models": [
+                "PurchaseInvoice"
+            ],
+            "reference_tables": [
+                "purchase_invoices",
+                "purchase_invoice_items"
+            ],
+            "reference_screen": "resources/js/Pages/PurchaseInvoices/Index.tsx",
+            "reference_permission": "purchase-invoices.manage",
+            "hiddenleaf_file": "app/Http/Controllers/PurchaseInvoiceController.php",
+            "hiddenleaf_route": "purchase-invoices",
+            "hiddenleaf_controller": "PurchaseInvoiceController",
+            "hiddenleaf_method": "post",
+            "hiddenleaf_models": [
+                "PurchaseInvoice"
+            ],
+            "hiddenleaf_tables": [
+                "purchase_invoices",
+                "purchase_invoice_items"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/PurchaseInvoices/Index.tsx",
+            "hiddenleaf_permission": "purchase-invoices.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "sales-procurement.purchase-returns",
+            "classification": "sales-procurement",
+            "reference_file": "app/Http/Controllers/PurchaseReturnController.php",
+            "reference_route": "purchase-returns",
+            "reference_controller": "PurchaseReturnController",
+            "reference_method": "complete",
+            "reference_models": [
+                "PurchaseReturn"
+            ],
+            "reference_tables": [
+                "purchase_returns",
+                "purchase_return_items"
+            ],
+            "reference_screen": "resources/js/Pages/PurchaseReturns/Index.tsx",
+            "reference_permission": "purchase-returns.manage",
+            "hiddenleaf_file": "app/Http/Controllers/PurchaseReturnController.php",
+            "hiddenleaf_route": "purchase-returns",
+            "hiddenleaf_controller": "PurchaseReturnController",
+            "hiddenleaf_method": "complete",
+            "hiddenleaf_models": [
+                "PurchaseReturn"
+            ],
+            "hiddenleaf_tables": [
+                "purchase_returns",
+                "purchase_return_items"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/PurchaseReturns/Index.tsx",
+            "hiddenleaf_permission": "purchase-returns.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "sales-procurement.sales-proposals",
+            "classification": "sales-procurement",
+            "reference_file": "app/Http/Controllers/SalesProposalController.php",
+            "reference_route": "sales-proposals",
+            "reference_controller": "SalesProposalController",
+            "reference_method": "convertToInvoice",
+            "reference_models": [
+                "SalesProposal"
+            ],
+            "reference_tables": [
+                "sales_proposals",
+                "sales_proposal_items"
+            ],
+            "reference_screen": "resources/js/Pages/SalesProposals/Index.tsx",
+            "reference_permission": "sales-proposals.manage",
+            "hiddenleaf_file": "app/Http/Controllers/SalesProposalController.php",
+            "hiddenleaf_route": "sales-proposals",
+            "hiddenleaf_controller": "SalesProposalController",
+            "hiddenleaf_method": "convertToInvoice",
+            "hiddenleaf_models": [
+                "SalesProposal"
+            ],
+            "hiddenleaf_tables": [
+                "sales_proposals",
+                "sales_proposal_items"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/SalesProposals/Index.tsx",
+            "hiddenleaf_permission": "sales-proposals.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "sales-procurement.sales-invoices",
+            "classification": "sales-procurement",
+            "reference_file": "app/Http/Controllers/SalesInvoiceController.php",
+            "reference_route": "sales-invoices",
+            "reference_controller": "SalesInvoiceController",
+            "reference_method": "post",
+            "reference_models": [
+                "SalesInvoice"
+            ],
+            "reference_tables": [
+                "sales_invoices",
+                "sales_invoice_items"
+            ],
+            "reference_screen": "resources/js/Pages/SalesInvoices/Index.tsx",
+            "reference_permission": "sales-invoices.manage",
+            "hiddenleaf_file": "app/Http/Controllers/SalesInvoiceController.php",
+            "hiddenleaf_route": "sales-invoices",
+            "hiddenleaf_controller": "SalesInvoiceController",
+            "hiddenleaf_method": "post",
+            "hiddenleaf_models": [
+                "SalesInvoice"
+            ],
+            "hiddenleaf_tables": [
+                "sales_invoices",
+                "sales_invoice_items"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/SalesInvoices/Index.tsx",
+            "hiddenleaf_permission": "sales-invoices.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "sales-procurement.sales-returns",
+            "classification": "sales-procurement",
+            "reference_file": "app/Http/Controllers/SalesReturnController.php",
+            "reference_route": "sales-returns",
+            "reference_controller": "SalesReturnController",
+            "reference_method": "complete",
+            "reference_models": [
+                "SalesInvoiceReturn"
+            ],
+            "reference_tables": [
+                "sales_invoice_returns",
+                "sales_invoice_return_items"
+            ],
+            "reference_screen": "resources/js/Pages/SalesReturns/Index.tsx",
+            "reference_permission": "sales-returns.manage",
+            "hiddenleaf_file": "app/Http/Controllers/SalesReturnController.php",
+            "hiddenleaf_route": "sales-returns",
+            "hiddenleaf_controller": "SalesReturnController",
+            "hiddenleaf_method": "complete",
+            "hiddenleaf_models": [
+                "SalesInvoiceReturn"
+            ],
+            "hiddenleaf_tables": [
+                "sales_invoice_returns",
+                "sales_invoice_return_items"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/SalesReturns/Index.tsx",
+            "hiddenleaf_permission": "sales-returns.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "account.chart-of-accounts",
+            "classification": "account",
+            "reference_file": "packages/workdo/Account/src/Routes/web.php",
+            "reference_route": "accounting",
+            "reference_controller": "web",
+            "reference_method": "storeAccount",
+            "reference_models": [
+                "LedgerAccount"
+            ],
+            "reference_tables": [
+                "ledger_accounts"
+            ],
+            "reference_screen": "resources/js/Pages/Accounting/Accounts.tsx",
+            "reference_permission": "account.manage",
+            "hiddenleaf_file": "app/Http/Controllers/AccountingController.php",
+            "hiddenleaf_route": "accounting",
+            "hiddenleaf_controller": "AccountingController",
+            "hiddenleaf_method": "storeAccount",
+            "hiddenleaf_models": [
+                "LedgerAccount"
+            ],
+            "hiddenleaf_tables": [
+                "ledger_accounts"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/Accounting/Accounts.tsx",
+            "hiddenleaf_permission": "account.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/Modules/AccountingModuleTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "account.journal-ledger",
+            "classification": "account",
+            "reference_file": "packages/workdo/Account/src/Routes/web.php",
+            "reference_route": "journals",
+            "reference_controller": "web",
+            "reference_method": "storeJournal",
+            "reference_models": [
+                "JournalEntry",
+                "JournalLine"
+            ],
+            "reference_tables": [
+                "journal_entries",
+                "journal_lines"
+            ],
+            "reference_screen": "resources/js/Pages/Accounting/Journals.tsx",
+            "reference_permission": "account.manage",
+            "hiddenleaf_file": "app/Http/Controllers/AccountingController.php",
+            "hiddenleaf_route": "journals",
+            "hiddenleaf_controller": "AccountingController",
+            "hiddenleaf_method": "storeJournal",
+            "hiddenleaf_models": [
+                "JournalEntry",
+                "JournalLine"
+            ],
+            "hiddenleaf_tables": [
+                "journal_entries",
+                "journal_lines"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/Accounting/Journals.tsx",
+            "hiddenleaf_permission": "account.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/Modules/AccountingModuleTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "account.bank-transfer-reconciliation",
+            "classification": "account",
+            "reference_file": "packages/workdo/Account/src/Routes/web.php",
+            "reference_route": "bank-reconciliations",
+            "reference_controller": "web",
+            "reference_method": "reconcile",
+            "reference_models": [
+                "AccountBankTransfer"
+            ],
+            "reference_tables": [
+                "bank_reconciliations",
+                "account_bank_transfers"
+            ],
+            "reference_screen": "resources/js/Pages/Accounting/Reports.tsx",
+            "reference_permission": "account.manage",
+            "hiddenleaf_file": "app/Http/Controllers/AccountingController.php",
+            "hiddenleaf_route": "bank-reconciliations",
+            "hiddenleaf_controller": "AccountingController",
+            "hiddenleaf_method": "reconcile",
+            "hiddenleaf_models": [
+                "AccountBankTransfer"
+            ],
+            "hiddenleaf_tables": [
+                "bank_reconciliations",
+                "account_bank_transfers"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/Accounting/Reports.tsx",
+            "hiddenleaf_permission": "account.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/Modules/AccountingModuleTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "account.financial-reports",
+            "classification": "account",
+            "reference_file": "packages/workdo/Account/src/Routes/web.php",
+            "reference_route": "reports",
+            "reference_controller": "web",
+            "reference_method": "reports",
+            "reference_models": [
+                "LedgerAccount"
+            ],
+            "reference_tables": [
+                "journal_lines"
+            ],
+            "reference_screen": "resources/js/Pages/Accounting/Reports.tsx",
+            "reference_permission": "account.view",
+            "hiddenleaf_file": "app/Http/Controllers/AccountingController.php",
+            "hiddenleaf_route": "reports",
+            "hiddenleaf_controller": "AccountingController",
+            "hiddenleaf_method": "reports",
+            "hiddenleaf_models": [
+                "LedgerAccount"
+            ],
+            "hiddenleaf_tables": [
+                "journal_lines"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/Accounting/Reports.tsx",
+            "hiddenleaf_permission": "account.view",
+            "hiddenleaf_tests": [
+                "tests/Feature/Modules/AccountingModuleTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "hrm.employees-structure",
+            "classification": "hrm",
+            "reference_file": "packages/workdo/Hrm/src/Routes/web.php",
+            "reference_route": "hrm",
+            "reference_controller": "web",
+            "reference_method": "storeEmployee",
+            "reference_models": [
+                "HrEmployee"
+            ],
+            "reference_tables": [
+                "hr_employees",
+                "hr_departments",
+                "hr_designations"
+            ],
+            "reference_screen": "resources/js/Pages/HRM/Index.tsx",
+            "reference_permission": "hrm.manage",
+            "hiddenleaf_file": "app/Http/Controllers/HrmController.php",
+            "hiddenleaf_route": "hrm",
+            "hiddenleaf_controller": "HrmController",
+            "hiddenleaf_method": "storeEmployee",
+            "hiddenleaf_models": [
+                "HrEmployee"
+            ],
+            "hiddenleaf_tables": [
+                "hr_employees",
+                "hr_departments",
+                "hr_designations"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/HRM/Index.tsx",
+            "hiddenleaf_permission": "hrm.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/Modules/HrmModuleTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "hrm.attendance-leave",
+            "classification": "hrm",
+            "reference_file": "packages/workdo/Hrm/src/Routes/web.php",
+            "reference_route": "attendance",
+            "reference_controller": "web",
+            "reference_method": "attendance",
+            "reference_models": [
+                "HrAttendance",
+                "HrLeaveRequest"
+            ],
+            "reference_tables": [
+                "hr_attendance",
+                "hr_leave_requests"
+            ],
+            "reference_screen": "resources/js/Pages/HRM/Index.tsx",
+            "reference_permission": "hrm.manage",
+            "hiddenleaf_file": "app/Http/Controllers/HrmController.php",
+            "hiddenleaf_route": "attendance",
+            "hiddenleaf_controller": "HrmController",
+            "hiddenleaf_method": "attendance",
+            "hiddenleaf_models": [
+                "HrAttendance",
+                "HrLeaveRequest"
+            ],
+            "hiddenleaf_tables": [
+                "hr_attendance",
+                "hr_leave_requests"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/HRM/Index.tsx",
+            "hiddenleaf_permission": "hrm.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/Modules/HrmModuleTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "hrm.payroll-payslips",
+            "classification": "hrm",
+            "reference_file": "packages/workdo/Hrm/src/Routes/web.php",
+            "reference_route": "payslips",
+            "reference_controller": "web",
+            "reference_method": "generatePayslip",
+            "reference_models": [
+                "HrPayslip"
+            ],
+            "reference_tables": [
+                "hr_payslips",
+                "hr_payslip_lines"
+            ],
+            "reference_screen": "resources/js/Pages/HRM/Index.tsx",
+            "reference_permission": "hrm.manage",
+            "hiddenleaf_file": "app/Http/Controllers/HrmController.php",
+            "hiddenleaf_route": "payslips",
+            "hiddenleaf_controller": "HrmController",
+            "hiddenleaf_method": "generatePayslip",
+            "hiddenleaf_models": [
+                "HrPayslip"
+            ],
+            "hiddenleaf_tables": [
+                "hr_payslips",
+                "hr_payslip_lines"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/HRM/Index.tsx",
+            "hiddenleaf_permission": "hrm.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/Modules/HrmModuleTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "hrm.appraisals-documents",
+            "classification": "hrm",
+            "reference_file": "packages/workdo/Hrm/src/Routes/web.php",
+            "reference_route": "appraisals",
+            "reference_controller": "web",
+            "reference_method": "appraisal",
+            "reference_models": [
+                "HrEmployee"
+            ],
+            "reference_tables": [
+                "hr_appraisals",
+                "hr_documents"
+            ],
+            "reference_screen": "resources/js/Pages/HRM/Index.tsx",
+            "reference_permission": "hrm.manage",
+            "hiddenleaf_file": "app/Http/Controllers/HrmController.php",
+            "hiddenleaf_route": "appraisals",
+            "hiddenleaf_controller": "HrmController",
+            "hiddenleaf_method": "appraisal",
+            "hiddenleaf_models": [
+                "HrEmployee"
+            ],
+            "hiddenleaf_tables": [
+                "hr_appraisals",
+                "hr_documents"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/HRM/Index.tsx",
+            "hiddenleaf_permission": "hrm.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/Modules/HrmModuleTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "crm.pipelines-stages",
+            "classification": "crm",
+            "reference_file": "packages/workdo/Lead/src/Routes/web.php",
+            "reference_route": "pipeline",
+            "reference_controller": "web",
+            "reference_method": "storePipeline",
+            "reference_models": [
+                "CrmPipeline"
+            ],
+            "reference_tables": [
+                "crm_pipelines",
+                "crm_stages"
+            ],
+            "reference_screen": "resources/js/Pages/CRM/Index.tsx",
+            "reference_permission": "crm.manage",
+            "hiddenleaf_file": "app/Http/Controllers/CrmController.php",
+            "hiddenleaf_route": "pipeline",
+            "hiddenleaf_controller": "CrmController",
+            "hiddenleaf_method": "storePipeline",
+            "hiddenleaf_models": [
+                "CrmPipeline"
+            ],
+            "hiddenleaf_tables": [
+                "crm_pipelines",
+                "crm_stages"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/CRM/Index.tsx",
+            "hiddenleaf_permission": "crm.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/Modules/CrmModuleTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "crm.leads-activities",
+            "classification": "crm",
+            "reference_file": "packages/workdo/Lead/src/Routes/web.php",
+            "reference_route": "lead",
+            "reference_controller": "web",
+            "reference_method": "storeLead",
+            "reference_models": [
+                "CrmLead"
+            ],
+            "reference_tables": [
+                "crm_leads",
+                "crm_activities",
+                "crm_notes"
+            ],
+            "reference_screen": "resources/js/Pages/CRM/Index.tsx",
+            "reference_permission": "crm.manage",
+            "hiddenleaf_file": "app/Http/Controllers/CrmController.php",
+            "hiddenleaf_route": "lead",
+            "hiddenleaf_controller": "CrmController",
+            "hiddenleaf_method": "storeLead",
+            "hiddenleaf_models": [
+                "CrmLead"
+            ],
+            "hiddenleaf_tables": [
+                "crm_leads",
+                "crm_activities",
+                "crm_notes"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/CRM/Index.tsx",
+            "hiddenleaf_permission": "crm.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/Modules/CrmModuleTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "crm.deals-conversion",
+            "classification": "crm",
+            "reference_file": "packages/workdo/Lead/src/Routes/web.php",
+            "reference_route": "deal",
+            "reference_controller": "web",
+            "reference_method": "convertLead",
+            "reference_models": [
+                "CrmDeal"
+            ],
+            "reference_tables": [
+                "crm_deals"
+            ],
+            "reference_screen": "resources/js/Pages/CRM/Index.tsx",
+            "reference_permission": "crm.manage",
+            "hiddenleaf_file": "app/Http/Controllers/CrmController.php",
+            "hiddenleaf_route": "deal",
+            "hiddenleaf_controller": "CrmController",
+            "hiddenleaf_method": "convertLead",
+            "hiddenleaf_models": [
+                "CrmDeal"
+            ],
+            "hiddenleaf_tables": [
+                "crm_deals"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/CRM/Index.tsx",
+            "hiddenleaf_permission": "crm.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/Modules/CrmModuleTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "taskly.projects-members",
+            "classification": "taskly",
+            "reference_file": "packages/workdo/Taskly/src/Routes/web.php",
+            "reference_route": "projects",
+            "reference_controller": "web",
+            "reference_method": "storeProject",
+            "reference_models": [
+                "TasklyProject"
+            ],
+            "reference_tables": [
+                "taskly_projects",
+                "taskly_project_members"
+            ],
+            "reference_screen": "resources/js/Pages/Taskly/Index.tsx",
+            "reference_permission": "taskly.manage",
+            "hiddenleaf_file": "app/Http/Controllers/TasklyController.php",
+            "hiddenleaf_route": "projects",
+            "hiddenleaf_controller": "TasklyController",
+            "hiddenleaf_method": "storeProject",
+            "hiddenleaf_models": [
+                "TasklyProject"
+            ],
+            "hiddenleaf_tables": [
+                "taskly_projects",
+                "taskly_project_members"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/Taskly/Index.tsx",
+            "hiddenleaf_permission": "taskly.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/Modules/TasklyModuleTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "taskly.tasks-kanban",
+            "classification": "taskly",
+            "reference_file": "packages/workdo/Taskly/src/Routes/web.php",
+            "reference_route": "tasks",
+            "reference_controller": "web",
+            "reference_method": "storeTask",
+            "reference_models": [
+                "TasklyTask"
+            ],
+            "reference_tables": [
+                "taskly_tasks",
+                "taskly_stages"
+            ],
+            "reference_screen": "resources/js/Pages/Taskly/Index.tsx",
+            "reference_permission": "taskly.manage",
+            "hiddenleaf_file": "app/Http/Controllers/TasklyController.php",
+            "hiddenleaf_route": "tasks",
+            "hiddenleaf_controller": "TasklyController",
+            "hiddenleaf_method": "storeTask",
+            "hiddenleaf_models": [
+                "TasklyTask"
+            ],
+            "hiddenleaf_tables": [
+                "taskly_tasks",
+                "taskly_stages"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/Taskly/Index.tsx",
+            "hiddenleaf_permission": "taskly.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/Modules/TasklyModuleTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "taskly.milestones-timesheets",
+            "classification": "taskly",
+            "reference_file": "packages/workdo/Taskly/src/Routes/web.php",
+            "reference_route": "milestones",
+            "reference_controller": "web",
+            "reference_method": "milestone",
+            "reference_models": [
+                "TasklyTimesheet"
+            ],
+            "reference_tables": [
+                "taskly_milestones",
+                "taskly_timesheets"
+            ],
+            "reference_screen": "resources/js/Pages/Taskly/Index.tsx",
+            "reference_permission": "taskly.manage",
+            "hiddenleaf_file": "app/Http/Controllers/TasklyController.php",
+            "hiddenleaf_route": "milestones",
+            "hiddenleaf_controller": "TasklyController",
+            "hiddenleaf_method": "milestone",
+            "hiddenleaf_models": [
+                "TasklyTimesheet"
+            ],
+            "hiddenleaf_tables": [
+                "taskly_milestones",
+                "taskly_timesheets"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/Taskly/Index.tsx",
+            "hiddenleaf_permission": "taskly.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/Modules/TasklyModuleTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "taskly.issues-comments-cost",
+            "classification": "taskly",
+            "reference_file": "packages/workdo/Taskly/src/Routes/web.php",
+            "reference_route": "issues",
+            "reference_controller": "web",
+            "reference_method": "issue",
+            "reference_models": [
+                "TasklyTask"
+            ],
+            "reference_tables": [
+                "taskly_issues",
+                "taskly_comments"
+            ],
+            "reference_screen": "resources/js/Pages/Taskly/Index.tsx",
+            "reference_permission": "taskly.manage",
+            "hiddenleaf_file": "app/Http/Controllers/TasklyController.php",
+            "hiddenleaf_route": "issues",
+            "hiddenleaf_controller": "TasklyController",
+            "hiddenleaf_method": "issue",
+            "hiddenleaf_models": [
+                "TasklyTask"
+            ],
+            "hiddenleaf_tables": [
+                "taskly_issues",
+                "taskly_comments"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/Taskly/Index.tsx",
+            "hiddenleaf_permission": "taskly.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/Modules/TasklyModuleTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "pos.register-sessions",
+            "classification": "pos",
+            "reference_file": "packages/workdo/Pos/src/Routes/web.php",
+            "reference_route": "pos",
+            "reference_controller": "web",
+            "reference_method": "openSession",
+            "reference_models": [
+                "PosRegister",
+                "PosSession"
+            ],
+            "reference_tables": [
+                "pos_registers",
+                "pos_sessions"
+            ],
+            "reference_screen": "resources/js/Pages/POS/Index.tsx",
+            "reference_permission": "pos.manage",
+            "hiddenleaf_file": "app/Http/Controllers/PosController.php",
+            "hiddenleaf_route": "pos",
+            "hiddenleaf_controller": "PosController",
+            "hiddenleaf_method": "openSession",
+            "hiddenleaf_models": [
+                "PosRegister",
+                "PosSession"
+            ],
+            "hiddenleaf_tables": [
+                "pos_registers",
+                "pos_sessions"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/POS/Index.tsx",
+            "hiddenleaf_permission": "pos.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/Modules/PosModuleTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "pos.checkout-payment-stock",
+            "classification": "pos",
+            "reference_file": "packages/workdo/Pos/src/Routes/web.php",
+            "reference_route": "checkout",
+            "reference_controller": "web",
+            "reference_method": "checkout",
+            "reference_models": [
+                "PosOrder"
+            ],
+            "reference_tables": [
+                "pos_orders",
+                "pos_order_items"
+            ],
+            "reference_screen": "resources/js/Pages/POS/Index.tsx",
+            "reference_permission": "pos.sell",
+            "hiddenleaf_file": "app/Http/Controllers/PosController.php",
+            "hiddenleaf_route": "checkout",
+            "hiddenleaf_controller": "PosController",
+            "hiddenleaf_method": "checkout",
+            "hiddenleaf_models": [
+                "PosOrder"
+            ],
+            "hiddenleaf_tables": [
+                "pos_orders",
+                "pos_order_items"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/POS/Index.tsx",
+            "hiddenleaf_permission": "pos.sell",
+            "hiddenleaf_tests": [
+                "tests/Feature/Modules/PosModuleTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "pos.returns-reconciliation",
+            "classification": "pos",
+            "reference_file": "packages/workdo/Pos/src/Routes/web.php",
+            "reference_route": "return",
+            "reference_controller": "web",
+            "reference_method": "refund",
+            "reference_models": [
+                "PosOrder"
+            ],
+            "reference_tables": [
+                "pos_returns",
+                "pos_return_items"
+            ],
+            "reference_screen": "resources/js/Pages/POS/Index.tsx",
+            "reference_permission": "pos.refund",
+            "hiddenleaf_file": "app/Http/Controllers/PosController.php",
+            "hiddenleaf_route": "return",
+            "hiddenleaf_controller": "PosController",
+            "hiddenleaf_method": "refund",
+            "hiddenleaf_models": [
+                "PosOrder"
+            ],
+            "hiddenleaf_tables": [
+                "pos_returns",
+                "pos_return_items"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/POS/Index.tsx",
+            "hiddenleaf_permission": "pos.refund",
+            "hiddenleaf_tests": [
+                "tests/Feature/Modules/PosModuleTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "platform-services.landing-publishing",
+            "classification": "platform-services",
+            "reference_file": "packages/workdo/LandingPage/src/Routes/web.php",
+            "reference_route": "landing",
+            "reference_controller": "web",
+            "reference_method": "publish",
+            "reference_models": [
+                "LandingPage",
+                "LandingSite"
+            ],
+            "reference_tables": [
+                "landing_pages",
+                "landing_sections"
+            ],
+            "reference_screen": "resources/js/Pages/Landing/Manage.tsx",
+            "reference_permission": "landingpage.manage",
+            "hiddenleaf_file": "app/Http/Controllers/LandingPageController.php",
+            "hiddenleaf_route": "landing",
+            "hiddenleaf_controller": "LandingPageController",
+            "hiddenleaf_method": "publish",
+            "hiddenleaf_models": [
+                "LandingPage",
+                "LandingSite"
+            ],
+            "hiddenleaf_tables": [
+                "landing_pages",
+                "landing_sections"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/Landing/Manage.tsx",
+            "hiddenleaf_permission": "landingpage.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/Modules/LandingPageModuleTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "platform-services.saas-plans-trials",
+            "classification": "platform-services",
+            "reference_file": "app/Http/Controllers/PlanController.php",
+            "reference_route": "plans",
+            "reference_controller": "PlanController",
+            "reference_method": "startTrial",
+            "reference_models": [
+                "Plan",
+                "Subscription"
+            ],
+            "reference_tables": [
+                "plans",
+                "subscriptions"
+            ],
+            "reference_screen": "resources/js/Pages/Plans/Index.tsx",
+            "reference_permission": "plans.manage",
+            "hiddenleaf_file": "app/Http/Controllers/Domain/SaaS/PlanController.php",
+            "hiddenleaf_route": "plans",
+            "hiddenleaf_controller": "PlanController",
+            "hiddenleaf_method": "startTrial",
+            "hiddenleaf_models": [
+                "Plan",
+                "Subscription"
+            ],
+            "hiddenleaf_tables": [
+                "plans",
+                "subscriptions"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/Plans/Index.tsx",
+            "hiddenleaf_permission": "plans.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/SaaS/CompleteSaaSEngineTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "platform-services.saas-coupons-orders",
+            "classification": "platform-services",
+            "reference_file": "app/Http/Controllers/CouponController.php",
+            "reference_route": "coupons",
+            "reference_controller": "CouponController",
+            "reference_method": "store",
+            "reference_models": [
+                "Coupon",
+                "Order"
+            ],
+            "reference_tables": [
+                "coupons",
+                "orders"
+            ],
+            "reference_screen": "resources/js/Pages/Coupons/Index.tsx",
+            "reference_permission": "coupons.manage",
+            "hiddenleaf_file": "app/Http/Controllers/Domain/SaaS/CouponController.php",
+            "hiddenleaf_route": "coupons",
+            "hiddenleaf_controller": "CouponController",
+            "hiddenleaf_method": "store",
+            "hiddenleaf_models": [
+                "Coupon",
+                "Order"
+            ],
+            "hiddenleaf_tables": [
+                "coupons",
+                "orders"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/Coupons/Index.tsx",
+            "hiddenleaf_permission": "coupons.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/SaaS/CompleteSaaSEngineTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "platform-services.bank-transfer-review",
+            "classification": "platform-services",
+            "reference_file": "app/Http/Controllers/BankTransferPaymentController.php",
+            "reference_route": "bank-transfer",
+            "reference_controller": "BankTransferPaymentController",
+            "reference_method": "approve",
+            "reference_models": [
+                "BankTransferPayment"
+            ],
+            "reference_tables": [
+                "bank_transfer_payments"
+            ],
+            "reference_screen": "resources/js/Pages/BankTransfer/Index.tsx",
+            "reference_permission": "bank-transfer.manage",
+            "hiddenleaf_file": "app/Http/Controllers/BankTransferPaymentController.php",
+            "hiddenleaf_route": "bank-transfer",
+            "hiddenleaf_controller": "BankTransferPaymentController",
+            "hiddenleaf_method": "approve",
+            "hiddenleaf_models": [
+                "BankTransferPayment"
+            ],
+            "hiddenleaf_tables": [
+                "bank_transfer_payments"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/BankTransfer/Index.tsx",
+            "hiddenleaf_permission": "bank-transfer.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/SaaS/CompleteSaaSEngineTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "platform-services.helpdesk",
+            "classification": "platform-services",
+            "reference_file": "app/Http/Controllers/HelpdeskTicketController.php",
+            "reference_route": "helpdesk-tickets",
+            "reference_controller": "HelpdeskTicketController",
+            "reference_method": "store",
+            "reference_models": [
+                "HelpdeskTicket",
+                "HelpdeskReply"
+            ],
+            "reference_tables": [
+                "helpdesk_tickets",
+                "helpdesk_replies"
+            ],
+            "reference_screen": "resources/js/Pages/Helpdesk/Tickets/Index.tsx",
+            "reference_permission": "helpdesk.manage",
+            "hiddenleaf_file": "app/Http/Controllers/HelpdeskTicketController.php",
+            "hiddenleaf_route": "helpdesk-tickets",
+            "hiddenleaf_controller": "HelpdeskTicketController",
+            "hiddenleaf_method": "store",
+            "hiddenleaf_models": [
+                "HelpdeskTicket",
+                "HelpdeskReply"
+            ],
+            "hiddenleaf_tables": [
+                "helpdesk_tickets",
+                "helpdesk_replies"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/Helpdesk/Tickets/Index.tsx",
+            "hiddenleaf_permission": "helpdesk.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/CommunicationsAndHelpdesk/CommunicationsHelpdeskMediaTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "platform-services.media-library",
+            "classification": "platform-services",
+            "reference_file": "app/Http/Controllers/MediaController.php",
+            "reference_route": "media",
+            "reference_controller": "MediaController",
+            "reference_method": "batchStore",
+            "reference_models": [
+                "Media",
+                "MediaDirectory"
+            ],
+            "reference_tables": [
+                "media",
+                "media_directories"
+            ],
+            "reference_screen": "resources/js/Pages/Media/Index.tsx",
+            "reference_permission": null,
+            "hiddenleaf_file": "app/Http/Controllers/MediaController.php",
+            "hiddenleaf_route": "media",
+            "hiddenleaf_controller": "MediaController",
+            "hiddenleaf_method": "batchStore",
+            "hiddenleaf_models": [
+                "Media",
+                "MediaDirectory"
+            ],
+            "hiddenleaf_tables": [
+                "media",
+                "media_directories"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/Media/Index.tsx",
+            "hiddenleaf_permission": null,
+            "hiddenleaf_tests": [
+                "tests/Feature/CommunicationsAndHelpdesk/CommunicationsHelpdeskMediaTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "platform-services.messenger",
+            "classification": "platform-services",
+            "reference_file": "app/Http/Controllers/MessengerController.php",
+            "reference_route": "chats",
+            "reference_controller": "MessengerController",
+            "reference_method": "send",
+            "reference_models": [
+                "ChMessage"
+            ],
+            "reference_tables": [
+                "ch_messages"
+            ],
+            "reference_screen": "resources/js/Pages/Messenger/Index.tsx",
+            "reference_permission": null,
+            "hiddenleaf_file": "app/Http/Controllers/MessengerController.php",
+            "hiddenleaf_route": "chats",
+            "hiddenleaf_controller": "MessengerController",
+            "hiddenleaf_method": "send",
+            "hiddenleaf_models": [
+                "ChMessage"
+            ],
+            "hiddenleaf_tables": [
+                "ch_messages"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/Messenger/Index.tsx",
+            "hiddenleaf_permission": null,
+            "hiddenleaf_tests": [
+                "tests/Feature/CommunicationsAndHelpdesk/CommunicationsHelpdeskMediaTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "platform-services.assistant",
+            "classification": "platform-services",
+            "reference_file": "app/Http/Controllers/AIAgentChatController.php",
+            "reference_route": "ai-agent",
+            "reference_controller": "AIAgentChatController",
+            "reference_method": "send",
+            "reference_models": [
+                "AssistantSession",
+                "AssistantMessage"
+            ],
+            "reference_tables": [
+                "ai_agent_chat_sessions",
+                "ai_agent_chat_messages"
+            ],
+            "reference_screen": "resources/js/Pages/AIAssistant/Index.tsx",
+            "reference_permission": null,
+            "hiddenleaf_file": "app/Services/AssistantConversationService.php",
+            "hiddenleaf_route": "ai-agent",
+            "hiddenleaf_controller": "AssistantConversationService",
+            "hiddenleaf_method": "send",
+            "hiddenleaf_models": [
+                "AssistantSession",
+                "AssistantMessage"
+            ],
+            "hiddenleaf_tables": [
+                "ai_agent_chat_sessions",
+                "ai_agent_chat_messages"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/AIAssistant/Index.tsx",
+            "hiddenleaf_permission": null,
+            "hiddenleaf_tests": [
+                "tests/Feature/CommunicationsAndHelpdesk/CommunicationsHelpdeskMediaTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "platform-services.hierarchical-settings",
+            "classification": "platform-services",
+            "reference_file": "app/Http/Controllers/SettingController.php",
+            "reference_route": "settings",
+            "reference_controller": "SettingController",
+            "reference_method": "put",
+            "reference_models": [
+                "Setting"
+            ],
+            "reference_tables": [
+                "settings"
+            ],
+            "reference_screen": "resources/js/Pages/Settings/Index.tsx",
+            "reference_permission": null,
+            "hiddenleaf_file": "app/Services/HierarchicalSettingService.php",
+            "hiddenleaf_route": "settings",
+            "hiddenleaf_controller": "HierarchicalSettingService",
+            "hiddenleaf_method": "put",
+            "hiddenleaf_models": [
+                "Setting"
+            ],
+            "hiddenleaf_tables": [
+                "settings"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/Settings/Index.tsx",
+            "hiddenleaf_permission": null,
+            "hiddenleaf_tests": [
+                "tests/Feature/Settings/SettingsLocalizationTemplatesTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "platform-services.localization",
+            "classification": "platform-services",
+            "reference_file": "app/Http/Controllers/TranslationController.php",
+            "reference_route": "languages",
+            "reference_controller": "TranslationController",
+            "reference_method": "saveLanguageData",
+            "reference_models": [
+                "Language"
+            ],
+            "reference_tables": [
+                "languages"
+            ],
+            "reference_screen": "resources/js/Pages/Languages/Index.tsx",
+            "reference_permission": null,
+            "hiddenleaf_file": "app/Http/Controllers/LanguageController.php",
+            "hiddenleaf_route": "languages",
+            "hiddenleaf_controller": "LanguageController",
+            "hiddenleaf_method": "saveLanguageData",
+            "hiddenleaf_models": [
+                "Language"
+            ],
+            "hiddenleaf_tables": [
+                "languages"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/Languages/Index.tsx",
+            "hiddenleaf_permission": null,
+            "hiddenleaf_tests": [
+                "tests/Feature/Settings/SettingsLocalizationTemplatesTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "platform-services.email-notifications",
+            "classification": "platform-services",
+            "reference_file": "app/Http/Controllers/EmailTemplateController.php",
+            "reference_route": "email-templates",
+            "reference_controller": "EmailTemplateController",
+            "reference_method": "email",
+            "reference_models": [
+                "EmailTemplate",
+                "NotificationTemplate"
+            ],
+            "reference_tables": [
+                "email_templates",
+                "notifications"
+            ],
+            "reference_screen": "resources/js/Pages/Settings/EmailTemplates/Index.tsx",
+            "reference_permission": null,
+            "hiddenleaf_file": "app/Services/LocalizedTemplateRenderer.php",
+            "hiddenleaf_route": "email-templates",
+            "hiddenleaf_controller": "LocalizedTemplateRenderer",
+            "hiddenleaf_method": "email",
+            "hiddenleaf_models": [
+                "EmailTemplate",
+                "NotificationTemplate"
+            ],
+            "hiddenleaf_tables": [
+                "email_templates",
+                "notifications"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/Settings/EmailTemplates/Index.tsx",
+            "hiddenleaf_permission": null,
+            "hiddenleaf_tests": [
+                "tests/Feature/Settings/SettingsLocalizationTemplatesTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "platform-services.api-v1",
+            "classification": "platform-services",
+            "reference_file": "app/Http/Controllers/Api/AuthApiController.php",
+            "reference_route": "api",
+            "reference_controller": "AuthApiController",
+            "reference_method": "login",
+            "reference_models": [
+                "User"
+            ],
+            "reference_tables": [
+                "personal_access_tokens"
+            ],
+            "reference_screen": null,
+            "reference_permission": null,
+            "hiddenleaf_file": "app/Http/Controllers/Api/V1/AuthController.php",
+            "hiddenleaf_route": "api",
+            "hiddenleaf_controller": "AuthController",
+            "hiddenleaf_method": "login",
+            "hiddenleaf_models": [
+                "User"
+            ],
+            "hiddenleaf_tables": [
+                "personal_access_tokens"
+            ],
+            "hiddenleaf_screen": null,
+            "hiddenleaf_permission": null,
+            "hiddenleaf_tests": [
+                "tests/Feature/Api/ApiV1SuiteTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "platform-services.webhooks",
+            "classification": "platform-services",
+            "reference_file": "app/Events/CreateMetaWebhook.php",
+            "reference_route": "webhooks",
+            "reference_controller": "CreateMetaWebhook",
+            "reference_method": "store",
+            "reference_models": [
+                "Webhook"
+            ],
+            "reference_tables": [
+                "webhooks",
+                "webhook_deliveries"
+            ],
+            "reference_screen": "resources/js/Pages/Webhooks/Index.tsx",
+            "reference_permission": "webhooks.manage",
+            "hiddenleaf_file": "app/Http/Controllers/WebhookController.php",
+            "hiddenleaf_route": "webhooks",
+            "hiddenleaf_controller": "WebhookController",
+            "hiddenleaf_method": "store",
+            "hiddenleaf_models": [
+                "Webhook"
+            ],
+            "hiddenleaf_tables": [
+                "webhooks",
+                "webhook_deliveries"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/Webhooks/Index.tsx",
+            "hiddenleaf_permission": "webhooks.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/Webhooks/WebhookRuntimeTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "platform-services.module-package-runtime",
+            "classification": "platform-services",
+            "reference_file": "app/Http/Controllers/ModuleController.php",
+            "reference_route": "modules/install",
+            "reference_controller": "ModuleController",
+            "reference_method": "install",
+            "reference_models": [
+                "UserActiveModule"
+            ],
+            "reference_tables": [
+                "user_active_modules"
+            ],
+            "reference_screen": "resources/js/Pages/Modules/Index.tsx",
+            "reference_permission": "modules.manage",
+            "hiddenleaf_file": "app/Domain/Modules/SecureModuleInstaller.php",
+            "hiddenleaf_route": "modules/install",
+            "hiddenleaf_controller": "SecureModuleInstaller",
+            "hiddenleaf_method": "install",
+            "hiddenleaf_models": [
+                "UserActiveModule"
+            ],
+            "hiddenleaf_tables": [
+                "user_active_modules"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/Modules/Index.tsx",
+            "hiddenleaf_permission": "modules.manage",
+            "hiddenleaf_tests": [
+                "tests/Feature/Modules/SecureModuleInstallerTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "platform-services.addon-runtime",
+            "classification": "platform-services",
+            "reference_file": "app/Models/AddOn.php",
+            "reference_route": "modules",
+            "reference_controller": "AddOn",
+            "reference_method": "enable",
+            "reference_models": [
+                "Addon"
+            ],
+            "reference_tables": [
+                "addons",
+                "workspace_addons"
+            ],
+            "reference_screen": null,
+            "reference_permission": null,
+            "hiddenleaf_file": "app/Domain/Addons/AddonManager.php",
+            "hiddenleaf_route": "modules",
+            "hiddenleaf_controller": "AddonManager",
+            "hiddenleaf_method": "enable",
+            "hiddenleaf_models": [
+                "Addon"
+            ],
+            "hiddenleaf_tables": [
+                "addons",
+                "workspace_addons"
+            ],
+            "hiddenleaf_screen": null,
+            "hiddenleaf_permission": null,
+            "hiddenleaf_tests": [
+                "tests/Feature/Addons/AddonRuntimeTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "platform-services.licensing",
+            "classification": "platform-services",
+            "reference_file": "app/Http/Controllers/InstallerController.php",
+            "reference_route": "licensing",
+            "reference_controller": "InstallerController",
+            "reference_method": "activate",
+            "reference_models": [
+                "License"
+            ],
+            "reference_tables": [
+                "licenses",
+                "license_activations"
+            ],
+            "reference_screen": null,
+            "reference_permission": null,
+            "hiddenleaf_file": "app/Domain/Licensing/Services/LicenseActivationService.php",
+            "hiddenleaf_route": "licensing",
+            "hiddenleaf_controller": "LicenseActivationService",
+            "hiddenleaf_method": "activate",
+            "hiddenleaf_models": [
+                "License"
+            ],
+            "hiddenleaf_tables": [
+                "licenses",
+                "license_activations"
+            ],
+            "hiddenleaf_screen": null,
+            "hiddenleaf_permission": null,
+            "hiddenleaf_tests": [
+                "tests/Feature/LicensingLifecycleTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "platform-services.installer",
+            "classification": "platform-services",
+            "reference_file": "app/Http/Controllers/InstallerController.php",
+            "reference_route": "install",
+            "reference_controller": "InstallerController",
+            "reference_method": "setup",
+            "reference_models": [
+                "User"
+            ],
+            "reference_tables": [
+                "users"
+            ],
+            "reference_screen": "resources/js/Pages/Install/Index.tsx",
+            "reference_permission": null,
+            "hiddenleaf_file": "app/Http/Controllers/InstallController.php",
+            "hiddenleaf_route": "install",
+            "hiddenleaf_controller": "InstallController",
+            "hiddenleaf_method": "setup",
+            "hiddenleaf_models": [
+                "User"
+            ],
+            "hiddenleaf_tables": [
+                "users"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/Install/Index.tsx",
+            "hiddenleaf_permission": null,
+            "hiddenleaf_tests": [
+                "tests/Feature/InstallerAndLicensing/InstallerLicensingSuiteTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "platform-services.updater",
+            "classification": "platform-services",
+            "reference_file": "app/Http/Controllers/UpdaterController.php",
+            "reference_route": "update",
+            "reference_controller": "UpdaterController",
+            "reference_method": "install",
+            "reference_models": [
+                "UpdateHistory"
+            ],
+            "reference_tables": [
+                "update_histories"
+            ],
+            "reference_screen": "resources/js/Pages/Update/Index.tsx",
+            "reference_permission": null,
+            "hiddenleaf_file": "app/Domain/Updates/UpdateManager.php",
+            "hiddenleaf_route": "update",
+            "hiddenleaf_controller": "UpdateManager",
+            "hiddenleaf_method": "install",
+            "hiddenleaf_models": [
+                "UpdateHistory"
+            ],
+            "hiddenleaf_tables": [
+                "update_histories"
+            ],
+            "hiddenleaf_screen": "resources/js/Pages/Update/Index.tsx",
+            "hiddenleaf_permission": null,
+            "hiddenleaf_tests": [
+                "tests/Feature/InstallerAndLicensing/SecureUpdaterTest.php"
+            ],
+            "status": "VERIFIED"
+        },
+        {
+            "id": "platform-services.audit-request-ids",
+            "classification": "platform-services",
+            "reference_file": "app/Models/LoginHistory.php",
+            "reference_route": "dashboard",
+            "reference_controller": "LoginHistory",
+            "reference_method": "logCritical",
+            "reference_models": [
+                "AuditLog"
+            ],
+            "reference_tables": [
+                "audit_logs"
+            ],
+            "reference_screen": null,
+            "reference_permission": null,
+            "hiddenleaf_file": "packages/hiddenleaf/kernel/src/Services/AuditLogger.php",
+            "hiddenleaf_route": "dashboard",
+            "hiddenleaf_controller": "AuditLogger",
+            "hiddenleaf_method": "logCritical",
+            "hiddenleaf_models": [
+                "AuditLog"
+            ],
+            "hiddenleaf_tables": [
+                "audit_logs"
+            ],
+            "hiddenleaf_screen": null,
+            "hiddenleaf_permission": null,
+            "hiddenleaf_tests": [
+                "tests/Feature/Security/AuditLedgerTest.php"
+            ],
+            "status": "VERIFIED"
+        }
+    ]
+}
