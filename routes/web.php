@@ -39,6 +39,7 @@ use App\Http\Controllers\Settings\ApiTokenController;
 use App\Http\Controllers\SuperAdmin\DashboardController;
 use App\Http\Controllers\SuperAdmin\SettingController;
 use App\Http\Controllers\SuperAdmin\TranslationController;
+use App\Http\Controllers\TasklyController;
 use App\Http\Controllers\TransferController;
 use App\Http\Controllers\UpdateController;
 use App\Http\Controllers\WarehouseController;
@@ -165,6 +166,17 @@ Route::middleware(['auth'])->group(function () {
         Route::post('deals/{deal}/move', [CrmController::class, 'moveDeal'])->name('deals.move');
         Route::post('{type}/{id}/notes', [CrmController::class, 'addNote'])->name('notes.store');
         Route::post('{type}/{id}/activities', [CrmController::class, 'addActivity'])->name('activities.store');
+    });
+    Route::middleware('module.status:taskly')->prefix('taskly')->name('taskly.')->group(function () {
+        Route::get('/', [TasklyController::class, 'index'])->name('index');
+        Route::post('projects', [TasklyController::class, 'storeProject'])->name('projects.store');
+        Route::post('tasks', [TasklyController::class, 'storeTask'])->name('tasks.store');
+        Route::post('tasks/{task}/move', [TasklyController::class, 'moveTask'])->name('tasks.move');
+        Route::post('tasks/{task}/comments', [TasklyController::class, 'comment'])->name('comments.store');
+        Route::post('milestones', [TasklyController::class, 'milestone'])->name('milestones.store');
+        Route::post('timesheets', [TasklyController::class, 'timesheet'])->name('timesheets.store');
+        Route::post('timesheets/{timesheet}/approve', [TasklyController::class, 'approveTime'])->name('timesheets.approve');
+        Route::post('issues', [TasklyController::class, 'issue'])->name('issues.store');
     });
 
     Route::middleware('module.status:productservice')->prefix('product-service')->name('product-service.')->group(function () {
