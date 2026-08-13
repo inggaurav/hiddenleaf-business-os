@@ -1,0 +1,1 @@
+import { createIndexPage } from '@/Components/ResourcePage'; export default createIndexPage({title:'Plans',collectionKey:'plans',resourcePath:'/plans',columns:['name','package_price_monthly','package_price_yearly','number_of_users','workspace_limit','status']});
