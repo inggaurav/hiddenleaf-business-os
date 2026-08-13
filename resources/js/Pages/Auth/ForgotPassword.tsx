@@ -1,9 +1,14 @@
 import React from 'react';
 import { useForm, Link } from '@inertiajs/react';
-import { Button } from '@ui/Button';
+import { Card } from '@/Components/UI/Card';
+import { Button } from '@/Components/UI/Button';
+import { Input } from '@/Components/UI/Input';
+import { Mail, ArrowLeft, Send } from 'lucide-react';
 
-export default function ForgotPassword() {
-  const { data, setData, post, processing, errors } = useForm({ email: '' });
+export default function ForgotPassword({ status }: { status?: string }) {
+  const { data, setData, post, processing, errors } = useForm({
+    email: '',
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -11,34 +16,52 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
-      <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-xl p-8 shadow-xl">
-        <div className="text-center mb-6">
-          <h1 className="text-xl font-bold text-slate-100">Reset Password</h1>
-          <p className="text-xs text-slate-400 mt-1">Enter your account email to receive a reset link</p>
+    <div className="min-h-screen bg-[#060709] text-gray-100 flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="max-w-md w-full relative z-10 space-y-6">
+        <div className="text-center space-y-2">
+          <h1 className="text-2xl font-bold tracking-tight text-white">Reset Password</h1>
+          <p className="text-xs text-gray-400">Enter your email to receive a signed password reset link</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Email Address</label>
-            <input
+        <Card level={1} className="p-6 sm:p-8 space-y-5">
+          {status && (
+            <div className="p-3 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-medium">
+              {status}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              label="Work Email Address"
               type="email"
+              placeholder="elena@acme.com"
+              leftIcon={<Mail className="w-4 h-4 text-gray-400" />}
               value={data.email}
               onChange={(e) => setData('email', e.target.value)}
-              className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-lg text-slate-100 focus:outline-none focus:border-emerald-500 text-sm"
+              error={errors.email}
               required
             />
-            {errors.email && <p className="text-xs text-rose-400 mt-1.5">{errors.email}</p>}
+
+            <div className="pt-2">
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                loading={processing}
+                className="w-full"
+                icon={<Send className="w-4 h-4" />}
+              >
+                Send Password Reset Link
+              </Button>
+            </div>
+          </form>
+
+          <div className="pt-4 border-t border-white/10 text-center text-xs">
+            <Link href="/login" className="text-gray-400 hover:text-white inline-flex items-center gap-1">
+              <ArrowLeft className="w-3.5 h-3.5" /> Back to Sign In
+            </Link>
           </div>
-
-          <Button type="submit" isLoading={processing} className="w-full">
-            Send Reset Link
-          </Button>
-
-          <p className="text-center text-xs text-slate-400 mt-4">
-            <Link href="/login" className="text-emerald-400 hover:underline">Back to Login</Link>
-          </p>
-        </form>
+        </Card>
       </div>
     </div>
   );

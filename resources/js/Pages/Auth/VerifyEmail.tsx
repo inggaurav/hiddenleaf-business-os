@@ -1,9 +1,11 @@
 import React from 'react';
 import { useForm, Link } from '@inertiajs/react';
-import { Button } from '@ui/Button';
+import { Card } from '@/Components/UI/Card';
+import { Button } from '@/Components/UI/Button';
+import { MailCheck, LogOut } from 'lucide-react';
 
-export default function VerifyEmail() {
-  const { post, processing } = useForm({});
+export default function VerifyEmail({ status }: { status?: string }) {
+  const { post, processing } = useForm();
 
   const handleResend = (e: React.FormEvent) => {
     e.preventDefault();
@@ -11,18 +13,43 @@ export default function VerifyEmail() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
-      <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-xl p-8 shadow-xl text-center">
-        <h1 className="text-xl font-bold text-slate-100 mb-2">Verify Your Email</h1>
-        <p className="text-xs text-slate-400 mb-6">Thanks for signing up! Please check your inbox and click the verification link.</p>
-        <form onSubmit={handleResend} className="space-y-4">
-          <Button type="submit" isLoading={processing} className="w-full">
-            Resend Verification Email
-          </Button>
-          <Link href="/logout" method="post" as="button" className="text-xs text-slate-400 hover:underline">
-            Log Out
-          </Link>
-        </form>
+    <div className="min-h-screen bg-[#060709] text-gray-100 flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="max-w-md w-full relative z-10 space-y-6">
+        <div className="text-center space-y-2">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center text-white mx-auto shadow-xl">
+            <MailCheck className="w-6 h-6" />
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-white">Verify Your Email</h1>
+          <p className="text-xs text-gray-400">
+            Thanks for signing up! Before getting started, please verify your email address by clicking on the link we sent to your inbox.
+          </p>
+        </div>
+
+        <Card level={1} className="p-6 sm:p-8 space-y-5">
+          {status === 'verification-link-sent' && (
+            <div className="p-3 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-medium">
+              A new verification link has been sent to your email address.
+            </div>
+          )}
+
+          <form onSubmit={handleResend} className="space-y-4">
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              loading={processing}
+              className="w-full"
+            >
+              Resend Verification Email
+            </Button>
+          </form>
+
+          <div className="pt-4 border-t border-white/10 text-center">
+            <Link href="/logout" method="post" as="button" className="text-xs text-gray-400 hover:text-rose-400 inline-flex items-center gap-1.5">
+              <LogOut className="w-3.5 h-3.5" /> Sign Out
+            </Link>
+          </div>
+        </Card>
       </div>
     </div>
   );
