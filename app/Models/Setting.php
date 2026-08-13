@@ -13,6 +13,7 @@ class Setting extends Model
         'key',
         'value',
         'is_public',
+        'workspace_id',
         'created_by',
     ];
 

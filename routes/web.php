@@ -18,18 +18,19 @@ use App\Http\Controllers\HelpdeskReplyController;
 use App\Http\Controllers\HelpdeskTicketController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InstallController;
+use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\MessengerController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\MultiTenancy\MemberController;
 use App\Http\Controllers\MultiTenancy\WorkspaceController;
+use App\Http\Controllers\NotificationTemplateController;
 use App\Http\Controllers\PurchaseInvoiceController;
 use App\Http\Controllers\PurchaseReturnController;
 use App\Http\Controllers\SalesInvoiceController;
 use App\Http\Controllers\SalesProposalController;
 use App\Http\Controllers\SalesReturnController;
 use App\Http\Controllers\Settings\ApiTokenController;
-use App\Http\Controllers\Settings\EmailTemplateController;
 use App\Http\Controllers\SuperAdmin\DashboardController;
 use App\Http\Controllers\SuperAdmin\SettingController;
 use App\Http\Controllers\SuperAdmin\TranslationController;
@@ -196,6 +197,29 @@ Route::middleware(['auth'])->group(function () {
     Route::get('ai-agent/chat/messages/{session}', [AIAgentChatPageController::class, 'getMessages'])->name('ai-agent.chat.messages');
     Route::post('ai-agent/chat', [AIAgentChatController::class, 'chat'])->name('ai-agent.chat.send');
 
+    // General & System Settings
+    Route::get('settings', [App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
+    Route::post('settings', [App\Http\Controllers\SettingController::class, 'store'])->name('settings.store');
+    Route::post('settings/brand', [App\Http\Controllers\SettingController::class, 'saveBrandSettings'])->name('settings.brand.store');
+    Route::post('settings/email', [App\Http\Controllers\SettingController::class, 'saveEmailSettings'])->name('settings.email.store');
+    Route::post('settings/test-mail', [App\Http\Controllers\SettingController::class, 'sendTestMail'])->name('settings.test-mail');
+    Route::post('settings/storage', [App\Http\Controllers\SettingController::class, 'saveStorageSettings'])->name('settings.storage.store');
+    Route::post('settings/bank-transfer', [App\Http\Controllers\SettingController::class, 'saveBankTransferSettings'])->name('settings.bank-transfer.store');
+    Route::post('settings/currency', [App\Http\Controllers\SettingController::class, 'saveCurrencySettings'])->name('settings.currency.store');
+    Route::post('settings/cookie', [App\Http\Controllers\SettingController::class, 'saveCookieSettings'])->name('settings.cookie.store');
+    Route::post('settings/cache-clear', [App\Http\Controllers\SettingController::class, 'clearCache'])->name('settings.cache.clear');
+
+    // Localization / Languages
+    Route::resource('languages', LanguageController::class);
+    Route::get('languages/change/{lang}', [LanguageController::class, 'changeLang'])->name('languages.change');
+    Route::post('languages/save-data/{lang}', [LanguageController::class, 'saveLanguageData'])->name('languages.save-data');
+
+    // Email Templates
+    Route::resource('email-templates', App\Http\Controllers\EmailTemplateController::class)->only(['index', 'show', 'update']);
+
+    // Notification Templates
+    Route::resource('notification-templates', NotificationTemplateController::class)->only(['index', 'show', 'update']);
+
     // RBAC Roles (Explicit actions matching RoleController)
     Route::resource('roles', RoleController::class)->except(['show']);
 
@@ -212,10 +236,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/modules', [ModuleController::class, 'index'])->name('modules.index');
     Route::post('/modules/toggle', [ModuleController::class, 'toggle'])->name('modules.toggle');
 
-    // Settings (Phase 7 & 8)
-    Route::get('/settings/email-templates', [EmailTemplateController::class, 'index'])->name('settings.email-templates.index');
-    Route::post('/settings/email-templates', [EmailTemplateController::class, 'store'])->name('settings.email-templates.store');
-
+    // Settings API Tokens
     Route::get('/settings/api-tokens', [ApiTokenController::class, 'index'])->name('settings.api-tokens.index');
     Route::post('/settings/api-tokens', [ApiTokenController::class, 'store'])->name('settings.api-tokens.store');
     Route::delete('/settings/api-tokens/{id}', [ApiTokenController::class, 'destroy'])->name('settings.api-tokens.destroy');

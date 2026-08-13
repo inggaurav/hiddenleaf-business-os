@@ -30,11 +30,6 @@ class EnsureTenantContext
             return $next($request);
         }
 
-        // Super Admin bypasses membership restriction if accessing admin panel
-        if ($user->isSuperAdmin() && ($request->is('admin*') || $request->is('super-admin*'))) {
-            return $next($request);
-        }
-
         // Resolve requested Organization ID (header overrides session, but MUST be verified)
         $requestedOrgId = $request->header('X-Organization-ID')
             ? (int) $request->header('X-Organization-ID')
@@ -50,6 +45,13 @@ class EnsureTenantContext
             $userOrg = $user->organizations()->first();
             if ($userOrg) {
                 $requestedOrgId = $userOrg->id;
+            }
+        }
+
+        // Super Admin bypasses membership restriction if accessing admin panel or has no tenant context
+        if ($user->isSuperAdmin()) {
+            if ($request->is('admin*') || $request->is('super-admin*') || ! $requestedOrgId) {
+                return $next($request);
             }
         }
 
