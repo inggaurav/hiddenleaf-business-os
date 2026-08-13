@@ -239,6 +239,7 @@ Route::middleware(['auth'])->group(function () {
     // Modules
     Route::get('/modules', [ModuleController::class, 'index'])->name('modules.index');
     Route::post('/modules/toggle', [ModuleController::class, 'toggle'])->name('modules.toggle');
+    Route::post('/modules/install', [ModuleController::class, 'install'])->name('modules.install');
 
     // Settings API Tokens
     Route::get('/settings/api-tokens', [ApiTokenController::class, 'index'])->name('settings.api-tokens.index');
