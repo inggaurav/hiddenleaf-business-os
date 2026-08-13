@@ -10,8 +10,8 @@ class MultiTenancyTest extends TestCase
 {
     public function test_organization_and_workspace_contexts_store_active_tenant(): void
     {
-        $orgContext = new OrganizationContext();
-        $wsContext = new WorkspaceContext();
+        $orgContext = new OrganizationContext;
+        $wsContext = new WorkspaceContext;
 
         $this->assertFalse($orgContext->isSet());
         $this->assertFalse($wsContext->isSet());

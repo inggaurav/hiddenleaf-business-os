@@ -36,7 +36,7 @@ class LicensingController
 
         return response()->json([
             'status' => 'activated',
-            'message' => 'License successfully activated for domain: ' . $validated['domain'],
+            'message' => 'License successfully activated for domain: '.$validated['domain'],
             'signed_token' => $token,
             'entitlements' => $payload['entitlements'],
         ]);
@@ -55,7 +55,7 @@ class LicensingController
     public function validateLicense(Request $request): JsonResponse
     {
         $token = $request->input('token') ?? $request->bearerToken();
-        if (!$token) {
+        if (! $token) {
             return response()->json(['valid' => false, 'error' => 'No token provided'], 400);
         }
 
@@ -72,7 +72,7 @@ class LicensingController
                 'max_users' => -1,
                 'max_workspaces' => -1,
                 'storage_mb' => 102400,
-            ]
+            ],
         ]);
     }
 }

@@ -12,7 +12,7 @@ class PlanLimitTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->enforcer = new PlanLimitEnforcer();
+        $this->enforcer = new PlanLimitEnforcer;
     }
 
     public function test_user_limit_enforcement(): void

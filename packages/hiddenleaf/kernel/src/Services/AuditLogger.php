@@ -35,6 +35,7 @@ class AuditLogger
         ];
 
         $this->logs[] = $entry;
+
         return $entry;
     }
 
@@ -53,6 +54,7 @@ class AuditLogger
                 $data[$key] = $this->sanitizeMetadata($val);
             }
         }
+
         return $data;
     }
 }

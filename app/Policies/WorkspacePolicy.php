@@ -14,30 +14,25 @@ class WorkspacePolicy
 
     public function view(User $user, Workspace $workspace): bool
     {
-        return $user->isSuperAdmin() 
-            || (int) $workspace->organization->owner_id === (int) $user->id
-            || $user->workspaces()->where('workspaces.id', $workspace->id)->exists();
+        return $user->canInWorkspace('workspace.view', $workspace);
     }
 
-    public function create(User $user): bool
+    public function create(User $user, Workspace $workspace): bool
     {
-        return $user->isSuperAdmin() || $user->role === 'company_admin' || $user->organizations()->exists();
+        return $user->canInWorkspace('workspace.create', $workspace);
     }
 
     public function update(User $user, Workspace $workspace): bool
     {
-        return $user->isSuperAdmin()
-            || (int) $workspace->organization->owner_id === (int) $user->id
-            || (int) $workspace->created_by === (int) $user->id;
+        return $user->canInWorkspace('workspace.update', $workspace);
     }
 
     public function delete(User $user, Workspace $workspace): bool
     {
-        // Primary operations workspace cannot be deleted if it's the only one
         if ($workspace->organization->workspaces()->count() <= 1) {
             return false;
         }
 
-        return $user->isSuperAdmin() || (int) $workspace->organization->owner_id === (int) $user->id;
+        return $user->canInWorkspace('workspace.delete', $workspace);
     }
 }

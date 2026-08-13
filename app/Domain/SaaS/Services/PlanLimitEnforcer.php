@@ -32,6 +32,7 @@ class PlanLimitEnforcer
         }
 
         $maxBytes = $maxMb * 1024 * 1024;
+
         return ($currentStorageBytes + $newFileSizeBytes) <= $maxBytes;
     }
 

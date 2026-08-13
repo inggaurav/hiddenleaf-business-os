@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\PermissionService;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -42,17 +43,22 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->role === 'super_admin';
     }
 
+    public function canInWorkspace(string $permission, Workspace $workspace): bool
+    {
+        return app(PermissionService::class)->allows($this, $workspace, $permission);
+    }
+
     public function organizations()
     {
         return $this->belongsToMany(Organization::class, 'organization_memberships')
-                    ->withPivot('role')
-                    ->withTimestamps();
+            ->withPivot('role')
+            ->withTimestamps();
     }
 
     public function workspaces()
     {
         return $this->belongsToMany(Workspace::class, 'workspace_memberships')
-                    ->withPivot('role_id')
-                    ->withTimestamps();
+            ->withPivot('role_id')
+            ->withTimestamps();
     }
 }

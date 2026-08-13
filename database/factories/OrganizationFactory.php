@@ -15,7 +15,7 @@ class OrganizationFactory extends Factory
     {
         return [
             'name' => fake()->company(),
-            'slug' => Str::slug(fake()->company() . '-' . rand(100, 999)),
+            'slug' => Str::slug(fake()->company().'-'.rand(100, 999)),
             'owner_id' => User::factory(),
             'is_active' => true,
         ];

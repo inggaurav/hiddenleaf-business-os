@@ -25,6 +25,6 @@ class ModuleRegistry
 
     public function enabled(): array
     {
-        return array_filter($this->modules, fn(ModuleContract $m) => $m->isEnabled());
+        return array_filter($this->modules, fn (ModuleContract $m) => $m->isEnabled());
     }
 }

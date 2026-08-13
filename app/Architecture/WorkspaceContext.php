@@ -5,7 +5,9 @@ namespace HiddenLeaf\Architecture;
 class WorkspaceContext
 {
     protected ?int $id = null;
+
     protected ?int $organizationId = null;
+
     protected ?string $title = null;
 
     public function set(int $id, int $organizationId, string $title): void

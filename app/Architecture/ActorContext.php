@@ -5,7 +5,9 @@ namespace HiddenLeaf\Architecture;
 class ActorContext
 {
     protected ?int $userId = null;
+
     protected ?string $role = null;
+
     protected array $permissions = [];
 
     public function set(int $userId, string $role, array $permissions): void

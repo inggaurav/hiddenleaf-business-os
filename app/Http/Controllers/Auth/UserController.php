@@ -3,46 +3,76 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Models\User;
+use App\Models\Workspace;
+use HiddenLeaf\Kernel\Services\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class UserController
 {
+    protected AuditLogger $auditLogger;
+
+    public function __construct(AuditLogger $auditLogger)
+    {
+        $this->auditLogger = $auditLogger;
+    }
+
     public function changePassword(Request $request, User $user)
     {
         $actor = $request->user();
+        $wsId = $request->session()->get('active_workspace_id');
+        $orgId = $request->session()->get('active_organization_id');
 
-        // User can change their own password, or Super Admin / Company Admin can change organization member passwords
-        if ((int)$actor->id !== (int)$user->id && !$actor->isSuperAdmin() && $actor->role !== 'company_admin') {
-            abort(403, 'Unauthorized password change action.');
+        // Self-password change is permitted
+        if ((int) $actor->id !== (int) $user->id) {
+            if (! $actor->isSuperAdmin()) {
+                // VERIFY: Target user MUST belong to actor's active Organization
+                $sharesOrg = $user->organizations()->where('organizations.id', $orgId)->exists();
+                if (! $sharesOrg) {
+                    abort(403, 'Unauthorized cross-organization user password mutation.');
+                }
+
+                $workspace = Workspace::where('id', $wsId)->where('organization_id', $orgId)->firstOrFail();
+                if (! $actor->canInWorkspace('users.change_password', $workspace)) {
+                    abort(403, 'Unauthorized to change user passwords.');
+                }
+            }
         }
 
         $request->validate(['password' => 'required|min:8|confirmed']);
         $user->update(['password' => Hash::make($request->password)]);
 
-        return back()->with('success', 'Password updated for ' . $user->name);
+        return back()->with('success', 'Password updated for '.$user->name);
     }
 
     public function toggleStatus(Request $request, User $user)
     {
         $actor = $request->user();
+        $wsId = $request->session()->get('active_workspace_id');
+        $orgId = $request->session()->get('active_organization_id');
 
-        // Only Super Admin or Company Admin can toggle user active status
-        if (!$actor->isSuperAdmin() && $actor->role !== 'company_admin') {
-            abort(403, 'Unauthorized user status toggle action.');
+        if (! $actor->isSuperAdmin()) {
+            // VERIFY: Target user MUST belong to actor's active Organization
+            $sharesOrg = $user->organizations()->where('organizations.id', $orgId)->exists();
+            if (! $sharesOrg) {
+                abort(403, 'Unauthorized cross-organization user status mutation.');
+            }
+
+            $workspace = Workspace::where('id', $wsId)->where('organization_id', $orgId)->firstOrFail();
+            if (! $actor->canInWorkspace('users.toggle_status', $workspace)) {
+                abort(403, 'Unauthorized to toggle user account status.');
+            }
         }
 
-        // Prevent self-disable
-        if ((int)$actor->id === (int)$user->id) {
+        if ((int) $actor->id === (int) $user->id) {
             return back()->with('error', 'You cannot deactivate your own account.');
         }
 
-        // Prevent disabling Super Admin
         if ($user->isSuperAdmin()) {
             return back()->with('error', 'Super Admin accounts cannot be deactivated.');
         }
 
-        $user->update(['is_active' => !$user->is_active]);
+        $user->update(['is_active' => ! $user->is_active]);
 
         return back()->with('success', 'User account status updated.');
     }
@@ -50,31 +80,55 @@ class UserController
     public function impersonate(Request $request, User $user)
     {
         $actor = $request->user();
+        $orgId = $request->session()->get('active_organization_id');
 
-        if (!$actor->isSuperAdmin()) {
+        if (! $actor->isSuperAdmin()) {
             abort(403, 'Impersonation requires Super Administrator privileges.');
         }
 
-        // Prevent nested impersonation
         if ($request->session()->has('impersonator_id')) {
             return back()->with('error', 'Nested impersonation is prohibited.');
         }
 
         $request->session()->put('impersonator_id', $actor->id);
+
+        // Audit Log Impersonation Start (Section 8)
+        $this->auditLogger->log('impersonation.started', [
+            'actor_id' => $actor->id,
+            'target_user_id' => $user->id,
+            'organization_id' => $orgId,
+            'ip' => $request->ip(),
+            'timestamp' => now()->toIso8601String(),
+        ]);
+
         auth()->login($user);
 
-        return redirect('/dashboard')->with('success', 'Now impersonating ' . $user->name);
+        return redirect('/dashboard')->with('success', 'Now impersonating '.$user->name);
     }
 
     public function leaveImpersonation(Request $request)
     {
         $impersonatorId = $request->session()->get('impersonator_id');
+        $orgId = $request->session()->get('active_organization_id');
 
         if ($impersonatorId) {
             $impersonator = User::findOrFail($impersonatorId);
+            $targetUser = $request->user();
+
             $request->session()->forget('impersonator_id');
+
+            // Audit Log Impersonation Ended (Section 8)
+            $this->auditLogger->log('impersonation.ended', [
+                'actor_id' => $impersonator->id,
+                'target_user_id' => $targetUser->id,
+                'organization_id' => $orgId,
+                'ip' => $request->ip(),
+                'timestamp' => now()->toIso8601String(),
+            ]);
+
             auth()->login($impersonator);
-            return redirect('/admin/companies')->with('success', 'Returned to super admin account.');
+
+            return redirect('/dashboard')->with('success', 'Returned to super admin account.');
         }
 
         return redirect('/dashboard');

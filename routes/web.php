@@ -1,14 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\ProfileController;
 use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
-use App\Http\Controllers\MultiTenancy\WorkspaceController;
-use App\Http\Controllers\MultiTenancy\MemberController;
 use App\Http\Controllers\Domain\Auth\RoleController;
+use App\Http\Controllers\MultiTenancy\MemberController;
+use App\Http\Controllers\MultiTenancy\WorkspaceController;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 // Public & Guest Routes
 Route::middleware('guest')->group(function () {
@@ -37,7 +38,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Dashboard
     Route::get('/dashboard', function () {
-        return \Inertia\Inertia::render('Dashboard');
+        return Inertia::render('Dashboard');
     })->name('dashboard');
 
     // Profile Management

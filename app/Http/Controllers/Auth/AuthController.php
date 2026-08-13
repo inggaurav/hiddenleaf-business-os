@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Models\User;
 use App\Models\Organization;
+use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,6 +32,7 @@ class AuthController
 
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             $seconds = RateLimiter::availableIn($throttleKey);
+
             return back()->withErrors([
                 'email' => "Too many login attempts. Please try again in {$seconds} seconds.",
             ]);
@@ -39,8 +40,9 @@ class AuthController
 
         // Verify account exists & is active
         $user = User::where('email', $credentials['email'])->first();
-        if ($user && !$user->is_active) {
+        if ($user && ! $user->is_active) {
             RateLimiter::hit($throttleKey);
+
             return back()->withErrors([
                 'email' => 'Your account has been deactivated. Please contact support.',
             ]);
@@ -49,6 +51,7 @@ class AuthController
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             RateLimiter::clear($throttleKey);
             $request->session()->regenerate();
+
             return redirect()->intended('/dashboard');
         }
 
@@ -83,8 +86,8 @@ class AuthController
             ]);
 
             $org = Organization::create([
-                'name' => $user->name . "'s Org",
-                'slug' => 'org-' . bin2hex(random_bytes(4)),
+                'name' => $user->name."'s Org",
+                'slug' => 'org-'.bin2hex(random_bytes(4)),
                 'owner_id' => $user->id,
                 'is_active' => true,
             ]);

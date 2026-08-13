@@ -5,6 +5,7 @@ namespace HiddenLeaf\Architecture;
 class OrganizationContext
 {
     protected ?int $id = null;
+
     protected ?string $name = null;
 
     public function set(int $id, string $name): void

@@ -2,11 +2,10 @@
 
 namespace Database\Factories;
 
-use App\Models\Workspace;
 use App\Models\Organization;
 use App\Models\User;
+use App\Models\Workspace;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 class WorkspaceFactory extends Factory
 {
@@ -16,8 +15,8 @@ class WorkspaceFactory extends Factory
     {
         return [
             'organization_id' => Organization::factory(),
-            'name' => 'Operations ' . rand(1, 100),
-            'slug' => 'operations-' . rand(1, 100),
+            'name' => 'Operations '.rand(1, 100),
+            'slug' => 'operations-'.rand(1, 100),
             'created_by' => User::factory(),
             'is_active' => true,
         ];

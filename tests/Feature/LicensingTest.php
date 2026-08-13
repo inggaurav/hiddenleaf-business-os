@@ -56,7 +56,7 @@ class LicensingTest extends TestCase
     {
         $payload = ['license_key' => 'HL-TEST', 'exp' => time() + 3600];
         $token = $this->manager->createSignedToken($payload);
-        $tamperedToken = $token . 'bad';
+        $tamperedToken = $token.'bad';
 
         $result = $this->manager->verifySignedToken($tamperedToken);
         $this->assertFalse($result['valid']);

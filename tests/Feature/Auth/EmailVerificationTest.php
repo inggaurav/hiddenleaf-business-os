@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Auth;
 
-use App\Models\User;
 use App\Models\Organization;
+use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\URL;
@@ -22,6 +22,7 @@ class EmailVerificationTest extends TestCase
         $ws = Workspace::factory()->create(['organization_id' => $org->id, 'created_by' => $user->id]);
         $user->organizations()->attach($org->id, ['role' => 'owner']);
         $user->workspaces()->attach($ws->id);
+
         return $user;
     }
 
@@ -48,7 +49,7 @@ class EmailVerificationTest extends TestCase
 
         $response = $this->actingAs($user)
             ->withSession(['active_organization_id' => $user->organizations()->first()->id])
-            ->get("/verify-email/{$user->id}/" . sha1($user->getEmailForVerification()));
+            ->get("/verify-email/{$user->id}/".sha1($user->getEmailForVerification()));
 
         $response->assertStatus(403);
         $this->assertFalse($user->fresh()->hasVerifiedEmail());

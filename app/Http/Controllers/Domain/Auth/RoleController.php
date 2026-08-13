@@ -2,19 +2,32 @@
 
 namespace App\Http\Controllers\Domain\Auth;
 
-use App\Models\Role;
 use App\Models\Permission;
+use App\Models\Role;
+use App\Models\Workspace;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class RoleController
 {
+    protected function getActiveWorkspace(Request $request): Workspace
+    {
+        $wsId = $request->session()->get('active_workspace_id');
+        $orgId = $request->session()->get('active_organization_id');
+
+        return Workspace::where('id', $wsId)->where('organization_id', $orgId)->firstOrFail();
+    }
+
     public function index(Request $request)
     {
-        $orgId = $request->session()->get('active_organization_id');
+        $workspace = $this->getActiveWorkspace($request);
+        if (! $request->user()->canInWorkspace('roles.view', $workspace)) {
+            abort(403, 'Unauthorized to view roles.');
+        }
+
         $roles = Role::whereNull('organization_id')
-            ->orWhere('organization_id', $orgId)
+            ->orWhere('organization_id', $workspace->organization_id)
             ->with('permissions')
             ->get();
 
@@ -26,6 +39,11 @@ class RoleController
 
     public function create(Request $request)
     {
+        $workspace = $this->getActiveWorkspace($request);
+        if (! $request->user()->canInWorkspace('roles.create', $workspace)) {
+            abort(403, 'Unauthorized to create roles.');
+        }
+
         return Inertia::render('Roles/Create', [
             'permissions' => Permission::all(),
         ]);
@@ -33,7 +51,11 @@ class RoleController
 
     public function store(Request $request)
     {
-        $orgId = $request->session()->get('active_organization_id');
+        $workspace = $this->getActiveWorkspace($request);
+        if (! $request->user()->canInWorkspace('roles.create', $workspace)) {
+            abort(403, 'Unauthorized to create roles.');
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'display_name' => 'required|string|max:255',
@@ -41,13 +63,16 @@ class RoleController
         ]);
 
         $role = Role::create([
-            'organization_id' => $orgId,
+            'organization_id' => $workspace->organization_id,
             'name' => Str::slug($validated['name']),
             'display_name' => $validated['display_name'],
             'is_system' => false,
         ]);
 
-        if (!empty($validated['permissions'])) {
+        if (! empty($validated['permissions'])) {
+            if (! $request->user()->canInWorkspace('roles.assign_permissions', $workspace)) {
+                abort(403, 'Unauthorized to assign permissions to roles.');
+            }
             $role->permissions()->sync($validated['permissions']);
         }
 
@@ -56,7 +81,8 @@ class RoleController
 
     public function edit(Request $request, Role $role)
     {
-        $this->authorizeRoleAccess($request, $role);
+        $workspace = $this->getActiveWorkspace($request);
+        $this->authorizeRoleAccess($request, $role, 'roles.update');
 
         return Inertia::render('Roles/Edit', [
             'role' => $role->load('permissions'),
@@ -66,7 +92,8 @@ class RoleController
 
     public function update(Request $request, Role $role)
     {
-        $this->authorizeRoleAccess($request, $role);
+        $workspace = $this->getActiveWorkspace($request);
+        $this->authorizeRoleAccess($request, $role, 'roles.update');
 
         $validated = $request->validate([
             'display_name' => 'required|string|max:255',
@@ -76,6 +103,9 @@ class RoleController
         $role->update(['display_name' => $validated['display_name']]);
 
         if (isset($validated['permissions'])) {
+            if (! $request->user()->canInWorkspace('roles.assign_permissions', $workspace)) {
+                abort(403, 'Unauthorized to assign permissions to roles.');
+            }
             $role->permissions()->sync($validated['permissions']);
         }
 
@@ -84,22 +114,27 @@ class RoleController
 
     public function destroy(Request $request, Role $role)
     {
-        $this->authorizeRoleAccess($request, $role);
+        $workspace = $this->getActiveWorkspace($request);
+        $this->authorizeRoleAccess($request, $role, 'roles.delete');
 
         if ($role->is_system) {
             return back()->with('error', 'System roles cannot be deleted.');
         }
 
         $role->delete();
+
         return redirect()->route('roles.index')->with('success', 'Role deleted successfully.');
     }
 
-    protected function authorizeRoleAccess(Request $request, Role $role): void
+    protected function authorizeRoleAccess(Request $request, Role $role, string $permission): void
     {
-        $orgId = $request->session()->get('active_organization_id');
+        $workspace = $this->getActiveWorkspace($request);
 
-        // Prevent cross-organization role mutations
-        if ($role->organization_id && (int)$role->organization_id !== (int)$orgId && !$request->user()->isSuperAdmin()) {
+        if (! $request->user()->canInWorkspace($permission, $workspace)) {
+            abort(403, "Unauthorized role action: {$permission} required.");
+        }
+
+        if ($role->organization_id && (int) $role->organization_id !== (int) $workspace->organization_id && ! $request->user()->isSuperAdmin()) {
             abort(403, 'Unauthorized cross-organization role mutation.');
         }
     }

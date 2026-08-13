@@ -19,15 +19,15 @@ class RouteIntegrityTest extends TestCase
                 $controller = $action['controller'];
                 if (is_string($controller) && str_contains($controller, '@')) {
                     [$class, $method] = explode('@', $controller);
-                    if (!class_exists($class)) {
+                    if (! class_exists($class)) {
                         $deadRoutes[] = "Class does not exist: {$class} for route {$route->uri()}";
-                    } elseif (!method_exists($class, $method)) {
+                    } elseif (! method_exists($class, $method)) {
                         $deadRoutes[] = "Method does not exist: {$class}@{$method} for route {$route->uri()}";
                     }
                 }
             }
         }
 
-        $this->assertEmpty($deadRoutes, "Found dead routes in application:\n" . implode("\n", $deadRoutes));
+        $this->assertEmpty($deadRoutes, "Found dead routes in application:\n".implode("\n", $deadRoutes));
     }
 }

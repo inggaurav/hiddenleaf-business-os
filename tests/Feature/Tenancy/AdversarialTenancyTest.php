@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\Tenancy;
 
-use App\Models\User;
 use App\Models\Organization;
-use App\Models\Workspace;
 use App\Models\Role;
+use App\Models\User;
+use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -33,14 +33,14 @@ class AdversarialTenancyTest extends TestCase
 
         // 1. User A sends header X-Organization-ID for Org B -> 403 DENIED
         $res1 = $this->actingAs($userA)
-            ->withHeader('X-Organization-ID', (string)$orgB->id)
+            ->withHeader('X-Organization-ID', (string) $orgB->id)
             ->get('/workspaces');
         $res1->assertStatus(403);
 
         // 2. User A sends header X-Workspace-ID for Workspace B -> 403 DENIED
         $res2 = $this->actingAs($userA)
             ->withSession(['active_organization_id' => $orgA->id])
-            ->withHeader('X-Workspace-ID', (string)$wsB->id)
+            ->withHeader('X-Workspace-ID', (string) $wsB->id)
             ->get('/workspaces');
         $res2->assertStatus(403);
 
