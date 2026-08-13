@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use HiddenLeaf\Domain\Licensing\Services\LicenseManager;
 use PHPUnit\Framework\TestCase;
+use Tests\Support\LicenseTestKeys;
 
 class LicensingTest extends TestCase
 {
@@ -12,7 +13,8 @@ class LicensingTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->manager = new LicenseManager('test_secret_key', 7);
+        $keys = LicenseTestKeys::get();
+        $this->manager = new LicenseManager($keys['private'], $keys['public'], 7);
     }
 
     public function test_license_key_generation_format(): void
@@ -60,5 +62,28 @@ class LicensingTest extends TestCase
 
         $result = $this->manager->verifySignedToken($tamperedToken);
         $this->assertFalse($result['valid']);
+    }
+
+    public function test_public_key_can_verify_offline_without_private_signing_key(): void
+    {
+        $keys = LicenseTestKeys::get();
+        $server = new LicenseManager($keys['private'], $keys['public'], 7);
+        $installation = new LicenseManager(null, $keys['public'], 7);
+        $token = $server->createSignedToken(['domain' => 'client.hiddenleaf.io', 'exp' => time() + 3600]);
+
+        $this->assertTrue($installation->verifySignedToken($token, 'client.hiddenleaf.io')['valid']);
+    }
+
+    public function test_token_signed_by_a_different_private_key_is_rejected(): void
+    {
+        $trusted = LicenseTestKeys::get();
+        $token = (new LicenseManager($trusted['private'], $trusted['public']))
+            ->createSignedToken(['exp' => time() + 3600]);
+        $untrustedPublic = str_replace('MIIBIjAN', 'MIIBJjAN', $trusted['public']);
+
+        $result = (new LicenseManager(null, $untrustedPublic))->verifySignedToken($token);
+
+        $this->assertFalse($result['valid']);
+        $this->assertSame('Invalid signature', $result['error']);
     }
 }
