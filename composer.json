@@ -5,9 +5,9 @@
     "keywords": ["hiddenleaf", "business-os", "saas", "laravel", "inertia", "react"],
     "license": "proprietary",
     "require": {
-        "php": "^8.3 || ^8.4",
+        "php": "^8.2 || ^8.3 || ^8.4",
         "inertiajs/inertia-laravel": "^3.0",
-        "laravel/framework": "^13.0",
+        "laravel/framework": "^12.0 || ^13.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10",
         "league/flysystem-aws-s3-v3": "^3.0"
@@ -42,10 +42,7 @@
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
-        "sort-packages": true,
-        "platform": {
-            "php": "8.3.0"
-        }
+        "sort-packages": true
     },
     "minimum-stability": "stable",
     "prefer-stable": true

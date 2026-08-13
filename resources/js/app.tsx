@@ -6,9 +6,9 @@ const appName = window.document.getElementsByTagName('title')[0]?.innerText || '
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
-    resolve: (name) => {
-        const pages = import.meta.glob('./Pages/**/*.tsx', { eager: true });
-        return pages[`./Pages/${name}.tsx`];
+    resolve: (name: string) => {
+        const pages = import.meta.glob<{ default: React.ComponentType }>('./Pages/**/*.tsx', { eager: true });
+        return pages[`./Pages/${name}.tsx`].default;
     },
     setup({ el, App, props }) {
         const root = createRoot(el);
