@@ -21,7 +21,7 @@ class AddonManager
             }
         }
 
-return Addon::updateOrCreate(['addon_id' => $m->id], ['alias' => $m->alias, 'name' => $m->name, 'version' => $m->version, 'minimum_core' => $m->minimumCore, 'dependencies' => $m->dependencies, 'manifest' => $m->toArray(), 'status' => 'installed']);
+        return Addon::updateOrCreate(['addon_id' => $m->id], ['alias' => $m->alias, 'name' => $m->name, 'version' => $m->version, 'minimum_core' => $m->minimumCore, 'dependencies' => $m->dependencies, 'manifest' => $m->toArray(), 'status' => 'installed']);
     }
 
     public function activate(Workspace $workspace, Addon $addon, int $userId, array $config = []): void

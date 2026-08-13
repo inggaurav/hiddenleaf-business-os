@@ -32,6 +32,7 @@ class SecureUpdaterTest extends TestCase
             'updater.application_root' => $this->temporaryRoot.'/application',
             'updater.backup_directory' => $this->temporaryRoot.'/backups',
             'updater.staging_directory' => $this->temporaryRoot.'/staging',
+            'updater.backup_database' => false,
         ]);
     }
 
@@ -91,7 +92,7 @@ class SecureUpdaterTest extends TestCase
         $this->actingAs($user)->post('/update', ['manifest' => $manifest])->assertSessionHasNoErrors();
 
         $history = UpdateHistory::sole();
-        $this->assertSame('completed', $history->status);
+        $this->assertSame('completed', $history->status, $history->error_message ?? 'Update did not complete.');
         $this->assertSame('2.0.0', admin_setting('app_version'));
         $this->assertSame('after', File::get($this->temporaryRoot.'/application/existing.txt'));
         $this->assertSame('new file', File::get($this->temporaryRoot.'/application/new/delivered.txt'));

@@ -10,13 +10,13 @@ return new class extends Migration
     {
         Schema::table('ai_agent_chat_sessions', function (Blueprint $table) {
             $table->string('provider')->default('local');
-            $table->json('metadata')->nullable();
+            $table->jsonb('metadata')->nullable();
             $table->timestamp('archived_at')->nullable();
             $table->index(['workspace_id', 'user_id', 'archived_at']);
         });
         Schema::table('ai_agent_chat_messages', function (Blueprint $table) {
             $table->string('provider')->nullable();
-            $table->json('metadata')->nullable();
+            $table->jsonb('metadata')->nullable();
         });
     }
 

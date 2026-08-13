@@ -69,7 +69,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('license_id')->constrained('licenses')->cascadeOnDelete();
             $table->uuid('installation_uuid');
-            $table->json('metadata')->nullable();
+            $table->jsonb('metadata')->nullable();
             $table->timestamp('last_seen_at')->nullable();
             $table->timestamps();
             $table->unique(['license_id', 'installation_uuid']);
@@ -90,7 +90,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('license_id')->constrained('licenses')->cascadeOnDelete();
             $table->string('key');
-            $table->json('value');
+            $table->jsonb('value');
             $table->timestamps();
             $table->unique(['license_id', 'key']);
         });
@@ -100,7 +100,7 @@ return new class extends Migration
             $table->foreignId('license_key_id')->nullable()->constrained('license_keys')->nullOnDelete();
             $table->foreignId('activation_id')->nullable()->constrained('license_activations')->nullOnDelete();
             $table->string('event');
-            $table->json('payload')->nullable();
+            $table->jsonb('payload')->nullable();
             $table->string('ip_address', 45)->nullable();
             $table->timestamps();
         });

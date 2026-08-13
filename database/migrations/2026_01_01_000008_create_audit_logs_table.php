@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('request_id')->nullable();
             $table->string('ip')->nullable();
             $table->text('user_agent')->nullable();
-            $table->json('metadata')->nullable();
+            $table->jsonb('metadata')->nullable();
             $table->timestamp('created_at')->useCurrent()->index();
 
             $table->index('actor_id');

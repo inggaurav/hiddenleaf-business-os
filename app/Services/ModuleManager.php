@@ -64,10 +64,7 @@ class ModuleManager
         }
 
         return UserActiveModule::where('workspace_id', $workspaceId)
-            ->where(function ($q) use ($moduleAlias) {
-                $q->where('module_name', $moduleAlias)
-                    ->orWhere('module', $moduleAlias);
-            })
+            ->where('module_name', $moduleAlias)
             ->exists();
     }
 

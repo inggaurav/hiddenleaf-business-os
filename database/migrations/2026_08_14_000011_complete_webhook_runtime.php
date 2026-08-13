@@ -20,7 +20,7 @@ return new class extends Migration
             $t->foreignId('webhook_id')->constrained()->cascadeOnDelete();
             $t->string('event');
             $t->string('idempotency_key')->unique();
-            $t->json('payload');
+            $t->jsonb('payload');
             $t->unsignedInteger('attempts')->default(0);
             $t->string('status')->default('pending');
             $t->unsignedSmallInteger('response_status')->nullable();

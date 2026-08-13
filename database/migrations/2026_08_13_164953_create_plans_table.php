@@ -21,7 +21,7 @@ return new class extends Migration
             $table->integer('number_of_users')->default(1);
             $table->bigInteger('storage_limit')->default(0);
             $table->integer('workspace_limit')->default(1);
-            $table->json('modules')->nullable();
+            $table->jsonb('modules')->nullable();
             $table->boolean('trial')->default(false);
             $table->integer('trial_days')->default(0);
             $table->boolean('free_plan')->default(false);

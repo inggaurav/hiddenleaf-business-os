@@ -21,7 +21,7 @@ readonly class AddonManifest
             }
         }
 
-return new self($data['id'], $data['alias'], $data['name'], $data['version'], $data['minimum_core'], $data['dependencies'], $data['permissions'] ?? [], $data['settings'] ?? []);
+        return new self($data['id'], $data['alias'], $data['name'], $data['version'], $data['minimum_core'], $data['dependencies'], $data['permissions'] ?? [], $data['settings'] ?? []);
     }
 
     public function toArray(): array

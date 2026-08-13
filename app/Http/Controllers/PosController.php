@@ -111,13 +111,13 @@ class PosController extends Controller
     private function workspace(Request $r): Workspace
     {
         $w = Workspace::with('organization')->find($r->session()->get('active_workspace_id'));
-        abort_unless($w && $r->user()->canInWorkspace('pos.manage',$w), 403);
+        abort_unless($w && $r->user()->canInWorkspace('pos.manage', $w), 403);
 
         return $w;
     }
 
-    private function tenant($m,Workspace $w): void
+    private function tenant($m, Workspace $w): void
     {
-        abort_unless((int) $m->organization_id === (int) $w->organization_id && (int) $m->workspace_id === (int) $w->id,404);
+        abort_unless((int) $m->organization_id === (int) $w->organization_id && (int) $m->workspace_id === (int) $w->id, 404);
     }
 }

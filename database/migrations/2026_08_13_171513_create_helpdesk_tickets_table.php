@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('status')->default('open');
             $table->string('priority')->default('medium');
             $table->text('description')->nullable();
-            $table->json('attachments')->nullable();
+            $table->jsonb('attachments')->nullable();
             $table->unsignedBigInteger('organization_id')->nullable();
             $table->unsignedBigInteger('workspace_id')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();

@@ -143,13 +143,13 @@ class CrmController extends Controller
         abort_unless((int) $model->organization_id === (int) $workspace->organization_id && (int) $model->workspace_id === (int) $workspace->id, 404);
     }
 
-    private function subject(string $type,int $id,Workspace $workspace)
+    private function subject(string $type, int $id, Workspace $workspace)
     {
         $model = match ($type) {
             'lead' => CrmLead::class,'deal' => CrmDeal::class,default => abort(404)
         };
         $subject = $model::findOrFail($id);
-        $this->tenant($subject,$workspace);
+        $this->tenant($subject, $workspace);
 
         return $subject;
     }

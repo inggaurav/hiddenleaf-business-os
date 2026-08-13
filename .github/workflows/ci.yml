@@ -13,13 +13,13 @@ jobs:
       postgres:
         image: postgres:17-alpine
         env:
-          POSTGRES_DB: hiddenleaf_test
+          POSTGRES_DB: hiddenleaf_business_os
           POSTGRES_USER: hiddenleaf
           POSTGRES_PASSWORD: hiddenleaf
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U hiddenleaf -d hiddenleaf_test"
+          --health-cmd "pg_isready -U hiddenleaf -d hiddenleaf_business_os"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -39,7 +39,7 @@ jobs:
       DB_CONNECTION: pgsql
       DB_HOST: 127.0.0.1
       DB_PORT: 5432
-      DB_DATABASE: hiddenleaf_test
+      DB_DATABASE: hiddenleaf_business_os
       DB_USERNAME: hiddenleaf
       DB_PASSWORD: hiddenleaf
       CACHE_STORE: redis
@@ -55,7 +55,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-          extensions: mbstring, dom, fileinfo, pdo_pgsql, redis
+          extensions: mbstring, dom, fileinfo, pdo_pgsql, pdo_sqlite, redis, gd, zip
           coverage: none
 
       - name: Setup Node.js 24
@@ -84,6 +84,9 @@ jobs:
 
       - name: Migrate and seed PostgreSQL
         run: php artisan migrate:fresh --seed
+
+      - name: Verify PostgreSQL and Redis integration
+        run: php artisan test --configuration phpunit.pgsql.xml
 
       - name: Execute test suite
         run: php artisan test

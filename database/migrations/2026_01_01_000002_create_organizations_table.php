@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('plan_id')->nullable();
             $table->timestamp('plan_expires_at')->nullable();
             $table->boolean('is_active')->default(true);
-            $table->json('settings')->nullable();
+            $table->jsonb('settings')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Domain\Updates\UpdateManager;
+use App\Models\Setting;
 use App\Models\UpdateHistory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -36,8 +38,8 @@ class UpdateController extends Controller
             return back()->with('success', "System updated to {$history->to_version}.");
         }
 
-        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        \App\Models\Setting::updateOrCreate(
+        Artisan::call('migrate', ['--force' => true]);
+        Setting::updateOrCreate(
             ['key' => 'app_version', 'workspace_id' => null],
             ['value' => '1.1.0', 'created_by' => $request->user()?->id]
         );

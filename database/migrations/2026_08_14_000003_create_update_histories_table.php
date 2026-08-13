@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('to_version');
             $table->string('channel');
             $table->string('status')->index();
-            $table->json('manifest');
+            $table->jsonb('manifest');
             $table->text('backup_path')->nullable();
             $table->text('error_message')->nullable();
             $table->foreignId('started_by')->nullable()->constrained('users')->nullOnDelete();

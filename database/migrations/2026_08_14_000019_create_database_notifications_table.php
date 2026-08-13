@@ -14,7 +14,7 @@ return new class extends Migration
             $table->morphs('notifiable');
             $table->foreignId('organization_id')->nullable()->constrained()->cascadeOnDelete();
             $table->foreignId('workspace_id')->nullable()->constrained()->cascadeOnDelete();
-            $table->json('data');
+            $table->jsonb('data');
             $table->timestamp('read_at')->nullable();
             $table->timestamps();
             $table->index(['workspace_id', 'read_at', 'created_at']);

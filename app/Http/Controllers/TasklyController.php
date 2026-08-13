@@ -19,7 +19,7 @@ class TasklyController extends Controller
     {
         $workspace = $this->workspace($request, 'taskly.view');
         $projects = TasklyProject::forWorkspace($workspace->organization_id, $workspace->id)->with(['stages', 'members'])->get();
-        $costs = DB::table('taskly_timesheets as time')->join('taskly_project_members as member', fn ($j) => $j->on('member.project_id', '=', 'time.project_id')->on('member.user_id', '=', 'time.user_id'))->where('time.workspace_id', $workspace->id)->where('time.status', 'approved')->select('time.project_id', DB::raw('SUM(time.hours * member.hourly_rate) as actual_cost'))->groupBy('time.project_id')->pluck('actual_cost', 'project_id');
+        $costs = DB::table('taskly_timesheets as time')->join('taskly_project_members as member', fn ($j) => $j->on('member.project_id', '=', 'time.project_id')->on('member.user_id', '=', 'time.user_id'))->where('time.workspace_id', $workspace->id)->where('time.status', 'approved')->select('time.project_id', DB::raw('SUM(time.hours * member.hourly_rate) as actual_cost'))->groupBy('time.project_id')->pluck('actual_cost', 'project_id')->map(fn ($cost) => (float) $cost);
 
         return Inertia::render('Taskly/Index', ['projects' => $projects, 'tasks' => TasklyTask::forWorkspace($workspace->organization_id, $workspace->id)->latest()->paginate(50), 'costs' => $costs]);
     }
@@ -145,13 +145,13 @@ class TasklyController extends Controller
         }
     }
 
-    private function project(Workspace $w,int $id): TasklyProject
+    private function project(Workspace $w, int $id): TasklyProject
     {
-        return TasklyProject::forWorkspace($w->organization_id,$w->id)->findOrFail($id);
+        return TasklyProject::forWorkspace($w->organization_id, $w->id)->findOrFail($id);
     }
 
-    private function tenant($m,Workspace $w): void
+    private function tenant($m, Workspace $w): void
     {
-        abort_unless((int) $m->organization_id === (int) $w->organization_id && (int) $m->workspace_id === (int) $w->id,404);
+        abort_unless((int) $m->organization_id === (int) $w->organization_id && (int) $m->workspace_id === (int) $w->id, 404);
     }
 }

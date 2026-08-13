@@ -19,7 +19,7 @@ return new class extends Migration
             $t->string('logo_path')->nullable();
             $t->string('seo_title')->nullable();
             $t->text('seo_description')->nullable();
-            $t->json('seo_keywords')->nullable();
+            $t->jsonb('seo_keywords')->nullable();
             $t->boolean('is_published')->default(false);
             $t->string('locale', 10)->default('en');
             $t->timestamps();
@@ -30,7 +30,7 @@ return new class extends Migration
             $t->string('type');
             $t->string('heading')->nullable();
             $t->text('subheading')->nullable();
-            $t->json('content')->nullable();
+            $t->jsonb('content')->nullable();
             $t->unsignedInteger('position')->default(0);
             $t->boolean('is_visible')->default(true);
             $t->timestamps();

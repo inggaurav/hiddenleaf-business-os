@@ -15,15 +15,15 @@ return new class extends Migration
             $t->string('name');
             $t->string('version');
             $t->string('minimum_core');
-            $t->json('dependencies');
-            $t->json('manifest');
+            $t->jsonb('dependencies');
+            $t->jsonb('manifest');
             $t->string('status')->default('installed');
             $t->timestamps();
         });
         Schema::create('workspace_addons', function (Blueprint $t) {
             $t->foreignId('workspace_id')->constrained()->cascadeOnDelete();
             $t->foreignId('addon_id')->constrained('addons')->cascadeOnDelete();
-            $t->json('configuration')->nullable();
+            $t->jsonb('configuration')->nullable();
             $t->boolean('is_active')->default(false);
             $t->foreignId('activated_by')->nullable()->constrained('users')->nullOnDelete();
             $t->timestamps();

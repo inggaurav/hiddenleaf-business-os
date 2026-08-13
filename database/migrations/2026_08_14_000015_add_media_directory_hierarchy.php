@@ -17,6 +17,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('media_directories', function (Blueprint $table) {
+            $table->dropIndex(['workspace_id', 'parent_id']);
             $table->dropConstrainedForeignId('parent_id');
         });
     }

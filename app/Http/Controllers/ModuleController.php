@@ -78,14 +78,12 @@ class ModuleController extends Controller
                     'workspace_id' => $workspaceId,
                     'module_name' => $moduleName,
                 ], [
-                    'module' => $alias,
                     'user_id' => $user->id,
                 ]);
             } else {
                 UserActiveModule::where('workspace_id', $workspaceId)
                     ->where(function ($q) use ($alias, $moduleName) {
                         $q->where('module_name', $alias)
-                            ->orWhere('module', $alias)
                             ->orWhere('module_name', $moduleName);
                     })
                     ->delete();

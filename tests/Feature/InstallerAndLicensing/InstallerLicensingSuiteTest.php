@@ -5,7 +5,7 @@ namespace Tests\Feature\InstallerAndLicensing;
 use App\Models\Setting;
 use App\Models\User;
 use HiddenLeaf\Domain\Licensing\Services\LicenseManager;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
@@ -14,11 +14,14 @@ use Tests\TestCase;
 
 class InstallerLicensingSuiteTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseMigrations;
+
+    private string $originalDatabaseConnection;
 
     protected function setUp(): void
     {
         parent::setUp();
+        $this->originalDatabaseConnection = config('database.default');
         $keys = LicenseTestKeys::get();
         config()->set('licensing.private_key', $keys['private']);
         config()->set('licensing.public_key', $keys['public']);
@@ -35,7 +38,7 @@ class InstallerLicensingSuiteTest extends TestCase
             File::delete(storage_path('installed'));
         }
         DB::purge('installer');
-        config()->set('database.default', 'sqlite');
+        config()->set('database.default', $this->originalDatabaseConnection);
         parent::tearDown();
     }
 

@@ -36,6 +36,6 @@ class WebhookService
             }
         }
 
-return $hooks->count();
+        return $hooks->count();
     }
 }

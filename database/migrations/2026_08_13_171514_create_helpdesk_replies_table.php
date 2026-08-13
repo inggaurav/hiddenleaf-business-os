@@ -13,7 +13,7 @@ return new class extends Migration
             $table->unsignedBigInteger('ticket_id');
             $table->unsignedBigInteger('user_id')->nullable();
             $table->text('description');
-            $table->json('attachments')->nullable();
+            $table->jsonb('attachments')->nullable();
             $table->timestamps();
         });
     }

@@ -83,6 +83,6 @@ class LandingPageController extends Controller
 
     private function tenant(LandingSite $s, Workspace $w): void
     {
-        abort_unless((int) $s->organization_id === (int) $w->organization_id && (int) $s->workspace_id === (int) $w->id,404);
+        abort_unless((int) $s->organization_id === (int) $w->organization_id && (int) $s->workspace_id === (int) $w->id, 404);
     }
 }

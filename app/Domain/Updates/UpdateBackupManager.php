@@ -56,6 +56,10 @@ class UpdateBackupManager
 
     private function backupDatabase(string $backup): ?array
     {
+        if (! config('updater.backup_database', true)) {
+            return null;
+        }
+
         $connection = config('database.default');
         $database = config("database.connections.{$connection}.database");
 
