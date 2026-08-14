@@ -21,7 +21,9 @@ class TasklyController extends Controller
         $projects = TasklyProject::forWorkspace($workspace->organization_id, $workspace->id)->with(['stages', 'members'])->get();
         $costs = DB::table('taskly_timesheets as time')->join('taskly_project_members as member', fn ($j) => $j->on('member.project_id', '=', 'time.project_id')->on('member.user_id', '=', 'time.user_id'))->where('time.workspace_id', $workspace->id)->where('time.status', 'approved')->select('time.project_id', DB::raw('SUM(time.hours * member.hourly_rate) as actual_cost'))->groupBy('time.project_id')->pluck('actual_cost', 'project_id')->map(fn ($cost) => (float) $cost);
 
-        return Inertia::render('Taskly/Index', ['projects' => $projects, 'tasks' => TasklyTask::forWorkspace($workspace->organization_id, $workspace->id)->latest()->paginate(50), 'costs' => $costs]);
+        $tasks = TasklyTask::forWorkspace($workspace->organization_id, $workspace->id);
+
+        return Inertia::render('Taskly/Index', ['projects' => $projects, 'tasks' => (clone $tasks)->latest()->paginate(50), 'costs' => $costs, 'metrics' => ['projects' => $projects->count(), 'active_projects' => $projects->where('status', 'active')->count(), 'tasks' => (clone $tasks)->count(), 'completed_tasks' => (clone $tasks)->whereNotNull('completed_at')->count(), 'overdue_tasks' => (clone $tasks)->whereNull('completed_at')->whereDate('due_on', '<', today())->count(), 'open_milestones' => DB::table('taskly_milestones')->join('taskly_projects', 'taskly_projects.id', '=', 'taskly_milestones.project_id')->where('taskly_projects.workspace_id', $workspace->id)->where('taskly_milestones.status', 'open')->count(), 'approved_hours' => (float) DB::table('taskly_timesheets')->where('workspace_id', $workspace->id)->where('status', 'approved')->sum('hours')]]);
     }
 
     public function storeProject(Request $request)

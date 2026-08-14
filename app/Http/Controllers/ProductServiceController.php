@@ -11,6 +11,7 @@ use App\Models\Warehouse;
 use App\Models\Workspace;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -28,7 +29,13 @@ class ProductServiceController extends Controller
             })
             ->latest()->paginate(20)->withQueryString();
 
-        return Inertia::render('ProductService/Index', ['items' => $items]);
+        $catalog = ProductServiceItem::forTenant($workspace->organization_id, $workspace->id);
+        $stock = DB::table('warehouse_stocks')
+            ->join('warehouses', 'warehouses.id', '=', 'warehouse_stocks.warehouse_id')
+            ->join('product_service_items', 'product_service_items.id', '=', 'warehouse_stocks.product_id')
+            ->where('warehouses.workspace_id', $workspace->id);
+
+        return Inertia::render('ProductService/Index', ['items' => $items, 'metrics' => ['products' => (clone $catalog)->where('type', 'product')->count(), 'services' => (clone $catalog)->where('type', 'service')->count(), 'warehouses' => Warehouse::where('organization_id', $workspace->organization_id)->where('workspace_id', $workspace->id)->count(), 'stock_quantity' => (float) (clone $stock)->sum('warehouse_stocks.quantity'), 'stock_value' => (float) (clone $stock)->sum(DB::raw('warehouse_stocks.quantity * product_service_items.purchase_price')), 'low_stock' => (clone $stock)->where('warehouse_stocks.quantity', '<=', 5)->count()]]);
     }
 
     public function create(Request $request): Response

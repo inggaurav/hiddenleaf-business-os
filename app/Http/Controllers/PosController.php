@@ -20,8 +20,9 @@ class PosController extends Controller
     public function index(Request $request)
     {
         $w = $this->workspace($request);
+        $todayOrders = PosOrder::forWorkspace($w->organization_id, $w->id)->whereDate('created_at', today());
 
-        return Inertia::render('POS/Index', ['registers' => PosRegister::where('workspace_id', $w->id)->get(), 'sessions' => PosSession::where('workspace_id', $w->id)->latest()->limit(20)->get(), 'orders' => PosOrder::forWorkspace($w->organization_id, $w->id)->with('items')->latest()->paginate(30)]);
+        return Inertia::render('POS/Index', ['registers' => PosRegister::where('workspace_id', $w->id)->get(), 'sessions' => PosSession::where('workspace_id', $w->id)->latest()->limit(20)->get(), 'orders' => PosOrder::forWorkspace($w->organization_id, $w->id)->with('items')->latest()->paginate(30), 'metrics' => ['today_orders' => (clone $todayOrders)->where('status', 'completed')->count(), 'today_revenue' => (float) (clone $todayOrders)->where('status', 'completed')->sum('grand_total'), 'payment_breakdown' => (clone $todayOrders)->where('status', 'completed')->select('payment_method', DB::raw('SUM(grand_total) as aggregate'))->groupBy('payment_method')->pluck('aggregate', 'payment_method')->map(fn ($amount) => (float) $amount), 'open_registers' => PosSession::where('workspace_id', $w->id)->where('status', 'open')->count(), 'low_stock' => DB::table('warehouse_stocks')->join('warehouses', 'warehouses.id', '=', 'warehouse_stocks.warehouse_id')->where('warehouses.workspace_id', $w->id)->where('warehouse_stocks.quantity', '<=', 5)->count()]]);
     }
 
     public function storeRegister(Request $request)

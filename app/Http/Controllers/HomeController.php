@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\AuditLog;
 use App\Models\HelpdeskTicket;
 use App\Models\Organization;
+use App\Models\ProductServiceItem;
+use App\Models\PurchaseInvoice;
+use App\Models\SalesInvoice;
 use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Http\Request;
@@ -40,6 +43,14 @@ class HomeController extends Controller
                 'workspaces' => $workspacesCount,
                 'tickets' => $ticketsCount,
             ],
+            'metrics' => $wsId ? [
+                'members' => $usersCount,
+                'products' => ProductServiceItem::where('organization_id', $orgId)->where('workspace_id', $wsId)->where('type', 'product')->count(),
+                'services' => ProductServiceItem::where('organization_id', $orgId)->where('workspace_id', $wsId)->where('type', 'service')->count(),
+                'sales' => (float) SalesInvoice::where('organization_id', $orgId)->where('workspace_id', $wsId)->whereIn('status', [1, 2, 3])->sum('total_amount'),
+                'purchases' => (float) PurchaseInvoice::where('organization_id', $orgId)->where('workspace_id', $wsId)->where('status', 1)->sum('total_amount'),
+                'open_tickets' => HelpdeskTicket::where('organization_id', $orgId)->where('workspace_id', $wsId)->whereNotIn('status', ['resolved', 'closed'])->count(),
+            ] : null,
             'recentLogs' => $recentLogs,
         ]);
     }

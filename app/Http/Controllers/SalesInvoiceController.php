@@ -33,6 +33,13 @@ class SalesInvoiceController extends Controller
 
         return Inertia::render('SalesInvoices/Index', [
             'invoices' => $invoices,
+            'metrics' => [
+                'invoices' => SalesInvoice::where('organization_id', $orgId)->where('workspace_id', $wsId)->count(),
+                'draft' => SalesInvoice::where('organization_id', $orgId)->where('workspace_id', $wsId)->where('status', 0)->count(),
+                'posted' => SalesInvoice::where('organization_id', $orgId)->where('workspace_id', $wsId)->whereIn('status', [1, 2, 3])->count(),
+                'paid' => SalesInvoice::where('organization_id', $orgId)->where('workspace_id', $wsId)->where('status', 3)->count(),
+                'revenue' => (float) SalesInvoice::where('organization_id', $orgId)->where('workspace_id', $wsId)->whereIn('status', [1, 2, 3])->sum('total_amount'),
+            ],
         ]);
     }
 

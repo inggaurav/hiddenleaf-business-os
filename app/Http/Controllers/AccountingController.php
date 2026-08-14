@@ -23,6 +23,12 @@ class AccountingController extends Controller
         return Inertia::render('Accounting/Accounts', [
             'accounts' => LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)->with('type')->orderBy('code')->paginate(50),
             'types' => AccountType::where('workspace_id', $workspace->id)->get(),
+            'metrics' => [
+                'accounts' => LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)->count(),
+                'bank_accounts' => LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)->where('is_bank', true)->count(),
+                'posted_journals' => JournalEntry::where('organization_id', $workspace->organization_id)->where('workspace_id', $workspace->id)->where('status', 'posted')->count(),
+                'bank_transfers' => (float) AccountBankTransfer::where('organization_id', $workspace->organization_id)->where('workspace_id', $workspace->id)->sum('amount'),
+            ],
         ]);
     }
 

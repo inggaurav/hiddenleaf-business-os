@@ -30,6 +30,14 @@ class HrmController extends Controller
             'attendanceToday' => HrAttendance::where('workspace_id', $workspace->id)->whereDate('attendance_date', today())->count(),
             'pendingLeaves' => HrLeaveRequest::where('workspace_id', $workspace->id)->where('status', 'pending')->count(),
             'payrollTotal' => HrPayslip::where('workspace_id', $workspace->id)->whereMonth('period_end', now()->month)->sum('net_pay'),
+            'metrics' => [
+                'employees' => HrEmployee::forWorkspace($workspace->organization_id, $workspace->id)->where('status', 'active')->count(),
+                'attendance_today' => HrAttendance::where('workspace_id', $workspace->id)->whereDate('attendance_date', today())->count(),
+                'pending_leaves' => HrLeaveRequest::where('workspace_id', $workspace->id)->where('status', 'pending')->count(),
+                'payroll_month' => (float) HrPayslip::where('workspace_id', $workspace->id)->whereMonth('period_end', now()->month)->whereYear('period_end', now()->year)->sum('net_pay'),
+                'departments' => DB::table('hr_departments')->where('workspace_id', $workspace->id)->count(),
+                'upcoming_holidays' => DB::table('hr_holidays')->where('workspace_id', $workspace->id)->whereDate('holiday_date', '>=', today())->count(),
+            ],
         ]);
     }
 
