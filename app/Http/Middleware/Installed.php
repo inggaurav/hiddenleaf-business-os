@@ -15,7 +15,11 @@ class Installed
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (app()->environment('testing') || ! config('installer.enabled', false)) {
+        if (app()->environment('testing')) {
+            return $next($request);
+        }
+
+        if (! config('installer.enabled', true)) {
             if ($request->is('install*')) {
                 return redirect('/');
             }

@@ -1,0 +1,74 @@
+{
+  "workdo_modules_stats": {
+    "Core": {
+      "controllers": 41,
+      "methods": 269,
+      "routes": 173,
+      "models": 40
+    },
+    "Account": {
+      "controllers": 17,
+      "methods": 96,
+      "routes": 83,
+      "models": 27
+    },
+    "Hrm": {
+      "controllers": 48,
+      "methods": 226,
+      "routes": 195,
+      "models": 43
+    },
+    "LandingPage": {
+      "controllers": 4,
+      "methods": 25,
+      "routes": 19,
+      "models": 4
+    },
+    "Lead": {
+      "controllers": 15,
+      "methods": 121,
+      "routes": 81,
+      "models": 24
+    },
+    "Paypal": {
+      "controllers": 2,
+      "methods": 59,
+      "routes": 59,
+      "models": 0
+    },
+    "Pos": {
+      "controllers": 6,
+      "methods": 37,
+      "routes": 31,
+      "models": 8
+    },
+    "ProductService": {
+      "controllers": 4,
+      "methods": 22,
+      "routes": 22,
+      "models": 5
+    },
+    "Stripe": {
+      "controllers": 2,
+      "methods": 59,
+      "routes": 59,
+      "models": 0
+    },
+    "Taskly": {
+      "controllers": 11,
+      "methods": 106,
+      "routes": 88,
+      "models": 15
+    }
+  },
+  "hiddenleaf_stats": {
+    "controllers": 74,
+    "controller_methods": 564,
+    "domain_services": 47,
+    "domain_methods": 208,
+    "models": 121,
+    "routes": 394,
+    "screens": 141,
+    "test_suites": 96
+  }
+}
