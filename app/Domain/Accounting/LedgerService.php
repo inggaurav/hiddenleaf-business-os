@@ -58,6 +58,47 @@ class LedgerService
         });
     }
 
+    /**
+     * Post an immutable reversing journal for a previously posted entry.
+     * The original entry remains posted for audit history; the new entry swaps
+     * every debit/credit so net ledger effect becomes zero.
+     */
+    public function reverse(JournalEntry $entry, User $actor, ?string $reference = null, ?string $description = null): JournalEntry
+    {
+        return DB::transaction(function () use ($entry, $actor, $reference, $description) {
+            $locked = JournalEntry::with('lines')->whereKey($entry->id)->lockForUpdate()->firstOrFail();
+            if ($locked->status !== 'posted') {
+                throw new RuntimeException('Only posted journal entries can be reversed.');
+            }
+
+            $reversal = $this->createEntry($locked->organization_id, $locked->workspace_id, [
+                'entry_date' => now()->toDateString(),
+                'reference' => $reference ?? 'REV-'.$locked->entry_number,
+                'description' => $description ?? 'Reversal of '.$locked->entry_number,
+                'lines' => $locked->lines->map(fn ($line) => [
+                    'account_id' => $line->ledger_account_id,
+                    'description' => 'Reversal: '.($line->description ?? $locked->description ?? ''),
+                    'debit' => $line->credit,
+                    'credit' => $line->debit,
+                ])->all(),
+            ], $actor);
+
+            $this->post($reversal, $actor);
+            $this->audit->log(
+                $actor->id,
+                $locked->organization_id,
+                $locked->workspace_id,
+                'journal.reversed',
+                'journal_entry',
+                (string) $locked->id,
+                ['original' => $locked->entry_number, 'reversal' => $reversal->entry_number],
+                critical: true
+            );
+
+            return $reversal->refresh();
+        });
+    }
+
     public function balances(int $organizationId, int $workspaceId, ?string $from = null, ?string $to = null): Collection
     {
         return LedgerAccount::forWorkspace($organizationId, $workspaceId)
@@ -65,9 +106,12 @@ class LedgerService
             ->withSum(['journalLines as debit_total' => fn ($query) => $query->whereHas('entry', fn ($entry) => $entry->where('status', 'posted')->when($from, fn ($q) => $q->whereDate('entry_date', '>=', $from))->when($to, fn ($q) => $q->whereDate('entry_date', '<=', $to)))], 'debit')
             ->withSum(['journalLines as credit_total' => fn ($query) => $query->whereHas('entry', fn ($entry) => $entry->where('status', 'posted')->when($from, fn ($q) => $q->whereDate('entry_date', '>=', $from))->when($to, fn ($q) => $q->whereDate('entry_date', '<=', $to)))], 'credit')
             ->orderBy('code')->get()->map(function ($account) {
-                $debit = (float) ($account->debit_total ?? 0);
-                $credit = (float) ($account->credit_total ?? 0);
-                $account->balance = $account->type->normal_balance === 'credit' ? $credit - $debit : $debit - $credit;
+                $debit = Money::of($account->debit_total ?? 0);
+                $credit = Money::of($account->credit_total ?? 0);
+                $balance = $account->type->normal_balance === 'credit'
+                    ? $credit->subtract($debit)
+                    : $debit->subtract($credit);
+                $account->balance = $balance->toStorageString();
 
                 return $account;
             });
