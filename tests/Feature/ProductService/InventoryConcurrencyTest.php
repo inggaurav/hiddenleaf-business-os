@@ -80,7 +80,9 @@ class InventoryConcurrencyTest extends TestCase
                 $stockService->adjust($product, $warehouse, -8, 'Attempt 2', $this->user, 'adjustment_out');
             });
         } catch (\RuntimeException $e) {
-            $secondFailed = str_contains($e->getMessage(), 'negative inventory');
+            // StockMovementService throws 'Insufficient stock' or 'negative inventory'
+            $secondFailed = str_contains($e->getMessage(), 'Insufficient stock')
+                || str_contains($e->getMessage(), 'negative inventory');
         }
 
         $this->assertTrue($firstSucceeded);
