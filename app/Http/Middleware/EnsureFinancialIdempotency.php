@@ -69,9 +69,7 @@ class EnsureFinancialIdempotency
 
         try {
             return Cache::lock($lockName, 15)->block(5, function () use ($request, $next, $type, $workspaceId, $organizationId, $key, $fingerprint) {
-                $existing = $type === 'customer'
-                    ? CustomerPayment::forWorkspace($organizationId, $workspaceId)->where('idempotency_key', $key)->first()
-                    : VendorPayment::forWorkspace($organizationId, $workspaceId)->where('idempotency_key', $key)->first();
+                $existing = $this->findExisting($type, $organizationId, $workspaceId, $key);
 
                 if ($existing) {
                     if (is_string($existing->request_fingerprint) && hash_equals($existing->request_fingerprint, $fingerprint)) {
@@ -81,7 +79,17 @@ class EnsureFinancialIdempotency
                     abort(409, 'Duplicate payment: this idempotency key has already been used with different parameters.');
                 }
 
-                return $next($request);
+                $response = $next($request);
+
+                // The controller persists its legacy core-field fingerprint. Replace
+                // it with the canonical full-request fingerprint before releasing the
+                // lock so every subsequent retry is compared against identical data.
+                $created = $this->findExisting($type, $organizationId, $workspaceId, $key);
+                if ($created && $created->request_fingerprint !== $fingerprint) {
+                    $created->forceFill(['request_fingerprint' => $fingerprint])->saveQuietly();
+                }
+
+                return $response;
             });
         } catch (LockTimeoutException) {
             abort(409, 'A payment with this idempotency key is already being processed. Retry the same request shortly.');
@@ -95,24 +103,34 @@ class EnsureFinancialIdempotency
             && filled($request->input('payment_method'));
     }
 
+    private function findExisting(string $type, int $organizationId, int $workspaceId, string $key): CustomerPayment|VendorPayment|null
+    {
+        return $type === 'customer'
+            ? CustomerPayment::forWorkspace($organizationId, $workspaceId)->where('idempotency_key', $key)->first()
+            : VendorPayment::forWorkspace($organizationId, $workspaceId)->where('idempotency_key', $key)->first();
+    }
+
     private function fingerprint(Request $request, string $type): string
     {
+        $common = [
+            'account_id' => $request->input('account_id') ?: null,
+            'amount' => Money::of((string) $request->input('amount'))->toStorageString(),
+            'payment_date' => (string) $request->input('payment_date'),
+            'payment_method' => (string) $request->input('payment_method'),
+            'reference' => $request->filled('reference') ? (string) $request->input('reference') : null,
+            'description' => $request->filled('description') ? (string) $request->input('description') : null,
+        ];
+
         $payload = $type === 'customer'
             ? [
                 'customer_id' => $request->input('customer_id') ?: null,
                 'invoice_id' => $request->input('invoice_id') ?: null,
-                'account_id' => $request->input('account_id') ?: null,
-                'amount' => Money::of((string) $request->input('amount'))->toStorageString(),
-                'payment_date' => (string) $request->input('payment_date'),
-                'payment_method' => (string) $request->input('payment_method'),
+                ...$common,
             ]
             : [
                 'vendor_id' => $request->input('vendor_id') ?: null,
                 'purchase_invoice_id' => $request->input('purchase_invoice_id') ?: null,
-                'account_id' => $request->input('account_id') ?: null,
-                'amount' => Money::of((string) $request->input('amount'))->toStorageString(),
-                'payment_date' => (string) $request->input('payment_date'),
-                'payment_method' => (string) $request->input('payment_method'),
+                ...$common,
             ];
 
         return hash('sha256', json_encode($payload, JSON_THROW_ON_ERROR));
