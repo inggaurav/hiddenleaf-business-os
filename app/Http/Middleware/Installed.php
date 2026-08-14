@@ -15,11 +15,15 @@ class Installed
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (app()->environment('testing')) {
+        if (app()->environment('testing') || ! config('installer.enabled', false)) {
+            if ($request->is('install*')) {
+                return redirect('/');
+            }
+
             return $next($request);
         }
 
-        if (! file_exists(storage_path('installed'))) {
+        if (! file_exists(config('installer.lock_file', storage_path('installed')))) {
             if ($request->is('install*')) {
                 return $next($request);
             }
