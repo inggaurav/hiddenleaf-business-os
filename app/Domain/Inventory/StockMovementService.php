@@ -2,6 +2,7 @@
 
 namespace App\Domain\Inventory;
 
+use App\Domain\Accounting\Money;
 use App\Models\ProductServiceItem;
 use App\Models\StockMovement;
 use App\Models\User;
@@ -9,33 +10,41 @@ use App\Models\Warehouse;
 use App\Models\WarehouseStock;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
+use RuntimeException;
 
+/**
+ * Canonical inventory mutation engine.
+ *
+ * Every operational stock change must pass through this service. The product
+ * row lock serializes first-stock-row creation and movements for a product,
+ * while the warehouse/product unique constraint protects materialized stock at
+ * the database layer. Historical StockMovement rows are the audit source of
+ * truth; WarehouseStock is a materialized balance.
+ */
 class StockMovementService
 {
-    /**
-     * Atomically records an inventory movement and updates the cached warehouse stock.
-     */
     public function recordMovement(
         int $organizationId,
         int $workspaceId,
         int $warehouseId,
         int $productId,
         string $movementType,
-        float $quantity,
-        int $direction, // +1 for stock in, -1 for stock out
+        InventoryQuantity|string|int $quantity,
+        int $direction,
         ?string $referenceType = null,
         ?int $referenceId = null,
-        ?float $unitCost = null,
+        Money|string|int|null $unitCost = null,
         ?string $reason = null,
         ?string $notes = null,
         ?User $actor = null,
         ?int $sourceWarehouseId = null,
-        ?int $destinationWarehouseId = null
+        ?int $destinationWarehouseId = null,
+        ?int $referenceLineId = null,
     ): StockMovement {
-        if (InventoryQuantity::of($quantity)->isLessThanOrEqual(InventoryQuantity::of(0))) {
+        $qty = InventoryQuantity::of($quantity);
+        if (! $qty->isPositive()) {
             throw new InvalidArgumentException('Movement quantity must be greater than zero.');
         }
-
         if (! in_array($direction, [1, -1], true)) {
             throw new InvalidArgumentException('Direction must be 1 (in) or -1 (out).');
         }
@@ -46,7 +55,7 @@ class StockMovementService
             $warehouseId,
             $productId,
             $movementType,
-            $quantity,
+            $qty,
             $direction,
             $referenceType,
             $referenceId,
@@ -55,24 +64,46 @@ class StockMovementService
             $notes,
             $actor,
             $sourceWarehouseId,
-            $destinationWarehouseId
+            $destinationWarehouseId,
+            $referenceLineId,
         ) {
-            // Ensure product is a stockable item and belongs to workspace
             $product = ProductServiceItem::forTenant($organizationId, $workspaceId)
                 ->lockForUpdate()
                 ->findOrFail($productId);
 
-            if ($product->type === 'service') {
+            if ($product->type !== 'product') {
                 throw new InvalidArgumentException("Cannot record inventory movements for non-stock service item {$product->name}.");
             }
 
-            // Ensure warehouse belongs to workspace
-            $warehouse = Warehouse::where('organization_id', $organizationId)
+            $warehouse = Warehouse::query()
+                ->where('organization_id', $organizationId)
                 ->where('workspace_id', $workspaceId)
                 ->findOrFail($warehouseId);
 
-            // Lock or create warehouse stock record
-            $stock = WarehouseStock::where('warehouse_id', $warehouseId)
+            // Generated business movements are idempotent at the service layer;
+            // the matching DB unique constraint remains the final authority.
+            if ($referenceType !== null && $referenceId !== null && $referenceLineId !== null) {
+                $existing = StockMovement::query()
+                    ->where('organization_id', $organizationId)
+                    ->where('workspace_id', $workspaceId)
+                    ->where('warehouse_id', $warehouseId)
+                    ->where('product_id', $productId)
+                    ->where('type', $movementType)
+                    ->where('reference_type', $referenceType)
+                    ->where('reference_id', $referenceId)
+                    ->where('reference_line_id', $referenceLineId)
+                    ->first();
+
+                if ($existing) {
+                    return $existing;
+                }
+            }
+
+            // The product lock above serializes the no-row case; the unique
+            // warehouse/product constraint prevents any duplicate materialized
+            // stock row even if another code path is introduced later.
+            $stock = WarehouseStock::query()
+                ->where('warehouse_id', $warehouseId)
                 ->where('product_id', $productId)
                 ->lockForUpdate()
                 ->first();
@@ -81,30 +112,25 @@ class StockMovementService
                 $stock = WarehouseStock::create([
                     'warehouse_id' => $warehouseId,
                     'product_id' => $productId,
-                    'quantity' => 0,
+                    'quantity' => InventoryQuantity::zero()->toStorageString(),
                 ]);
-                $currentQty = InventoryQuantity::of(0);
-            } else {
-                $currentQty = InventoryQuantity::of($stock->quantity);
             }
 
-            $qtyObj = InventoryQuantity::of($quantity);
-            
-            if ($direction === -1) {
-                $newQty = $currentQty->subtract($qtyObj);
-            } else {
-                $newQty = $currentQty->add($qtyObj);
+            $current = InventoryQuantity::of((string) $stock->quantity);
+            $new = $direction === -1 ? $current->subtract($qty) : $current->add($qty);
+
+            if ($new->isNegative()) {
+                throw new RuntimeException(
+                    "Insufficient stock in warehouse {$warehouse->name} for {$product->name}. Requested {$qty}, available {$current}."
+                );
             }
 
-            if ($newQty->isNegative() && $direction === -1) {
-                throw new \RuntimeException("Insufficient stock in warehouse {$warehouse->name} for {$product->name}. Requested {$quantity}, available {$currentQty}.");
-            }
+            $stock->update(['quantity' => $new->toStorageString()]);
 
-            $stock->update(['quantity' => $newQty->toString()]);
-
-            $costVal = $unitCost ?? (float) ($product->purchase_price ?: $product->sale_price ?: 0);
-            $cost = \App\Domain\Accounting\Money::of($costVal);
-            $totalCost = $cost->multiplyByDecimal($qtyObj->toString());
+            $cost = $unitCost instanceof Money
+                ? $unitCost
+                : Money::of((string) ($unitCost ?? $product->purchase_price ?? $product->sale_price ?? '0'), 4);
+            $totalCost = $cost->multiplyByDecimal($qty->toStorageString());
 
             return StockMovement::create([
                 'organization_id' => $organizationId,
@@ -112,13 +138,14 @@ class StockMovementService
                 'warehouse_id' => $warehouseId,
                 'product_id' => $productId,
                 'type' => $movementType,
-                'quantity' => $quantity,
+                'quantity' => $qty->toStorageString(),
                 'direction' => $direction,
-                'balance_after' => $newQty->toString(),
+                'balance_after' => $new->toStorageString(),
                 'unit_cost' => $cost->toStorageString(),
                 'total_cost' => $totalCost->toStorageString(),
                 'reference_type' => $referenceType,
                 'reference_id' => $referenceId,
+                'reference_line_id' => $referenceLineId,
                 'source_warehouse_id' => $sourceWarehouseId,
                 'destination_warehouse_id' => $destinationWarehouseId,
                 'reason' => $reason,
