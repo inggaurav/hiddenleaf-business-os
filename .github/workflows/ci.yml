@@ -2,9 +2,9 @@ name: HiddenLeaf BusinessOS CI
 
 on:
   push:
-    branches: [master, stage-1-workdo-core-real-build]
+    branches: [master, stage-1-workdo-core-real-build, integration/hiddenleaf-v1]
   pull_request:
-    branches: [master, stage-1-workdo-core-real-build]
+    branches: [master, stage-1-workdo-core-real-build, integration/hiddenleaf-v1]
 
 jobs:
   build-and-test:
@@ -55,7 +55,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-          extensions: mbstring, dom, fileinfo, pdo_pgsql, pdo_sqlite, redis, gd, zip
+          extensions: bcmath, mbstring, dom, fileinfo, pdo_pgsql, pdo_sqlite, redis, gd, zip
           coverage: none
 
       - name: Setup Node.js 24
@@ -91,8 +91,11 @@ jobs:
       - name: Execute test suite
         run: php artisan test
 
-      - name: Validate WorkDo parity registry
+      - name: Validate coarse WorkDo capability registry
         run: composer parity:validate
+
+      - name: Validate evidence-backed route/controller/test registry
+        run: php artisan parity:validate
 
       - name: Validate forensic routes and Inertia contracts
         run: composer forensic:validate
