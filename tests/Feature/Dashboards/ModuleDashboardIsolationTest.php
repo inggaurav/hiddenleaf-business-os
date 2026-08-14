@@ -76,38 +76,73 @@ class ModuleDashboardIsolationTest extends TestCase
     public function test_accounting_dashboard_strictly_isolates_metrics_and_transactions(): void
     {
         // Populate Tenant A Data
-        SalesInvoice::create([
+        $custA = \App\Models\AccountCustomer::create([
             'organization_id' => $this->tenantAOrg->id,
             'workspace_id' => $this->tenantAWs->id,
-            'invoice_id' => 101,
-            'status' => 'paid',
-            'issue_date' => now()->toDateString(),
-            'due_date' => now()->addDays(30)->toDateString(),
-            'total_amount' => 1000,
-            'created_by' => $this->tenantAUser->id,
+            'name' => 'Tenant A Customer',
         ]);
-
-        PurchaseInvoice::create([
+        $vendA = \App\Models\AccountVendor::create([
             'organization_id' => $this->tenantAOrg->id,
             'workspace_id' => $this->tenantAWs->id,
-            'invoice_id' => 201,
-            'status' => 'paid',
-            'purchase_date' => now()->toDateString(),
-            'due_date' => now()->addDays(30)->toDateString(),
-            'total_amount' => 400,
-            'created_by' => $this->tenantAUser->id,
+            'name' => 'Tenant A Vendor',
+        ]);
+        \App\Models\CustomerPayment::create([
+            'organization_id' => $this->tenantAOrg->id,
+            'workspace_id' => $this->tenantAWs->id,
+            'customer_id' => $custA->id,
+            'amount' => 1000,
+            'payment_date' => now()->toDateString(),
+            'payment_method' => 'cash',
+        ]);
+        \App\Models\VendorPayment::create([
+            'organization_id' => $this->tenantAOrg->id,
+            'workspace_id' => $this->tenantAWs->id,
+            'vendor_id' => $vendA->id,
+            'amount' => 400,
+            'payment_date' => now()->toDateString(),
+            'payment_method' => 'cash',
+        ]);
+        \App\Models\AccountRevenue::create([
+            'organization_id' => $this->tenantAOrg->id,
+            'workspace_id' => $this->tenantAWs->id,
+            'customer_id' => $custA->id,
+            'reference' => '101',
+            'amount' => 1000,
+            'date' => now()->toDateString(),
+            'payment_method' => 'cash',
+        ]);
+        \App\Models\AccountExpense::create([
+            'organization_id' => $this->tenantAOrg->id,
+            'workspace_id' => $this->tenantAWs->id,
+            'vendor_id' => $vendA->id,
+            'reference' => '201',
+            'amount' => 400,
+            'date' => now()->toDateString(),
+            'payment_method' => 'cash',
         ]);
 
         // Populate Tenant B Data
-        SalesInvoice::create([
+        $custB = \App\Models\AccountCustomer::create([
             'organization_id' => $this->tenantBOrg->id,
             'workspace_id' => $this->tenantBWs->id,
-            'invoice_id' => 999,
-            'status' => 'paid',
-            'issue_date' => now()->toDateString(),
-            'due_date' => now()->addDays(30)->toDateString(),
-            'total_amount' => 50000,
-            'created_by' => $this->tenantBUser->id,
+            'name' => 'Tenant B Customer',
+        ]);
+        \App\Models\CustomerPayment::create([
+            'organization_id' => $this->tenantBOrg->id,
+            'workspace_id' => $this->tenantBWs->id,
+            'customer_id' => $custB->id,
+            'amount' => 50000,
+            'payment_date' => now()->toDateString(),
+            'payment_method' => 'cash',
+        ]);
+        \App\Models\AccountRevenue::create([
+            'organization_id' => $this->tenantBOrg->id,
+            'workspace_id' => $this->tenantBWs->id,
+            'customer_id' => $custB->id,
+            'reference' => '999',
+            'amount' => 50000,
+            'date' => now()->toDateString(),
+            'payment_method' => 'cash',
         ]);
 
         // Tenant A request
@@ -139,6 +174,8 @@ class ModuleDashboardIsolationTest extends TestCase
             ->where('stats.total_clients', 1)
             ->where('stats.total_customer_payment', 50000)
             ->where('stats.total_vendor_payment', 0)
+            ->where('stats.total_revenue', 50000)
+            ->where('stats.net_profit', 50000)
             ->has('recentRevenues', 1)
             ->where('recentRevenues.0.title', '999'));
     }

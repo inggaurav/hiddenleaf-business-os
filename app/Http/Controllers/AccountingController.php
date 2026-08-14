@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Domain\Accounting\AccountDashboardService;
 use App\Domain\Accounting\LedgerService;
+use App\Domain\Accounting\Money;
+use App\Domain\Accounting\TenantFinancialResolver;
 use App\Models\AccountBankTransfer;
 use App\Models\AccountCreditNote;
 use App\Models\AccountCustomer;
@@ -249,7 +251,7 @@ class AccountingController extends Controller
         ]);
     }
 
-    public function storeCustomerPayment(Request $request, LedgerService $ledger)
+    public function storeCustomerPayment(Request $request, LedgerService $ledger, TenantFinancialResolver $resolver)
     {
         $workspace = $this->workspace($request, 'account.manage');
         $data = $request->validate([
@@ -261,26 +263,44 @@ class AccountingController extends Controller
             'payment_method' => ['required', 'string'],
             'reference' => ['nullable', 'string', 'max:100'],
             'description' => ['nullable', 'string'],
+            'idempotency_key' => ['nullable', 'string', 'max:64'],
         ]);
 
-        DB::transaction(function () use ($data, $workspace, $request, $ledger) {
+        // Idempotency check
+        if (! empty($data['idempotency_key'])) {
+            $exists = CustomerPayment::forWorkspace($workspace->organization_id, $workspace->id)
+                ->where('idempotency_key', $data['idempotency_key'])
+                ->exists();
+            abort_if($exists, 409, 'Duplicate payment: this idempotency key has already been used.');
+        }
+
+        // Tenant-scoped validation of all foreign IDs BEFORE the transaction
+        if (! empty($data['customer_id'])) {
+            $resolver->resolveCustomer($workspace, $data['customer_id']);
+        }
+        if (! empty($data['account_id'])) {
+            $resolver->resolveLedgerAccount($workspace, $data['account_id']);
+        }
+
+        DB::transaction(function () use ($data, $workspace, $request, $ledger, $resolver) {
             $invoice = null;
             if (! empty($data['invoice_id'])) {
-                $invoice = SalesInvoice::where('organization_id', $workspace->organization_id)
-                    ->where('workspace_id', $workspace->id)
-                    ->lockForUpdate()
-                    ->findOrFail($data['invoice_id']);
+                $invoice = $resolver->resolveInvoiceForPayment($workspace, $data['invoice_id']);
+                // If customer_id supplied, it must match the invoice
+                if (! empty($data['customer_id'])) {
+                    $resolver->assertCustomerMatchesInvoice($data['customer_id'], $invoice);
+                }
                 $data['customer_id'] = $data['customer_id'] ?? $invoice->customer_id;
 
-                $alreadyPaid = (float) CustomerPayment::where('invoice_id', $invoice->id)->sum('amount');
-                $due = max(0, (float) $invoice->total_amount - $alreadyPaid);
-                abort_if((float) $data['amount'] > ($due + 0.001), 422, 'Payment amount exceeds remaining invoice balance.');
+                $alreadyPaid = Money::of(CustomerPayment::where('invoice_id', $invoice->id)->sum('amount'));
+                $invoiceTotal = Money::of($invoice->total_amount);
+                $due = $invoiceTotal->subtract($alreadyPaid)->max(Money::zero());
+                $paymentAmount = Money::of($data['amount']);
+                abort_if($paymentAmount->isGreaterThan($due), 422, 'Payment amount exceeds remaining invoice balance.');
             }
 
             $journalEntryId = null;
             if (! empty($data['account_id'])) {
-                // Find or use Accounts Receivable account
-                $arType = AccountType::where('workspace_id', $workspace->id)->where('classification', 'asset')->first();
                 $arAccount = LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)
                     ->where('name', 'Accounts Receivable')
                     ->first() ?? LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)
@@ -309,22 +329,23 @@ class AccountingController extends Controller
                 'created_by' => $request->user()->id,
             ]);
 
-            // Update invoice payment status
+            // Update invoice payment status using decimal-safe arithmetic
             if ($invoice) {
-                $totalPaid = (float) CustomerPayment::where('invoice_id', $invoice->id)->sum('amount');
-                if ($totalPaid >= (float) $invoice->total_amount) {
+                $totalPaid = Money::of(CustomerPayment::where('invoice_id', $invoice->id)->sum('amount'));
+                $invoiceTotal = Money::of($invoice->total_amount);
+                if ($totalPaid->isGreaterThanOrEqual($invoiceTotal)) {
                     $invoice->update(['status' => 'paid']);
                 } else {
                     $invoice->update(['status' => 'partial']);
                 }
             }
 
-            // Update Customer balance
+            // Update Customer balance with tenant-scoped, locked lookup
             if (! empty($data['customer_id'])) {
-                $customer = AccountCustomer::find($data['customer_id']);
-                if ($customer) {
-                    $customer->decrement('balance', $data['amount']);
-                }
+                $customer = AccountCustomer::forWorkspace($workspace->organization_id, $workspace->id)
+                    ->lockForUpdate()
+                    ->findOrFail($data['customer_id']);
+                $customer->decrement('balance', $data['amount']);
             }
 
             $this->audit->log($request->user()->id, $workspace->organization_id, $workspace->id, 'payment.recorded', 'customer_payment', (string) $payment->id, ['amount' => $payment->amount]);
@@ -356,7 +377,7 @@ class AccountingController extends Controller
         ]);
     }
 
-    public function storeVendorPayment(Request $request, LedgerService $ledger)
+    public function storeVendorPayment(Request $request, LedgerService $ledger, TenantFinancialResolver $resolver)
     {
         $workspace = $this->workspace($request, 'account.manage');
         $data = $request->validate([
@@ -368,25 +389,44 @@ class AccountingController extends Controller
             'payment_method' => ['required', 'string'],
             'reference' => ['nullable', 'string', 'max:100'],
             'description' => ['nullable', 'string'],
+            'idempotency_key' => ['nullable', 'string', 'max:64'],
         ]);
 
-        DB::transaction(function () use ($data, $workspace, $request, $ledger) {
+        // Idempotency check
+        if (! empty($data['idempotency_key'])) {
+            $exists = VendorPayment::forWorkspace($workspace->organization_id, $workspace->id)
+                ->where('idempotency_key', $data['idempotency_key'])
+                ->exists();
+            abort_if($exists, 409, 'Duplicate payment: this idempotency key has already been used.');
+        }
+
+        // Tenant-scoped validation of all foreign IDs BEFORE the transaction
+        if (! empty($data['vendor_id'])) {
+            $resolver->resolveVendor($workspace, $data['vendor_id']);
+        }
+        if (! empty($data['account_id'])) {
+            $resolver->resolveLedgerAccount($workspace, $data['account_id']);
+        }
+
+        DB::transaction(function () use ($data, $workspace, $request, $ledger, $resolver) {
             $bill = null;
             if (! empty($data['purchase_invoice_id'])) {
-                $bill = PurchaseInvoice::where('organization_id', $workspace->organization_id)
-                    ->where('workspace_id', $workspace->id)
-                    ->lockForUpdate()
-                    ->findOrFail($data['purchase_invoice_id']);
+                $bill = $resolver->resolvePurchaseInvoiceForPayment($workspace, $data['purchase_invoice_id']);
+                // If vendor_id supplied, it must match the bill
+                if (! empty($data['vendor_id'])) {
+                    $resolver->assertVendorMatchesBill($data['vendor_id'], $bill);
+                }
                 $data['vendor_id'] = $data['vendor_id'] ?? $bill->vendor_id;
 
-                $alreadyPaid = (float) VendorPayment::where('purchase_invoice_id', $bill->id)->sum('amount');
-                $due = max(0, (float) $bill->total_amount - $alreadyPaid);
-                abort_if((float) $data['amount'] > ($due + 0.001), 422, 'Payment amount exceeds remaining bill balance.');
+                $alreadyPaid = Money::of(VendorPayment::where('purchase_invoice_id', $bill->id)->sum('amount'));
+                $billTotal = Money::of($bill->total_amount);
+                $due = $billTotal->subtract($alreadyPaid)->max(Money::zero());
+                $paymentAmount = Money::of($data['amount']);
+                abort_if($paymentAmount->isGreaterThan($due), 422, 'Payment amount exceeds remaining bill balance.');
             }
 
             $journalEntryId = null;
             if (! empty($data['account_id'])) {
-                // Accounts Payable account
                 $apAccount = LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)
                     ->where('name', 'Accounts Payable')
                     ->first() ?? LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)
@@ -415,21 +455,23 @@ class AccountingController extends Controller
                 'created_by' => $request->user()->id,
             ]);
 
-            // Update bill status
+            // Update bill status using decimal-safe arithmetic
             if ($bill) {
-                $totalPaid = (float) VendorPayment::where('purchase_invoice_id', $bill->id)->sum('amount');
-                if ($totalPaid >= (float) $bill->total_amount) {
+                $totalPaid = Money::of(VendorPayment::where('purchase_invoice_id', $bill->id)->sum('amount'));
+                $billTotal = Money::of($bill->total_amount);
+                if ($totalPaid->isGreaterThanOrEqual($billTotal)) {
                     $bill->update(['status' => 'paid']);
                 } else {
                     $bill->update(['status' => 'partial']);
                 }
             }
 
+            // Update Vendor balance with tenant-scoped, locked lookup
             if (! empty($data['vendor_id'])) {
-                $vendor = AccountVendor::find($data['vendor_id']);
-                if ($vendor) {
-                    $vendor->decrement('balance', $data['amount']);
-                }
+                $vendor = AccountVendor::forWorkspace($workspace->organization_id, $workspace->id)
+                    ->lockForUpdate()
+                    ->findOrFail($data['vendor_id']);
+                $vendor->decrement('balance', $data['amount']);
             }
 
             $this->audit->log($request->user()->id, $workspace->organization_id, $workspace->id, 'payment.recorded', 'vendor_payment', (string) $payment->id, ['amount' => $payment->amount]);
@@ -459,7 +501,7 @@ class AccountingController extends Controller
         ]);
     }
 
-    public function storeRevenue(Request $request, LedgerService $ledger)
+    public function storeRevenue(Request $request, LedgerService $ledger, TenantFinancialResolver $resolver)
     {
         $workspace = $this->workspace($request, 'account.manage');
         $data = $request->validate([
@@ -472,6 +514,14 @@ class AccountingController extends Controller
             'reference' => ['nullable', 'string', 'max:100'],
             'description' => ['nullable', 'string'],
         ]);
+
+        // Tenant-scoped validation of all foreign IDs
+        if (! empty($data['customer_id'])) {
+            $resolver->resolveCustomer($workspace, $data['customer_id']);
+        }
+        if (! empty($data['account_id'])) {
+            $resolver->resolveLedgerAccount($workspace, $data['account_id']);
+        }
 
         DB::transaction(function () use ($data, $workspace, $request, $ledger) {
             $journalEntryId = null;
@@ -526,7 +576,7 @@ class AccountingController extends Controller
         ]);
     }
 
-    public function storeExpense(Request $request, LedgerService $ledger)
+    public function storeExpense(Request $request, LedgerService $ledger, TenantFinancialResolver $resolver)
     {
         $workspace = $this->workspace($request, 'account.manage');
         $data = $request->validate([
@@ -539,6 +589,14 @@ class AccountingController extends Controller
             'reference' => ['nullable', 'string', 'max:100'],
             'description' => ['nullable', 'string'],
         ]);
+
+        // Tenant-scoped validation of all foreign IDs
+        if (! empty($data['vendor_id'])) {
+            $resolver->resolveVendor($workspace, $data['vendor_id']);
+        }
+        if (! empty($data['account_id'])) {
+            $resolver->resolveLedgerAccount($workspace, $data['account_id']);
+        }
 
         DB::transaction(function () use ($data, $workspace, $request, $ledger) {
             $journalEntryId = null;
@@ -596,7 +654,7 @@ class AccountingController extends Controller
         ]);
     }
 
-    public function storeCreditNote(Request $request)
+    public function storeCreditNote(Request $request, LedgerService $ledger, TenantFinancialResolver $resolver)
     {
         $workspace = $this->workspace($request, 'account.manage');
         $data = $request->validate([
@@ -607,14 +665,65 @@ class AccountingController extends Controller
             'description' => ['nullable', 'string'],
         ]);
 
-        $creditNote = AccountCreditNote::create($data + [
-            'organization_id' => $workspace->organization_id,
-            'workspace_id' => $workspace->id,
-            'status' => 'applied',
-            'created_by' => $request->user()->id,
-        ]);
+        // Tenant-scoped validation
+        $invoice = null;
+        if (! empty($data['invoice_id'])) {
+            $invoice = $resolver->resolveInvoice($workspace, $data['invoice_id']);
+            if (! empty($data['customer_id'])) {
+                $resolver->assertCustomerMatchesInvoice($data['customer_id'], $invoice);
+            } else {
+                $data['customer_id'] = $invoice->customer_id;
+            }
 
-        $this->audit->log($request->user()->id, $workspace->organization_id, $workspace->id, 'credit_note.created', 'credit_note', (string) $creditNote->id, ['amount' => $creditNote->amount]);
+            // Validate credit note does not exceed invoice total minus existing credit notes
+            $invoiceTotal = Money::of($invoice->total_amount);
+            $appliedCredits = Money::of(AccountCreditNote::forWorkspace($workspace->organization_id, $workspace->id)->where('invoice_id', $invoice->id)->sum('amount'));
+            $maxCredit = $invoiceTotal->subtract($appliedCredits)->max(Money::zero());
+            abort_if(Money::of($data['amount'])->isGreaterThan($maxCredit), 422, 'Credit note amount exceeds invoice total amount.');
+        }
+        if (! empty($data['customer_id'])) {
+            $resolver->resolveCustomer($workspace, $data['customer_id']);
+        }
+
+        DB::transaction(function () use ($data, $workspace, $request, $ledger, $invoice) {
+            $creditNote = AccountCreditNote::create($data + [
+                'organization_id' => $workspace->organization_id,
+                'workspace_id' => $workspace->id,
+                'status' => 'applied',
+                'created_by' => $request->user()->id,
+            ]);
+
+            // Credit note has real financial effect: reduce customer receivable
+            if (! empty($data['customer_id'])) {
+                $customer = AccountCustomer::forWorkspace($workspace->organization_id, $workspace->id)
+                    ->lockForUpdate()
+                    ->findOrFail($data['customer_id']);
+                $customer->decrement('balance', $data['amount']);
+            }
+
+            // Create journal entry: Debit Revenue/AR, Credit Customer
+            $arAccount = LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)
+                ->where('name', 'Accounts Receivable')
+                ->first();
+            $incomeAccount = LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)
+                ->whereHas('type', fn ($q) => $q->where('classification', 'income'))
+                ->first();
+
+            if ($arAccount && $incomeAccount) {
+                $entry = $ledger->createEntry($workspace->organization_id, $workspace->id, [
+                    'entry_date' => $data['date'],
+                    'reference' => 'CN-' . $creditNote->id,
+                    'description' => 'Credit Note' . ($invoice ? ' for Invoice ' . ($invoice->invoice_id ?? $invoice->id) : ''),
+                    'lines' => [
+                        ['account_id' => $incomeAccount->id, 'debit' => $data['amount'], 'credit' => 0],
+                        ['account_id' => $arAccount->id, 'debit' => 0, 'credit' => $data['amount']],
+                    ],
+                ], $request->user());
+                $ledger->post($entry, $request->user());
+            }
+
+            $this->audit->log($request->user()->id, $workspace->organization_id, $workspace->id, 'credit_note.created', 'credit_note', (string) $creditNote->id, ['amount' => $creditNote->amount]);
+        });
 
         return back()->with('success', 'Credit note created.');
     }
@@ -637,7 +746,7 @@ class AccountingController extends Controller
         ]);
     }
 
-    public function storeDebitNote(Request $request)
+    public function storeDebitNote(Request $request, LedgerService $ledger, TenantFinancialResolver $resolver)
     {
         $workspace = $this->workspace($request, 'account.manage');
         $data = $request->validate([
@@ -648,14 +757,65 @@ class AccountingController extends Controller
             'description' => ['nullable', 'string'],
         ]);
 
-        $debitNote = AccountDebitNote::create($data + [
-            'organization_id' => $workspace->organization_id,
-            'workspace_id' => $workspace->id,
-            'status' => 'applied',
-            'created_by' => $request->user()->id,
-        ]);
+        // Tenant-scoped validation
+        $bill = null;
+        if (! empty($data['purchase_invoice_id'])) {
+            $bill = $resolver->resolvePurchaseInvoice($workspace, $data['purchase_invoice_id']);
+            if (! empty($data['vendor_id'])) {
+                $resolver->assertVendorMatchesBill($data['vendor_id'], $bill);
+            } else {
+                $data['vendor_id'] = $bill->vendor_id;
+            }
 
-        $this->audit->log($request->user()->id, $workspace->organization_id, $workspace->id, 'debit_note.created', 'debit_note', (string) $debitNote->id, ['amount' => $debitNote->amount]);
+            // Validate debit note does not exceed bill total minus existing debit notes
+            $billTotal = Money::of($bill->total_amount);
+            $appliedDebits = Money::of(AccountDebitNote::forWorkspace($workspace->organization_id, $workspace->id)->where('purchase_invoice_id', $bill->id)->sum('amount'));
+            $maxDebit = $billTotal->subtract($appliedDebits)->max(Money::zero());
+            abort_if(Money::of($data['amount'])->isGreaterThan($maxDebit), 422, 'Debit note amount exceeds bill total amount.');
+        }
+        if (! empty($data['vendor_id'])) {
+            $resolver->resolveVendor($workspace, $data['vendor_id']);
+        }
+
+        DB::transaction(function () use ($data, $workspace, $request, $ledger, $bill) {
+            $debitNote = AccountDebitNote::create($data + [
+                'organization_id' => $workspace->organization_id,
+                'workspace_id' => $workspace->id,
+                'status' => 'applied',
+                'created_by' => $request->user()->id,
+            ]);
+
+            // Debit note has real financial effect: reduce vendor payable
+            if (! empty($data['vendor_id'])) {
+                $vendor = AccountVendor::forWorkspace($workspace->organization_id, $workspace->id)
+                    ->lockForUpdate()
+                    ->findOrFail($data['vendor_id']);
+                $vendor->decrement('balance', $data['amount']);
+            }
+
+            // Create journal entry: Debit AP, Credit Expense
+            $apAccount = LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)
+                ->where('name', 'Accounts Payable')
+                ->first();
+            $expenseAccount = LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)
+                ->whereHas('type', fn ($q) => $q->where('classification', 'expense'))
+                ->first();
+
+            if ($apAccount && $expenseAccount) {
+                $entry = $ledger->createEntry($workspace->organization_id, $workspace->id, [
+                    'entry_date' => $data['date'],
+                    'reference' => 'DN-' . $debitNote->id,
+                    'description' => 'Debit Note' . ($bill ? ' for Bill ' . ($bill->invoice_id ?? $bill->id) : ''),
+                    'lines' => [
+                        ['account_id' => $apAccount->id, 'debit' => $data['amount'], 'credit' => 0],
+                        ['account_id' => $expenseAccount->id, 'debit' => 0, 'credit' => $data['amount']],
+                    ],
+                ], $request->user());
+                $ledger->post($entry, $request->user());
+            }
+
+            $this->audit->log($request->user()->id, $workspace->organization_id, $workspace->id, 'debit_note.created', 'debit_note', (string) $debitNote->id, ['amount' => $debitNote->amount]);
+        });
 
         return back()->with('success', 'Debit note created.');
     }
@@ -674,7 +834,7 @@ class AccountingController extends Controller
                 'accounts' => LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)->count(),
                 'bank_accounts' => LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)->where('is_bank', true)->count(),
                 'posted_journals' => JournalEntry::where('organization_id', $workspace->organization_id)->where('workspace_id', $workspace->id)->where('status', 'posted')->count(),
-                'bank_transfers' => (float) AccountBankTransfer::where('organization_id', $workspace->organization_id)->where('workspace_id', $workspace->id)->sum('amount'),
+                'bank_transfers' => Money::of(AccountBankTransfer::where('organization_id', $workspace->organization_id)->where('workspace_id', $workspace->id)->sum('amount'))->toFloat(),
             ],
         ]);
     }
@@ -765,9 +925,9 @@ class AccountingController extends Controller
                 'net_income' => (float) (($byClass['income'] ?? 0) - ($byClass['expense'] ?? 0)),
             ],
             'balanceSheet' => [
-                'assets' => (float) ($byClass['asset'] ?? 0),
-                'liabilities' => (float) ($byClass['liability'] ?? 0),
-                'equity' => (float) ($byClass['equity'] ?? 0),
+                'assets' => Money::of($byClass['asset'] ?? 0)->toFloat(),
+                'liabilities' => Money::of($byClass['liability'] ?? 0)->toFloat(),
+                'equity' => Money::of($byClass['equity'] ?? 0)->toFloat(),
             ],
         ]);
     }
@@ -811,15 +971,16 @@ class AccountingController extends Controller
             'statement_balance' => ['required', 'numeric'],
         ]);
         $account = LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)->where('is_bank', true)->findOrFail($data['account_id']);
-        $balance = (float) $ledger->balances($workspace->organization_id, $workspace->id, null, $data['statement_date'])->firstWhere('id', $account->id)?->balance;
+        $ledgerBalance = Money::of($ledger->balances($workspace->organization_id, $workspace->id, null, $data['statement_date'])->firstWhere('id', $account->id)?->balance ?? 0);
+        $statementBalance = Money::of($data['statement_balance']);
         BankReconciliation::create([
             'organization_id' => $workspace->organization_id,
             'workspace_id' => $workspace->id,
             'ledger_account_id' => $account->id,
             'statement_date' => $data['statement_date'],
-            'statement_balance' => $data['statement_balance'],
-            'ledger_balance' => $balance,
-            'status' => abs($balance - (float) $data['statement_balance']) < 0.01 ? 'reconciled' : 'difference',
+            'statement_balance' => $statementBalance->toStorageString(),
+            'ledger_balance' => $ledgerBalance->toStorageString(),
+            'status' => $ledgerBalance->equals($statementBalance) ? 'reconciled' : 'difference',
             'reconciled_by' => $request->user()->id,
             'reconciled_at' => now(),
         ]);

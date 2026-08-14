@@ -15,6 +15,11 @@ class DemoUserSeeder extends Seeder
 {
     public function run(): void
     {
+        if (app()->isProduction()) {
+            $this->command?->error('DemoUserSeeder must NOT run in production.');
+            return;
+        }
+
         // 1. Create Super Admin User
         $superAdmin = User::firstOrCreate(
             ['email' => 'superadmin@hiddenleaf.io'],

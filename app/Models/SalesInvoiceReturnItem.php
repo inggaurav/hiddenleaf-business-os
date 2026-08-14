@@ -20,4 +20,9 @@ class SalesInvoiceReturnItem extends Model
     protected $casts = [
         'price' => 'decimal:2',
     ];
+
+    public function return(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(SalesInvoiceReturn::class, 'sales_invoice_return_id');
+    }
 }

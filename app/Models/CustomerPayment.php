@@ -24,6 +24,7 @@ class CustomerPayment extends Model
         'reference',
         'description',
         'receipt',
+        'idempotency_key',
         'journal_entry_id',
         'created_by',
     ];

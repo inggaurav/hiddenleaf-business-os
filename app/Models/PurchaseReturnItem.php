@@ -20,4 +20,9 @@ class PurchaseReturnItem extends Model
     protected $casts = [
         'price' => 'decimal:2',
     ];
+
+    public function purchaseReturn(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(PurchaseReturn::class, 'purchase_return_id');
+    }
 }

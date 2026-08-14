@@ -78,15 +78,17 @@ class LedgerService
         if (count($lines) < 2) {
             throw new RuntimeException('A journal entry requires at least two lines.');
         }
-        $debits = round((float) collect($lines)->sum(fn ($line) => $line['debit'] ?? 0), 2);
-        $credits = round((float) collect($lines)->sum(fn ($line) => $line['credit'] ?? 0), 2);
-        if ($debits <= 0 || abs($debits - $credits) > 0.001) {
-            throw new RuntimeException('Journal entry debits and credits must balance.');
-        }
+        $debits = Money::zero();
+        $credits = Money::zero();
         foreach ($lines as $line) {
-            if (($line['debit'] ?? 0) > 0 && ($line['credit'] ?? 0) > 0) {
+            $debits = $debits->add(Money::of($line['debit'] ?? 0));
+            $credits = $credits->add(Money::of($line['credit'] ?? 0));
+            if (Money::of($line['debit'] ?? 0)->isPositive() && Money::of($line['credit'] ?? 0)->isPositive()) {
                 throw new RuntimeException('A journal line cannot contain both a debit and a credit.');
             }
+        }
+        if ($debits->isZero() || ! $debits->equals($credits)) {
+            throw new RuntimeException('Journal entry debits and credits must balance.');
         }
     }
 }
