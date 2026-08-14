@@ -320,4 +320,90 @@ class SalesProcurementCoreTest extends TestCase
             ->getJson(route('sales-invoices.warehouse.products', ['warehouse_id' => $foreignWarehouse->id]))
             ->assertNotFound();
     }
+
+    public function test_foreign_purchase_and_sales_invoices_cannot_be_read_mutated_or_posted(): void
+    {
+        $otherOwner = User::factory()->create();
+        $otherOrg = Organization::factory()->create(['owner_id' => $otherOwner->id]);
+        $otherWorkspace = Workspace::factory()->create(['organization_id' => $otherOrg->id, 'created_by' => $otherOwner->id]);
+        $foreignWarehouse = Warehouse::create([
+            'name' => 'Foreign Billing Depot',
+            'organization_id' => $otherOrg->id,
+            'workspace_id' => $otherWorkspace->id,
+            'created_by' => $otherOwner->id,
+        ]);
+        $foreignPurchase = PurchaseInvoice::create([
+            'invoice_id' => 'PUR-FOREIGN-1',
+            'warehouse_id' => $foreignWarehouse->id,
+            'purchase_date' => today(),
+            'total_amount' => 100,
+            'status' => 0,
+            'organization_id' => $otherOrg->id,
+            'workspace_id' => $otherWorkspace->id,
+            'created_by' => $otherOwner->id,
+        ]);
+        $foreignSale = SalesInvoice::create([
+            'invoice_id' => 'SAL-FOREIGN-1',
+            'warehouse_id' => $foreignWarehouse->id,
+            'issue_date' => today(),
+            'total_amount' => 100,
+            'status' => 0,
+            'organization_id' => $otherOrg->id,
+            'workspace_id' => $otherWorkspace->id,
+            'created_by' => $otherOwner->id,
+        ]);
+        $request = $this->actingAs($this->user)->withSession([
+            'active_organization_id' => $this->org->id,
+            'active_workspace_id' => $this->ws->id,
+        ]);
+
+        $request->get("/purchase-invoices/{$foreignPurchase->id}")->assertNotFound();
+        $request->delete("/purchase-invoices/{$foreignPurchase->id}")->assertNotFound();
+        $request->post("/purchase-invoices/{$foreignPurchase->id}/post")->assertNotFound();
+        $request->get("/sales-invoices/{$foreignSale->id}")->assertNotFound();
+        $request->delete("/sales-invoices/{$foreignSale->id}")->assertNotFound();
+        $request->post("/sales-invoices/{$foreignSale->id}/post")->assertNotFound();
+
+        $this->assertDatabaseHas('purchase_invoices', ['id' => $foreignPurchase->id, 'status' => 0]);
+        $this->assertDatabaseHas('sales_invoices', ['id' => $foreignSale->id, 'status' => 0]);
+    }
+
+    public function test_product_purchase_sale_and_return_restore_stock_end_to_end(): void
+    {
+        $warehouse = Warehouse::create(['name' => 'Lifecycle Depot', 'organization_id' => $this->org->id, 'workspace_id' => $this->ws->id, 'created_by' => $this->user->id]);
+        $product = ProductServiceItem::create(['name' => 'Lifecycle Product', 'sku' => 'FLOW-1', 'type' => 'product', 'sale_price' => 100, 'purchase_price' => 60, 'organization_id' => $this->org->id, 'workspace_id' => $this->ws->id, 'created_by' => $this->user->id]);
+        $session = ['active_organization_id' => $this->org->id, 'active_workspace_id' => $this->ws->id];
+
+        $this->actingAs($this->user)->withSession($session)->post('/purchase-invoices', [
+            'warehouse_id' => $warehouse->id,
+            'purchase_date' => today()->toDateString(),
+            'items' => [['product_id' => $product->id, 'quantity' => 10, 'price' => 60]],
+        ])->assertSessionHasNoErrors();
+        $purchase = PurchaseInvoice::sole();
+        $this->actingAs($this->user)->withSession($session)->post("/purchase-invoices/{$purchase->id}/post")->assertSessionHasNoErrors();
+        $this->assertDatabaseHas('warehouse_stocks', ['warehouse_id' => $warehouse->id, 'product_id' => $product->id, 'quantity' => 10]);
+
+        $this->actingAs($this->user)->withSession($session)->post('/sales-invoices', [
+            'warehouse_id' => $warehouse->id,
+            'issue_date' => today()->toDateString(),
+            'items' => [['product_id' => $product->id, 'quantity' => 4, 'price' => 100]],
+        ])->assertSessionHasNoErrors();
+        $sale = SalesInvoice::sole();
+        $this->actingAs($this->user)->withSession($session)->post("/sales-invoices/{$sale->id}/post")->assertSessionHasNoErrors();
+        $this->assertDatabaseHas('warehouse_stocks', ['warehouse_id' => $warehouse->id, 'product_id' => $product->id, 'quantity' => 6]);
+
+        $this->actingAs($this->user)->withSession($session)->post('/sales-returns', [
+            'sales_invoice_id' => $sale->id,
+            'date' => today()->toDateString(),
+            'items' => [['product_id' => $product->id, 'quantity' => 2, 'price' => 100]],
+        ])->assertSessionHasNoErrors();
+        $return = SalesInvoiceReturn::sole();
+        $this->actingAs($this->user)->withSession($session)->post("/sales-returns/{$return->id}/approve")->assertSessionHasNoErrors();
+        $this->actingAs($this->user)->withSession($session)->post("/sales-returns/{$return->id}/complete")->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('warehouse_stocks', ['warehouse_id' => $warehouse->id, 'product_id' => $product->id, 'quantity' => 8]);
+        $this->assertDatabaseHas('stock_movements', ['product_id' => $product->id, 'type' => 'purchase_received']);
+        $this->assertDatabaseHas('stock_movements', ['product_id' => $product->id, 'type' => 'sale_issued']);
+        $this->assertDatabaseHas('stock_movements', ['product_id' => $product->id, 'type' => 'sales_return_received']);
+    }
 }
