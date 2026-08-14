@@ -28,6 +28,14 @@ interface Props {
   accounts: Array<{ id: number; name: string; code: string }>;
 }
 
+const newOperationKey = () => {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+
+  return `payment-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+};
+
 export default function CustomerPayments({ payments, customers, invoices, accounts }: Props) {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({
@@ -39,6 +47,7 @@ export default function CustomerPayments({ payments, customers, invoices, accoun
     payment_method: 'bank_transfer',
     reference: '',
     description: '',
+    idempotency_key: newOperationKey(),
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -55,6 +64,7 @@ export default function CustomerPayments({ payments, customers, invoices, accoun
           payment_method: 'bank_transfer',
           reference: '',
           description: '',
+          idempotency_key: newOperationKey(),
         });
       },
     });
@@ -146,7 +156,6 @@ export default function CustomerPayments({ payments, customers, invoices, accoun
         </Card>
       </div>
 
-      {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
           <div className="w-full max-w-lg bg-[var(--surface-1)] border border-[var(--border-subtle)] rounded-2xl p-6 shadow-2xl space-y-4">
@@ -154,80 +163,43 @@ export default function CustomerPayments({ payments, customers, invoices, accoun
             <form onSubmit={handleSubmit} className="space-y-3">
               <div>
                 <label className="block text-[11px] font-semibold text-[var(--text-secondary)] mb-1">Customer</label>
-                <select
-                  value={form.customer_id}
-                  onChange={(e) => setForm({ ...form, customer_id: e.target.value })}
-                  className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]"
-                >
+                <select value={form.customer_id} onChange={(e) => setForm({ ...form, customer_id: e.target.value })} className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]">
                   <option value="">Select Customer (Optional)</option>
-                  {customers.map((c) => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
+                  {customers.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </div>
 
               <div>
                 <label className="block text-[11px] font-semibold text-[var(--text-secondary)] mb-1">Apply to Invoice</label>
-                <select
-                  value={form.invoice_id}
-                  onChange={(e) => setForm({ ...form, invoice_id: e.target.value })}
-                  className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]"
-                >
+                <select value={form.invoice_id} onChange={(e) => setForm({ ...form, invoice_id: e.target.value })} className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]">
                   <option value="">Select Invoice (Optional)</option>
-                  {invoices.map((inv) => (
-                    <option key={inv.id} value={inv.id}>{inv.invoice_id} (${inv.total_amount})</option>
-                  ))}
+                  {invoices.map((inv) => <option key={inv.id} value={inv.id}>{inv.invoice_id} (${inv.total_amount})</option>)}
                 </select>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[11px] font-semibold text-[var(--text-secondary)] mb-1">Deposit Account *</label>
-                  <select
-                    required
-                    value={form.account_id}
-                    onChange={(e) => setForm({ ...form, account_id: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]"
-                  >
-                    {accounts.map((a) => (
-                      <option key={a.id} value={a.id}>{a.code} - {a.name}</option>
-                    ))}
+                  <select required value={form.account_id} onChange={(e) => setForm({ ...form, account_id: e.target.value })} className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]">
+                    {accounts.map((a) => <option key={a.id} value={a.id}>{a.code} - {a.name}</option>)}
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-[11px] font-semibold text-[var(--text-secondary)] mb-1">Amount ($) *</label>
-                  <input
-                    required
-                    type="number"
-                    step="0.01"
-                    min="0.01"
-                    value={form.amount}
-                    onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]"
-                  />
+                  <input required type="number" step="0.01" min="0.01" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]" />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[11px] font-semibold text-[var(--text-secondary)] mb-1">Payment Date *</label>
-                  <input
-                    required
-                    type="date"
-                    value={form.payment_date}
-                    onChange={(e) => setForm({ ...form, payment_date: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]"
-                  />
+                  <input required type="date" value={form.payment_date} onChange={(e) => setForm({ ...form, payment_date: e.target.value })} className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]" />
                 </div>
 
                 <div>
                   <label className="block text-[11px] font-semibold text-[var(--text-secondary)] mb-1">Payment Method</label>
-                  <select
-                    value={form.payment_method}
-                    onChange={(e) => setForm({ ...form, payment_method: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]"
-                  >
+                  <select value={form.payment_method} onChange={(e) => setForm({ ...form, payment_method: e.target.value })} className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]">
                     <option value="bank_transfer">Bank Transfer</option>
                     <option value="credit_card">Credit Card</option>
                     <option value="cash">Cash</option>
@@ -238,22 +210,12 @@ export default function CustomerPayments({ payments, customers, invoices, accoun
 
               <div>
                 <label className="block text-[11px] font-semibold text-[var(--text-secondary)] mb-1">Reference / Transaction ID</label>
-                <input
-                  type="text"
-                  value={form.reference}
-                  onChange={(e) => setForm({ ...form, reference: e.target.value })}
-                  placeholder="e.g. TXN-99823"
-                  className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]"
-                />
+                <input type="text" value={form.reference} onChange={(e) => setForm({ ...form, reference: e.target.value })} placeholder="e.g. TXN-99823" className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]" />
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-2">
-                <Button variant="ghost" size="sm" type="button" onClick={() => setShowModal(false)}>
-                  Cancel
-                </Button>
-                <Button variant="primary" size="sm" type="submit">
-                  Confirm Payment
-                </Button>
+                <Button variant="ghost" size="sm" type="button" onClick={() => setShowModal(false)}>Cancel</Button>
+                <Button variant="primary" size="sm" type="submit">Confirm Payment</Button>
               </div>
             </form>
           </div>
