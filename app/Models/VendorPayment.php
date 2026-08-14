@@ -25,6 +25,7 @@ class VendorPayment extends Model
         'description',
         'receipt',
         'idempotency_key',
+        'request_fingerprint',
         'journal_entry_id',
         'created_by',
     ];

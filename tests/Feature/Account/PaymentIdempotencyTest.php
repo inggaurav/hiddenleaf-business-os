@@ -43,7 +43,7 @@ class PaymentIdempotencyTest extends TestCase
         return compact('user', 'org', 'ws', 'customer', 'vendor', 'bank', 'sale', 'purchase');
     }
 
-    public function test_duplicate_idempotency_key_rejects_second_customer_payment(): void
+    public function test_same_idempotency_key_with_same_payload_returns_idempotent_success(): void
     {
         $env = $this->setupEnv();
 
@@ -54,42 +54,99 @@ class PaymentIdempotencyTest extends TestCase
             'amount' => 100,
             'payment_date' => now()->toDateString(),
             'payment_method' => 'cash',
-            'idempotency_key' => 'idemp-cust-123',
+            'idempotency_key' => 'idemp-cust-same',
         ];
 
+        // First request
         $this->actingAs($env['user'])
             ->withSession(['active_organization_id' => $env['org']->id, 'active_workspace_id' => $env['ws']->id])
             ->postJson('/accounting/customer-payments', $payload)
             ->assertRedirect();
 
+        // Exact retry with same payload returns idempotent redirect success
         $this->actingAs($env['user'])
             ->withSession(['active_organization_id' => $env['org']->id, 'active_workspace_id' => $env['ws']->id])
             ->postJson('/accounting/customer-payments', $payload)
-            ->assertStatus(409);
+            ->assertRedirect();
     }
 
-    public function test_duplicate_idempotency_key_rejects_second_vendor_payment(): void
+    public function test_same_idempotency_key_with_different_payload_returns_409(): void
     {
         $env = $this->setupEnv();
 
-        $payload = [
+        $payload1 = [
+            'customer_id' => $env['customer']->id,
+            'invoice_id' => $env['sale']->id,
+            'account_id' => $env['bank']->id,
+            'amount' => 100,
+            'payment_date' => now()->toDateString(),
+            'payment_method' => 'cash',
+            'idempotency_key' => 'idemp-cust-diff',
+        ];
+
+        $payload2 = [
+            'customer_id' => $env['customer']->id,
+            'invoice_id' => $env['sale']->id,
+            'account_id' => $env['bank']->id,
+            'amount' => 200, // Different amount
+            'payment_date' => now()->toDateString(),
+            'payment_method' => 'bank_transfer',
+            'idempotency_key' => 'idemp-cust-diff',
+        ];
+
+        // First request
+        $this->actingAs($env['user'])
+            ->withSession(['active_organization_id' => $env['org']->id, 'active_workspace_id' => $env['ws']->id])
+            ->postJson('/accounting/customer-payments', $payload1)
+            ->assertRedirect();
+
+        // Conflicting request with altered payload returns 409
+        $this->actingAs($env['user'])
+            ->withSession(['active_organization_id' => $env['org']->id, 'active_workspace_id' => $env['ws']->id])
+            ->postJson('/accounting/customer-payments', $payload2)
+            ->assertStatus(409);
+    }
+
+    public function test_vendor_payment_idempotency_behavior(): void
+    {
+        $env = $this->setupEnv();
+
+        $payload1 = [
             'vendor_id' => $env['vendor']->id,
             'purchase_invoice_id' => $env['purchase']->id,
             'account_id' => $env['bank']->id,
             'amount' => 100,
             'payment_date' => now()->toDateString(),
             'payment_method' => 'cash',
-            'idempotency_key' => 'idemp-vend-123',
+            'idempotency_key' => 'idemp-vend-test',
         ];
 
+        $payload2 = [
+            'vendor_id' => $env['vendor']->id,
+            'purchase_invoice_id' => $env['purchase']->id,
+            'account_id' => $env['bank']->id,
+            'amount' => 300, // Different amount
+            'payment_date' => now()->toDateString(),
+            'payment_method' => 'cash',
+            'idempotency_key' => 'idemp-vend-test',
+        ];
+
+        // First request
         $this->actingAs($env['user'])
             ->withSession(['active_organization_id' => $env['org']->id, 'active_workspace_id' => $env['ws']->id])
-            ->postJson('/accounting/vendor-payments', $payload)
+            ->postJson('/accounting/vendor-payments', $payload1)
             ->assertRedirect();
 
+        // Exact retry -> success
         $this->actingAs($env['user'])
             ->withSession(['active_organization_id' => $env['org']->id, 'active_workspace_id' => $env['ws']->id])
-            ->postJson('/accounting/vendor-payments', $payload)
+            ->postJson('/accounting/vendor-payments', $payload1)
+            ->assertRedirect();
+
+        // Mismatched payload -> 409
+        $this->actingAs($env['user'])
+            ->withSession(['active_organization_id' => $env['org']->id, 'active_workspace_id' => $env['ws']->id])
+            ->postJson('/accounting/vendor-payments', $payload2)
             ->assertStatus(409);
     }
 
@@ -101,7 +158,7 @@ class PaymentIdempotencyTest extends TestCase
             'customer_id' => $env['customer']->id,
             'invoice_id' => $env['sale']->id,
             'account_id' => $env['bank']->id,
-            'amount' => 100,
+            'amount' => 50,
             'payment_date' => now()->toDateString(),
             'payment_method' => 'cash',
         ];

@@ -10,16 +10,17 @@ return new class extends Migration
     {
         // Customer Payments foreign keys + idempotency
         Schema::table('customer_payments', function (Blueprint $table) {
-            // Add idempotency_key column
             if (! Schema::hasColumn('customer_payments', 'idempotency_key')) {
                 $table->string('idempotency_key', 64)->nullable()->after('receipt');
                 $table->unique(['workspace_id', 'idempotency_key'], 'cp_ws_idempotency_unique');
             }
-        });
+            if (! Schema::hasColumn('customer_payments', 'request_fingerprint')) {
+                $table->string('request_fingerprint', 64)->nullable()->after('idempotency_key');
+            }
 
-        // Add FK constraints separately to handle potential failures gracefully
-        $this->addForeignKeySafe('customer_payments', 'customer_id', 'account_customers', 'id', 'restrict');
-        $this->addForeignKeySafe('customer_payments', 'invoice_id', 'sales_invoices', 'id', 'nullOnDelete');
+            $table->foreign('customer_id')->references('id')->on('account_customers')->restrictOnDelete();
+            $table->foreign('invoice_id')->references('id')->on('sales_invoices')->nullOnDelete();
+        });
 
         // Vendor Payments foreign keys + idempotency
         Schema::table('vendor_payments', function (Blueprint $table) {
@@ -27,80 +28,79 @@ return new class extends Migration
                 $table->string('idempotency_key', 64)->nullable()->after('receipt');
                 $table->unique(['workspace_id', 'idempotency_key'], 'vp_ws_idempotency_unique');
             }
+            if (! Schema::hasColumn('vendor_payments', 'request_fingerprint')) {
+                $table->string('request_fingerprint', 64)->nullable()->after('idempotency_key');
+            }
+
+            $table->foreign('vendor_id')->references('id')->on('account_vendors')->restrictOnDelete();
+            $table->foreign('purchase_invoice_id')->references('id')->on('purchase_invoices')->nullOnDelete();
         });
 
-        $this->addForeignKeySafe('vendor_payments', 'vendor_id', 'account_vendors', 'id', 'restrict');
-        $this->addForeignKeySafe('vendor_payments', 'purchase_invoice_id', 'purchase_invoices', 'id', 'nullOnDelete');
-
         // Revenue foreign keys
-        $this->addForeignKeySafe('account_revenues', 'customer_id', 'account_customers', 'id', 'nullOnDelete');
+        Schema::table('account_revenues', function (Blueprint $table) {
+            $table->foreign('customer_id')->references('id')->on('account_customers')->nullOnDelete();
+        });
 
         // Expense foreign keys
-        $this->addForeignKeySafe('account_expenses', 'vendor_id', 'account_vendors', 'id', 'nullOnDelete');
+        Schema::table('account_expenses', function (Blueprint $table) {
+            $table->foreign('vendor_id')->references('id')->on('account_vendors')->nullOnDelete();
+        });
 
         // Credit Note foreign keys
-        $this->addForeignKeySafe('account_credit_notes', 'invoice_id', 'sales_invoices', 'id', 'nullOnDelete');
-        $this->addForeignKeySafe('account_credit_notes', 'customer_id', 'account_customers', 'id', 'restrict');
+        Schema::table('account_credit_notes', function (Blueprint $table) {
+            $table->foreign('invoice_id')->references('id')->on('sales_invoices')->nullOnDelete();
+            $table->foreign('customer_id')->references('id')->on('account_customers')->restrictOnDelete();
+        });
 
         // Debit Note foreign keys
-        $this->addForeignKeySafe('account_debit_notes', 'purchase_invoice_id', 'purchase_invoices', 'id', 'nullOnDelete');
-        $this->addForeignKeySafe('account_debit_notes', 'vendor_id', 'account_vendors', 'id', 'restrict');
+        Schema::table('account_debit_notes', function (Blueprint $table) {
+            $table->foreign('purchase_invoice_id')->references('id')->on('purchase_invoices')->nullOnDelete();
+            $table->foreign('vendor_id')->references('id')->on('account_vendors')->restrictOnDelete();
+        });
     }
 
     public function down(): void
     {
-        $this->dropForeignKeySafe('customer_payments', 'customer_id');
-        $this->dropForeignKeySafe('customer_payments', 'invoice_id');
-        $this->dropForeignKeySafe('vendor_payments', 'vendor_id');
-        $this->dropForeignKeySafe('vendor_payments', 'purchase_invoice_id');
-        $this->dropForeignKeySafe('account_revenues', 'customer_id');
-        $this->dropForeignKeySafe('account_expenses', 'vendor_id');
-        $this->dropForeignKeySafe('account_credit_notes', 'invoice_id');
-        $this->dropForeignKeySafe('account_credit_notes', 'customer_id');
-        $this->dropForeignKeySafe('account_debit_notes', 'purchase_invoice_id');
-        $this->dropForeignKeySafe('account_debit_notes', 'vendor_id');
+        Schema::table('account_debit_notes', function (Blueprint $table) {
+            $table->dropForeign(['purchase_invoice_id']);
+            $table->dropForeign(['vendor_id']);
+        });
 
-        Schema::table('customer_payments', function (Blueprint $table) {
-            if (Schema::hasColumn('customer_payments', 'idempotency_key')) {
-                $table->dropUnique('cp_ws_idempotency_unique');
-                $table->dropColumn('idempotency_key');
-            }
+        Schema::table('account_credit_notes', function (Blueprint $table) {
+            $table->dropForeign(['invoice_id']);
+            $table->dropForeign(['customer_id']);
+        });
+
+        Schema::table('account_expenses', function (Blueprint $table) {
+            $table->dropForeign(['vendor_id']);
+        });
+
+        Schema::table('account_revenues', function (Blueprint $table) {
+            $table->dropForeign(['customer_id']);
         });
 
         Schema::table('vendor_payments', function (Blueprint $table) {
+            $table->dropForeign(['vendor_id']);
+            $table->dropForeign(['purchase_invoice_id']);
+            if (Schema::hasColumn('vendor_payments', 'request_fingerprint')) {
+                $table->dropColumn('request_fingerprint');
+            }
             if (Schema::hasColumn('vendor_payments', 'idempotency_key')) {
                 $table->dropUnique('vp_ws_idempotency_unique');
                 $table->dropColumn('idempotency_key');
             }
         });
-    }
 
-    private function addForeignKeySafe(string $table, string $column, string $referencedTable, string $referencedColumn, string $onDelete): void
-    {
-        try {
-            Schema::table($table, function (Blueprint $blueprint) use ($column, $referencedTable, $referencedColumn, $onDelete) {
-                $fk = $blueprint->foreign($column)->references($referencedColumn)->on($referencedTable);
-                match ($onDelete) {
-                    'restrict' => $fk->restrictOnDelete(),
-                    'nullOnDelete' => $fk->nullOnDelete(),
-                    'cascade' => $fk->cascadeOnDelete(),
-                    default => $fk,
-                };
-            });
-        } catch (\Throwable $e) {
-            // FK may already exist or referenced table may not exist yet
-            report($e);
-        }
-    }
-
-    private function dropForeignKeySafe(string $table, string $column): void
-    {
-        try {
-            Schema::table($table, function (Blueprint $blueprint) use ($column) {
-                $blueprint->dropForeign([$column]);
-            });
-        } catch (\Throwable) {
-            // FK may not exist
-        }
+        Schema::table('customer_payments', function (Blueprint $table) {
+            $table->dropForeign(['customer_id']);
+            $table->dropForeign(['invoice_id']);
+            if (Schema::hasColumn('customer_payments', 'request_fingerprint')) {
+                $table->dropColumn('request_fingerprint');
+            }
+            if (Schema::hasColumn('customer_payments', 'idempotency_key')) {
+                $table->dropUnique('cp_ws_idempotency_unique');
+                $table->dropColumn('idempotency_key');
+            }
+        });
     }
 };

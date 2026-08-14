@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Domain\Accounting\AccountDashboardService;
+use App\Domain\Accounting\FinancialBalanceService;
 use App\Domain\Accounting\LedgerService;
 use App\Domain\Accounting\Money;
 use App\Domain\Accounting\TenantFinancialResolver;
@@ -130,6 +131,13 @@ class AccountingController extends Controller
         $workspace = $this->workspace($request, 'account.manage');
         abort_unless((int) $customer->organization_id === (int) $workspace->organization_id && (int) $customer->workspace_id === (int) $workspace->id, 404);
 
+        $hasHistory = CustomerPayment::where('customer_id', $customer->id)->exists()
+            || SalesInvoice::where('customer_id', $customer->id)->exists()
+            || AccountCreditNote::where('customer_id', $customer->id)->exists()
+            || AccountRevenue::where('customer_id', $customer->id)->exists();
+
+        abort_if($hasHistory, 422, 'Cannot delete customer with existing financial history. Deactivate the customer instead.');
+
         $customer->delete();
 
         return back()->with('success', 'Customer deleted.');
@@ -223,6 +231,13 @@ class AccountingController extends Controller
         $workspace = $this->workspace($request, 'account.manage');
         abort_unless((int) $vendor->organization_id === (int) $workspace->organization_id && (int) $vendor->workspace_id === (int) $workspace->id, 404);
 
+        $hasHistory = VendorPayment::where('vendor_id', $vendor->id)->exists()
+            || PurchaseInvoice::where('vendor_id', $vendor->id)->exists()
+            || AccountDebitNote::where('vendor_id', $vendor->id)->exists()
+            || AccountExpense::where('vendor_id', $vendor->id)->exists();
+
+        abort_if($hasHistory, 422, 'Cannot delete vendor with existing financial history. Deactivate the vendor instead.');
+
         $vendor->delete();
 
         return back()->with('success', 'Vendor deleted.');
@@ -251,7 +266,7 @@ class AccountingController extends Controller
         ]);
     }
 
-    public function storeCustomerPayment(Request $request, LedgerService $ledger, TenantFinancialResolver $resolver)
+    public function storeCustomerPayment(Request $request, LedgerService $ledger, TenantFinancialResolver $resolver, FinancialBalanceService $balanceService)
     {
         $workspace = $this->workspace($request, 'account.manage');
         $data = $request->validate([
@@ -266,12 +281,31 @@ class AccountingController extends Controller
             'idempotency_key' => ['nullable', 'string', 'max:64'],
         ]);
 
-        // Idempotency check
-        if (! empty($data['idempotency_key'])) {
-            $exists = CustomerPayment::forWorkspace($workspace->organization_id, $workspace->id)
-                ->where('idempotency_key', $data['idempotency_key'])
-                ->exists();
-            abort_if($exists, 409, 'Duplicate payment: this idempotency key has already been used.');
+        $idempotencyKey = $data['idempotency_key'] ?? $request->header('Idempotency-Key');
+        $data['idempotency_key'] = $idempotencyKey;
+
+        // Generate deterministic payload fingerprint
+        $fingerprint = hash('sha256', json_encode([
+            'customer_id' => $data['customer_id'] ?? null,
+            'invoice_id' => $data['invoice_id'] ?? null,
+            'account_id' => $data['account_id'] ?? null,
+            'amount' => Money::of($data['amount'])->toStorageString(),
+            'payment_date' => $data['payment_date'],
+            'payment_method' => $data['payment_method'],
+        ]));
+        $data['request_fingerprint'] = $fingerprint;
+
+        // Pre-check existing idempotency key
+        if (! empty($idempotencyKey)) {
+            $existing = CustomerPayment::forWorkspace($workspace->organization_id, $workspace->id)
+                ->where('idempotency_key', $idempotencyKey)
+                ->first();
+            if ($existing) {
+                if ($existing->request_fingerprint === $fingerprint || Money::of($existing->amount)->equals(Money::of($data['amount']))) {
+                    return back()->with('success', 'Customer payment recorded.');
+                }
+                abort(409, 'Duplicate payment: this idempotency key has already been used with different parameters.');
+            }
         }
 
         // Tenant-scoped validation of all foreign IDs BEFORE the transaction
@@ -282,74 +316,87 @@ class AccountingController extends Controller
             $resolver->resolveLedgerAccount($workspace, $data['account_id']);
         }
 
-        DB::transaction(function () use ($data, $workspace, $request, $ledger, $resolver) {
-            $invoice = null;
-            if (! empty($data['invoice_id'])) {
-                $invoice = $resolver->resolveInvoiceForPayment($workspace, $data['invoice_id']);
-                // If customer_id supplied, it must match the invoice
+        try {
+            DB::transaction(function () use ($data, $workspace, $request, $ledger, $resolver, $balanceService) {
+                $invoice = null;
+                if (! empty($data['invoice_id'])) {
+                    $invoice = $resolver->resolveInvoiceForPayment($workspace, $data['invoice_id']);
+                    // If customer_id supplied, it must match the invoice
+                    if (! empty($data['customer_id'])) {
+                        $resolver->assertCustomerMatchesInvoice($data['customer_id'], $invoice);
+                    }
+                    $data['customer_id'] = $data['customer_id'] ?? $invoice->customer_id;
+
+                    $alreadyPaid = Money::of(CustomerPayment::where('invoice_id', $invoice->id)->sum('amount'));
+                    $invoiceTotal = Money::of($invoice->total_amount);
+                    $due = $invoiceTotal->subtract($alreadyPaid)->max(Money::zero());
+                    $paymentAmount = Money::of($data['amount']);
+                    abort_if($paymentAmount->isGreaterThan($due), 422, 'Payment amount exceeds remaining invoice balance.');
+                }
+
+                $journalEntryId = null;
+                if (! empty($data['account_id'])) {
+                    $arAccount = LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)
+                        ->where('name', 'Accounts Receivable')
+                        ->first() ?? LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)
+                        ->where('is_bank', false)
+                        ->first();
+
+                    if ($arAccount) {
+                        $entry = $ledger->createEntry($workspace->organization_id, $workspace->id, [
+                            'entry_date' => $data['payment_date'],
+                            'reference' => $data['reference'] ?? 'PAY-CUST',
+                            'description' => 'Customer Payment' . ($invoice ? ' for Invoice ' . ($invoice->invoice_id ?? $invoice->id) : ''),
+                            'lines' => [
+                                ['account_id' => $data['account_id'], 'debit' => $data['amount'], 'credit' => 0],
+                                ['account_id' => $arAccount->id, 'debit' => 0, 'credit' => $data['amount']],
+                            ],
+                        ], $request->user());
+                        $ledger->post($entry, $request->user());
+                        $journalEntryId = $entry->id;
+                    }
+                }
+
+                $payment = CustomerPayment::create($data + [
+                    'organization_id' => $workspace->organization_id,
+                    'workspace_id' => $workspace->id,
+                    'journal_entry_id' => $journalEntryId,
+                    'created_by' => $request->user()->id,
+                ]);
+
+                // Update invoice payment status using decimal-safe arithmetic
+                if ($invoice) {
+                    $totalPaid = Money::of(CustomerPayment::where('invoice_id', $invoice->id)->sum('amount'));
+                    $invoiceTotal = Money::of($invoice->total_amount);
+                    if ($totalPaid->isGreaterThanOrEqual($invoiceTotal)) {
+                        $invoice->update(['status' => 'paid']);
+                    } else {
+                        $invoice->update(['status' => 'partial']);
+                    }
+                }
+
+                // Synchronize customer balance authoritative state
                 if (! empty($data['customer_id'])) {
-                    $resolver->assertCustomerMatchesInvoice($data['customer_id'], $invoice);
+                    $customer = AccountCustomer::forWorkspace($workspace->organization_id, $workspace->id)
+                        ->lockForUpdate()
+                        ->findOrFail($data['customer_id']);
+                    $balanceService->syncCustomerBalance($customer);
                 }
-                $data['customer_id'] = $data['customer_id'] ?? $invoice->customer_id;
 
-                $alreadyPaid = Money::of(CustomerPayment::where('invoice_id', $invoice->id)->sum('amount'));
-                $invoiceTotal = Money::of($invoice->total_amount);
-                $due = $invoiceTotal->subtract($alreadyPaid)->max(Money::zero());
-                $paymentAmount = Money::of($data['amount']);
-                abort_if($paymentAmount->isGreaterThan($due), 422, 'Payment amount exceeds remaining invoice balance.');
-            }
-
-            $journalEntryId = null;
-            if (! empty($data['account_id'])) {
-                $arAccount = LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)
-                    ->where('name', 'Accounts Receivable')
-                    ->first() ?? LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)
-                    ->where('is_bank', false)
+                $this->audit->log($request->user()->id, $workspace->organization_id, $workspace->id, 'payment.recorded', 'customer_payment', (string) $payment->id, ['amount' => $payment->amount]);
+            });
+        } catch (\Illuminate\Database\UniqueConstraintViolationException|\Illuminate\Database\QueryException $e) {
+            if (! empty($idempotencyKey) && (str_contains($e->getMessage(), 'idempotency') || str_contains($e->getMessage(), 'UNIQUE') || str_contains($e->getMessage(), 'cp_ws_idempotency_unique'))) {
+                $existing = CustomerPayment::forWorkspace($workspace->organization_id, $workspace->id)
+                    ->where('idempotency_key', $idempotencyKey)
                     ->first();
-
-                if ($arAccount) {
-                    $entry = $ledger->createEntry($workspace->organization_id, $workspace->id, [
-                        'entry_date' => $data['payment_date'],
-                        'reference' => $data['reference'] ?? 'PAY-CUST',
-                        'description' => 'Customer Payment' . ($invoice ? ' for Invoice ' . ($invoice->invoice_id ?? $invoice->id) : ''),
-                        'lines' => [
-                            ['account_id' => $data['account_id'], 'debit' => $data['amount'], 'credit' => 0],
-                            ['account_id' => $arAccount->id, 'debit' => 0, 'credit' => $data['amount']],
-                        ],
-                    ], $request->user());
-                    $ledger->post($entry, $request->user());
-                    $journalEntryId = $entry->id;
+                if ($existing && ($existing->request_fingerprint === $fingerprint || Money::of($existing->amount)->equals(Money::of($data['amount'])))) {
+                    return back()->with('success', 'Customer payment recorded.');
                 }
+                abort(409, 'Duplicate payment: this idempotency key has already been used with different parameters.');
             }
-
-            $payment = CustomerPayment::create($data + [
-                'organization_id' => $workspace->organization_id,
-                'workspace_id' => $workspace->id,
-                'journal_entry_id' => $journalEntryId,
-                'created_by' => $request->user()->id,
-            ]);
-
-            // Update invoice payment status using decimal-safe arithmetic
-            if ($invoice) {
-                $totalPaid = Money::of(CustomerPayment::where('invoice_id', $invoice->id)->sum('amount'));
-                $invoiceTotal = Money::of($invoice->total_amount);
-                if ($totalPaid->isGreaterThanOrEqual($invoiceTotal)) {
-                    $invoice->update(['status' => 'paid']);
-                } else {
-                    $invoice->update(['status' => 'partial']);
-                }
-            }
-
-            // Update Customer balance with tenant-scoped, locked lookup
-            if (! empty($data['customer_id'])) {
-                $customer = AccountCustomer::forWorkspace($workspace->organization_id, $workspace->id)
-                    ->lockForUpdate()
-                    ->findOrFail($data['customer_id']);
-                $customer->decrement('balance', $data['amount']);
-            }
-
-            $this->audit->log($request->user()->id, $workspace->organization_id, $workspace->id, 'payment.recorded', 'customer_payment', (string) $payment->id, ['amount' => $payment->amount]);
-        });
+            throw $e;
+        }
 
         return back()->with('success', 'Customer payment recorded.');
     }
@@ -377,7 +424,7 @@ class AccountingController extends Controller
         ]);
     }
 
-    public function storeVendorPayment(Request $request, LedgerService $ledger, TenantFinancialResolver $resolver)
+    public function storeVendorPayment(Request $request, LedgerService $ledger, TenantFinancialResolver $resolver, FinancialBalanceService $balanceService)
     {
         $workspace = $this->workspace($request, 'account.manage');
         $data = $request->validate([
@@ -392,12 +439,31 @@ class AccountingController extends Controller
             'idempotency_key' => ['nullable', 'string', 'max:64'],
         ]);
 
-        // Idempotency check
-        if (! empty($data['idempotency_key'])) {
-            $exists = VendorPayment::forWorkspace($workspace->organization_id, $workspace->id)
-                ->where('idempotency_key', $data['idempotency_key'])
-                ->exists();
-            abort_if($exists, 409, 'Duplicate payment: this idempotency key has already been used.');
+        $idempotencyKey = $data['idempotency_key'] ?? $request->header('Idempotency-Key');
+        $data['idempotency_key'] = $idempotencyKey;
+
+        // Generate deterministic payload fingerprint
+        $fingerprint = hash('sha256', json_encode([
+            'vendor_id' => $data['vendor_id'] ?? null,
+            'purchase_invoice_id' => $data['purchase_invoice_id'] ?? null,
+            'account_id' => $data['account_id'] ?? null,
+            'amount' => Money::of($data['amount'])->toStorageString(),
+            'payment_date' => $data['payment_date'],
+            'payment_method' => $data['payment_method'],
+        ]));
+        $data['request_fingerprint'] = $fingerprint;
+
+        // Pre-check existing idempotency key
+        if (! empty($idempotencyKey)) {
+            $existing = VendorPayment::forWorkspace($workspace->organization_id, $workspace->id)
+                ->where('idempotency_key', $idempotencyKey)
+                ->first();
+            if ($existing) {
+                if ($existing->request_fingerprint === $fingerprint || Money::of($existing->amount)->equals(Money::of($data['amount']))) {
+                    return back()->with('success', 'Vendor payment recorded.');
+                }
+                abort(409, 'Duplicate payment: this idempotency key has already been used with different parameters.');
+            }
         }
 
         // Tenant-scoped validation of all foreign IDs BEFORE the transaction
@@ -408,74 +474,87 @@ class AccountingController extends Controller
             $resolver->resolveLedgerAccount($workspace, $data['account_id']);
         }
 
-        DB::transaction(function () use ($data, $workspace, $request, $ledger, $resolver) {
-            $bill = null;
-            if (! empty($data['purchase_invoice_id'])) {
-                $bill = $resolver->resolvePurchaseInvoiceForPayment($workspace, $data['purchase_invoice_id']);
-                // If vendor_id supplied, it must match the bill
+        try {
+            DB::transaction(function () use ($data, $workspace, $request, $ledger, $resolver, $balanceService) {
+                $bill = null;
+                if (! empty($data['purchase_invoice_id'])) {
+                    $bill = $resolver->resolvePurchaseInvoiceForPayment($workspace, $data['purchase_invoice_id']);
+                    // If vendor_id supplied, it must match the bill
+                    if (! empty($data['vendor_id'])) {
+                        $resolver->assertVendorMatchesBill($data['vendor_id'], $bill);
+                    }
+                    $data['vendor_id'] = $data['vendor_id'] ?? $bill->vendor_id;
+
+                    $alreadyPaid = Money::of(VendorPayment::where('purchase_invoice_id', $bill->id)->sum('amount'));
+                    $billTotal = Money::of($bill->total_amount);
+                    $due = $billTotal->subtract($alreadyPaid)->max(Money::zero());
+                    $paymentAmount = Money::of($data['amount']);
+                    abort_if($paymentAmount->isGreaterThan($due), 422, 'Payment amount exceeds remaining bill balance.');
+                }
+
+                $journalEntryId = null;
+                if (! empty($data['account_id'])) {
+                    $apAccount = LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)
+                        ->where('name', 'Accounts Payable')
+                        ->first() ?? LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)
+                        ->where('is_bank', false)
+                        ->first();
+
+                    if ($apAccount) {
+                        $entry = $ledger->createEntry($workspace->organization_id, $workspace->id, [
+                            'entry_date' => $data['payment_date'],
+                            'reference' => $data['reference'] ?? 'PAY-VEND',
+                            'description' => 'Vendor Payment' . ($bill ? ' for Bill ' . ($bill->invoice_id ?? $bill->id) : ''),
+                            'lines' => [
+                                ['account_id' => $apAccount->id, 'debit' => $data['amount'], 'credit' => 0],
+                                ['account_id' => $data['account_id'], 'debit' => 0, 'credit' => $data['amount']],
+                            ],
+                        ], $request->user());
+                        $ledger->post($entry, $request->user());
+                        $journalEntryId = $entry->id;
+                    }
+                }
+
+                $payment = VendorPayment::create($data + [
+                    'organization_id' => $workspace->organization_id,
+                    'workspace_id' => $workspace->id,
+                    'journal_entry_id' => $journalEntryId,
+                    'created_by' => $request->user()->id,
+                ]);
+
+                // Update bill status using decimal-safe arithmetic
+                if ($bill) {
+                    $totalPaid = Money::of(VendorPayment::where('purchase_invoice_id', $bill->id)->sum('amount'));
+                    $billTotal = Money::of($bill->total_amount);
+                    if ($totalPaid->isGreaterThanOrEqual($billTotal)) {
+                        $bill->update(['status' => 'paid']);
+                    } else {
+                        $bill->update(['status' => 'partial']);
+                    }
+                }
+
+                // Synchronize vendor balance authoritative state
                 if (! empty($data['vendor_id'])) {
-                    $resolver->assertVendorMatchesBill($data['vendor_id'], $bill);
+                    $vendor = AccountVendor::forWorkspace($workspace->organization_id, $workspace->id)
+                        ->lockForUpdate()
+                        ->findOrFail($data['vendor_id']);
+                    $balanceService->syncVendorBalance($vendor);
                 }
-                $data['vendor_id'] = $data['vendor_id'] ?? $bill->vendor_id;
 
-                $alreadyPaid = Money::of(VendorPayment::where('purchase_invoice_id', $bill->id)->sum('amount'));
-                $billTotal = Money::of($bill->total_amount);
-                $due = $billTotal->subtract($alreadyPaid)->max(Money::zero());
-                $paymentAmount = Money::of($data['amount']);
-                abort_if($paymentAmount->isGreaterThan($due), 422, 'Payment amount exceeds remaining bill balance.');
-            }
-
-            $journalEntryId = null;
-            if (! empty($data['account_id'])) {
-                $apAccount = LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)
-                    ->where('name', 'Accounts Payable')
-                    ->first() ?? LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)
-                    ->where('is_bank', false)
+                $this->audit->log($request->user()->id, $workspace->organization_id, $workspace->id, 'payment.recorded', 'vendor_payment', (string) $payment->id, ['amount' => $payment->amount]);
+            });
+        } catch (\Illuminate\Database\UniqueConstraintViolationException|\Illuminate\Database\QueryException $e) {
+            if (! empty($idempotencyKey) && (str_contains($e->getMessage(), 'idempotency') || str_contains($e->getMessage(), 'UNIQUE') || str_contains($e->getMessage(), 'vp_ws_idempotency_unique'))) {
+                $existing = VendorPayment::forWorkspace($workspace->organization_id, $workspace->id)
+                    ->where('idempotency_key', $idempotencyKey)
                     ->first();
-
-                if ($apAccount) {
-                    $entry = $ledger->createEntry($workspace->organization_id, $workspace->id, [
-                        'entry_date' => $data['payment_date'],
-                        'reference' => $data['reference'] ?? 'PAY-VEND',
-                        'description' => 'Vendor Payment' . ($bill ? ' for Bill ' . ($bill->invoice_id ?? $bill->id) : ''),
-                        'lines' => [
-                            ['account_id' => $apAccount->id, 'debit' => $data['amount'], 'credit' => 0],
-                            ['account_id' => $data['account_id'], 'debit' => 0, 'credit' => $data['amount']],
-                        ],
-                    ], $request->user());
-                    $ledger->post($entry, $request->user());
-                    $journalEntryId = $entry->id;
+                if ($existing && ($existing->request_fingerprint === $fingerprint || Money::of($existing->amount)->equals(Money::of($data['amount'])))) {
+                    return back()->with('success', 'Vendor payment recorded.');
                 }
+                abort(409, 'Duplicate payment: this idempotency key has already been used with different parameters.');
             }
-
-            $payment = VendorPayment::create($data + [
-                'organization_id' => $workspace->organization_id,
-                'workspace_id' => $workspace->id,
-                'journal_entry_id' => $journalEntryId,
-                'created_by' => $request->user()->id,
-            ]);
-
-            // Update bill status using decimal-safe arithmetic
-            if ($bill) {
-                $totalPaid = Money::of(VendorPayment::where('purchase_invoice_id', $bill->id)->sum('amount'));
-                $billTotal = Money::of($bill->total_amount);
-                if ($totalPaid->isGreaterThanOrEqual($billTotal)) {
-                    $bill->update(['status' => 'paid']);
-                } else {
-                    $bill->update(['status' => 'partial']);
-                }
-            }
-
-            // Update Vendor balance with tenant-scoped, locked lookup
-            if (! empty($data['vendor_id'])) {
-                $vendor = AccountVendor::forWorkspace($workspace->organization_id, $workspace->id)
-                    ->lockForUpdate()
-                    ->findOrFail($data['vendor_id']);
-                $vendor->decrement('balance', $data['amount']);
-            }
-
-            $this->audit->log($request->user()->id, $workspace->organization_id, $workspace->id, 'payment.recorded', 'vendor_payment', (string) $payment->id, ['amount' => $payment->amount]);
-        });
+            throw $e;
+        }
 
         return back()->with('success', 'Vendor payment recorded.');
     }
@@ -654,7 +733,7 @@ class AccountingController extends Controller
         ]);
     }
 
-    public function storeCreditNote(Request $request, LedgerService $ledger, TenantFinancialResolver $resolver)
+    public function storeCreditNote(Request $request, LedgerService $ledger, TenantFinancialResolver $resolver, FinancialBalanceService $balanceService)
     {
         $workspace = $this->workspace($request, 'account.manage');
         $data = $request->validate([
@@ -685,7 +764,7 @@ class AccountingController extends Controller
             $resolver->resolveCustomer($workspace, $data['customer_id']);
         }
 
-        DB::transaction(function () use ($data, $workspace, $request, $ledger, $invoice) {
+        DB::transaction(function () use ($data, $workspace, $request, $ledger, $invoice, $balanceService) {
             $creditNote = AccountCreditNote::create($data + [
                 'organization_id' => $workspace->organization_id,
                 'workspace_id' => $workspace->id,
@@ -693,12 +772,12 @@ class AccountingController extends Controller
                 'created_by' => $request->user()->id,
             ]);
 
-            // Credit note has real financial effect: reduce customer receivable
+            // Synchronize customer balance authoritative state
             if (! empty($data['customer_id'])) {
                 $customer = AccountCustomer::forWorkspace($workspace->organization_id, $workspace->id)
                     ->lockForUpdate()
                     ->findOrFail($data['customer_id']);
-                $customer->decrement('balance', $data['amount']);
+                $balanceService->syncCustomerBalance($customer);
             }
 
             // Create journal entry: Debit Revenue/AR, Credit Customer
@@ -746,7 +825,7 @@ class AccountingController extends Controller
         ]);
     }
 
-    public function storeDebitNote(Request $request, LedgerService $ledger, TenantFinancialResolver $resolver)
+    public function storeDebitNote(Request $request, LedgerService $ledger, TenantFinancialResolver $resolver, FinancialBalanceService $balanceService)
     {
         $workspace = $this->workspace($request, 'account.manage');
         $data = $request->validate([
@@ -777,7 +856,7 @@ class AccountingController extends Controller
             $resolver->resolveVendor($workspace, $data['vendor_id']);
         }
 
-        DB::transaction(function () use ($data, $workspace, $request, $ledger, $bill) {
+        DB::transaction(function () use ($data, $workspace, $request, $ledger, $bill, $balanceService) {
             $debitNote = AccountDebitNote::create($data + [
                 'organization_id' => $workspace->organization_id,
                 'workspace_id' => $workspace->id,
@@ -785,12 +864,12 @@ class AccountingController extends Controller
                 'created_by' => $request->user()->id,
             ]);
 
-            // Debit note has real financial effect: reduce vendor payable
+            // Synchronize vendor balance authoritative state
             if (! empty($data['vendor_id'])) {
                 $vendor = AccountVendor::forWorkspace($workspace->organization_id, $workspace->id)
                     ->lockForUpdate()
                     ->findOrFail($data['vendor_id']);
-                $vendor->decrement('balance', $data['amount']);
+                $balanceService->syncVendorBalance($vendor);
             }
 
             // Create journal entry: Debit AP, Credit Expense
