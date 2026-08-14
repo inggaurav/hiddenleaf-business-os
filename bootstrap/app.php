@@ -34,6 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
             RequestId::class,
             Installed::class,
             EnsureTenantContext::class,
+            EnsureAccountPermission::class,
             EnsureFinancialIdempotency::class,
             HandleInertiaRequests::class,
         ]);
