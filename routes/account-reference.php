@@ -3,7 +3,7 @@
 use App\Http\Controllers\AccountReferenceController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'module.status:account'])->prefix('accounting')->name('account-reference.')->group(function () {
+Route::middleware(['auth', 'module.status:account', 'account.permission'])->prefix('accounting')->name('account-reference.')->group(function () {
     Route::get('bank-accounts', [AccountReferenceController::class, 'bankAccounts'])->name('bank-accounts.index');
     Route::post('bank-accounts', [AccountReferenceController::class, 'storeBankAccount'])->name('bank-accounts.store');
     Route::get('bank-accounts/api/list', [AccountReferenceController::class, 'bankAccountList'])->name('bank-accounts.api-list');
