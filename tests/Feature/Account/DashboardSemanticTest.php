@@ -4,6 +4,8 @@ namespace Tests\Feature\Account;
 
 use App\Domain\Accounting\AccountDashboardService;
 use App\Models\AccountCustomer;
+use App\Models\AccountExpense;
+use App\Models\AccountRevenue;
 use App\Models\CustomerPayment;
 use App\Models\Organization;
 use App\Models\SalesInvoice;
@@ -35,6 +37,8 @@ class DashboardSemanticTest extends TestCase
         $this->assertEquals(0, $metrics['stats']['total_vendors']);
         $this->assertEquals(0, $metrics['stats']['total_revenue']);
         $this->assertEquals(0, $metrics['stats']['total_expense']);
+        $this->assertEquals(0, $metrics['stats']['accounting_income']);
+        $this->assertEquals(0, $metrics['stats']['accounting_expense']);
     }
 
     public function test_dashboard_counts_only_account_customers_not_invoice_customers(): void
@@ -48,7 +52,7 @@ class DashboardSemanticTest extends TestCase
             SalesInvoice::create([
                 'organization_id' => $env['org']->id,
                 'workspace_id' => $env['ws']->id,
-                'invoice_id' => 'SI-SEM-' . $i,
+                'invoice_id' => 'SI-SEM-'.$i,
                 'customer_id' => 999 + $i,
                 'issue_date' => now()->toDateString(),
                 'total_amount' => 100,
@@ -107,5 +111,42 @@ class DashboardSemanticTest extends TestCase
         $metrics = $service->getMetrics($env['ws']);
 
         $this->assertEmpty($metrics['recentRevenues']);
+        $this->assertEquals(0, $metrics['stats']['total_revenue']);
+    }
+
+    public function test_direct_revenue_and_expense_metrics_have_explicit_sources(): void
+    {
+        $env = $this->setupWorkspace();
+
+        AccountRevenue::create([
+            'organization_id' => $env['org']->id,
+            'workspace_id' => $env['ws']->id,
+            'amount' => 1250,
+            'date' => now()->toDateString(),
+            'payment_method' => 'cash',
+            'reference' => 'REV-SEM-1',
+            'created_by' => $env['user']->id,
+        ]);
+
+        AccountExpense::create([
+            'organization_id' => $env['org']->id,
+            'workspace_id' => $env['ws']->id,
+            'amount' => 300,
+            'date' => now()->toDateString(),
+            'payment_method' => 'cash',
+            'reference' => 'EXP-SEM-1',
+            'created_by' => $env['user']->id,
+        ]);
+
+        $service = app(AccountDashboardService::class);
+        $metrics = $service->getMetrics($env['ws']);
+
+        $this->assertEquals(1250, $metrics['stats']['total_revenue']);
+        $this->assertEquals(300, $metrics['stats']['total_expense']);
+        $this->assertEquals(950, $metrics['stats']['net_profit']);
+        $this->assertSame(
+            'Sum of account_revenues direct revenue transactions.',
+            $metrics['metricSemantics']['total_revenue']
+        );
     }
 }
