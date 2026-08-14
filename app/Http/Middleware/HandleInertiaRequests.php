@@ -6,6 +6,7 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Subscription;
 use App\Models\Workspace;
+use App\Services\BusinessRoleResolver;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -21,6 +22,12 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $user = $request->user();
+        $activeWorkspace = null;
+
+        if ($user && $request->session()->get('active_workspace_id')) {
+            $activeWorkspace = Workspace::with('organization')
+                ->find($request->session()->get('active_workspace_id'));
+        }
 
         return array_merge(parent::share($request), [
             'auth' => [
@@ -29,6 +36,7 @@ class HandleInertiaRequests extends Middleware
                     'name' => $user->name,
                     'email' => $user->email,
                     'role' => $user->role ?? 'user',
+                    'business_role' => app(BusinessRoleResolver::class)->resolve($user, $activeWorkspace),
                     'is_super_admin' => $user->isSuperAdmin(),
                     'permissions' => $this->resolvePermissions($request, $user),
                 ] : null,
