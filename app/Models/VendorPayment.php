@@ -25,9 +25,19 @@ class VendorPayment extends Model
         'voided_at' => 'datetime',
     ];
 
+    protected static function booted(): void
+    {
+        static::addGlobalScope('active_financial_effect', fn (Builder $query) => $query->where($query->qualifyColumn('status'), '!=', 'void'));
+    }
+
     public function scopeForWorkspace(Builder $query, int $organizationId, int $workspaceId): Builder
     {
         return $query->where('organization_id', $organizationId)->where('workspace_id', $workspaceId);
+    }
+
+    public function scopeIncludingVoided(Builder $query): Builder
+    {
+        return $query->withoutGlobalScope('active_financial_effect');
     }
 
     public function vendor()
