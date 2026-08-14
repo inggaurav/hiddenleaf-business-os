@@ -1,6 +1,6 @@
 # Route audit
 
-Generated deterministically by `php tools/forensic-audit.php`. The audit covers 334 non-vendor application routes.
+Generated deterministically by `php tools/forensic-audit.php`. The audit covers 335 non-vendor application routes.
 
 | Severity | Findings |
 |---|---:|

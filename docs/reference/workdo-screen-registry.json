@@ -6,193 +6,193 @@
             "screen": "Account/BankAccounts/Index",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/BankAccountController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/BankTransactions/Index",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/BankTransactionController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/BankTransfers/Index",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/BankTransferController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/ChartOfAccounts/Index",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/ChartOfAccountController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/ChartOfAccounts/Show",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/ChartOfAccountController.php",
             "action": "show",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/CreditNotes/Index",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/CreditNoteController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/CreditNotes/View",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/CreditNoteController.php",
             "action": "show",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/CustomerPayments/Index",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/CustomerPaymentController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/Customers/Index",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/CustomerController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/Dashboard/ClientDashboard",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/DashboardController.php",
             "action": "clientDashboard",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/Dashboard/CompanyDashboard",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/DashboardController.php",
             "action": "companyDashboard",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/Dashboard/StaffDashboard",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/DashboardController.php",
             "action": "staffDashboard",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/Dashboard/VendorDashboard",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/DashboardController.php",
             "action": "vendorDashboard",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/DebitNotes/Index",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/DebitNoteController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/DebitNotes/View",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/DebitNoteController.php",
             "action": "show",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/Expenses/Index",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/ExpenseController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/Reports/CustomerDetail",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/ReportsController.php",
             "action": "customerDetail",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/Reports/Index",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/ReportsController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/Reports/Print/BillAging",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/ReportsController.php",
             "action": "printBillAging",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/Reports/Print/CustomerBalance",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/ReportsController.php",
             "action": "printCustomerBalance",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/Reports/Print/CustomerDetail",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/ReportsController.php",
             "action": "printCustomerDetail",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/Reports/Print/InvoiceAging",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/ReportsController.php",
             "action": "printInvoiceAging",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/Reports/Print/TaxSummary",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/ReportsController.php",
             "action": "printTaxSummary",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/Reports/Print/VendorBalance",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/ReportsController.php",
             "action": "printVendorBalance",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/Reports/Print/VendorDetail",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/ReportsController.php",
             "action": "printVendorDetail",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/Reports/VendorDetail",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/ReportsController.php",
             "action": "vendorDetail",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/Revenues/Index",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/RevenueController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/SystemSetup/AccountTypes/Index",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/AccountTypeController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/SystemSetup/ExpenseCategories/Index",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/ExpenseCategoriesController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/SystemSetup/RevenueCategories/Index",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/RevenueCategoriesController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/VendorPayments/Index",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/VendorPaymentController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "Account/Vendors/Index",
             "controller_file": "packages/workdo/Account/src/Http/Controllers/VendorController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Account"
         },
         {
             "screen": "EmailTemplates/Edit",
@@ -210,289 +210,289 @@
             "screen": "Hrm/Acknowledgments/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/AcknowledgmentController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/Announcements/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/AnnouncementController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/Attendances/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/AttendanceController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/Awards/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/AwardController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/CompanyPolicies/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/CompanyPolicyController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/Complaints/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/ComplaintController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/Dashboard/company-dashboard",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/DashboardController.php",
             "action": "companyDashboard",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/Dashboard/employee-dashboard",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/DashboardController.php",
             "action": "employeeDashboard",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/EmployeeTransfers/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/EmployeeTransferController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/Employees/Create",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/EmployeeController.php",
             "action": "create",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/Employees/Edit",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/EmployeeController.php",
             "action": "edit",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/Employees/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/EmployeeController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/Employees/Show",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/EmployeeController.php",
             "action": "show",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/Events/Calendar",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/EventController.php",
             "action": "calendar",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/Events/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/EventController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/Holidays/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/HolidayController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/HrmDocuments/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/HrmDocumentController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/LeaveApplications/Calendar",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/LeaveApplicationController.php",
             "action": "calendar",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/LeaveApplications/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/LeaveApplicationController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/LeaveBalance/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/LeaveBalanceController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/LeaveTypes/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/LeaveTypeController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/Payrolls/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/PayrollController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/Payrolls/Show",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/PayrollController.php",
             "action": "show",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/Payrolls/payslip/Payslip",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/PayrollController.php",
             "action": "printPayslip",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/Promotions/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/PromotionController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/Resignations/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/ResignationController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/SetSalary/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/SetSalaryController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/SetSalary/Show",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/SetSalaryController.php",
             "action": "show",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/Shifts/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/ShiftController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/SystemSetup/AllowanceTypes/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/AllowanceTypeController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/SystemSetup/AnnouncementCategories/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/AnnouncementCategoryController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/SystemSetup/AwardTypes/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/AwardTypeController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/SystemSetup/Branches/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/BranchController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/SystemSetup/ComplaintTypes/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/ComplaintTypeController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/SystemSetup/DeductionTypes/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/DeductionTypeController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/SystemSetup/Departments/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/DepartmentController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/SystemSetup/Designations/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/DesignationController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/SystemSetup/DocumentCategories/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/DocumentCategoryController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/SystemSetup/EmployeeDocumentTypes/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/EmployeeDocumentTypeController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/SystemSetup/EventTypes/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/EventTypeController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/SystemSetup/HolidayTypes/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/HolidayTypeController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/SystemSetup/IpRestricts/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/IpRestrictController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/SystemSetup/LoanTypes/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/LoanTypeController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/SystemSetup/TerminationTypes/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/TerminationTypeController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/SystemSetup/WarningTypes/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/WarningTypeController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/SystemSetup/WorkingDays/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/WorkingDaysController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/Terminations/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/TerminationController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Hrm/Warnings/Index",
             "controller_file": "packages/workdo/Hrm/src/Http/Controllers/WarningController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Hrm"
         },
         {
             "screen": "Installer/Addons",
@@ -540,337 +540,337 @@
             "screen": "LandingPage/Addons",
             "controller_file": "packages/workdo/LandingPage/src/Http/Controllers/LandingPageController.php",
             "action": "addons",
-            "module": "CoreApp"
+            "module": "LandingPage"
         },
         {
             "screen": "LandingPage/CustomPages/Create",
             "controller_file": "packages/workdo/LandingPage/src/Http/Controllers/CustomPageController.php",
             "action": "create",
-            "module": "CoreApp"
+            "module": "LandingPage"
         },
         {
             "screen": "LandingPage/CustomPages/Edit",
             "controller_file": "packages/workdo/LandingPage/src/Http/Controllers/CustomPageController.php",
             "action": "edit",
-            "module": "CoreApp"
+            "module": "LandingPage"
         },
         {
             "screen": "LandingPage/CustomPages/Index",
             "controller_file": "packages/workdo/LandingPage/src/Http/Controllers/CustomPageController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "LandingPage"
         },
         {
             "screen": "LandingPage/CustomPages/Show",
             "controller_file": "packages/workdo/LandingPage/src/Http/Controllers/CustomPageController.php",
             "action": "show",
-            "module": "CoreApp"
+            "module": "LandingPage"
         },
         {
             "screen": "LandingPage/Landing",
             "controller_file": "packages/workdo/LandingPage/src/Http/Controllers/LandingPageController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "LandingPage"
         },
         {
             "screen": "LandingPage/MarketplaceNotFound",
             "controller_file": "packages/workdo/LandingPage/src/Http/Controllers/MarketplaceController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "LandingPage"
         },
         {
             "screen": "LandingPage/Marketplace",
             "controller_file": "packages/workdo/LandingPage/src/Http/Controllers/MarketplaceController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "LandingPage"
         },
         {
             "screen": "LandingPage/NewsletterSubscribers/Index",
             "controller_file": "packages/workdo/LandingPage/src/Http/Controllers/NewsletterSubscriberController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "LandingPage"
         },
         {
             "screen": "LandingPage/Pricing",
             "controller_file": "packages/workdo/LandingPage/src/Http/Controllers/LandingPageController.php",
             "action": "pricing",
-            "module": "CoreApp"
+            "module": "LandingPage"
         },
         {
             "screen": "LandingPage/Settings",
             "controller_file": "packages/workdo/LandingPage/src/Http/Controllers/LandingPageController.php",
             "action": "settings",
-            "module": "CoreApp"
+            "module": "LandingPage"
         },
         {
             "screen": "LandingPage/marketplace/Settings",
             "controller_file": "packages/workdo/LandingPage/src/Http/Controllers/MarketplaceController.php",
             "action": "settings",
-            "module": "CoreApp"
+            "module": "LandingPage"
         },
         {
             "screen": "Lead/Dashboard/ClientDashboard",
             "controller_file": "packages/workdo/Lead/src/Http/Controllers/DashboardController.php",
             "action": "clientDashboard",
-            "module": "CoreApp"
+            "module": "Lead"
         },
         {
             "screen": "Lead/Dashboard/CompanyDashboard",
             "controller_file": "packages/workdo/Lead/src/Http/Controllers/DashboardController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Lead"
         },
         {
             "screen": "Lead/Dashboard/UserDashboard",
             "controller_file": "packages/workdo/Lead/src/Http/Controllers/DashboardController.php",
             "action": "userDashboard",
-            "module": "CoreApp"
+            "module": "Lead"
         },
         {
             "screen": "Lead/DealTasks/Index",
             "controller_file": "packages/workdo/Lead/src/Http/Controllers/DealTaskController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Lead"
         },
         {
             "screen": "Lead/Deals/Index",
             "controller_file": "packages/workdo/Lead/src/Http/Controllers/DealController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Lead"
         },
         {
             "screen": "Lead/Deals/Show",
             "controller_file": "packages/workdo/Lead/src/Http/Controllers/DealController.php",
             "action": "show",
-            "module": "CoreApp"
+            "module": "Lead"
         },
         {
             "screen": "Lead/Leads/Index",
             "controller_file": "packages/workdo/Lead/src/Http/Controllers/LeadController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Lead"
         },
         {
             "screen": "Lead/Leads/Show/Index",
             "controller_file": "packages/workdo/Lead/src/Http/Controllers/LeadController.php",
             "action": "show",
-            "module": "CoreApp"
+            "module": "Lead"
         },
         {
             "screen": "Lead/Reports/DealReports",
             "controller_file": "packages/workdo/Lead/src/Http/Controllers/ReportController.php",
             "action": "dealReports",
-            "module": "CoreApp"
+            "module": "Lead"
         },
         {
             "screen": "Lead/Reports/Index",
             "controller_file": "packages/workdo/Lead/src/Http/Controllers/ReportController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Lead"
         },
         {
             "screen": "Lead/Reports/LeadReports",
             "controller_file": "packages/workdo/Lead/src/Http/Controllers/ReportController.php",
             "action": "leadReports",
-            "module": "CoreApp"
+            "module": "Lead"
         },
         {
             "screen": "Lead/SystemSetup/DealStages/Index",
             "controller_file": "packages/workdo/Lead/src/Http/Controllers/DealStageController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Lead"
         },
         {
             "screen": "Lead/SystemSetup/Labels/Index",
             "controller_file": "packages/workdo/Lead/src/Http/Controllers/LabelController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Lead"
         },
         {
             "screen": "Lead/SystemSetup/LeadStages/Index",
             "controller_file": "packages/workdo/Lead/src/Http/Controllers/LeadStageController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Lead"
         },
         {
             "screen": "Lead/SystemSetup/Pipelines/Index",
             "controller_file": "packages/workdo/Lead/src/Http/Controllers/PipelineController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Lead"
         },
         {
             "screen": "Lead/SystemSetup/Sources/Index",
             "controller_file": "packages/workdo/Lead/src/Http/Controllers/SourceController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Lead"
         },
         {
             "screen": "Lead/Tasks/Index",
             "controller_file": "packages/workdo/Lead/src/Http/Controllers/LeadTaskController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Lead"
         },
         {
             "screen": "Pos/Barcode/Index",
             "controller_file": "packages/workdo/Pos/src/Http/Controllers/PosController.php",
             "action": "barcode",
-            "module": "CoreApp"
+            "module": "Pos"
         },
         {
             "screen": "Pos/Barcode/Print",
             "controller_file": "packages/workdo/Pos/src/Http/Controllers/PosController.php",
             "action": "printBarcode",
-            "module": "CoreApp"
+            "module": "Pos"
         },
         {
             "screen": "Pos/Dashboard/ClientDashboard",
             "controller_file": "packages/workdo/Pos/src/Http/Controllers/DashboardController.php",
             "action": "clientDashboard",
-            "module": "CoreApp"
+            "module": "Pos"
         },
         {
             "screen": "Pos/Dashboard/Index",
             "controller_file": "packages/workdo/Pos/src/Http/Controllers/DashboardController.php",
             "action": "companyDashboard",
-            "module": "CoreApp"
+            "module": "Pos"
         },
         {
             "screen": "Pos/Pos/Create",
             "controller_file": "packages/workdo/Pos/src/Http/Controllers/PosController.php",
             "action": "create",
-            "module": "CoreApp"
+            "module": "Pos"
         },
         {
             "screen": "Pos/PosCounter/Index",
             "controller_file": "packages/workdo/Pos/src/Http/Controllers/PosBillingCounterController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Pos"
         },
         {
             "screen": "Pos/PosDiscount/Create",
             "controller_file": "packages/workdo/Pos/src/Http/Controllers/PosDiscountController.php",
             "action": "create",
-            "module": "CoreApp"
+            "module": "Pos"
         },
         {
             "screen": "Pos/PosDiscount/Edit",
             "controller_file": "packages/workdo/Pos/src/Http/Controllers/PosDiscountController.php",
             "action": "edit",
-            "module": "CoreApp"
+            "module": "Pos"
         },
         {
             "screen": "Pos/PosDiscount/Index",
             "controller_file": "packages/workdo/Pos/src/Http/Controllers/PosDiscountController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Pos"
         },
         {
             "screen": "Pos/PosDiscount/View",
             "controller_file": "packages/workdo/Pos/src/Http/Controllers/PosDiscountController.php",
             "action": "show",
-            "module": "CoreApp"
+            "module": "Pos"
         },
         {
             "screen": "Pos/PosOrder/Index",
             "controller_file": "packages/workdo/Pos/src/Http/Controllers/PosController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Pos"
         },
         {
             "screen": "Pos/PosOrder/Print",
             "controller_file": "packages/workdo/Pos/src/Http/Controllers/PosController.php",
             "action": "print",
-            "module": "CoreApp"
+            "module": "Pos"
         },
         {
             "screen": "Pos/PosOrder/Show",
             "controller_file": "packages/workdo/Pos/src/Http/Controllers/PosController.php",
             "action": "show",
-            "module": "CoreApp"
+            "module": "Pos"
         },
         {
             "screen": "Pos/PosReturn/Create",
             "controller_file": "packages/workdo/Pos/src/Http/Controllers/PosReturnController.php",
             "action": "create",
-            "module": "CoreApp"
+            "module": "Pos"
         },
         {
             "screen": "Pos/PosReturn/Index",
             "controller_file": "packages/workdo/Pos/src/Http/Controllers/PosReturnController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Pos"
         },
         {
             "screen": "Pos/PosReturn/View",
             "controller_file": "packages/workdo/Pos/src/Http/Controllers/PosReturnController.php",
             "action": "show",
-            "module": "CoreApp"
+            "module": "Pos"
         },
         {
             "screen": "Pos/Reports/Customers",
             "controller_file": "packages/workdo/Pos/src/Http/Controllers/PosReportController.php",
             "action": "customers",
-            "module": "CoreApp"
+            "module": "Pos"
         },
         {
             "screen": "Pos/Reports/Products",
             "controller_file": "packages/workdo/Pos/src/Http/Controllers/PosReportController.php",
             "action": "products",
-            "module": "CoreApp"
+            "module": "Pos"
         },
         {
             "screen": "Pos/Reports/Sales",
             "controller_file": "packages/workdo/Pos/src/Http/Controllers/PosReportController.php",
             "action": "sales",
-            "module": "CoreApp"
+            "module": "Pos"
         },
         {
             "screen": "ProductService/Items/Create",
             "controller_file": "packages/workdo/ProductService/src/Http/Controllers/ProductServiceItemController.php",
             "action": "create",
-            "module": "CoreApp"
+            "module": "ProductService"
         },
         {
             "screen": "ProductService/Items/Edit",
             "controller_file": "packages/workdo/ProductService/src/Http/Controllers/ProductServiceItemController.php",
             "action": "edit",
-            "module": "CoreApp"
+            "module": "ProductService"
         },
         {
             "screen": "ProductService/Items/Index",
             "controller_file": "packages/workdo/ProductService/src/Http/Controllers/ProductServiceItemController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "ProductService"
         },
         {
             "screen": "ProductService/Items/Show",
             "controller_file": "packages/workdo/ProductService/src/Http/Controllers/ProductServiceItemController.php",
             "action": "show",
-            "module": "CoreApp"
+            "module": "ProductService"
         },
         {
             "screen": "ProductService/Stock/Index",
             "controller_file": "packages/workdo/ProductService/src/Http/Controllers/ProductServiceItemController.php",
             "action": "stockIndex",
-            "module": "CoreApp"
+            "module": "ProductService"
         },
         {
             "screen": "ProductService/SystemSetup/Categories/Index",
             "controller_file": "packages/workdo/ProductService/src/Http/Controllers/CategoryController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "ProductService"
         },
         {
             "screen": "ProductService/SystemSetup/Taxes/Index",
             "controller_file": "packages/workdo/ProductService/src/Http/Controllers/TaxController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "ProductService"
         },
         {
             "screen": "ProductService/SystemSetup/Units/Index",
             "controller_file": "packages/workdo/ProductService/src/Http/Controllers/UnitController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "ProductService"
         },
         {
             "screen": "Purchase/Create",
@@ -1008,121 +1008,121 @@
             "screen": "Taskly/Bugs/Index",
             "controller_file": "packages/workdo/Taskly/src/Http/Controllers/ProjectBugController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Taskly"
         },
         {
             "screen": "Taskly/Bugs/Kanban",
             "controller_file": "packages/workdo/Taskly/src/Http/Controllers/ProjectBugController.php",
             "action": "kanban",
-            "module": "CoreApp"
+            "module": "Taskly"
         },
         {
             "screen": "Taskly/Dashboard/ClientDashboard",
             "controller_file": "packages/workdo/Taskly/src/Http/Controllers/DashboardController.php",
             "action": "clientDashboard",
-            "module": "CoreApp"
+            "module": "Taskly"
         },
         {
             "screen": "Taskly/Dashboard/CompanyDashboard",
             "controller_file": "packages/workdo/Taskly/src/Http/Controllers/DashboardController.php",
             "action": "companyDashboard",
-            "module": "CoreApp"
+            "module": "Taskly"
         },
         {
             "screen": "Taskly/Dashboard/StaffDashboard",
             "controller_file": "packages/workdo/Taskly/src/Http/Controllers/DashboardController.php",
             "action": "staffDashboard",
-            "module": "CoreApp"
+            "module": "Taskly"
         },
         {
             "screen": "Taskly/Project/Gantt",
             "controller_file": "packages/workdo/Taskly/src/Http/Controllers/ProjectController.php",
             "action": "gantt",
-            "module": "CoreApp"
+            "module": "Taskly"
         },
         {
             "screen": "Taskly/Project/Index",
             "controller_file": "packages/workdo/Taskly/src/Http/Controllers/ProjectController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Taskly"
         },
         {
             "screen": "Taskly/Project/View",
             "controller_file": "packages/workdo/Taskly/src/Http/Controllers/ProjectController.php",
             "action": "show",
-            "module": "CoreApp"
+            "module": "Taskly"
         },
         {
             "screen": "Taskly/ProjectPayment/Create",
             "controller_file": "packages/workdo/Taskly/src/Http/Controllers/ProjectPaymentController.php",
             "action": "create",
-            "module": "CoreApp"
+            "module": "Taskly"
         },
         {
             "screen": "Taskly/ProjectPayment/Edit",
             "controller_file": "packages/workdo/Taskly/src/Http/Controllers/ProjectPaymentController.php",
             "action": "edit",
-            "module": "CoreApp"
+            "module": "Taskly"
         },
         {
             "screen": "Taskly/ProjectPayment/Index",
             "controller_file": "packages/workdo/Taskly/src/Http/Controllers/ProjectPaymentController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Taskly"
         },
         {
             "screen": "Taskly/ProjectPayment/Print",
             "controller_file": "packages/workdo/Taskly/src/Http/Controllers/ProjectPaymentController.php",
             "action": "print",
-            "module": "CoreApp"
+            "module": "Taskly"
         },
         {
             "screen": "Taskly/ProjectPayment/View",
             "controller_file": "packages/workdo/Taskly/src/Http/Controllers/ProjectPaymentController.php",
             "action": "show",
-            "module": "CoreApp"
+            "module": "Taskly"
         },
         {
             "screen": "Taskly/Report/Index",
             "controller_file": "packages/workdo/Taskly/src/Http/Controllers/ProjectReportController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Taskly"
         },
         {
             "screen": "Taskly/Report/View",
             "controller_file": "packages/workdo/Taskly/src/Http/Controllers/ProjectReportController.php",
             "action": "show",
-            "module": "CoreApp"
+            "module": "Taskly"
         },
         {
             "screen": "Taskly/SystemSetup/BugStages/Index",
             "controller_file": "packages/workdo/Taskly/src/Http/Controllers/BugStageController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Taskly"
         },
         {
             "screen": "Taskly/SystemSetup/TaskStages/Index",
             "controller_file": "packages/workdo/Taskly/src/Http/Controllers/TaskStageController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Taskly"
         },
         {
             "screen": "Taskly/Tasks/Calendar",
             "controller_file": "packages/workdo/Taskly/src/Http/Controllers/ProjectTaskController.php",
             "action": "calendar",
-            "module": "CoreApp"
+            "module": "Taskly"
         },
         {
             "screen": "Taskly/Tasks/Index",
             "controller_file": "packages/workdo/Taskly/src/Http/Controllers/ProjectTaskController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "Taskly"
         },
         {
             "screen": "Taskly/Tasks/Kanban",
             "controller_file": "packages/workdo/Taskly/src/Http/Controllers/ProjectTaskController.php",
             "action": "kanban",
-            "module": "CoreApp"
+            "module": "Taskly"
         },
         {
             "screen": "Transfers/Index",
@@ -1170,7 +1170,7 @@
             "screen": "auth/login",
             "controller_file": "packages/workdo/LandingPage/src/Http/Controllers/LandingPageController.php",
             "action": "index",
-            "module": "CoreApp"
+            "module": "LandingPage"
         },
         {
             "screen": "auth/register",

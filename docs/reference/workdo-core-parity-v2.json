@@ -9677,6 +9677,7 @@
             "evidence": [
                 "tests/Feature/Auth/AuthenticationTest.php",
                 "tests/Feature/DashboardContractsTest.php",
+                "tests/Feature/Routes/NavigationAndUiIntegrityTest.php",
                 "tests/Feature/Security/AuditAndAttackCoverageTest.php",
                 "tests/Feature/Security/AuditLedgerTest.php",
                 "tests/Feature/Tenancy/DashboardTenantIsolationTest.php",
@@ -21333,8 +21334,8 @@
             },
             "evidence": [
                 "tests/Feature/InstallerAndLicensing/InstallerLicensingSuiteTest.php",
-                "tests/Feature/SaaSTest.php",
                 "tests/Feature/SaaS/CompleteSaaSEngineTest.php",
+                "tests/Feature/SaaSTest.php",
                 "resources/js/Pages/Plans/Index.tsx"
             ],
             "status": "VERIFIED"
@@ -21372,8 +21373,8 @@
             },
             "evidence": [
                 "tests/Feature/InstallerAndLicensing/InstallerLicensingSuiteTest.php",
-                "tests/Feature/SaaSTest.php",
-                "tests/Feature/SaaS/CompleteSaaSEngineTest.php"
+                "tests/Feature/SaaS/CompleteSaaSEngineTest.php",
+                "tests/Feature/SaaSTest.php"
             ],
             "status": "VERIFIED"
         },
@@ -27392,6 +27393,7 @@
             },
             "evidence": [
                 "tests/Feature/DashboardContractsTest.php",
+                "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php",
                 "resources/js/Pages/SalesInvoices/Index.tsx"
             ],
             "status": "VERIFIED"
@@ -27428,7 +27430,8 @@
                 "controller_action": "App\\Http\\Controllers\\SalesInvoiceController@store"
             },
             "evidence": [
-                "tests/Feature/DashboardContractsTest.php"
+                "tests/Feature/DashboardContractsTest.php",
+                "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php"
             ],
             "status": "VERIFIED"
         },
@@ -30722,6 +30725,7 @@
             },
             "evidence": [
                 "tests/Feature/Auth/AuthenticationTest.php",
+                "tests/Feature/InstallerAndLicensing/InstallerLicensingSuiteTest.php",
                 "tests/Feature/Security/PrivilegeEscalationTest.php",
                 "tests/Feature/Tenancy/DashboardTenantIsolationTest.php",
                 "tests/Feature/UserAdmin/UserAdministrationTest.php",
@@ -30762,6 +30766,7 @@
             },
             "evidence": [
                 "tests/Feature/Auth/AuthenticationTest.php",
+                "tests/Feature/InstallerAndLicensing/InstallerLicensingSuiteTest.php",
                 "tests/Feature/Security/PrivilegeEscalationTest.php",
                 "tests/Feature/Tenancy/DashboardTenantIsolationTest.php",
                 "tests/Feature/UserAdmin/UserAdministrationTest.php"

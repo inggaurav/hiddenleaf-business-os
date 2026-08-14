@@ -417,7 +417,11 @@
                 "steps",
                 "requirements",
                 "isInstalled",
-                "modules"
+                "modules",
+                "businessOsVersion",
+                "environment",
+                "phpVersion",
+                "laravelVersion"
             ],
             "permissions": []
         },
