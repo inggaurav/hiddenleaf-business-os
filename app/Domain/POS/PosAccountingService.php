@@ -14,11 +14,11 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Posts POS-native immediate settlement entries into the general ledger.
+ * POS-native immediate settlement accounting.
  *
- * POS is not converted into a SalesInvoice, so there is exactly one accounting
- * source for a POS sale. Inventory is posted separately by the canonical stock
- * movement engine inside the same outer transaction.
+ * The current general ledger persists currency amounts at 2 decimal places, so
+ * POS settlement/refund values are normalized to that accounting boundary.
+ * Inventory quantity and unit-cost history retain their independent precision.
  */
 class PosAccountingService
 {
@@ -42,19 +42,20 @@ class PosAccountingService
             }
 
             $accounts = $this->commercialAccounts->systemAccounts($locked->organization_id, $locked->workspace_id);
-            $settlement = $this->settlementAccount($locked->organization_id, $locked->workspace_id, $locked->payment_method, $accounts['sales_revenue']->currency);
-            $taxPayable = $this->taxPayableAccount($locked->organization_id, $locked->workspace_id, $accounts['sales_revenue']->currency);
+            $currency = $accounts['sales_revenue']->currency ?: 'USD';
+            $settlement = $this->settlementAccount($locked->organization_id, $locked->workspace_id, $locked->payment_method, $currency);
+            $taxPayable = $this->taxPayableAccount($locked->organization_id, $locked->workspace_id, $currency);
 
-            $total = Money::of((string) $locked->total, 4);
-            $tax = Money::of((string) $locked->tax_amount, 4);
+            $total = Money::forCurrency((string) $locked->total, $currency);
+            $tax = Money::forCurrency((string) $locked->tax_amount, $currency);
             $netRevenue = $total->subtract($tax);
 
             $lines = [
-                ['account_id' => $settlement->id, 'debit' => $total->toStorageString(), 'credit' => '0.0000'],
-                ['account_id' => $accounts['sales_revenue']->id, 'debit' => '0.0000', 'credit' => $netRevenue->toStorageString()],
+                ['account_id' => $settlement->id, 'debit' => $total->toStorageString(), 'credit' => '0'],
+                ['account_id' => $accounts['sales_revenue']->id, 'debit' => '0', 'credit' => $netRevenue->toStorageString()],
             ];
             if ($tax->isPositive()) {
-                $lines[] = ['account_id' => $taxPayable->id, 'debit' => '0.0000', 'credit' => $tax->toStorageString()];
+                $lines[] = ['account_id' => $taxPayable->id, 'debit' => '0', 'credit' => $tax->toStorageString()];
             }
 
             $entry = $this->ledger->createEntry($locked->organization_id, $locked->workspace_id, [
@@ -85,29 +86,30 @@ class PosAccountingService
             }
 
             $accounts = $this->commercialAccounts->systemAccounts($locked->organization_id, $locked->workspace_id);
+            $currency = $accounts['sales_revenue']->currency ?: 'USD';
             $method = $locked->refund_method ?: $locked->sale->payment_method;
-            $settlement = $this->settlementAccount($locked->organization_id, $locked->workspace_id, $method, $accounts['sales_revenue']->currency);
-            $taxPayable = $this->taxPayableAccount($locked->organization_id, $locked->workspace_id, $accounts['sales_revenue']->currency);
+            $settlement = $this->settlementAccount($locked->organization_id, $locked->workspace_id, $method, $currency);
+            $taxPayable = $this->taxPayableAccount($locked->organization_id, $locked->workspace_id, $currency);
 
-            $refund = Money::of((string) $locked->refund_amount, 4);
-            $taxRefund = Money::zero(4);
+            $refund = Money::forCurrency((string) $locked->refund_amount, $currency);
+            $taxRefundRaw = '0.00000000';
             foreach ($locked->items as $returnItem) {
                 $saleItem = $returnItem->saleItem;
                 if (! $saleItem || bccomp((string) $saleItem->quantity, '0', 4) <= 0) {
                     continue;
                 }
                 $ratio = bcdiv((string) $returnItem->quantity, (string) $saleItem->quantity, 8);
-                $taxRefund = $taxRefund->add(Money::of((string) $saleItem->tax_amount, 4)->multiplyByDecimal($ratio));
+                $taxRefundRaw = bcadd($taxRefundRaw, bcmul((string) $saleItem->tax_amount, $ratio, 8), 8);
             }
-            $taxRefund = $taxRefund->min($refund);
+            $taxRefund = Money::forCurrency($taxRefundRaw, $currency)->min($refund);
             $revenueRefund = $refund->subtract($taxRefund);
 
             $lines = [
-                ['account_id' => $accounts['sales_revenue']->id, 'debit' => $revenueRefund->toStorageString(), 'credit' => '0.0000'],
-                ['account_id' => $settlement->id, 'debit' => '0.0000', 'credit' => $refund->toStorageString()],
+                ['account_id' => $accounts['sales_revenue']->id, 'debit' => $revenueRefund->toStorageString(), 'credit' => '0'],
+                ['account_id' => $settlement->id, 'debit' => '0', 'credit' => $refund->toStorageString()],
             ];
             if ($taxRefund->isPositive()) {
-                $lines[] = ['account_id' => $taxPayable->id, 'debit' => $taxRefund->toStorageString(), 'credit' => '0.0000'];
+                $lines[] = ['account_id' => $taxPayable->id, 'debit' => $taxRefund->toStorageString(), 'credit' => '0'];
             }
 
             $entry = $this->ledger->createEntry($locked->organization_id, $locked->workspace_id, [
@@ -123,13 +125,12 @@ class PosAccountingService
         });
     }
 
-    private function settlementAccount(int $organizationId, int $workspaceId, string $method, ?string $currency): LedgerAccount
+    private function settlementAccount(int $organizationId, int $workspaceId, string $method, string $currency): LedgerAccount
     {
         $asset = AccountType::firstOrCreate(
             ['workspace_id' => $workspaceId, 'name' => 'Assets'],
             ['organization_id' => $organizationId, 'classification' => 'asset', 'normal_balance' => 'debit']
         );
-
         [$code, $name] = match (strtolower($method)) {
             'cash' => ['POS-CASH', 'POS Cash'],
             'card' => ['POS-CARD', 'POS Card Clearing'],
@@ -139,18 +140,11 @@ class PosAccountingService
 
         return LedgerAccount::firstOrCreate(
             ['workspace_id' => $workspaceId, 'code' => $code],
-            [
-                'organization_id' => $organizationId,
-                'account_type_id' => $asset->id,
-                'name' => $name,
-                'currency' => $currency ?: 'USD',
-                'is_bank' => true,
-                'is_active' => true,
-            ]
+            ['organization_id' => $organizationId, 'account_type_id' => $asset->id, 'name' => $name, 'currency' => $currency, 'is_bank' => true, 'is_active' => true]
         );
     }
 
-    private function taxPayableAccount(int $organizationId, int $workspaceId, ?string $currency): LedgerAccount
+    private function taxPayableAccount(int $organizationId, int $workspaceId, string $currency): LedgerAccount
     {
         $liability = AccountType::firstOrCreate(
             ['workspace_id' => $workspaceId, 'name' => 'Liabilities'],
@@ -159,14 +153,7 @@ class PosAccountingService
 
         return LedgerAccount::firstOrCreate(
             ['workspace_id' => $workspaceId, 'code' => 'POS-TAX'],
-            [
-                'organization_id' => $organizationId,
-                'account_type_id' => $liability->id,
-                'name' => 'POS Sales Tax Payable',
-                'currency' => $currency ?: 'USD',
-                'is_bank' => false,
-                'is_active' => true,
-            ]
+            ['organization_id' => $organizationId, 'account_type_id' => $liability->id, 'name' => 'POS Sales Tax Payable', 'currency' => $currency, 'is_bank' => false, 'is_active' => true]
         );
     }
 
