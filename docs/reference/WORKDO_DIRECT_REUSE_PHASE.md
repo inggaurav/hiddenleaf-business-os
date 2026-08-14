@@ -22,6 +22,22 @@ This branch stages only material that can be reused without coupling HiddenLeaf 
   - Contract, Quotation, POS, Product & Service, Support Ticket, Landing Page/CMS, and Zoom Meeting menu/route/permission contracts.
 - `config/workdo_portable_dependencies.php`
   - Independently packaged PHP and JavaScript dependencies that can be obtained from their original package registries instead of copying `vendor/` or `node_modules/`.
+- `config/default_currency.php`
+  - Drop-in 155-currency code/name/symbol catalog from the reference application.
+- `config/email-providers.php`
+  - Drop-in SMTP/provider preset catalog for SMTP, Gmail, Outlook, Yahoo, Mailgun, SES, SendGrid, Postmark, SparkPost, Mandrill, Zoho, Mailjet, Elastic Email, SMTP2GO, SocketLabs, Pepipost, Brevo, Mailchimp Transactional, Resend, MailerSend, SMTP.com, and Laravel testing/failover mailers.
+
+## File-level scan decisions
+
+The final direct-copy scan also inspected standalone reference candidates such as `config/installer.php`, `extract-translations.php`, `packages/workdo/Webhook/src/config/webhook-events.php`, `packages/workdo/ZoomMeeting/src/Helpers/ZoomMeetingUtility.php`, and `packages/workdo/Account/src/Helpers/AccountUtility.php`.
+
+They were not copied directly because:
+
+- HiddenLeaf already has a newer PHP 8.4 installer configuration and replacing it would be a regression.
+- the translation extractor hardcodes WorkDo package paths and needs path/namespace adaptation;
+- Webhook event config hardcodes `Workdo\\...` event/extractor class names;
+- Zoom permission utility depends on Spatie permission models and WorkDo role conventions;
+- Account utility is tightly coupled to WorkDo models, `created_by`, and Spatie roles.
 
 ## Deliberately not copied in this phase
 
