@@ -24,7 +24,7 @@ class CrmController extends Controller
         $leadCount = (clone $leads)->count();
         $converted = (clone $leads)->whereNotNull('converted_at')->count();
 
-        return Inertia::render('CRM/Index', ['pipelines' => CrmPipeline::where('workspace_id', $workspace->id)->with('stages')->get(), 'leads' => $leads->latest()->paginate(30), 'deals' => $deals->latest()->paginate(30), 'metrics' => ['leads' => $leadCount, 'open_leads' => (clone $leads)->where('status', 'open')->count(), 'deals' => (clone $deals)->count(), 'pipeline_value' => (float) (clone $deals)->where('status', 'open')->sum('value'), 'won_value' => (float) (clone $deals)->where('status', 'won')->sum('value'), 'conversion_rate' => $leadCount > 0 ? round(($converted / $leadCount) * 100, 2) : 0, 'stage_distribution' => (clone $deals)->select('stage_id', DB::raw('COUNT(*) as aggregate'))->groupBy('stage_id')->pluck('aggregate', 'stage_id')]]);
+        return Inertia::render('CRM/Index', ['pipelines' => CrmPipeline::where('workspace_id', $workspace->id)->with('stages')->get(), 'leads' => (clone $leads)->latest()->paginate(30), 'deals' => (clone $deals)->latest()->paginate(30), 'metrics' => ['leads' => $leadCount, 'open_leads' => (clone $leads)->where('status', 'open')->count(), 'deals' => (clone $deals)->count(), 'pipeline_value' => (float) (clone $deals)->where('status', 'open')->sum('value'), 'won_value' => (float) (clone $deals)->where('status', 'won')->sum('value'), 'conversion_rate' => $leadCount > 0 ? round(($converted / $leadCount) * 100, 2) : 0, 'stage_distribution' => (clone $deals)->select('stage_id', DB::raw('COUNT(*) as aggregate'))->groupBy('stage_id')->pluck('aggregate', 'stage_id')]]);
     }
 
     public function storePipeline(Request $request)
