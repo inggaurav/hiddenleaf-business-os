@@ -28,6 +28,14 @@ interface Props {
   accounts: Array<{ id: number; name: string; code: string }>;
 }
 
+const newOperationKey = () => {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+
+  return `payment-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+};
+
 export default function VendorPayments({ payments, vendors, bills, accounts }: Props) {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({
@@ -39,6 +47,7 @@ export default function VendorPayments({ payments, vendors, bills, accounts }: P
     payment_method: 'bank_transfer',
     reference: '',
     description: '',
+    idempotency_key: newOperationKey(),
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -55,6 +64,7 @@ export default function VendorPayments({ payments, vendors, bills, accounts }: P
           payment_method: 'bank_transfer',
           reference: '',
           description: '',
+          idempotency_key: newOperationKey(),
         });
       },
     });
@@ -75,11 +85,7 @@ export default function VendorPayments({ payments, vendors, bills, accounts }: P
             </p>
           </div>
 
-          <Button
-            variant="primary"
-            icon={<Plus className="w-4 h-4" />}
-            onClick={() => setShowModal(true)}
-          >
+          <Button variant="primary" icon={<Plus className="w-4 h-4" />} onClick={() => setShowModal(true)}>
             Record Payment
           </Button>
         </div>
@@ -108,23 +114,13 @@ export default function VendorPayments({ payments, vendors, bills, accounts }: P
                           <span>{p.payment_date}</span>
                         </div>
                       </td>
-                      <td className="px-5 py-3.5 font-medium text-[var(--text-primary)]">
-                        {p.vendor?.name ?? 'Direct Payment'}
-                      </td>
+                      <td className="px-5 py-3.5 font-medium text-[var(--text-primary)]">{p.vendor?.name ?? 'Direct Payment'}</td>
                       <td className="px-5 py-3.5">
-                        {p.purchase_invoice?.invoice_id ? (
-                          <Badge variant="brand" size="sm">{p.purchase_invoice.invoice_id}</Badge>
-                        ) : '—'}
+                        {p.purchase_invoice?.invoice_id ? <Badge variant="brand" size="sm">{p.purchase_invoice.invoice_id}</Badge> : '—'}
                       </td>
-                      <td className="px-5 py-3.5">
-                        {p.account?.name ?? 'General Cash'}
-                      </td>
-                      <td className="px-5 py-3.5 capitalize">
-                        {p.payment_method.replace('_', ' ')}
-                      </td>
-                      <td className="px-5 py-3.5 font-bold text-amber-400">
-                        -${Number(p.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                      </td>
+                      <td className="px-5 py-3.5">{p.account?.name ?? 'General Cash'}</td>
+                      <td className="px-5 py-3.5 capitalize">{p.payment_method.replace('_', ' ')}</td>
+                      <td className="px-5 py-3.5 font-bold text-amber-400">-${Number(p.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-1 text-emerald-400">
                           <CheckCircle2 className="w-3.5 h-3.5" />
@@ -135,9 +131,7 @@ export default function VendorPayments({ payments, vendors, bills, accounts }: P
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={7} className="px-5 py-8 text-center text-[var(--text-tertiary)]">
-                      No vendor disbursements recorded yet.
-                    </td>
+                    <td colSpan={7} className="px-5 py-8 text-center text-[var(--text-tertiary)]">No vendor disbursements recorded yet.</td>
                   </tr>
                 )}
               </tbody>
@@ -146,7 +140,6 @@ export default function VendorPayments({ payments, vendors, bills, accounts }: P
         </Card>
       </div>
 
-      {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
           <div className="w-full max-w-lg bg-[var(--surface-1)] border border-[var(--border-subtle)] rounded-2xl p-6 shadow-2xl space-y-4">
@@ -154,80 +147,43 @@ export default function VendorPayments({ payments, vendors, bills, accounts }: P
             <form onSubmit={handleSubmit} className="space-y-3">
               <div>
                 <label className="block text-[11px] font-semibold text-[var(--text-secondary)] mb-1">Vendor / Supplier</label>
-                <select
-                  value={form.vendor_id}
-                  onChange={(e) => setForm({ ...form, vendor_id: e.target.value })}
-                  className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]"
-                >
+                <select value={form.vendor_id} onChange={(e) => setForm({ ...form, vendor_id: e.target.value })} className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]">
                   <option value="">Select Vendor (Optional)</option>
-                  {vendors.map((v) => (
-                    <option key={v.id} value={v.id}>{v.name}</option>
-                  ))}
+                  {vendors.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}
                 </select>
               </div>
 
               <div>
                 <label className="block text-[11px] font-semibold text-[var(--text-secondary)] mb-1">Apply to Purchase Bill</label>
-                <select
-                  value={form.purchase_invoice_id}
-                  onChange={(e) => setForm({ ...form, purchase_invoice_id: e.target.value })}
-                  className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]"
-                >
+                <select value={form.purchase_invoice_id} onChange={(e) => setForm({ ...form, purchase_invoice_id: e.target.value })} className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]">
                   <option value="">Select Bill (Optional)</option>
-                  {bills.map((bill) => (
-                    <option key={bill.id} value={bill.id}>{bill.invoice_id} (${bill.total_amount})</option>
-                  ))}
+                  {bills.map((bill) => <option key={bill.id} value={bill.id}>{bill.invoice_id} (${bill.total_amount})</option>)}
                 </select>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[11px] font-semibold text-[var(--text-secondary)] mb-1">Paid From Account *</label>
-                  <select
-                    required
-                    value={form.account_id}
-                    onChange={(e) => setForm({ ...form, account_id: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]"
-                  >
-                    {accounts.map((a) => (
-                      <option key={a.id} value={a.id}>{a.code} - {a.name}</option>
-                    ))}
+                  <select required value={form.account_id} onChange={(e) => setForm({ ...form, account_id: e.target.value })} className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]">
+                    {accounts.map((a) => <option key={a.id} value={a.id}>{a.code} - {a.name}</option>)}
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-[11px] font-semibold text-[var(--text-secondary)] mb-1">Amount ($) *</label>
-                  <input
-                    required
-                    type="number"
-                    step="0.01"
-                    min="0.01"
-                    value={form.amount}
-                    onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]"
-                  />
+                  <input required type="number" step="0.01" min="0.01" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]" />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[11px] font-semibold text-[var(--text-secondary)] mb-1">Payment Date *</label>
-                  <input
-                    required
-                    type="date"
-                    value={form.payment_date}
-                    onChange={(e) => setForm({ ...form, payment_date: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]"
-                  />
+                  <input required type="date" value={form.payment_date} onChange={(e) => setForm({ ...form, payment_date: e.target.value })} className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]" />
                 </div>
 
                 <div>
                   <label className="block text-[11px] font-semibold text-[var(--text-secondary)] mb-1">Payment Method</label>
-                  <select
-                    value={form.payment_method}
-                    onChange={(e) => setForm({ ...form, payment_method: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]"
-                  >
+                  <select value={form.payment_method} onChange={(e) => setForm({ ...form, payment_method: e.target.value })} className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]">
                     <option value="bank_transfer">Bank Transfer</option>
                     <option value="credit_card">Credit Card</option>
                     <option value="cash">Cash</option>
@@ -238,22 +194,12 @@ export default function VendorPayments({ payments, vendors, bills, accounts }: P
 
               <div>
                 <label className="block text-[11px] font-semibold text-[var(--text-secondary)] mb-1">Reference / Transaction ID</label>
-                <input
-                  type="text"
-                  value={form.reference}
-                  onChange={(e) => setForm({ ...form, reference: e.target.value })}
-                  placeholder="e.g. TXN-44912"
-                  className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]"
-                />
+                <input type="text" value={form.reference} onChange={(e) => setForm({ ...form, reference: e.target.value })} placeholder="e.g. TXN-44912" className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]" />
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-2">
-                <Button variant="ghost" size="sm" type="button" onClick={() => setShowModal(false)}>
-                  Cancel
-                </Button>
-                <Button variant="primary" size="sm" type="submit">
-                  Confirm Disbursement
-                </Button>
+                <Button variant="ghost" size="sm" type="button" onClick={() => setShowModal(false)}>Cancel</Button>
+                <Button variant="primary" size="sm" type="submit">Confirm Disbursement</Button>
               </div>
             </form>
           </div>
