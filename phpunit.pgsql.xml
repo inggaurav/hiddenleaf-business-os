@@ -19,6 +19,7 @@
         <env name="DB_PASSWORD" value="hiddenleaf" force="true"/>
         <env name="CACHE_STORE" value="array" force="true"/>
         <env name="MAIL_MAILER" value="array" force="true"/>
+        <env name="LICENSE_SERVER_ENABLED" value="true" force="true"/>
         <env name="QUEUE_CONNECTION" value="sync" force="true"/>
         <env name="SESSION_DRIVER" value="array" force="true"/>
         <env name="RUN_INFRASTRUCTURE_TESTS" value="1" force="true"/>

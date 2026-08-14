@@ -120,16 +120,86 @@ class InstallerLicensingSuiteTest extends TestCase
         $this->assertFalse(File::exists(storage_path('installed')));
     }
 
-    public function test_updater_lifecycle(): void
+    public function test_installer_rejects_domain_mismatch_and_invalid_admin_input(): void
+    {
+        $token = app(LicenseManager::class)->createSignedToken([
+            'domain' => 'licensed.hiddenleaf.test',
+            'exp' => time() + 86400,
+        ]);
+
+        $this->post('/install', [
+            'site_name' => 'Domain mismatch',
+            'app_url' => 'https://other.hiddenleaf.test',
+            'app_environment' => 'production',
+            'db_connection' => 'sqlite',
+            'db_database' => ':memory:',
+            'license_token' => $token,
+            'license_domain' => 'other.hiddenleaf.test',
+            'admin_name' => 'Admin',
+            'admin_email' => 'not-an-email',
+            'admin_password' => 'short',
+            'admin_password_confirmation' => 'different',
+            'modules' => ['account'],
+            'language' => 'en',
+            'currency' => 'USD',
+            'timezone' => 'UTC',
+            'storage_driver' => 'local',
+        ])->assertSessionHasErrors(['admin_email', 'admin_password']);
+
+        $this->assertFalse(File::exists(storage_path('installed')));
+        $this->assertDatabaseMissing('users', ['email' => 'not-an-email']);
+
+        $this->post('/install', [
+            'site_name' => 'Domain mismatch',
+            'app_url' => 'https://other.hiddenleaf.test',
+            'app_environment' => 'production',
+            'db_connection' => 'sqlite',
+            'db_database' => ':memory:',
+            'license_token' => $token,
+            'license_domain' => 'other.hiddenleaf.test',
+            'admin_name' => 'Administrator',
+            'admin_email' => 'admin@other.hiddenleaf.test',
+            'admin_password' => 'a-secure-password-123',
+            'admin_password_confirmation' => 'a-secure-password-123',
+            'modules' => ['account'],
+            'language' => 'en',
+            'currency' => 'USD',
+            'timezone' => 'UTC',
+            'storage_driver' => 'local',
+        ])->assertSessionHasErrors('installation');
+
+        $this->assertFalse(File::exists(storage_path('installed')));
+    }
+
+    public function test_database_probe_fails_safely_without_reflecting_credentials(): void
+    {
+        if (! extension_loaded('pdo_pgsql')) {
+            $this->markTestSkipped('pdo_pgsql is required for the invalid credential probe.');
+        }
+
+        $secret = 'do-not-reflect-this-password';
+        $response = $this->postJson('/install/test-db', [
+            'db_connection' => 'pgsql',
+            'db_host' => '127.0.0.1',
+            'db_port' => 1,
+            'db_database' => 'missing',
+            'db_username' => 'invalid',
+            'db_password' => $secret,
+        ]);
+
+        $response->assertUnprocessable()->assertJson(['success' => false]);
+        $this->assertStringNotContainsString($secret, $response->getContent());
+        $this->assertStringNotContainsString('SQLSTATE', $response->getContent());
+        $this->assertFalse(File::exists(storage_path('installed')));
+    }
+
+    public function test_updater_rejects_unsigned_legacy_requests(): void
     {
         $superAdmin = User::factory()->create(['role' => 'super_admin']);
 
         $response = $this->actingAs($superAdmin)->post('/update');
-        $response->assertSessionHas('success');
-
-        $versionSetting = Setting::where('key', 'app_version')->whereNull('workspace_id')->first();
-        $this->assertNotNull($versionSetting);
-        $this->assertEquals('1.1.0', $versionSetting->value);
+        $response->assertSessionHasErrors('manifest');
+        $this->assertDatabaseMissing('settings', ['key' => 'app_version', 'value' => '1.1.0']);
     }
 
     public function test_commercial_licensing_verification_and_domain_binding(): void

@@ -18,13 +18,15 @@ Route::prefix('v1')->group(function () {
     Route::get('/plans', [PlanApiController::class, 'index']);
     Route::get('/plans/{plan}', [PlanApiController::class, 'show']);
 
-    // Licensing Endpoints
-    Route::middleware('throttle:30,1')->group(function () {
-        Route::post('/licensing/activate', [LicensingController::class, 'activate']);
-        Route::post('/licensing/deactivate', [LicensingController::class, 'deactivate']);
-        Route::post('/licensing/validate', [LicensingController::class, 'validateLicense']);
-        Route::get('/licensing/entitlements', [LicensingController::class, 'entitlements']);
-    });
+    // License-authority protocol endpoints never register on customer installations.
+    if (config('licensing.server_enabled')) {
+        Route::middleware('throttle:30,1')->group(function () {
+            Route::post('/licensing/activate', [LicensingController::class, 'activate']);
+            Route::post('/licensing/deactivate', [LicensingController::class, 'deactivate']);
+            Route::post('/licensing/validate', [LicensingController::class, 'validateLicense']);
+            Route::get('/licensing/entitlements', [LicensingController::class, 'entitlements']);
+        });
+    }
 
     // Authenticated Sanctum Routes
     Route::middleware('auth:sanctum')->group(function () {

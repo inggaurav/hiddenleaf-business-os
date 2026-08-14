@@ -9,6 +9,7 @@ use App\Models\Setting;
 use App\Models\UpdateHistory;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
@@ -118,16 +119,60 @@ class SecureUpdaterTest extends TestCase
         $this->assertFileDoesNotExist($this->temporaryRoot.'/application/should-not-exist.txt');
     }
 
-    private function signedManifest(string $sha256): array
+    public function test_incompatible_runtime_is_rejected_before_download_or_history(): void
     {
-        $manifest = [
+        $user = User::factory()->create(['role' => 'super_admin']);
+        Http::fake();
+
+        $this->actingAs($user)->post('/update', ['manifest' => $this->signedManifest(str_repeat('a', 64), [
+            'minimum_php' => '99.0.0',
+        ])])->assertServerError();
+
+        Http::assertNothingSent();
+        $this->assertDatabaseCount('update_histories', 0);
+    }
+
+    public function test_download_failure_records_failure_without_deployment(): void
+    {
+        $user = User::factory()->create(['role' => 'super_admin']);
+        Http::fake(['https://updates.hiddenleaf.test/package.zip' => Http::response('unavailable', 503)]);
+
+        $this->actingAs($user)->post('/update', ['manifest' => $this->signedManifest(str_repeat('a', 64))])->assertServerError();
+
+        $this->assertSame('failed', UpdateHistory::sole()->status);
+        $this->assertDirectoryDoesNotExist($this->temporaryRoot.'/application/new');
+    }
+
+    public function test_migration_failure_restores_files_and_exits_maintenance_mode(): void
+    {
+        $user = User::factory()->create(['role' => 'super_admin']);
+        File::ensureDirectoryExists($this->temporaryRoot.'/application');
+        File::put($this->temporaryRoot.'/application/existing.txt', 'before');
+        $archive = $this->package(['existing.txt' => 'after', 'new/delivered.txt' => 'temporary']);
+        Http::fake(['https://updates.hiddenleaf.test/package.zip' => Http::response(File::get($archive))]);
+        Artisan::shouldReceive('call')->once()->with('down')->andReturn(0);
+        Artisan::shouldReceive('call')->once()->with('migrate', ['--force' => true])->andThrow(new RuntimeException('migration failed'));
+        Artisan::shouldReceive('call')->once()->with('up')->andReturn(0);
+
+        $this->actingAs($user)->post('/update', ['manifest' => $this->signedManifest(hash_file('sha256', $archive))])->assertServerError();
+
+        $history = UpdateHistory::sole();
+        $this->assertSame('failed', $history->status);
+        $this->assertStringContainsString('migration failed', $history->error_message);
+        $this->assertSame('before', File::get($this->temporaryRoot.'/application/existing.txt'));
+        $this->assertFileDoesNotExist($this->temporaryRoot.'/application/new/delivered.txt');
+    }
+
+    private function signedManifest(string $sha256, array $overrides = []): array
+    {
+        $manifest = array_replace([
             'version' => '2.0.0',
             'channel' => 'stable',
             'package_url' => 'https://updates.hiddenleaf.test/package.zip',
             'sha256' => $sha256,
             'minimum_php' => '8.0.0',
             'minimum_laravel' => '12.0.0',
-        ];
+        ], $overrides);
         ksort($manifest);
         openssl_sign(
             json_encode($manifest, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),

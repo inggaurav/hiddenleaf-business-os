@@ -3,11 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Domain\Updates\UpdateManager;
-use App\Models\Setting;
 use App\Models\UpdateHistory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -31,20 +29,10 @@ class UpdateController extends Controller
 
     public function update(Request $request, UpdateManager $updates): RedirectResponse
     {
-        if ($request->has('manifest')) {
-            $validated = $request->validate(['manifest' => ['required', 'array']]);
-            $history = $updates->install($validated['manifest'], $request->user());
+        $validated = $request->validate(['manifest' => ['required', 'array']]);
+        $history = $updates->install($validated['manifest'], $request->user());
 
-            return back()->with('success', "System updated to {$history->to_version}.");
-        }
-
-        Artisan::call('migrate', ['--force' => true]);
-        Setting::updateOrCreate(
-            ['key' => 'app_version', 'workspace_id' => null],
-            ['value' => '1.1.0', 'created_by' => $request->user()?->id]
-        );
-
-        return back()->with('success', 'System updated to 1.1.0.');
+        return back()->with('success', "System updated to {$history->to_version}.");
     }
 
     public function rollback(UpdateHistory $history, Request $request, UpdateManager $updates): RedirectResponse

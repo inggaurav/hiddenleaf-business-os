@@ -70,7 +70,7 @@ class LicenseManager
     public function createSignedToken(array $payload): string
     {
         if (! $this->privateKey) {
-            throw new LogicException('LICENSING_PRIVATE_KEY is not configured on the licensing server.');
+            throw new LogicException('LICENSE_SERVER_PRIVATE_KEY is not configured on the licensing authority.');
         }
 
         $now = time();
