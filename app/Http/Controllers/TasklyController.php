@@ -11,10 +11,29 @@ use HiddenLeaf\Kernel\Services\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use App\Domain\Taskly\TasklyDashboardService;
 use Inertia\Inertia;
 
 class TasklyController extends Controller
 {
+    public function dashboard(Request $request, TasklyDashboardService $dashboardService)
+    {
+        $workspace = $this->workspace($request, 'taskly.view');
+        $data = $dashboardService->getMetrics($workspace);
+
+        $metrics = [
+            'projects' => $data['stats']['total_projects'],
+            'active_projects' => $data['stats']['active_projects'],
+            'tasks' => $data['stats']['total_tasks'],
+            'completed_tasks' => $data['stats']['completed_tasks'],
+            'overdue_tasks' => $data['stats']['overdue_tasks'],
+            'open_milestones' => $data['stats']['open_milestones'],
+            'approved_hours' => $data['stats']['total_hours_tracked'],
+        ];
+
+        return Inertia::render('Taskly/Dashboard', ['metrics' => $metrics] + $data);
+    }
+
     public function index(Request $request)
     {
         $workspace = $this->workspace($request, 'taskly.view');

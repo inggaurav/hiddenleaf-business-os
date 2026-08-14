@@ -17,10 +17,19 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use App\Domain\HRM\HrmDashboardService;
 use Inertia\Inertia;
 
 class HrmController extends Controller
 {
+    public function dashboard(Request $request, HrmDashboardService $dashboardService)
+    {
+        $workspace = $this->workspace($request, 'hrm.view');
+        $data = $dashboardService->getMetrics($workspace);
+
+        return Inertia::render('HRM/Dashboard', ['metrics' => $data['stats']] + $data);
+    }
+
     public function index(Request $request)
     {
         $workspace = $this->workspace($request, 'hrm.view');

@@ -149,6 +149,8 @@ Route::middleware(['auth'])->group(function () {
 
     // Sales & Procurement Routes
     Route::middleware('module.status:account')->prefix('accounting')->name('accounting.')->group(function () {
+        Route::get('/', [AccountingController::class, 'dashboard'])->name('index');
+        Route::get('dashboard', [AccountingController::class, 'dashboard'])->name('dashboard');
         Route::get('accounts', [AccountingController::class, 'accounts'])->name('accounts');
         Route::post('types', [AccountingController::class, 'storeType'])->name('types.store');
         Route::post('accounts', [AccountingController::class, 'storeAccount'])->name('accounts.store');
@@ -159,8 +161,13 @@ Route::middleware(['auth'])->group(function () {
         Route::post('bank-transfers', [AccountingController::class, 'bankTransfer'])->name('bank-transfers.store');
         Route::post('bank-reconciliations', [AccountingController::class, 'reconcile'])->name('bank-reconciliations.store');
     });
+    Route::get('account/dashboard', [AccountingController::class, 'dashboard'])->middleware('module.status:account');
+    Route::get('account', [AccountingController::class, 'dashboard'])->middleware('module.status:account');
+
     Route::middleware('module.status:hrm')->prefix('hrm')->name('hrm.')->group(function () {
         Route::get('/', [HrmController::class, 'index'])->name('index');
+        Route::get('dashboard', [HrmController::class, 'dashboard'])->name('dashboard');
+        Route::get('employees/list', [HrmController::class, 'index'])->name('employees.list');
         Route::post('structure/{resource}', [HrmController::class, 'storeStructure'])->name('structure.store');
         Route::post('employees', [HrmController::class, 'storeEmployee'])->name('employees.store');
         Route::post('attendance', [HrmController::class, 'attendance'])->name('attendance.store');
@@ -174,8 +181,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('documents', [HrmController::class, 'uploadDocument'])->name('documents.store');
         Route::get('documents/{document}/download', [HrmController::class, 'downloadDocument'])->name('documents.download');
     });
+
     Route::middleware('module.status:lead')->prefix('crm')->name('crm.')->group(function () {
         Route::get('/', [CrmController::class, 'index'])->name('index');
+        Route::get('dashboard', [CrmController::class, 'dashboard'])->name('dashboard');
+        Route::get('leads/list', [CrmController::class, 'index'])->name('leads.list');
         Route::post('pipelines', [CrmController::class, 'storePipeline'])->name('pipelines.store');
         Route::post('leads', [CrmController::class, 'storeLead'])->name('leads.store');
         Route::post('leads/{lead}/move', [CrmController::class, 'moveLead'])->name('leads.move');
@@ -184,8 +194,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('{type}/{id}/notes', [CrmController::class, 'addNote'])->name('notes.store');
         Route::post('{type}/{id}/activities', [CrmController::class, 'addActivity'])->name('activities.store');
     });
+
     Route::middleware('module.status:taskly')->prefix('taskly')->name('taskly.')->group(function () {
         Route::get('/', [TasklyController::class, 'index'])->name('index');
+        Route::get('dashboard', [TasklyController::class, 'dashboard'])->name('dashboard');
+        Route::get('projects/list', [TasklyController::class, 'index'])->name('projects.list');
         Route::post('projects', [TasklyController::class, 'storeProject'])->name('projects.store');
         Route::post('tasks', [TasklyController::class, 'storeTask'])->name('tasks.store');
         Route::post('tasks/{task}/move', [TasklyController::class, 'moveTask'])->name('tasks.move');
@@ -195,8 +208,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('timesheets/{timesheet}/approve', [TasklyController::class, 'approveTime'])->name('timesheets.approve');
         Route::post('issues', [TasklyController::class, 'issue'])->name('issues.store');
     });
+    Route::get('projects/dashboard', [TasklyController::class, 'dashboard'])->middleware('module.status:taskly');
+
     Route::middleware('module.status:pos')->prefix('pos')->name('pos.')->group(function () {
         Route::get('/', [PosController::class, 'index'])->name('index');
+        Route::get('dashboard', [PosController::class, 'dashboard'])->name('dashboard');
+        Route::get('terminal', [PosController::class, 'index'])->name('terminal');
         Route::post('registers', [PosController::class, 'storeRegister'])->name('registers.store');
         Route::post('registers/{register}/open', [PosController::class, 'open'])->name('registers.open');
         Route::get('products', [PosController::class, 'lookup'])->name('products');
@@ -204,6 +221,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('sessions/{session}/close', [PosController::class, 'close'])->name('sessions.close');
         Route::post('orders/{order}/refund', [PosController::class, 'refund'])->name('orders.refund');
     });
+
     Route::middleware('module.status:landingpage')->prefix('landing')->name('landing.')->group(function () {
         Route::get('/', [LandingPageController::class, 'manage'])->name('manage');
         Route::post('sites', [LandingPageController::class, 'storeSite'])->name('sites.store');
@@ -213,11 +231,14 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::middleware('module.status:productservice')->prefix('product-service')->name('product-service.')->group(function () {
+        Route::get('dashboard', [ProductServiceController::class, 'dashboard'])->name('dashboard');
         Route::post('categories', [ProductServiceController::class, 'storeCategory'])->name('categories.store');
         Route::post('units', [ProductServiceController::class, 'storeUnit'])->name('units.store');
         Route::post('taxes', [ProductServiceController::class, 'storeTax'])->name('taxes.store');
         Route::post('{productService}/adjust-stock', [ProductServiceController::class, 'adjust'])->name('adjust-stock');
     });
+    Route::get('inventory/dashboard', [ProductServiceController::class, 'dashboard'])->middleware('module.status:productservice')->name('inventory.dashboard');
+
     Route::resource('product-service', ProductServiceController::class)
         ->except(['show'])
         ->middleware('module.status:productservice');
@@ -225,11 +246,15 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('transfers', TransferController::class)->except(['edit', 'update']);
 
     // Purchase Invoices
+    Route::get('procurement/dashboard', [PurchaseInvoiceController::class, 'dashboard'])->name('procurement.dashboard');
+    Route::get('purchase-invoices-dashboard', [PurchaseInvoiceController::class, 'dashboard'])->name('purchase-invoices.dashboard');
     Route::resource('purchase-invoices', PurchaseInvoiceController::class);
     Route::post('purchase-invoices/{purchaseInvoice}/post', [PurchaseInvoiceController::class, 'post'])->name('purchase-invoices.post');
     Route::get('purchase-invoices/{purchaseInvoice}/print', [PurchaseInvoiceController::class, 'print'])->name('purchase-invoices.print');
 
     // Sales Invoices
+    Route::get('sales/dashboard', [SalesInvoiceController::class, 'dashboard'])->name('sales.dashboard');
+    Route::get('sales-invoices-dashboard', [SalesInvoiceController::class, 'dashboard'])->name('sales-invoices.dashboard');
     Route::get('sales-invoices/warehouse/products', [SalesInvoiceController::class, 'getWarehouseProducts'])->name('sales-invoices.warehouse.products');
     Route::get('sales-invoices/services/list', [SalesInvoiceController::class, 'getServices'])->name('sales-invoices.services');
     Route::resource('sales-invoices', SalesInvoiceController::class);

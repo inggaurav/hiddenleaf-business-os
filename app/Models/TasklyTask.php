@@ -20,4 +20,14 @@ class TasklyTask extends Model
     {
         return $q->where('organization_id', $org)->where('workspace_id', $ws);
     }
+
+    public function project()
+    {
+        return $this->belongsTo(TasklyProject::class, 'project_id');
+    }
+
+    public function stage()
+    {
+        return $this->belongsTo(TasklyStage::class, 'stage_id');
+    }
 }

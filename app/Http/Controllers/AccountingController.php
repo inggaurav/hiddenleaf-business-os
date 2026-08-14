@@ -12,10 +12,19 @@ use App\Models\Workspace;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use App\Domain\Accounting\AccountDashboardService;
 use Inertia\Inertia;
 
 class AccountingController extends Controller
 {
+    public function dashboard(Request $request, AccountDashboardService $dashboardService)
+    {
+        $workspace = $this->workspace($request, 'account.view');
+        $data = $dashboardService->getMetrics($workspace);
+
+        return Inertia::render('Accounting/Dashboard', $data);
+    }
+
     public function accounts(Request $request)
     {
         $workspace = $this->workspace($request, 'account.view');

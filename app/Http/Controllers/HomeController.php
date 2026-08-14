@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\AuditLog;
-use App\Models\Domain\SaaS\Plan;
+use App\Models\CrmLead;
 use App\Models\HelpdeskTicket;
 use App\Models\Organization;
+use App\Models\Plan;
+use App\Models\PosOrder;
 use App\Models\ProductServiceItem;
 use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
+use App\Models\TasklyProject;
 use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Http\Request;
@@ -50,9 +53,12 @@ class HomeController extends Controller
                 'active_plan_name' => $organization?->plan_id ? Plan::whereKey($organization->plan_id)->value('name') : null,
                 'products' => ProductServiceItem::where('organization_id', $orgId)->where('workspace_id', $wsId)->where('type', 'product')->count(),
                 'services' => ProductServiceItem::where('organization_id', $orgId)->where('workspace_id', $wsId)->where('type', 'service')->count(),
-                'sales' => (float) SalesInvoice::where('organization_id', $orgId)->where('workspace_id', $wsId)->whereIn('status', [1, 2, 3])->sum('total_amount'),
-                'purchases' => (float) PurchaseInvoice::where('organization_id', $orgId)->where('workspace_id', $wsId)->where('status', 1)->sum('total_amount'),
-                'open_tickets' => HelpdeskTicket::where('organization_id', $orgId)->where('workspace_id', $wsId)->whereNotIn('status', ['resolved', 'closed'])->count(),
+                'sales' => (float) SalesInvoice::where('organization_id', $orgId)->where('workspace_id', $wsId)->where('status', '!=', 'draft')->sum('grand_total'),
+                'purchases' => (float) PurchaseInvoice::where('organization_id', $orgId)->where('workspace_id', $wsId)->where('status', '!=', 'draft')->sum('grand_total'),
+                'open_tickets' => HelpdeskTicket::where('workspace_id', $wsId)->whereNotIn('status', ['resolved', 'closed'])->count(),
+                'active_projects' => TasklyProject::where('organization_id', $orgId)->where('workspace_id', $wsId)->where('status', 'active')->count(),
+                'open_leads' => CrmLead::where('organization_id', $orgId)->where('workspace_id', $wsId)->where('status', 'open')->count(),
+                'today_pos_sales' => (float) PosOrder::where('organization_id', $orgId)->where('workspace_id', $wsId)->whereDate('created_at', today())->where('status', 'completed')->sum('grand_total'),
             ] : null,
             'recentLogs' => $recentLogs,
         ]);

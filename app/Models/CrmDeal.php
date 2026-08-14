@@ -20,4 +20,14 @@ class CrmDeal extends Model
     {
         return $q->where('organization_id', $org)->where('workspace_id', $ws);
     }
+
+    public function pipeline()
+    {
+        return $this->belongsTo(CrmPipeline::class, 'pipeline_id');
+    }
+
+    public function stage()
+    {
+        return $this->belongsTo(CrmStage::class, 'stage_id');
+    }
 }

@@ -12,10 +12,19 @@ use App\Models\Workspace;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Domain\Sales\SalesDashboardService;
 use Inertia\Inertia;
 
 class SalesInvoiceController extends Controller
 {
+    public function dashboard(Request $request, SalesDashboardService $dashboardService)
+    {
+        $workspace = $this->workspace($request);
+        $data = $dashboardService->getMetrics($workspace);
+
+        return Inertia::render('SalesInvoices/Dashboard', $data);
+    }
+
     public function index(Request $request)
     {
         $workspace = $this->workspace($request);

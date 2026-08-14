@@ -12,11 +12,20 @@ use App\Models\Warehouse;
 use App\Models\Workspace;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Domain\POS\PosDashboardService;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class PosController extends Controller
 {
+    public function dashboard(Request $request, PosDashboardService $dashboardService)
+    {
+        $w = $this->workspace($request);
+        $data = $dashboardService->getMetrics($w);
+
+        return Inertia::render('POS/Dashboard', ['metrics' => $data['stats']] + $data);
+    }
+
     public function index(Request $request)
     {
         $w = $this->workspace($request);

@@ -14,4 +14,14 @@ class HrLeaveRequest extends Model
     {
         return ['starts_on' => 'date', 'ends_on' => 'date', 'days' => 'decimal:2', 'reviewed_at' => 'datetime'];
     }
+
+    public function employee()
+    {
+        return $this->belongsTo(HrEmployee::class, 'employee_id');
+    }
+
+    public function type()
+    {
+        return $this->belongsTo(HrLeaveType::class, 'leave_type_id');
+    }
 }

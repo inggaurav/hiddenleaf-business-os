@@ -12,12 +12,29 @@ use App\Models\Workspace;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Domain\Inventory\InventoryDashboardService;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ProductServiceController extends Controller
 {
+    public function dashboard(Request $request, InventoryDashboardService $dashboardService): Response
+    {
+        $workspace = $this->workspace($request, 'product_service.manage');
+        $data = $dashboardService->getMetrics($workspace);
+
+        $metrics = [
+            'products' => $data['stats']['total_products'],
+            'services' => $data['stats']['total_services'],
+            'warehouses' => $data['stats']['total_warehouses'],
+            'stock_quantity' => $data['stats']['total_stock_units'],
+            'low_stock' => $data['stats']['low_stock_items'],
+        ];
+
+        return Inertia::render('ProductService/Dashboard', ['metrics' => $metrics] + $data);
+    }
+
     public function index(Request $request): Response
     {
         $workspace = $this->workspace($request, 'product_service.manage');

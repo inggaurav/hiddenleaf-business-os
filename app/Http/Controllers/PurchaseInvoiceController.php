@@ -11,10 +11,19 @@ use App\Models\Workspace;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Domain\Procurement\ProcurementDashboardService;
 use Inertia\Inertia;
 
 class PurchaseInvoiceController extends Controller
 {
+    public function dashboard(Request $request, ProcurementDashboardService $dashboardService)
+    {
+        $workspace = $this->workspace($request);
+        $data = $dashboardService->getMetrics($workspace);
+
+        return Inertia::render('PurchaseInvoices/Dashboard', $data);
+    }
+
     public function index(Request $request)
     {
         $workspace = $this->workspace($request);

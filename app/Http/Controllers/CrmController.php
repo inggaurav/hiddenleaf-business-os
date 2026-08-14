@@ -11,10 +11,20 @@ use HiddenLeaf\Kernel\Services\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use App\Domain\CRM\CrmDashboardService;
 use Inertia\Inertia;
 
 class CrmController extends Controller
 {
+    public function dashboard(Request $request, CrmDashboardService $dashboardService)
+    {
+        $workspace = $this->workspace($request, 'crm.view');
+        $pipelineId = $request->has('pipeline_id') ? (int) $request->get('pipeline_id') : null;
+        $data = $dashboardService->getMetrics($workspace, $pipelineId);
+
+        return Inertia::render('CRM/Dashboard', ['metrics' => $data['stats']] + $data);
+    }
+
     public function index(Request $request)
     {
         $workspace = $this->workspace($request, 'crm.view');
