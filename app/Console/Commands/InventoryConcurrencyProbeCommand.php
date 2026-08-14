@@ -22,7 +22,8 @@ class InventoryConcurrencyProbeCommand extends Command
         {reference}
         {readyFile}
         {startFile}
-        {resultFile}';
+        {resultFile}
+        {direction=-1}';
 
     protected $description = 'Internal worker for real inventory concurrency regression tests';
 
@@ -43,14 +44,15 @@ class InventoryConcurrencyProbeCommand extends Command
         }
 
         try {
+            $direction = (int) $this->argument('direction');
             $movement = $movements->recordMovement(
                 organizationId: (int) $this->argument('organization'),
                 workspaceId: (int) $this->argument('workspace'),
                 warehouseId: (int) $this->argument('warehouse'),
                 productId: (int) $this->argument('product'),
-                movementType: 'concurrency_probe',
+                movementType: $direction > 0 ? 'concurrency_probe_in' : 'concurrency_probe_out',
                 quantity: InventoryQuantity::of((string) $this->argument('quantity')),
-                direction: -1,
+                direction: $direction,
                 referenceType: 'concurrency_probe',
                 referenceId: (int) $this->argument('reference'),
                 reason: 'Concurrent stock probe',
