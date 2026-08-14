@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Validation\ValidationException;
 
 class AccountExpense extends Model
 {
@@ -25,6 +26,28 @@ class AccountExpense extends Model
         'approved_at' => 'datetime',
         'posted_at' => 'datetime',
     ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $expense) {
+            if (! $expense->category_id) {
+                return;
+            }
+
+            $valid = AccountTransactionCategory::query()
+                ->whereKey($expense->category_id)
+                ->where('organization_id', $expense->organization_id)
+                ->where('workspace_id', $expense->workspace_id)
+                ->where('type', 'expense')
+                ->exists();
+
+            if (! $valid) {
+                throw ValidationException::withMessages([
+                    'category_id' => 'Expense category must belong to the active workspace and be an expense category.',
+                ]);
+            }
+        });
+    }
 
     public function scopeForWorkspace(Builder $query, int $organizationId, int $workspaceId): Builder
     {
