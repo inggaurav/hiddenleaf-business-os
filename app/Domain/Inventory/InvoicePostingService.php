@@ -37,35 +37,40 @@ class InvoicePostingService
             if ((int) $locked->status !== 0) {
                 throw new RuntimeException('Only draft invoices can be posted.');
             }
-            $warehouse = null;
 
+            $warehouse = null;
             foreach ($locked->items()->get() as $line) {
                 if (! $line->product_id) {
                     throw new RuntimeException('Every invoice line must reference a canonical product or service.');
                 }
+
                 $product = ProductServiceItem::query()
                     ->where('organization_id', $locked->organization_id)
                     ->where('workspace_id', $locked->workspace_id)
                     ->findOrFail($line->product_id);
+
                 if ($product->type === 'product') {
                     $warehouse ??= Warehouse::query()
                         ->where('organization_id', $locked->organization_id)
                         ->where('workspace_id', $locked->workspace_id)
                         ->findOrFail($locked->warehouse_id);
+
+                    $quantity = InventoryQuantity::of((string) $line->quantity);
+                    $signed = $direction > 0 ? $quantity : $quantity->negate();
+
                     $this->stock->adjust(
                         $product,
                         $warehouse,
-                        $direction * (float) $line->quantity,
+                        $signed,
                         $event.' '.$locked->invoice_id,
                         $actor,
                         $direction > 0 ? 'purchase_received' : 'sale_issued',
                         $locked,
+                        (int) $line->id,
                     );
                 }
             }
 
-            // Commercial document, inventory and financial posting are one
-            // atomic unit. A ledger failure rolls the entire transaction back.
             $locked->update(['status' => 1]);
             if ($locked instanceof SalesInvoice) {
                 $this->accounting->postSalesInvoice($locked, $actor);
