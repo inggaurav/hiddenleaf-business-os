@@ -13,20 +13,14 @@ class AccountDebitNote extends Model
     protected $table = 'account_debit_notes';
 
     protected $fillable = [
-        'organization_id',
-        'workspace_id',
-        'purchase_invoice_id',
-        'vendor_id',
-        'amount',
-        'date',
-        'description',
-        'status',
-        'created_by',
+        'organization_id', 'workspace_id', 'purchase_invoice_id', 'vendor_id', 'amount',
+        'date', 'description', 'status', 'journal_entry_id', 'approved_at', 'approved_by', 'created_by',
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
         'date' => 'date',
+        'approved_at' => 'datetime',
     ];
 
     public function scopeForWorkspace(Builder $query, int $organizationId, int $workspaceId): Builder
@@ -42,5 +36,10 @@ class AccountDebitNote extends Model
     public function purchaseInvoice()
     {
         return $this->belongsTo(PurchaseInvoice::class, 'purchase_invoice_id');
+    }
+
+    public function journalEntry()
+    {
+        return $this->belongsTo(JournalEntry::class, 'journal_entry_id');
     }
 }
