@@ -12,7 +12,7 @@ use Stringable;
  * All authoritative financial calculations (payments, outstanding balances,
  * journal entries) MUST use this instead of PHP floats.
  *
- * Supports ISO-4217 currency-aware minor unit scale (0, 2, 3 decimals).
+ * Supports ISO-4217 currency-aware minor unit scale (0, 2, 3, 4 decimals).
  */
 final class Money implements JsonSerializable, Stringable
 {
@@ -55,6 +55,10 @@ final class Money implements JsonSerializable, Stringable
             $scale = (int) $scaleOrCurrency;
         }
 
+        if ($scale < 0 || $scale > 8) {
+            throw new InvalidArgumentException('Money scale must be between 0 and 8 decimal places.');
+        }
+
         if (is_float($value)) {
             $value = number_format($value, $scale, '.', '');
         }
@@ -68,17 +72,11 @@ final class Money implements JsonSerializable, Stringable
         return new self(bcadd($value, '0', $scale), $scale, $currency);
     }
 
-    /**
-     * Create Money specifically for a given currency code.
-     */
     public static function forCurrency(string|int|float $value, string $currency): self
     {
         return self::of($value, $currency);
     }
 
-    /**
-     * Determine minor unit scale for a currency code.
-     */
     public static function scaleForCurrency(?string $currency): int
     {
         if (! $currency) {
@@ -88,9 +86,6 @@ final class Money implements JsonSerializable, Stringable
         return self::CURRENCY_SCALES[strtoupper($currency)] ?? self::DEFAULT_SCALE;
     }
 
-    /**
-     * Create a zero Money instance.
-     */
     public static function zero(int|string|null $scaleOrCurrency = null): self
     {
         return self::of('0', $scaleOrCurrency);
@@ -106,42 +101,40 @@ final class Money implements JsonSerializable, Stringable
         return $this->currency;
     }
 
-    /**
-     * Add another Money value.
-     */
     public function add(self $other): self
     {
+        $this->assertCompatibleCurrency($other);
         $scale = max($this->scale, $other->scale);
 
-        return new self(bcadd($this->amount, $other->amount, $scale), $scale, $this->currency ?? $other->currency);
+        return new self(bcadd($this->amount, $other->amount, $scale), $scale, $this->currency);
     }
 
-    /**
-     * Subtract another Money value.
-     */
     public function subtract(self $other): self
     {
+        $this->assertCompatibleCurrency($other);
         $scale = max($this->scale, $other->scale);
 
-        return new self(bcsub($this->amount, $other->amount, $scale), $scale, $this->currency ?? $other->currency);
+        return new self(bcsub($this->amount, $other->amount, $scale), $scale, $this->currency);
     }
 
-    /**
-     * Multiply by a factor (e.g., quantity, tax rate).
-     */
     public function multiply(string|int|float $factor): self
     {
         $factor = is_float($factor) ? number_format($factor, 10, '.', '') : (string) $factor;
 
+        if (! is_numeric($factor)) {
+            throw new InvalidArgumentException("Invalid multiplication factor: {$factor}");
+        }
+
         return new self(bcmul($this->amount, $factor, $this->scale), $this->scale, $this->currency);
     }
 
-    /**
-     * Divide by a divisor.
-     */
     public function divide(string|int|float $divisor): self
     {
         $divisor = is_float($divisor) ? number_format($divisor, 10, '.', '') : (string) $divisor;
+
+        if (! is_numeric($divisor)) {
+            throw new InvalidArgumentException("Invalid divisor: {$divisor}");
+        }
 
         if (bccomp($divisor, '0', $this->scale) === 0) {
             throw new InvalidArgumentException('Division by zero.');
@@ -150,9 +143,6 @@ final class Money implements JsonSerializable, Stringable
         return new self(bcdiv($this->amount, $divisor, $this->scale), $this->scale, $this->currency);
     }
 
-    /**
-     * Return the absolute value.
-     */
     public function abs(): self
     {
         if ($this->isNegative()) {
@@ -162,11 +152,9 @@ final class Money implements JsonSerializable, Stringable
         return new self($this->amount, $this->scale, $this->currency);
     }
 
-    /**
-     * Is this amount greater than the other?
-     */
     public function isGreaterThan(self $other): bool
     {
+        $this->assertCompatibleCurrency($other);
         $scale = max($this->scale, $other->scale);
 
         return bccomp($this->amount, $other->amount, $scale) > 0;
@@ -177,11 +165,9 @@ final class Money implements JsonSerializable, Stringable
         return $this->isGreaterThan($other);
     }
 
-    /**
-     * Is this amount greater than or equal to the other?
-     */
     public function isGreaterThanOrEqual(self $other): bool
     {
+        $this->assertCompatibleCurrency($other);
         $scale = max($this->scale, $other->scale);
 
         return bccomp($this->amount, $other->amount, $scale) >= 0;
@@ -192,11 +178,9 @@ final class Money implements JsonSerializable, Stringable
         return $this->isGreaterThanOrEqual($other);
     }
 
-    /**
-     * Is this amount less than the other?
-     */
     public function isLessThan(self $other): bool
     {
+        $this->assertCompatibleCurrency($other);
         $scale = max($this->scale, $other->scale);
 
         return bccomp($this->amount, $other->amount, $scale) < 0;
@@ -209,6 +193,7 @@ final class Money implements JsonSerializable, Stringable
 
     public function isLessThanOrEqual(self $other): bool
     {
+        $this->assertCompatibleCurrency($other);
         $scale = max($this->scale, $other->scale);
 
         return bccomp($this->amount, $other->amount, $scale) <= 0;
@@ -219,59 +204,47 @@ final class Money implements JsonSerializable, Stringable
         return $this->isLessThanOrEqual($other);
     }
 
-    /**
-     * Is this amount exactly zero?
-     */
     public function isZero(): bool
     {
         return bccomp($this->amount, '0', $this->scale) === 0;
     }
 
-    /**
-     * Is this amount negative?
-     */
     public function isNegative(): bool
     {
         return bccomp($this->amount, '0', $this->scale) < 0;
     }
 
-    /**
-     * Is this amount positive?
-     */
     public function isPositive(): bool
     {
         return bccomp($this->amount, '0', $this->scale) > 0;
     }
 
-    /**
-     * Exact equality comparison.
-     */
     public function equals(self $other): bool
     {
+        $this->assertCompatibleCurrency($other);
         $scale = max($this->scale, $other->scale);
 
         return bccomp($this->amount, $other->amount, $scale) === 0;
     }
 
-    /**
-     * Return the maximum of this and another Money.
-     */
     public function max(self $other): self
     {
-        return $this->isGreaterThan($other) ? new self($this->amount, $this->scale, $this->currency) : new self($other->amount, $other->scale, $other->currency);
+        $this->assertCompatibleCurrency($other);
+
+        return $this->isGreaterThan($other)
+            ? new self($this->amount, $this->scale, $this->currency)
+            : new self($other->amount, $other->scale, $other->currency);
     }
 
-    /**
-     * Return the minimum of this and another Money.
-     */
     public function min(self $other): self
     {
-        return $this->isLessThan($other) ? new self($this->amount, $this->scale, $this->currency) : new self($other->amount, $other->scale, $other->currency);
+        $this->assertCompatibleCurrency($other);
+
+        return $this->isLessThan($other)
+            ? new self($this->amount, $this->scale, $this->currency)
+            : new self($other->amount, $other->scale, $other->currency);
     }
 
-    /**
-     * Get the storage-safe string representation (for DB columns).
-     */
     public function toStorageString(): string
     {
         return $this->amount;
@@ -283,8 +256,7 @@ final class Money implements JsonSerializable, Stringable
     }
 
     /**
-     * Get as a float for legacy display/API compatibility only.
-     * WARNING: Do NOT use the returned float for further arithmetic.
+     * Display/API compatibility only. Never use this float for authoritative arithmetic.
      */
     public function toFloat(): float
     {
@@ -299,5 +271,12 @@ final class Money implements JsonSerializable, Stringable
     public function __toString(): string
     {
         return $this->amount;
+    }
+
+    private function assertCompatibleCurrency(self $other): void
+    {
+        if ($this->currency !== $other->currency) {
+            throw CurrencyMismatchException::between($this->currency, $other->currency);
+        }
     }
 }
