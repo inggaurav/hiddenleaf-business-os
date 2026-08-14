@@ -16,9 +16,8 @@ use App\Models\HrLeaveRequest;
 use App\Models\HrLeaveType;
 use App\Models\Organization;
 use App\Models\Plan;
-use App\Models\PosOrder;
-use App\Models\PosRegister;
-use App\Models\PosSession;
+use App\Models\POS\BillingCounter;
+use App\Models\POS\PosSale;
 use App\Models\ProductServiceItem;
 use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
@@ -427,55 +426,46 @@ class ModuleDashboardIsolationTest extends TestCase
             'created_by' => $this->tenantAUser->id,
         ]);
 
-        $reg = PosRegister::create([
+        $counter = BillingCounter::create([
             'organization_id' => $this->tenantAOrg->id,
             'workspace_id' => $this->tenantAWs->id,
             'warehouse_id' => $wh->id,
             'name' => 'Main Register',
+            'counter_number' => 'C-01',
             'created_by' => $this->tenantAUser->id,
         ]);
 
-        $session = PosSession::create([
+        PosSale::create([
             'organization_id' => $this->tenantAOrg->id,
             'workspace_id' => $this->tenantAWs->id,
-            'register_id' => $reg->id,
-            'opened_by' => $this->tenantAUser->id,
-            'opening_cash' => 100,
-            'status' => 'open',
-            'opened_at' => now(),
-        ]);
-
-        PosOrder::create([
-            'organization_id' => $this->tenantAOrg->id,
-            'workspace_id' => $this->tenantAWs->id,
-            'session_id' => $session->id,
-            'receipt_number' => 'POS-A-001',
-            'customer_name' => 'Walk-in Customer',
-            'subtotal' => 150,
-            'tax_total' => 0,
-            'discount_total' => 0,
-            'grand_total' => 150,
-            'paid_amount' => 150,
-            'change_amount' => 0,
+            'sale_number' => 'POS-A-001',
+            'billing_counter_id' => $counter->id,
+            'warehouse_id' => $wh->id,
+            'cashier_id' => $this->tenantAUser->id,
+            'subtotal' => '150.0000',
+            'tax_amount' => '0.0000',
+            'discount_amount' => '0.0000',
+            'total' => '150.0000',
             'payment_method' => 'cash',
             'status' => 'completed',
+            'idempotency_key' => 'pos-a-001-key',
             'created_by' => $this->tenantAUser->id,
         ]);
 
-        PosOrder::create([
+        PosSale::create([
             'organization_id' => $this->tenantAOrg->id,
             'workspace_id' => $this->tenantAWs->id,
-            'session_id' => $session->id,
-            'receipt_number' => 'POS-A-002',
-            'customer_name' => 'Card Customer',
-            'subtotal' => 350,
-            'tax_total' => 0,
-            'discount_total' => 0,
-            'grand_total' => 350,
-            'paid_amount' => 350,
-            'change_amount' => 0,
+            'sale_number' => 'POS-A-002',
+            'billing_counter_id' => $counter->id,
+            'warehouse_id' => $wh->id,
+            'cashier_id' => $this->tenantAUser->id,
+            'subtotal' => '350.0000',
+            'tax_amount' => '0.0000',
+            'discount_amount' => '0.0000',
+            'total' => '350.0000',
             'payment_method' => 'card',
             'status' => 'completed',
+            'idempotency_key' => 'pos-a-002-key',
             'created_by' => $this->tenantAUser->id,
         ]);
 

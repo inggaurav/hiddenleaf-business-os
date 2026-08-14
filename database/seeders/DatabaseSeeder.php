@@ -50,6 +50,7 @@ class DatabaseSeeder extends Seeder
             ['module' => 'taskly', 'resource' => 'projects', 'action' => 'view', 'name' => 'taskly.view'],
             ['module' => 'taskly', 'resource' => 'projects', 'action' => 'manage', 'name' => 'taskly.manage'],
             ['module' => 'pos', 'resource' => 'registers', 'action' => 'manage', 'name' => 'pos.manage'],
+            ...$this->posPermissions(),
             ['module' => 'landingpage', 'resource' => 'landing', 'action' => 'manage', 'name' => 'landing.manage'],
             ['module' => 'core', 'resource' => 'webhooks', 'action' => 'manage', 'name' => 'webhooks.manage'],
         ];
@@ -147,6 +148,34 @@ class DatabaseSeeder extends Seeder
                     'resource' => $resource,
                     'action' => $action,
                     'name' => "inventory.{$resource}.{$action}",
+                ];
+            }
+        }
+
+        return $rows;
+    }
+
+    private function posPermissions(): array
+    {
+        $definitions = [
+            'dashboard' => ['view'],
+            'order' => ['view', 'create', 'print'],
+            'checkout' => ['execute'],
+            'counter' => ['view', 'create', 'update', 'delete'],
+            'discount' => ['view', 'create', 'update', 'delete'],
+            'report' => ['view'],
+            'return' => ['view', 'create', 'approve', 'complete', 'delete'],
+            'barcode' => ['view', 'print'],
+        ];
+
+        $rows = [];
+        foreach ($definitions as $resource => $actions) {
+            foreach ($actions as $action) {
+                $rows[] = [
+                    'module' => 'pos',
+                    'resource' => $resource,
+                    'action' => $action,
+                    'name' => "pos.{$resource}.{$action}",
                 ];
             }
         }

@@ -8,6 +8,7 @@ use App\Http\Middleware\CheckModuleStatus;
 use App\Http\Middleware\EnsureAccountPermission;
 use App\Http\Middleware\EnsureApiWorkspace;
 use App\Http\Middleware\EnsureFinancialIdempotency;
+use App\Http\Middleware\EnsurePosPermission;
 use App\Http\Middleware\EnsureProductServicePermission;
 use App\Http\Middleware\EnsureTenantContext;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -39,6 +40,7 @@ return Application::configure(basePath: dirname(__DIR__))
             EnsureTenantContext::class,
             EnsureAccountPermission::class,
             EnsureProductServicePermission::class,
+            EnsurePosPermission::class,
             EnsureFinancialIdempotency::class,
             HandleInertiaRequests::class,
         ]);
@@ -50,6 +52,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'api.workspace' => EnsureApiWorkspace::class,
             'account.permission' => EnsureAccountPermission::class,
             'product_service.permission' => EnsureProductServicePermission::class,
+            'pos.permission' => EnsurePosPermission::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

@@ -31,7 +31,12 @@ use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\MultiTenancy\MemberController;
 use App\Http\Controllers\MultiTenancy\WorkspaceController;
 use App\Http\Controllers\NotificationTemplateController;
-use App\Http\Controllers\PosController;
+use App\Http\Controllers\POS\PosBillingCounterController;
+use App\Http\Controllers\POS\PosController;
+use App\Http\Controllers\POS\PosDashboardController;
+use App\Http\Controllers\POS\PosDiscountController;
+use App\Http\Controllers\POS\PosReportController;
+use App\Http\Controllers\POS\PosReturnController;
 use App\Http\Controllers\ProductServiceController;
 use App\Http\Controllers\PurchaseInvoiceController;
 use App\Http\Controllers\PurchaseReturnController;
@@ -243,16 +248,55 @@ Route::middleware(['auth'])->group(function () {
     });
     Route::get('projects/dashboard', [TasklyController::class, 'dashboard'])->middleware('module.status:taskly');
 
-    Route::middleware('module.status:pos')->prefix('pos')->name('pos.')->group(function () {
-        Route::get('/', [PosController::class, 'index'])->name('index');
-        Route::get('dashboard', [PosController::class, 'dashboard'])->name('dashboard');
-        Route::get('terminal', [PosController::class, 'index'])->name('terminal');
-        Route::post('registers', [PosController::class, 'storeRegister'])->name('registers.store');
-        Route::post('registers/{register}/open', [PosController::class, 'open'])->name('registers.open');
-        Route::get('products', [PosController::class, 'lookup'])->name('products');
-        Route::post('sessions/{session}/checkout', [PosController::class, 'checkout'])->name('checkout');
-        Route::post('sessions/{session}/close', [PosController::class, 'close'])->name('sessions.close');
-        Route::post('orders/{order}/refund', [PosController::class, 'refund'])->name('orders.refund');
+    // POS WorkDo Parity Routes (31 routes + aliases)
+    Route::middleware(['module.status:pos', 'pos.permission'])->group(function () {
+        Route::get('/pos', [PosDashboardController::class, 'index'])->name('pos');
+        Route::get('/pos/dashboard', [PosDashboardController::class, 'index'])->name('pos.index');
+        Route::get('/pos/terminal', [PosController::class, 'create'])->name('pos.terminal');
+
+        // POS Routes
+        Route::get('/pos/orders', [PosController::class, 'index'])->name('pos.orders');
+        Route::get('/pos/create', [PosController::class, 'create'])->name('pos.create');
+        Route::get('/pos/products', [PosController::class, 'getProducts'])->name('pos.products');
+        Route::get('/pos/pos-number', [PosController::class, 'getNextPosNumber'])->name('pos.pos-number');
+        Route::post('/pos/store', [PosController::class, 'store'])->name('pos.store');
+        Route::get('/pos/orders/{sale}', [PosController::class, 'show'])->name('pos.show');
+        Route::get('/pos/barcode', [PosController::class, 'barcode'])->name('pos.barcode');
+        Route::get('/pos/barcode/{sale}', [PosController::class, 'printBarcode'])->name('pos.barcode.print');
+        Route::get('/pos/orders/{sale}/print', [PosController::class, 'print'])->name('pos-orders.print');
+
+        // POS Billing Counter
+        Route::get('/pos/billing-counters', [PosBillingCounterController::class, 'index'])->name('pos.billing-counters');
+        Route::post('/pos/billing-counters', [PosBillingCounterController::class, 'store'])->name('pos.billing-counters.store');
+        Route::put('/pos/billing-counters/{pos_billing_counter}', [PosBillingCounterController::class, 'update'])->name('pos.billing-counters.update');
+        Route::delete('/pos/billing-counters/{pos_billing_counter}', [PosBillingCounterController::class, 'destroy'])->name('pos.billing-counters.destroy');
+
+        // POS Discounts
+        Route::get('/pos/discounts', [PosDiscountController::class, 'index'])->name('pos.discounts.index');
+        Route::get('/pos/discounts/create', [PosDiscountController::class, 'create'])->name('pos.discounts.create');
+        Route::post('/pos/discounts', [PosDiscountController::class, 'store'])->name('pos.discounts.store');
+        Route::get('/pos/discounts/{pos_discount}', [PosDiscountController::class, 'show'])->name('pos.discounts.show');
+        Route::get('/pos/discounts/{pos_discount}/edit', [PosDiscountController::class, 'edit'])->name('pos.discounts.edit');
+        Route::put('/pos/discounts/{pos_discount}', [PosDiscountController::class, 'update'])->name('pos.discounts.update');
+        Route::delete('/pos/discounts/{pos_discount}', [PosDiscountController::class, 'destroy'])->name('pos.discounts.destroy');
+
+        // POS Reports
+        Route::prefix('pos/reports')->name('pos.reports.')->group(function () {
+            Route::get('/sales', [PosReportController::class, 'sales'])->name('sales');
+            Route::get('/products', [PosReportController::class, 'products'])->name('products');
+            Route::get('/customers', [PosReportController::class, 'customers'])->name('customers');
+        });
+
+        // POS Returns
+        Route::prefix('pos/returns')->name('pos.returns.')->group(function () {
+            Route::get('/', [PosReturnController::class, 'index'])->name('index');
+            Route::get('/create', [PosReturnController::class, 'create'])->name('create');
+            Route::post('/', [PosReturnController::class, 'store'])->name('store');
+            Route::get('/{posReturn}', [PosReturnController::class, 'show'])->name('show');
+            Route::post('/{posReturn}/approve', [PosReturnController::class, 'approve'])->name('approve');
+            Route::post('/{posReturn}/complete', [PosReturnController::class, 'complete'])->name('complete');
+            Route::delete('/{posReturn}', [PosReturnController::class, 'destroy'])->name('destroy');
+        });
     });
 
     Route::middleware('module.status:landingpage')->prefix('landing')->name('landing.')->group(function () {

@@ -8,78 +8,117 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('pos_registers', function (Blueprint $t) {
-            $this->tenant($t);
-            $t->foreignId('warehouse_id')->constrained()->restrictOnDelete();
-            $t->string('name');
-            $t->boolean('is_active')->default(true);
-            $t->unique(['workspace_id', 'name']);
+        // Drop old pos tables if any
+        Schema::dropIfExists('pos_return_items');
+        Schema::dropIfExists('pos_returns');
+        Schema::dropIfExists('pos_order_items');
+        Schema::dropIfExists('pos_orders');
+        Schema::dropIfExists('pos_sessions');
+        Schema::dropIfExists('pos_registers');
+
+        Schema::create('billing_counters', function (Blueprint $table) {
+            $this->tenant($table);
+            $table->string('name');
+            $table->string('counter_number');
+            $table->unsignedBigInteger('warehouse_id')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->softDeletes();
         });
-        Schema::create('pos_sessions', function (Blueprint $t) {
-            $this->tenant($t);
-            $t->foreignId('register_id')->constrained('pos_registers')->cascadeOnDelete();
-            $t->foreignId('opened_by')->constrained('users')->restrictOnDelete();
-            $t->foreignId('closed_by')->nullable()->constrained('users')->nullOnDelete();
-            $t->decimal('opening_cash', 18, 2);
-            $t->decimal('closing_cash', 18, 2)->nullable();
-            $t->decimal('expected_cash', 18, 2)->nullable();
-            $t->decimal('variance', 18, 2)->nullable();
-            $t->string('status')->default('open');
-            $t->timestamp('opened_at');
-            $t->timestamp('closed_at')->nullable();
+
+        Schema::create('pos_sales', function (Blueprint $table) {
+            $this->tenant($table);
+            $table->string('sale_number');
+            $table->unsignedBigInteger('billing_counter_id');
+            $table->unsignedBigInteger('warehouse_id');
+            $table->unsignedBigInteger('customer_id')->nullable();
+            $table->unsignedBigInteger('cashier_id');
+            $table->decimal('subtotal', 15, 4);
+            $table->decimal('tax_amount', 15, 4);
+            $table->decimal('discount_amount', 15, 4);
+            $table->decimal('total', 15, 4);
+            $table->string('payment_method');
+            $table->string('payment_reference')->nullable();
+            $table->string('status');
+            $table->text('notes')->nullable();
+            $table->string('idempotency_key')->unique();
+            $table->timestamp('posted_at')->nullable();
+            $table->unsignedBigInteger('created_by');
         });
-        Schema::create('pos_orders', function (Blueprint $t) {
-            $this->tenant($t);
-            $t->foreignId('session_id')->constrained('pos_sessions')->restrictOnDelete();
-            $t->string('receipt_number');
-            $t->string('customer_name')->nullable();
-            $t->string('customer_email')->nullable();
-            $t->decimal('subtotal', 18, 2);
-            $t->decimal('tax_total', 18, 2);
-            $t->decimal('discount_total', 18, 2);
-            $t->decimal('grand_total', 18, 2);
-            $t->decimal('paid_amount', 18, 2);
-            $t->decimal('change_amount', 18, 2);
-            $t->string('payment_method');
-            $t->string('status')->default('completed');
-            $t->foreignId('created_by')->constrained('users')->restrictOnDelete();
-            $t->unique(['workspace_id', 'receipt_number']);
+
+        Schema::create('pos_sale_items', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('pos_sale_id');
+            $table->unsignedBigInteger('product_id');
+            $table->string('product_name');
+            $table->string('sku')->nullable();
+            $table->decimal('quantity', 15, 4);
+            $table->decimal('unit_price', 15, 4);
+            $table->decimal('tax_rate', 5, 2)->default(0);
+            $table->decimal('tax_amount', 15, 4)->default(0);
+            $table->decimal('discount_amount', 15, 4)->default(0);
+            $table->decimal('line_total', 15, 4);
+            $table->enum('type', ['product', 'service']);
+            $table->timestamps();
         });
-        Schema::create('pos_order_items', function (Blueprint $t) {
-            $t->id();
-            $t->foreignId('order_id')->constrained('pos_orders')->cascadeOnDelete();
-            $t->foreignId('product_id')->constrained('product_service_items')->restrictOnDelete();
-            $t->string('name');
-            $t->string('sku')->nullable();
-            $t->decimal('quantity', 15, 2);
-            $t->decimal('unit_price', 18, 2);
-            $t->decimal('tax_amount', 18, 2);
-            $t->decimal('discount_amount', 18, 2);
-            $t->decimal('line_total', 18, 2);
-            $t->timestamps();
+
+        Schema::create('pos_returns', function (Blueprint $table) {
+            $this->tenant($table);
+            $table->unsignedBigInteger('pos_sale_id');
+            $table->string('return_number');
+            $table->enum('status', ['draft', 'approved', 'completed', 'cancelled']);
+            $table->text('reason')->nullable();
+            $table->decimal('refund_amount', 15, 4);
+            $table->string('refund_method')->nullable();
+            $table->unsignedBigInteger('processed_by')->nullable();
+            $table->timestamp('processed_at')->nullable();
+            $table->unsignedBigInteger('created_by');
         });
-        Schema::create('pos_returns', function (Blueprint $t) {
-            $this->tenant($t);
-            $t->foreignId('order_id')->constrained('pos_orders')->restrictOnDelete();
-            $t->string('return_number');
-            $t->decimal('refund_total', 18, 2);
-            $t->text('reason');
-            $t->foreignId('created_by')->constrained('users')->restrictOnDelete();
-            $t->unique(['workspace_id', 'return_number']);
+
+        Schema::create('pos_return_items', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('pos_return_id');
+            $table->unsignedBigInteger('pos_sale_item_id');
+            $table->unsignedBigInteger('product_id');
+            $table->decimal('quantity', 15, 4);
+            $table->decimal('refund_amount', 15, 4);
+            $table->timestamps();
         });
-        Schema::create('pos_return_items', function (Blueprint $t) {
-            $t->id();
-            $t->foreignId('return_id')->constrained('pos_returns')->cascadeOnDelete();
-            $t->foreignId('order_item_id')->constrained('pos_order_items')->restrictOnDelete();
-            $t->decimal('quantity', 15, 2);
-            $t->decimal('refund_amount', 18, 2);
-            $t->timestamps();
+
+        Schema::create('pos_discounts', function (Blueprint $table) {
+            $this->tenant($table);
+            $table->string('name');
+            $table->enum('type', ['percentage', 'fixed']);
+            $table->decimal('value', 10, 4);
+            $table->decimal('min_order_amount', 10, 2)->nullable();
+            $table->decimal('max_discount_amount', 10, 2)->nullable();
+            $table->timestamp('valid_from')->nullable();
+            $table->timestamp('valid_until')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->unsignedBigInteger('created_by');
+        });
+
+        Schema::create('pos_numbers', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('workspace_id');
+            $table->string('date');
+            $table->integer('last_number')->default(0);
+            $table->timestamps();
+        });
+        
+        Schema::create('pos_return_numbers', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('workspace_id');
+            $table->string('date');
+            $table->integer('last_number')->default(0);
+            $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        foreach (['pos_return_items', 'pos_returns', 'pos_order_items', 'pos_orders', 'pos_sessions', 'pos_registers'] as $table) {
+        $tables = ['pos_return_numbers', 'pos_numbers', 'pos_discounts', 'pos_return_items', 'pos_returns', 'pos_sale_items', 'pos_sales', 'billing_counters'];
+        foreach ($tables as $table) {
             Schema::dropIfExists($table);
         }
     }

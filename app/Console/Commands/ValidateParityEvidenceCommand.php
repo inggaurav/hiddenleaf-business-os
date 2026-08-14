@@ -38,6 +38,11 @@ class ValidateParityEvidenceCommand extends Command
         if (File::exists($productServiceParity)) {
             $this->validateProductServiceParity($productServiceParity, $errors);
         }
+        
+        $posParity = base_path('docs/reference/pos-parity-v2.json');
+        if (File::exists($posParity)) {
+            $this->validateProductServiceParity($posParity, $errors); // Re-use the same logic since schema is identical
+        }
 
         if ($this->option('write')) {
             $this->writeRouteEvidence();

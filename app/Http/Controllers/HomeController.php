@@ -7,7 +7,7 @@ use App\Models\CrmLead;
 use App\Models\HelpdeskTicket;
 use App\Models\Organization;
 use App\Models\Plan;
-use App\Models\PosOrder;
+use App\Models\POS\PosSale;
 use App\Models\ProductServiceItem;
 use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
@@ -63,7 +63,7 @@ class HomeController extends Controller
                 'active_projects' => TasklyProject::where('organization_id', $orgId)->where('workspace_id', $wsId)->where('status', 'active')->count(),
                 'open_tasks' => TasklyTask::where('organization_id', $orgId)->where('workspace_id', $wsId)->whereNull('completed_at')->count(),
                 'open_leads' => CrmLead::where('organization_id', $orgId)->where('workspace_id', $wsId)->where('status', 'open')->count(),
-                'today_pos_sales' => (float) PosOrder::where('organization_id', $orgId)->where('workspace_id', $wsId)->whereDate('created_at', today())->where('status', 'completed')->sum('grand_total'),
+                'today_pos_sales' => (float) PosSale::where('organization_id', $orgId)->where('workspace_id', $wsId)->whereDate('created_at', today())->where('status', 'completed')->sum('total'),
             ] : null,
             'recentLogs' => $recentLogs,
         ]);

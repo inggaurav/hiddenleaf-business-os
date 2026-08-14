@@ -9,8 +9,7 @@ use App\Models\HrEmployee;
 use App\Models\HrPayslip;
 use App\Models\Organization;
 use App\Models\Plan;
-use App\Models\PosRegister;
-use App\Models\PosSession;
+use App\Models\POS\BillingCounter;
 use App\Models\ProductServiceItem;
 use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
@@ -308,25 +307,22 @@ class EndToEndCrossModuleParityTest extends TestCase
             'quantity' => 5,
         ]);
 
-        // Open Register and Session
-        $this->actingAs($tenant['user'])->withSession($session)->post('/pos/registers', [
+        // Create Billing Counter
+        $this->actingAs($tenant['user'])->withSession($session)->post('/pos/billing-counters', [
             'warehouse_id' => $warehouse->id,
             'name' => 'Terminal 1',
+            'counter_number' => 'T1',
         ])->assertSessionHasNoErrors();
 
-        $register = PosRegister::sole();
-        $this->actingAs($tenant['user'])->withSession($session)->post("/pos/registers/{$register->id}/open", [
-            'opening_cash' => 500.00,
-        ])->assertSessionHasNoErrors();
-
-        $posSession = PosSession::sole();
+        $counter = BillingCounter::sole();
 
         // 1. Oversell attempt (Attempting to purchase 10 when only 5 exist)
-        $this->actingAs($tenant['user'])->withSession($session)->post("/pos/sessions/{$posSession->id}/checkout", [
+        $this->actingAs($tenant['user'])->withSession($session)->postJson('/pos/store', [
+            'billing_counter_id' => $counter->id,
+            'warehouse_id' => $warehouse->id,
             'payment_method' => 'cash',
-            'paid_amount' => 500.00,
             'items' => [
-                ['product_id' => $product->id, 'quantity' => 10, 'tax_percent' => 0, 'discount_percent' => 0],
+                ['product_id' => $product->id, 'quantity' => 10],
             ],
         ])->assertServerError();
 
@@ -334,13 +330,14 @@ class EndToEndCrossModuleParityTest extends TestCase
         $this->assertEquals(5, (int) WarehouseStock::where('product_id', $product->id)->value('quantity'));
 
         // 2. Valid checkout (Purchase 3 units)
-        $this->actingAs($tenant['user'])->withSession($session)->post("/pos/sessions/{$posSession->id}/checkout", [
+        $this->actingAs($tenant['user'])->withSession($session)->postJson('/pos/store', [
+            'billing_counter_id' => $counter->id,
+            'warehouse_id' => $warehouse->id,
             'payment_method' => 'cash',
-            'paid_amount' => 150.00,
             'items' => [
-                ['product_id' => $product->id, 'quantity' => 3, 'tax_percent' => 0, 'discount_percent' => 0],
+                ['product_id' => $product->id, 'quantity' => 3],
             ],
-        ])->assertSessionHasNoErrors();
+        ])->assertOk();
 
         // Verify stock decremented to 2
         $this->assertEquals(2, (int) WarehouseStock::where('product_id', $product->id)->value('quantity'));
