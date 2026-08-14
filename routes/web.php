@@ -44,6 +44,10 @@ use App\Http\Middleware\SuperAdminMiddleware;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/', function () {
+    return auth()->check() ? redirect()->route('dashboard') : redirect()->route('login');
+});
+
 Route::get('/install', [InstallController::class, 'index'])->name('install.index');
 Route::post('/install', [InstallController::class, 'setup'])->name('install.setup');
 Route::post('/install/test-db', [InstallController::class, 'testDatabase'])->name('install.test-db');
@@ -253,8 +257,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/email-templates', [EmailTemplateController::class, 'index'])->name('settings.email-templates.index');
     Route::post('settings/email-templates', [EmailTemplateController::class, 'store'])->name('settings.email-templates.store');
 
-    // Notification Templates
+    // Notification Templates & Live Notifications
     Route::resource('notification-templates', NotificationTemplateController::class)->only(['index', 'show', 'update']);
+    Route::get('notifications', [\App\Http\Controllers\DatabaseNotificationController::class, 'index'])->name('notifications.index');
+    Route::match(['post', 'patch'], 'notifications/read-all', [\App\Http\Controllers\DatabaseNotificationController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::match(['post', 'patch'], 'notifications/{notification}/read', [\App\Http\Controllers\DatabaseNotificationController::class, 'markRead'])->name('notifications.read');
 
     // RBAC Roles (Explicit actions matching RoleController)
     Route::resource('roles', RoleController::class)->except(['show']);

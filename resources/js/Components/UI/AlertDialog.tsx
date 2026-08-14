@@ -34,10 +34,22 @@ export const AlertDialog: React.FC<AlertDialogProps> = ({
   useEffect(() => {
     if (isOpen) {
       triggerRef.current = document.activeElement as HTMLElement;
+      const mainEl = document.querySelector('main') || document.getElementById('app');
+      if (mainEl) {
+        mainEl.setAttribute('aria-hidden', 'true');
+        (mainEl as any).inert = true;
+      }
       // Focus safe element (Cancel button) on open
       setTimeout(() => cancelBtnRef.current?.focus(), 50);
-    } else if (triggerRef.current) {
-      triggerRef.current.focus();
+    } else {
+      const mainEl = document.querySelector('main') || document.getElementById('app');
+      if (mainEl) {
+        mainEl.removeAttribute('aria-hidden');
+        (mainEl as any).inert = false;
+      }
+      if (triggerRef.current) {
+        triggerRef.current.focus();
+      }
     }
   }, [isOpen]);
 

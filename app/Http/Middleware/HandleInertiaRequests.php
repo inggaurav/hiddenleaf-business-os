@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\Permission;
 use App\Models\Role;
+use App\Models\Subscription;
 use App\Models\Workspace;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -31,20 +32,83 @@ class HandleInertiaRequests extends Middleware
                     'is_super_admin' => $user->isSuperAdmin(),
                     'permissions' => $this->resolvePermissions($request, $user),
                 ] : null,
-                'notifications' => $user ? [] : [],
+                'notifications' => $user ? $this->resolveNotifications($request, $user) : [],
             ],
             'tenant' => [
                 'organization_id' => $request->session()->get('active_organization_id'),
                 'workspace_id' => $request->session()->get('active_workspace_id'),
                 'workspace_title' => $request->session()->get('active_workspace_title'),
                 'available_workspaces' => $user ? $this->resolveWorkspaces($request, $user) : [],
-                'modules' => $request->session()->get('enabled_modules', []),
+                'modules' => $this->resolveModules($request, $user),
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
             ],
         ]);
+    }
+
+    protected function resolveNotifications(Request $request, $user): array
+    {
+        $workspaceId = $request->session()->get('active_workspace_id');
+
+        return $user->notifications()
+            ->where(fn ($query) => $query->whereNull('workspace_id')->orWhere('workspace_id', $workspaceId))
+            ->latest()
+            ->limit(20)
+            ->get()
+            ->map(function ($n) {
+                $data = is_array($n->data) ? $n->data : (json_decode($n->data ?? '{}', true) ?: []);
+                $title = $data['title'] ?? ($data['subject'] ?? ($data['name'] ?? 'System Alert'));
+                $message = $data['message'] ?? ($data['body'] ?? ($data['description'] ?? ''));
+
+                return [
+                    'id' => (string) $n->id,
+                    'type' => $n->type,
+                    'title' => $title,
+                    'message' => $message,
+                    'data' => $data,
+                    'read_at' => $n->read_at ? $n->read_at->toISOString() : null,
+                    'created_at' => $n->created_at ? $n->created_at->diffForHumans() : '',
+                ];
+            })
+            ->toArray();
+    }
+
+    protected function resolveModules(Request $request, $user): array
+    {
+        if (! $user) {
+            return [];
+        }
+
+        if ($user->isSuperAdmin()) {
+            return ['account', 'productservice', 'hrm', 'lead', 'taskly', 'pos', 'landingpage', 'core', 'sales', 'procurement'];
+        }
+
+        $sessionModules = $request->session()->get('enabled_modules');
+        if (is_array($sessionModules) && ! empty($sessionModules)) {
+            return $sessionModules;
+        }
+
+        $orgId = $request->session()->get('active_organization_id');
+        if ($orgId) {
+            $subscription = Subscription::where('organization_id', $orgId)
+                ->where('status', 'active')
+                ->latest()
+                ->first();
+
+            if ($subscription && $subscription->plan && ! empty($subscription->plan->modules)) {
+                $planModules = is_string($subscription->plan->modules)
+                    ? json_decode($subscription->plan->modules, true)
+                    : $subscription->plan->modules;
+
+                if (is_array($planModules) && ! empty($planModules)) {
+                    return $planModules;
+                }
+            }
+        }
+
+        return ['productservice', 'sales', 'procurement', 'core'];
     }
 
     protected function resolvePermissions(Request $request, $user): array

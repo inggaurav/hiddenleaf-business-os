@@ -45,16 +45,54 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const markAsRead = (id: string) => {
+  const markAsRead = async (id: string) => {
+    const previous = [...notifications];
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, read_at: new Date().toISOString() } : n))
     );
+
+    try {
+      const csrfToken = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content;
+      const res = await fetch(`/notifications/${id}/read`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          ...(csrfToken ? { 'X-CSRF-TOKEN': csrfToken } : {}),
+        },
+      });
+      if (!res.ok) {
+        setNotifications(previous);
+      }
+    } catch {
+      setNotifications(previous);
+    }
   };
 
-  const markAllAsRead = () => {
+  const markAllAsRead = async () => {
+    const previous = [...notifications];
     setNotifications((prev) =>
       prev.map((n) => ({ ...n, read_at: new Date().toISOString() }))
     );
+
+    try {
+      const csrfToken = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content;
+      const res = await fetch('/notifications/read-all', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          ...(csrfToken ? { 'X-CSRF-TOKEN': csrfToken } : {}),
+        },
+      });
+      if (!res.ok) {
+        setNotifications(previous);
+      }
+    } catch {
+      setNotifications(previous);
+    }
   };
 
   return (

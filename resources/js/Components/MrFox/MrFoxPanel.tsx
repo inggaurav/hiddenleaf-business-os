@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { usePage } from '@inertiajs/react';
 import { 
   X, 
   Send, 
@@ -12,6 +13,7 @@ import { Button } from '../UI/Button';
 import { IconButton } from '../UI/IconButton';
 import { Badge } from '../UI/Badge';
 import { MrFoxMark } from './MrFoxMark';
+import { isItemAuthorized, NavigationItem } from '../../Navigation/NavigationRegistry';
 
 interface MrFoxPanelProps {
   isOpen: boolean;
@@ -26,12 +28,57 @@ interface Message {
   text: string;
 }
 
+const FOX_SHORTCUTS: NavigationItem[] = [
+  {
+    id: 'fox-sales-invoices',
+    name: 'View Sales Invoices',
+    href: '/sales-invoices',
+    icon: FileText,
+    permission: 'sales.invoice.view',
+    module: 'sales',
+    category: 'Sales',
+  },
+  {
+    id: 'fox-bank-transfers',
+    name: 'Review Bank Transfers',
+    href: '/bank-transfer',
+    icon: DollarSign,
+    permission: 'bank-transfer.view',
+    module: 'core',
+    category: 'Billing',
+  },
+  {
+    id: 'fox-helpdesk',
+    name: 'Customer Support Tickets',
+    href: '/helpdesk-tickets',
+    icon: Headphones,
+    permission: 'helpdesk.view',
+    module: 'core',
+    category: 'Operations',
+  },
+  {
+    id: 'fox-settings',
+    name: 'Configure AI Provider Credentials',
+    href: '/settings',
+    icon: Settings,
+    permission: 'settings.view',
+    module: 'core',
+    category: 'System',
+  },
+];
+
 export const MrFoxPanel: React.FC<MrFoxPanelProps> = ({
   isOpen,
   onClose,
   initialPrompt = '',
   contextPage = 'Dashboard',
 }) => {
+  const { auth, tenant } = usePage<any>().props;
+  const user = auth?.user;
+  const isSuperAdmin = user?.is_super_admin || false;
+  const userPermissions: string[] = user?.permissions || [];
+  const enabledModules: string[] = tenant?.modules || [];
+
   const [prompt, setPrompt] = useState(initialPrompt);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -40,6 +87,30 @@ export const MrFoxPanel: React.FC<MrFoxPanelProps> = ({
       text: `Mr Fox Intelligence service is ready for connection. Configure your AI API credentials in Workspace Settings to enable real-time operational assistance and insights for **${contextPage}**.`,
     },
   ]);
+
+  const triggerRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      triggerRef.current = document.activeElement as HTMLElement;
+      const mainEl = document.querySelector('main') || document.getElementById('app');
+      if (mainEl) {
+        mainEl.setAttribute('aria-hidden', 'true');
+        (mainEl as any).inert = true;
+      }
+    } else {
+      const mainEl = document.querySelector('main') || document.getElementById('app');
+      if (mainEl) {
+        mainEl.removeAttribute('aria-hidden');
+        (mainEl as any).inert = false;
+      }
+      triggerRef.current?.focus();
+    }
+  }, [isOpen]);
+
+  const authorizedShortcuts = FOX_SHORTCUTS.filter((sc) =>
+    isItemAuthorized(sc, user, isSuperAdmin, userPermissions, enabledModules)
+  );
 
   const handleSend = (textToSend?: string) => {
     const text = textToSend || prompt;
@@ -116,57 +187,32 @@ export const MrFoxPanel: React.FC<MrFoxPanelProps> = ({
               </div>
             ))}
 
-            {/* Suggested Navigation Shortcuts */}
-            <div className="pt-2">
-              <div className="text-[11px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-2">
-                Operational Shortcuts
+            {/* Authorized Suggested Navigation Shortcuts */}
+            {authorizedShortcuts.length > 0 && (
+              <div className="pt-2">
+                <div className="text-[11px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-2">
+                  Operational Shortcuts
+                </div>
+                <div className="space-y-1.5">
+                  {authorizedShortcuts.map((sc) => {
+                    const Icon = sc.icon;
+                    return (
+                      <a
+                        key={sc.id}
+                        href={sc.href}
+                        className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-2)] hover:bg-white/[0.05] border border-[var(--border-subtle)] text-xs text-[var(--text-primary)] spring-transition"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Icon className="w-3.5 h-3.5 text-purple-400" />
+                          <span>{sc.name}</span>
+                        </div>
+                        <ArrowRight className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
+                      </a>
+                    );
+                  })}
+                </div>
               </div>
-              <div className="space-y-1.5">
-                <a
-                  href="/sales-invoices"
-                  className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-2)] hover:bg-white/[0.05] border border-[var(--border-subtle)] text-xs text-[var(--text-primary)] spring-transition"
-                >
-                  <div className="flex items-center gap-2">
-                    <FileText className="w-3.5 h-3.5 text-purple-400" />
-                    <span>View Sales Invoices</span>
-                  </div>
-                  <ArrowRight className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
-                </a>
-
-                <a
-                  href="/bank-transfer"
-                  className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-2)] hover:bg-white/[0.05] border border-[var(--border-subtle)] text-xs text-[var(--text-primary)] spring-transition"
-                >
-                  <div className="flex items-center gap-2">
-                    <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Review Bank Transfers</span>
-                  </div>
-                  <ArrowRight className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
-                </a>
-
-                <a
-                  href="/helpdesk-tickets"
-                  className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-2)] hover:bg-white/[0.05] border border-[var(--border-subtle)] text-xs text-[var(--text-primary)] spring-transition"
-                >
-                  <div className="flex items-center gap-2">
-                    <Headphones className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Customer Support Tickets</span>
-                  </div>
-                  <ArrowRight className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
-                </a>
-
-                <a
-                  href="/settings"
-                  className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-2)] hover:bg-white/[0.05] border border-[var(--border-subtle)] text-xs text-[var(--text-primary)] spring-transition"
-                >
-                  <div className="flex items-center gap-2">
-                    <Settings className="w-3.5 h-3.5 text-indigo-400" />
-                    <span>Configure AI Provider Credentials</span>
-                  </div>
-                  <ArrowRight className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
-                </a>
-              </div>
-            </div>
+            )}
           </div>
 
           {/* Prompt Input Box */}

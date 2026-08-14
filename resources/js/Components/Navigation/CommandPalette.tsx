@@ -59,15 +59,27 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     return matchName || matchDesc || matchCategory;
   });
 
-  // Track focused element before palette opens for restoration
+  // Track focused element before palette opens for restoration & mark main inert
   useEffect(() => {
     if (isOpen) {
       triggerRef.current = document.activeElement as HTMLElement;
       setQuery('');
       setSelectedIndex(0);
+      const mainEl = document.querySelector('main') || document.getElementById('app');
+      if (mainEl) {
+        mainEl.setAttribute('aria-hidden', 'true');
+        (mainEl as any).inert = true;
+      }
       setTimeout(() => inputRef.current?.focus(), 50);
-    } else if (triggerRef.current) {
-      triggerRef.current.focus();
+    } else {
+      const mainEl = document.querySelector('main') || document.getElementById('app');
+      if (mainEl) {
+        mainEl.removeAttribute('aria-hidden');
+        (mainEl as any).inert = false;
+      }
+      if (triggerRef.current) {
+        triggerRef.current.focus();
+      }
     }
   }, [isOpen]);
 

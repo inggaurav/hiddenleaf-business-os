@@ -25,6 +25,11 @@ export const Modal: React.FC<ModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       triggerRef.current = document.activeElement as HTMLElement;
+      const mainEl = document.querySelector('main') || document.getElementById('app');
+      if (mainEl) {
+        mainEl.setAttribute('aria-hidden', 'true');
+        (mainEl as any).inert = true;
+      }
       // Focus first focusable in modal
       setTimeout(() => {
         const first = modalRef.current?.querySelector<HTMLElement>(
@@ -32,8 +37,15 @@ export const Modal: React.FC<ModalProps> = ({
         );
         first?.focus();
       }, 50);
-    } else if (triggerRef.current) {
-      triggerRef.current.focus();
+    } else {
+      const mainEl = document.querySelector('main') || document.getElementById('app');
+      if (mainEl) {
+        mainEl.removeAttribute('aria-hidden');
+        (mainEl as any).inert = false;
+      }
+      if (triggerRef.current) {
+        triggerRef.current.focus();
+      }
     }
   }, [isOpen]);
 

@@ -84,7 +84,7 @@ export default function AppShell({ title, children, breadcrumbs }: AppShellProps
   };
 
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] font-sans antialiased selection:bg-purple-500/30">
+    <div className="min-h-screen bg-[var(--bg-0)] text-[var(--text-primary)] font-sans antialiased selection:bg-purple-500/30">
       {/* ========================================================================= */}
       {/* SIDEBAR NAVIGATION (Desktop: fixed w-64, Mobile: off-canvas drawer) */}
       {/* ========================================================================= */}

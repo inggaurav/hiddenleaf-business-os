@@ -26,22 +26,14 @@ export const ThemeSwitcher: React.FC = () => {
 
   const applyTheme = (mode: ThemeMode) => {
     const root = document.documentElement;
+    let effectiveTheme: 'dark' | 'light' = 'dark';
     if (mode === 'system') {
-      const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (systemDark) {
-        root.classList.add('dark');
-        root.classList.remove('light');
-      } else {
-        root.classList.add('light');
-        root.classList.remove('dark');
-      }
-    } else if (mode === 'light') {
-      root.classList.add('light');
-      root.classList.remove('dark');
+      effectiveTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     } else {
-      root.classList.add('dark');
-      root.classList.remove('light');
+      effectiveTheme = mode;
     }
+    root.dataset.theme = effectiveTheme;
+    root.classList.remove('dark', 'light');
   };
 
   const handleSelect = (mode: ThemeMode) => {

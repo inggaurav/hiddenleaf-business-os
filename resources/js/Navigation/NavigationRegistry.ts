@@ -21,7 +21,8 @@ import {
   Users,
   Cpu,
   Settings,
-  Sparkles,
+  BookOpen,
+  Package,
 } from 'lucide-react';
 
 export interface NavigationItem {
@@ -68,6 +69,7 @@ export const ALL_NAVIGATION_GROUPS: NavigationGroup[] = [
         href: '/sales-invoices',
         icon: FileText,
         permission: 'sales.invoice.view',
+        module: 'sales',
         category: 'Sales',
         description: 'Customer invoices, line items, and payment tracking',
       },
@@ -77,6 +79,7 @@ export const ALL_NAVIGATION_GROUPS: NavigationGroup[] = [
         href: '/sales-proposals',
         icon: FileSpreadsheet,
         permission: 'sales.proposal.view',
+        module: 'sales',
         category: 'Sales',
         description: 'Estimates, quotations, and proposal conversion',
       },
@@ -86,6 +89,7 @@ export const ALL_NAVIGATION_GROUPS: NavigationGroup[] = [
         href: '/sales-returns',
         icon: RotateCcw,
         permission: 'sales.return.view',
+        module: 'sales',
         category: 'Sales',
         description: 'Credit notes and customer return authorizations',
       },
@@ -105,11 +109,22 @@ export const ALL_NAVIGATION_GROUPS: NavigationGroup[] = [
     title: 'Procurement & Inventory',
     items: [
       {
+        id: 'nav-product-service',
+        name: 'Products & Services',
+        href: '/product-service',
+        icon: Package,
+        permission: 'product_service.manage',
+        module: 'productservice',
+        category: 'Inventory',
+        description: 'Item catalog, categories, units, and inventory pricing',
+      },
+      {
         id: 'nav-warehouses',
         name: 'Warehouses',
         href: '/warehouses',
         icon: Warehouse,
         permission: 'warehouses.view',
+        module: 'productservice',
         category: 'Inventory',
         description: 'Storage locations, inventory tracking, and stock levels',
       },
@@ -119,6 +134,7 @@ export const ALL_NAVIGATION_GROUPS: NavigationGroup[] = [
         href: '/transfers',
         icon: ArrowLeftRight,
         permission: 'transfers.view',
+        module: 'productservice',
         category: 'Inventory',
         description: 'Inter-warehouse inventory stock transfers',
       },
@@ -128,6 +144,7 @@ export const ALL_NAVIGATION_GROUPS: NavigationGroup[] = [
         href: '/purchase-invoices',
         icon: Truck,
         permission: 'purchase.invoice.view',
+        module: 'procurement',
         category: 'Procurement',
         description: 'Vendor bills and supplier purchasing accounts',
       },
@@ -137,8 +154,25 @@ export const ALL_NAVIGATION_GROUPS: NavigationGroup[] = [
         href: '/purchase-returns',
         icon: RotateCcw,
         permission: 'purchase.return.view',
+        module: 'procurement',
         category: 'Procurement',
         description: 'Debit notes and vendor return adjustments',
+      },
+    ],
+  },
+  {
+    id: 'accounting',
+    title: 'Finance & Accounting',
+    items: [
+      {
+        id: 'nav-accounting-accounts',
+        name: 'Chart of Accounts',
+        href: '/accounting/accounts',
+        icon: BookOpen,
+        permission: 'account.view',
+        module: 'account',
+        category: 'Finance',
+        description: 'General ledger, account hierarchy, and journal entries',
       },
     ],
   },
@@ -200,7 +234,7 @@ export const ALL_NAVIGATION_GROUPS: NavigationGroup[] = [
       {
         id: 'nav-media',
         name: 'Media Library',
-        href: '/media',
+        href: '/media/page',
         icon: FolderOpen,
         permission: 'media.view',
         category: 'Storage',
@@ -209,7 +243,7 @@ export const ALL_NAVIGATION_GROUPS: NavigationGroup[] = [
       {
         id: 'nav-messenger',
         name: 'Live Chat',
-        href: '/messenger',
+        href: '/chats',
         icon: MessageSquare,
         permission: 'chat.view',
         category: 'Communication',
@@ -218,7 +252,7 @@ export const ALL_NAVIGATION_GROUPS: NavigationGroup[] = [
       {
         id: 'nav-ai-agent',
         name: 'Mr Fox AI Assistant',
-        href: '/ai-agent',
+        href: '/ai-agent/chat',
         icon: Bot,
         permission: 'ai-agent.view',
         category: 'Intelligence',
@@ -294,17 +328,14 @@ export function isItemAuthorized(
     return false;
   }
 
-  // Company admins and owner role have broad access
-  if (user?.role === 'company_admin' || user?.role === 'company') {
-    if (item.module && !enabledModules.includes(item.module)) {
-      return false;
-    }
-    return true;
-  }
-
-  // Module check
+  // Module check takes precedence
   if (item.module && !enabledModules.includes(item.module)) {
     return false;
+  }
+
+  // Company admins and owner role have broad access for enabled modules
+  if (user?.role === 'company_admin' || user?.role === 'company') {
+    return true;
   }
 
   // Role check

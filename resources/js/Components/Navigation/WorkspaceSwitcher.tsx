@@ -47,7 +47,7 @@ export const WorkspaceSwitcher: React.FC = () => {
 
   const handleSwitch = (id: number) => {
     setIsOpen(false);
-    router.post(`/workspaces/${id}/switch`);
+    router.post('/workspaces/switch', { workspace_id: id });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

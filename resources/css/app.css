@@ -45,11 +45,17 @@
     --radius-xl: 20px;
     --radius-2xl: 26px;
 
+    --background: var(--bg-0);
+    --foreground: var(--text-primary);
+
     --spring-easing: cubic-bezier(0.16, 1, 0.3, 1);
     --spring-duration: 240ms;
   }
 
   [data-theme="light"] {
+    --background: var(--bg-0);
+    --foreground: var(--text-primary);
+
     --bg-0: #F8FAFC;
     --bg-1: #F1F5F9;
     --bg-2: #E2E8F0;
