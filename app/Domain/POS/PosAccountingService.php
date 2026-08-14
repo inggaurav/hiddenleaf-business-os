@@ -38,6 +38,7 @@ class PosAccountingService
             $reference = 'POS-'.$locked->sale_number;
             if ($existing = $this->postedEntry($locked->organization_id, $locked->workspace_id, $reference)) {
                 $locked->update(['journal_entry_id' => $existing->id]);
+
                 return $existing;
             }
 
@@ -82,6 +83,7 @@ class PosAccountingService
             $reference = 'POS-RETURN-'.$locked->return_number;
             if ($existing = $this->postedEntry($locked->organization_id, $locked->workspace_id, $reference)) {
                 $locked->update(['journal_entry_id' => $existing->id]);
+
                 return $existing;
             }
 

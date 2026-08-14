@@ -170,6 +170,7 @@ class PosReturnService
             }
 
             $locked->update(['status' => 'cancelled']);
+
             return $locked->fresh();
         });
     }

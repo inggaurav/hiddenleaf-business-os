@@ -18,26 +18,26 @@ class PosDashboardService
     public function getMetrics(Workspace $workspace): array
     {
         $orgId = $workspace->organization_id;
-        $wsId  = $workspace->id;
+        $wsId = $workspace->id;
         $today = Carbon::today();
 
         // ── Today's completed sales ─────────────────────────────────────────
-        $todayBase  = PosSale::where('organization_id', $orgId)
+        $todayBase = PosSale::where('organization_id', $orgId)
             ->where('workspace_id', $wsId)
             ->where('status', 'completed')
             ->whereDate('created_at', $today);
 
         $todaySalesCount = (clone $todayBase)->count();
-        $todayRevenue    = (float) (clone $todayBase)->sum('total');
+        $todayRevenue = (float) (clone $todayBase)->sum('total');
 
         // ── All-time completed sales ────────────────────────────────────────
-        $allSales       = PosSale::where('organization_id', $orgId)
+        $allSales = PosSale::where('organization_id', $orgId)
             ->where('workspace_id', $wsId)
             ->where('status', 'completed');
 
         $totalSalesCount = (clone $allSales)->count();
-        $totalRevenue    = (float) (clone $allSales)->sum('total');
-        $avgOrderValue   = $totalSalesCount > 0 ? round($totalRevenue / $totalSalesCount, 2) : 0;
+        $totalRevenue = (float) (clone $allSales)->sum('total');
+        $avgOrderValue = $totalSalesCount > 0 ? round($totalRevenue / $totalSalesCount, 2) : 0;
 
         // ── Billing counters ────────────────────────────────────────────────
         $activeCounters = BillingCounter::where('organization_id', $orgId)
@@ -45,7 +45,7 @@ class PosDashboardService
             ->where('is_active', true)
             ->count();
 
-        $totalCounters  = BillingCounter::where('organization_id', $orgId)
+        $totalCounters = BillingCounter::where('organization_id', $orgId)
             ->where('workspace_id', $wsId)
             ->count();
 
@@ -56,8 +56,8 @@ class PosDashboardService
             ->count();
 
         // ── Returns ─────────────────────────────────────────────────────────
-        $returnsBase   = PosReturn::where('organization_id', $orgId)->where('workspace_id', $wsId);
-        $totalReturns  = (clone $returnsBase)->count();
+        $returnsBase = PosReturn::where('organization_id', $orgId)->where('workspace_id', $wsId);
+        $totalReturns = (clone $returnsBase)->count();
         $returnsAmount = (float) (clone $returnsBase)->sum('refund_amount');
 
         // ── Payment method breakdown ─────────────────────────────────────────
@@ -71,7 +71,7 @@ class PosDashboardService
         // ── Last 10 days sales sparkline ─────────────────────────────────────
         $last10DaysSales = [];
         for ($i = 9; $i >= 0; $i--) {
-            $date    = Carbon::now()->subDays($i);
+            $date = Carbon::now()->subDays($i);
             $daySales = (float) PosSale::where('organization_id', $orgId)
                 ->where('workspace_id', $wsId)
                 ->where('status', 'completed')
@@ -98,10 +98,10 @@ class PosDashboardService
             ->limit(5)
             ->get()
             ->map(fn ($p) => [
-                'name'           => $p->name,
-                'sku'            => $p->sku ?? '—',
+                'name' => $p->name,
+                'sku' => $p->sku ?? '—',
                 'total_quantity' => (float) $p->total_quantity,
-                'total_revenue'  => (float) $p->total_revenue,
+                'total_revenue' => (float) $p->total_revenue,
             ]);
 
         // ── Low stock ────────────────────────────────────────────────────────
@@ -121,13 +121,13 @@ class PosDashboardService
             ->limit(5)
             ->get()
             ->map(fn ($o) => [
-                'id'             => $o->id,
-                'sale_number'    => $o->sale_number,
-                'cashier'        => $o->cashier?->name ?? '—',
+                'id' => $o->id,
+                'sale_number' => $o->sale_number,
+                'cashier' => $o->cashier?->name ?? '—',
                 'payment_method' => ucfirst($o->payment_method),
-                'total'          => (float) $o->total,
-                'status'         => $o->status,
-                'created_at'     => $o->created_at->format('M d, Y H:i'),
+                'total' => (float) $o->total,
+                'status' => $o->status,
+                'created_at' => $o->created_at->format('M d, Y H:i'),
             ]);
 
         // ── Recent returns ───────────────────────────────────────────────────
@@ -137,33 +137,33 @@ class PosDashboardService
             ->limit(5)
             ->get()
             ->map(fn ($r) => [
-                'id'            => $r->id,
+                'id' => $r->id,
                 'return_number' => $r->return_number,
                 'refund_amount' => (float) $r->refund_amount,
-                'reason'        => $r->reason,
-                'status'        => $r->status,
-                'created_at'    => $r->created_at->format('M d, Y H:i'),
+                'reason' => $r->reason,
+                'status' => $r->status,
+                'created_at' => $r->created_at->format('M d, Y H:i'),
             ]);
 
         return [
             'stats' => [
-                'today_orders'    => $todaySalesCount,
-                'today_revenue'   => $todayRevenue,
-                'total_sales'     => $totalSalesCount,
-                'total_revenue'   => $totalRevenue,
+                'today_orders' => $todaySalesCount,
+                'today_revenue' => $todayRevenue,
+                'total_sales' => $totalSalesCount,
+                'total_revenue' => $totalRevenue,
                 'avg_order_value' => $avgOrderValue,
                 'active_counters' => $activeCounters,
-                'total_counters'  => $totalCounters,
-                'total_products'  => $totalProducts,
-                'total_returns'   => $totalReturns,
-                'returns_amount'  => $returnsAmount,
+                'total_counters' => $totalCounters,
+                'total_products' => $totalProducts,
+                'total_returns' => $totalReturns,
+                'returns_amount' => $returnsAmount,
                 'low_stock_count' => $lowStockCount,
             ],
             'paymentBreakdown' => $paymentBreakdown,
-            'last10DaysSales'  => $last10DaysSales,
-            'topProducts'      => $topProducts,
-            'recentOrders'     => $recentOrders,
-            'recentReturns'    => $recentReturns,
+            'last10DaysSales' => $last10DaysSales,
+            'topProducts' => $topProducts,
+            'recentOrders' => $recentOrders,
+            'recentReturns' => $recentReturns,
         ];
     }
 }

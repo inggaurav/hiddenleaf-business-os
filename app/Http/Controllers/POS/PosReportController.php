@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\POS\BillingCounter;
 use App\Models\POS\PosSale;
 use App\Models\POS\PosSaleItem;
-use App\Models\ProductServiceItem;
-use App\Models\Warehouse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;

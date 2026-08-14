@@ -38,6 +38,7 @@ class PosConcurrencyProbeCommand extends Command
         }
         if (! file_exists($start)) {
             file_put_contents($result, json_encode(['ok' => false, 'error' => 'barrier_timeout']));
+
             return self::FAILURE;
         }
 
@@ -59,9 +60,11 @@ class PosConcurrencyProbeCommand extends Command
                 ]
             );
             file_put_contents($result, json_encode(['ok' => true, 'sale_id' => $sale->id]));
+
             return self::SUCCESS;
         } catch (Throwable $e) {
             file_put_contents($result, json_encode(['ok' => false, 'error' => $e->getMessage(), 'class' => $e::class]));
+
             return self::FAILURE;
         }
     }

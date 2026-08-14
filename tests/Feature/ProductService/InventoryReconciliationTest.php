@@ -5,10 +5,10 @@ namespace Tests\Feature\ProductService;
 use App\Domain\Inventory\InventoryBalanceService;
 use App\Domain\Inventory\StockAdjustmentService;
 use App\Models\Organization;
-use App\Models\Permission;
+use App\Models\Plan;
 use App\Models\ProductServiceItem;
-use App\Models\Role;
 use App\Models\User;
+use App\Models\UserActiveModule;
 use App\Models\Warehouse;
 use App\Models\WarehouseStock;
 use App\Models\Workspace;
@@ -20,7 +20,9 @@ class InventoryReconciliationTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private Workspace $workspace;
+
     private Organization $organization;
 
     protected function setUp(): void
@@ -28,14 +30,14 @@ class InventoryReconciliationTest extends TestCase
         parent::setUp();
 
         $this->user = User::factory()->create(['role' => 'company_admin']);
-        $plan = \App\Models\Plan::create(['name' => 'Enterprise', 'status' => true, 'modules' => ['productservice', 'account', 'pos'], 'created_by' => $this->user->id]);
+        $plan = Plan::create(['name' => 'Enterprise', 'status' => true, 'modules' => ['productservice', 'account', 'pos'], 'created_by' => $this->user->id]);
         $this->organization = Organization::factory()->create(['owner_id' => $this->user->id, 'plan_id' => $plan->id]);
         $this->workspace = Workspace::factory()->create(['organization_id' => $this->organization->id, 'created_by' => $this->user->id]);
 
         $this->organization->members()->attach($this->user, ['role' => 'owner']);
         $this->workspace->members()->attach($this->user);
 
-        \App\Models\UserActiveModule::create(['workspace_id' => $this->workspace->id, 'module_name' => 'productservice']);
+        UserActiveModule::create(['workspace_id' => $this->workspace->id, 'module_name' => 'productservice']);
     }
 
     public function test_inventory_reconciliation_detects_and_repairs_discrepancy(): void

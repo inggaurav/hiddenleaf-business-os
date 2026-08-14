@@ -4,12 +4,14 @@ namespace Tests\Feature\ProductService;
 
 use App\Models\Organization;
 use App\Models\Permission;
+use App\Models\Plan;
 use App\Models\ProductServiceCategory;
 use App\Models\ProductServiceItem;
 use App\Models\ProductServiceTax;
 use App\Models\ProductServiceUnit;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\UserActiveModule;
 use App\Models\Warehouse;
 use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -20,11 +22,15 @@ class ProductServiceIdorTest extends TestCase
     use RefreshDatabase;
 
     private User $tenantAUser;
+
     private Workspace $tenantAWorkspace;
+
     private Organization $tenantAOrg;
 
     private User $tenantBUser;
+
     private Workspace $tenantBWorkspace;
+
     private Organization $tenantBOrg;
 
     protected function setUp(): void
@@ -39,21 +45,21 @@ class ProductServiceIdorTest extends TestCase
 
         // Tenant A
         $this->tenantAUser = User::factory()->create(['role' => 'company_admin']);
-        $planA = \App\Models\Plan::create(['name' => 'Enterprise A', 'status' => true, 'modules' => ['productservice', 'account', 'pos'], 'created_by' => $this->tenantAUser->id]);
+        $planA = Plan::create(['name' => 'Enterprise A', 'status' => true, 'modules' => ['productservice', 'account', 'pos'], 'created_by' => $this->tenantAUser->id]);
         $this->tenantAOrg = Organization::factory()->create(['owner_id' => $this->tenantAUser->id, 'plan_id' => $planA->id]);
         $this->tenantAWorkspace = Workspace::factory()->create(['organization_id' => $this->tenantAOrg->id, 'created_by' => $this->tenantAUser->id]);
         $this->tenantAOrg->members()->attach($this->tenantAUser, ['role' => 'owner']);
         $this->tenantAWorkspace->members()->attach($this->tenantAUser);
-        \App\Models\UserActiveModule::create(['workspace_id' => $this->tenantAWorkspace->id, 'module_name' => 'productservice']);
+        UserActiveModule::create(['workspace_id' => $this->tenantAWorkspace->id, 'module_name' => 'productservice']);
 
         // Tenant B
         $this->tenantBUser = User::factory()->create(['role' => 'company_admin']);
-        $planB = \App\Models\Plan::create(['name' => 'Enterprise B', 'status' => true, 'modules' => ['productservice', 'account', 'pos'], 'created_by' => $this->tenantBUser->id]);
+        $planB = Plan::create(['name' => 'Enterprise B', 'status' => true, 'modules' => ['productservice', 'account', 'pos'], 'created_by' => $this->tenantBUser->id]);
         $this->tenantBOrg = Organization::factory()->create(['owner_id' => $this->tenantBUser->id, 'plan_id' => $planB->id]);
         $this->tenantBWorkspace = Workspace::factory()->create(['organization_id' => $this->tenantBOrg->id, 'created_by' => $this->tenantBUser->id]);
         $this->tenantBOrg->members()->attach($this->tenantBUser, ['role' => 'owner']);
         $this->tenantBWorkspace->members()->attach($this->tenantBUser);
-        \App\Models\UserActiveModule::create(['workspace_id' => $this->tenantBWorkspace->id, 'module_name' => 'productservice']);
+        UserActiveModule::create(['workspace_id' => $this->tenantBWorkspace->id, 'module_name' => 'productservice']);
     }
 
     public function test_tenant_b_cannot_view_or_modify_tenant_a_product(): void

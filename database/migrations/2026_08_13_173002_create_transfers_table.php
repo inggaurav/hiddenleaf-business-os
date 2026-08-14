@@ -13,7 +13,7 @@ return new class extends Migration
             $table->unsignedBigInteger('from_warehouse');
             $table->unsignedBigInteger('to_warehouse');
             $table->unsignedBigInteger('product_id')->nullable();
-            $table->integer('quantity')->default(1);
+            $table->decimal('quantity', 15, 4)->default(1);
             $table->date('date')->nullable();
             $table->unsignedBigInteger('organization_id')->nullable();
             $table->unsignedBigInteger('workspace_id')->nullable();

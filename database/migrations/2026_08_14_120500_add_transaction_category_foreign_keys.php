@@ -26,10 +26,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('account_expenses', function (Blueprint $table) {
-            $table->dropForeign(['category_id']);
+            $table->dropForeign('account_expenses_category_fk');
         });
         Schema::table('account_revenues', function (Blueprint $table) {
-            $table->dropForeign(['category_id']);
+            $table->dropForeign('account_revenues_category_fk');
         });
     }
 };

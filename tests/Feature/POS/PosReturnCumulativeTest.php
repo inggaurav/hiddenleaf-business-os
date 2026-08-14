@@ -5,7 +5,6 @@ namespace Tests\Feature\POS;
 use App\Models\Organization;
 use App\Models\Plan;
 use App\Models\POS\BillingCounter;
-use App\Models\POS\PosReturn;
 use App\Models\POS\PosSale;
 use App\Models\POS\PosSaleItem;
 use App\Models\ProductServiceItem;
@@ -22,12 +21,19 @@ class PosReturnCumulativeTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private Organization $organization;
+
     private Workspace $workspace;
+
     private Warehouse $warehouse;
+
     private BillingCounter $counter;
+
     private ProductServiceItem $product;
+
     private PosSale $sale;
+
     private PosSaleItem $saleItem;
 
     protected function setUp(): void

@@ -133,6 +133,7 @@ class PosTruePostgresConcurrencyTest extends TestCase
                 $environment[$key] = (string) $value;
             }
         }
+
         return $environment;
     }
 
@@ -152,6 +153,7 @@ class PosTruePostgresConcurrencyTest extends TestCase
             $status = proc_get_status($process);
             if (! $status['running']) {
                 proc_close($process);
+
                 return;
             }
             usleep(20_000);

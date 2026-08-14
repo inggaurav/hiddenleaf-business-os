@@ -10,6 +10,7 @@ use Throwable;
 class PosSequenceConcurrencyProbeCommand extends Command
 {
     protected $signature = 'pos:sequence-concurrency-probe {kind} {workspace} {readyFile} {startFile} {resultFile}';
+
     protected $description = 'Internal worker for real POS/return sequence concurrency tests';
 
     public function handle(PosNumberService $posNumbers, ReturnNumberService $returnNumbers): int
@@ -20,9 +21,12 @@ class PosSequenceConcurrencyProbeCommand extends Command
         file_put_contents($ready, 'ready');
 
         $deadline = microtime(true) + 15;
-        while (! file_exists($start) && microtime(true) < $deadline) usleep(10_000);
+        while (! file_exists($start) && microtime(true) < $deadline) {
+            usleep(10_000);
+        }
         if (! file_exists($start)) {
             file_put_contents($result, json_encode(['ok' => false, 'error' => 'barrier_timeout']));
+
             return self::FAILURE;
         }
 
@@ -35,9 +39,11 @@ class PosSequenceConcurrencyProbeCommand extends Command
                 default => throw new \InvalidArgumentException('kind must be pos or return'),
             };
             file_put_contents($result, json_encode(['ok' => true, 'number' => $number]));
+
             return self::SUCCESS;
         } catch (Throwable $e) {
             file_put_contents($result, json_encode(['ok' => false, 'error' => $e->getMessage(), 'class' => $e::class]));
+
             return self::FAILURE;
         }
     }

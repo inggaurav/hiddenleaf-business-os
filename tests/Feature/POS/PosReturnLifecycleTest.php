@@ -22,12 +22,19 @@ class PosReturnLifecycleTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private Organization $organization;
+
     private Workspace $workspace;
+
     private Warehouse $warehouse;
+
     private BillingCounter $counter;
+
     private ProductServiceItem $product;
+
     private PosSale $sale;
+
     private PosSaleItem $saleItem;
 
     protected function setUp(): void

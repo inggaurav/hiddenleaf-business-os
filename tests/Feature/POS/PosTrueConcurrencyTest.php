@@ -22,10 +22,15 @@ class PosTrueConcurrencyTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private Organization $organization;
+
     private Workspace $workspace;
+
     private Warehouse $warehouse;
+
     private BillingCounter $counter;
+
     private ProductServiceItem $product;
 
     protected function setUp(): void

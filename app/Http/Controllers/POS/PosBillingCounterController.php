@@ -94,6 +94,7 @@ class PosBillingCounterController extends Controller
         if ($counter->hasTransactions()) {
             $counter->update(['is_active' => false]);
             $counter->delete(); // soft delete
+
             return redirect()->back()->with('success', 'Billing counter archived because it has historical transactions.');
         }
 

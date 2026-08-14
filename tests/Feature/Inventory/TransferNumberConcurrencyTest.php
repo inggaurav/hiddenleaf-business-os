@@ -1,1 +1,12 @@
-<?php namespace Tests\Feature\Inventory; use Tests\TestCase; class TransferNumberConcurrencyTest extends TestCase { public function test_transfer_concurrency() { /* IMPLEMENTED_NEEDS_CONCURRENCY_PROOF */ $this->assertTrue(true); } }
+<?php
+
+namespace Tests\Feature\Inventory;
+
+use Tests\TestCase;
+
+class TransferNumberConcurrencyTest extends TestCase
+{
+    public function test_transfer_concurrency()
+    { /* IMPLEMENTED_NEEDS_CONCURRENCY_PROOF */ $this->assertTrue(true);
+    }
+}

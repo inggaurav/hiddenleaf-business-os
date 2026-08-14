@@ -23,7 +23,7 @@ class InventoryConcurrencyProbeCommand extends Command
         {readyFile}
         {startFile}
         {resultFile}
-        {direction=-1}';
+        {direction=out}';
 
     protected $description = 'Internal worker for real inventory concurrency regression tests';
 
@@ -40,11 +40,13 @@ class InventoryConcurrencyProbeCommand extends Command
         }
         if (! file_exists($start)) {
             file_put_contents($result, json_encode(['ok' => false, 'error' => 'barrier_timeout']));
+
             return self::FAILURE;
         }
 
         try {
-            $direction = (int) $this->argument('direction');
+            $dirArg = (string) $this->argument('direction');
+            $direction = ($dirArg === 'in' || $dirArg === '1') ? 1 : -1;
             $movement = $movements->recordMovement(
                 organizationId: (int) $this->argument('organization'),
                 workspaceId: (int) $this->argument('workspace'),
@@ -59,9 +61,11 @@ class InventoryConcurrencyProbeCommand extends Command
                 referenceLineId: 1,
             );
             file_put_contents($result, json_encode(['ok' => true, 'movement_id' => $movement->id]));
+
             return self::SUCCESS;
         } catch (Throwable $e) {
             file_put_contents($result, json_encode(['ok' => false, 'error' => $e->getMessage(), 'class' => $e::class]));
+
             return self::FAILURE;
         }
     }

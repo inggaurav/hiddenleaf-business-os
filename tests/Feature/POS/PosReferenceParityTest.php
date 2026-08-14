@@ -8,7 +8,6 @@ use App\Models\POS\BillingCounter;
 use App\Models\POS\PosDiscount;
 use App\Models\POS\PosReturn;
 use App\Models\POS\PosSale;
-use App\Models\POS\PosSaleItem;
 use App\Models\ProductServiceItem;
 use App\Models\User;
 use App\Models\UserActiveModule;
@@ -22,10 +21,15 @@ class PosReferenceParityTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private Organization $organization;
+
     private Workspace $workspace;
+
     private Warehouse $warehouse;
+
     private BillingCounter $counter;
+
     private ProductServiceItem $product;
 
     protected function setUp(): void

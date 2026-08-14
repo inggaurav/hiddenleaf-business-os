@@ -38,7 +38,7 @@ class ValidateParityEvidenceCommand extends Command
         if (File::exists($productServiceParity)) {
             $this->validateProductServiceParity($productServiceParity, $errors);
         }
-        
+
         $posParity = base_path('docs/reference/pos-parity-v2.json');
         if (File::exists($posParity)) {
             $this->validateProductServiceParity($posParity, $errors); // Re-use the same logic since schema is identical
@@ -255,39 +255,55 @@ class ValidateParityEvidenceCommand extends Command
     private function validateProductServiceParity(string $path, array &$errors): void
     {
         $data = $this->readJson($path);
-        
+
         $routes = array_merge($data['reference_routes'] ?? [], ...array_values($data['cross_module_integrations'] ?? []));
 
         $validStatuses = [
-            'VERIFIED', 'IMPLEMENTED_NEEDS_RUNTIME_PROOF', 'PARTIAL', 
-            'MISSING', 'INTENTIONALLY_DIFFERENT', 'REFERENCE_SCAFFOLDING', 'DEFERRED_ADDON'
+            'VERIFIED', 'IMPLEMENTED_NEEDS_RUNTIME_PROOF', 'PARTIAL',
+            'MISSING', 'INTENTIONALLY_DIFFERENT', 'REFERENCE_SCAFFOLDING', 'DEFERRED_ADDON',
         ];
 
         foreach ($routes as $index => $row) {
             // Check status
             $status = $row['parity_status'] ?? null; // using parity_status instead of status as per JSON
-            if (!in_array($status, $validStatuses, true)) {
+            if (! in_array($status, $validStatuses, true)) {
                 $errors[] = basename($path).": row #{$index} has invalid parity_status '{$status}'.";
             }
 
             if ($status === 'VERIFIED') {
                 $required = [
                     'reference_route_evidence', 'hiddenleaf_http_method', 'hiddenleaf_route',
-                    'controller_class', 'controller_method', 'permission', 'test_class', 'test_method'
+                    'controller_class', 'controller_method', 'permission', 'test_class', 'test_method',
                 ];
-                
+
                 foreach ($required as $field) {
-                    if (empty($row[$field]) || !is_string($row[$field])) {
+                    if (empty($row[$field]) || ! is_string($row[$field])) {
                         // Allow fallback to legacy fields to avoid test failure if we didn't rewrite the whole JSON perfectly
-                        if ($field === 'hiddenleaf_http_method' && !empty($row['http_method'])) continue;
-                        if ($field === 'hiddenleaf_route' && !empty($row['uri'])) continue;
-                        if ($field === 'test_class' && !empty($row['evidence_file'])) continue;
-                        if ($field === 'reference_route_evidence' && !empty($row['route_name'])) continue;
-                        if ($field === 'controller_class') continue;
-                        if ($field === 'controller_method') continue;
-                        if ($field === 'permission') continue;
-                        if ($field === 'test_method') continue;
-                        
+                        if ($field === 'hiddenleaf_http_method' && ! empty($row['http_method'])) {
+                            continue;
+                        }
+                        if ($field === 'hiddenleaf_route' && ! empty($row['uri'])) {
+                            continue;
+                        }
+                        if ($field === 'test_class' && ! empty($row['evidence_file'])) {
+                            continue;
+                        }
+                        if ($field === 'reference_route_evidence' && ! empty($row['route_name'])) {
+                            continue;
+                        }
+                        if ($field === 'controller_class') {
+                            continue;
+                        }
+                        if ($field === 'controller_method') {
+                            continue;
+                        }
+                        if ($field === 'permission') {
+                            continue;
+                        }
+                        if ($field === 'test_method') {
+                            continue;
+                        }
+
                         $errors[] = basename($path).": VERIFIED row #{$index} is missing required string field '{$field}'.";
                     }
                 }

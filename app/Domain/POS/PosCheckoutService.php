@@ -78,6 +78,7 @@ class PosCheckoutService
                     throw new ConflictHttpException('This POS idempotency key belongs to a different checkout payload.');
                 }
                 $operation->update(['pos_sale_id' => $existing->id]);
+
                 return $existing;
             }
 

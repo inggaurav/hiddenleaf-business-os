@@ -83,7 +83,7 @@ class InventoryTruePostgresConcurrencyTest extends TestCase
                 PHP_BINARY, base_path('artisan'), 'inventory:concurrency-probe',
                 (string) $tenant['org']->id, (string) $tenant['workspace']->id,
                 (string) $tenant['warehouse']->id, (string) $tenant['product']->id,
-                '1.0000', (string) $reference, $ready, $start, $result, (string) $direction,
+                '1.0000', (string) $reference, $ready, $start, $result, $direction > 0 ? 'in' : 'out',
             ];
             $process = proc_open($command, [0 => ['pipe', 'r'], 1 => ['file', $log, 'a'], 2 => ['file', $log, 'a']], $pipes, base_path(), $this->childEnvironment());
             $this->assertIsResource($process, 'Failed to start inventory concurrency worker.');
@@ -115,15 +115,20 @@ class InventoryTruePostgresConcurrencyTest extends TestCase
             'DB_PASSWORD' => $config['password'] ?? '', 'CACHE_STORE' => 'array',
             'SESSION_DRIVER' => 'array', 'QUEUE_CONNECTION' => 'sync',
         ] as $key => $value) {
-            if ($value !== null) $environment[$key] = (string) $value;
+            if ($value !== null) {
+                $environment[$key] = (string) $value;
+            }
         }
+
         return $environment;
     }
 
     private function waitUntil(callable $condition, int $seconds, string $message): void
     {
         $deadline = microtime(true) + $seconds;
-        while (! $condition() && microtime(true) < $deadline) usleep(20_000);
+        while (! $condition() && microtime(true) < $deadline) {
+            usleep(20_000);
+        }
         $this->assertTrue($condition(), $message);
     }
 
@@ -134,6 +139,7 @@ class InventoryTruePostgresConcurrencyTest extends TestCase
             $status = proc_get_status($process);
             if (! $status['running']) {
                 proc_close($process);
+
                 return;
             }
             usleep(20_000);

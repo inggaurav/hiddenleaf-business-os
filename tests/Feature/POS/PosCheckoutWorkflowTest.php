@@ -24,13 +24,21 @@ class PosCheckoutWorkflowTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private Organization $organization;
+
     private Workspace $workspace;
+
     private Warehouse $warehouse;
+
     private BillingCounter $counter;
+
     private ProductServiceItem $productA;
+
     private ProductServiceItem $productB;
+
     private ProductServiceItem $serviceC;
+
     private PosDiscount $discount;
 
     protected function setUp(): void

@@ -5,8 +5,6 @@ namespace Tests\Feature\POS;
 use App\Models\Organization;
 use App\Models\Plan;
 use App\Models\POS\BillingCounter;
-use App\Models\POS\PosDiscount;
-use App\Models\POS\PosReturn;
 use App\Models\POS\PosSale;
 use App\Models\ProductServiceItem;
 use App\Models\User;
@@ -22,17 +20,27 @@ class PosTenantIsolationTest extends TestCase
     use RefreshDatabase;
 
     private User $userA;
+
     private Organization $orgA;
+
     private Workspace $wsA;
+
     private Warehouse $whA;
+
     private BillingCounter $counterA;
+
     private ProductServiceItem $productA;
+
     private PosSale $saleA;
 
     private User $userB;
+
     private Organization $orgB;
+
     private Workspace $wsB;
+
     private Warehouse $whB;
+
     private BillingCounter $counterB;
 
     protected function setUp(): void

@@ -21,11 +21,17 @@ class PosInventoryIntegrationTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private Organization $organization;
+
     private Workspace $workspace;
+
     private Warehouse $warehouse;
+
     private BillingCounter $counter;
+
     private ProductServiceItem $physicalProduct;
+
     private ProductServiceItem $serviceItem;
 
     protected function setUp(): void

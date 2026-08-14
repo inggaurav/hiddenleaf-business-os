@@ -53,7 +53,9 @@ class PosSequencePostgresConcurrencyTest extends TestCase
         }
 
         $deadline = microtime(true) + 10;
-        while (! collect($workers)->every(fn ($worker) => file_exists($worker['ready'])) && microtime(true) < $deadline) usleep(20_000);
+        while (! collect($workers)->every(fn ($worker) => file_exists($worker['ready'])) && microtime(true) < $deadline) {
+            usleep(20_000);
+        }
         $this->assertTrue(collect($workers)->every(fn ($worker) => file_exists($worker['ready'])), 'Sequence workers did not reach barrier.');
         touch($start);
 
@@ -63,6 +65,7 @@ class PosSequencePostgresConcurrencyTest extends TestCase
                 $status = proc_get_status($worker['process']);
                 if (! $status['running']) {
                     proc_close($worker['process']);
+
                     continue 2;
                 }
                 usleep(20_000);
@@ -85,8 +88,11 @@ class PosSequencePostgresConcurrencyTest extends TestCase
             'DB_PASSWORD' => $config['password'] ?? '', 'CACHE_STORE' => 'array',
             'SESSION_DRIVER' => 'array', 'QUEUE_CONNECTION' => 'sync',
         ] as $key => $value) {
-            if ($value !== null) $environment[$key] = (string) $value;
+            if ($value !== null) {
+                $environment[$key] = (string) $value;
+            }
         }
+
         return $environment;
     }
 }

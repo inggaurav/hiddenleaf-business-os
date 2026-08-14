@@ -18,3 +18,5 @@ yarn-error.log
 /output
 /storage/app
 /storage/framework/testing
+/storage/framework/testing-concurrency
+.env.testing

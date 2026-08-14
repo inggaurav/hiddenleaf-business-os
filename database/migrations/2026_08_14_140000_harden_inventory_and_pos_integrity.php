@@ -32,6 +32,7 @@ return new class extends Migration
         });
 
         Schema::table('transfers', function (Blueprint $table) {
+            $table->decimal('quantity', 15, 4)->change();
             if (! $this->hasIndex('transfers', 'transfers_workspace_number_unique')) {
                 $table->unique(['workspace_id', 'transfer_number'], 'transfers_workspace_number_unique');
             }
@@ -134,6 +135,53 @@ return new class extends Migration
     {
         if (Schema::hasTable('pos_idempotency_keys')) {
             Schema::dropIfExists('pos_idempotency_keys');
+        }
+
+        if (Schema::hasTable('pos_return_items')) {
+            Schema::table('pos_return_items', function (Blueprint $table) {
+                $table->dropForeign('pos_return_items_return_fk');
+                $table->dropForeign('pos_return_items_sale_item_fk');
+                $table->dropForeign('pos_return_items_product_fk');
+            });
+        }
+
+        if (Schema::hasTable('pos_returns')) {
+            Schema::table('pos_returns', function (Blueprint $table) {
+                $table->dropForeign('pos_returns_sale_fk');
+                $table->dropForeign('pos_returns_processed_by_fk');
+                $table->dropForeign('pos_returns_journal_fk');
+            });
+        }
+
+        if (Schema::hasTable('pos_sale_items')) {
+            Schema::table('pos_sale_items', function (Blueprint $table) {
+                $table->dropForeign('pos_sale_items_sale_fk');
+                $table->dropForeign('pos_sale_items_product_fk');
+            });
+        }
+
+        if (Schema::hasTable('pos_sales')) {
+            Schema::table('pos_sales', function (Blueprint $table) {
+                $table->dropForeign('pos_sales_counter_fk');
+                $table->dropForeign('pos_sales_warehouse_fk');
+                $table->dropForeign('pos_sales_customer_fk');
+                $table->dropForeign('pos_sales_cashier_fk');
+                $table->dropForeign('pos_sales_journal_fk');
+            });
+        }
+
+        if (Schema::hasTable('billing_counters')) {
+            Schema::table('billing_counters', function (Blueprint $table) {
+                $table->dropForeign('billing_counters_warehouse_fk');
+            });
+        }
+
+        if (Schema::hasTable('pos_numbers')) {
+            Schema::table('pos_numbers', fn (Blueprint $table) => $table->dropForeign('pos_numbers_workspace_fk'));
+        }
+
+        if (Schema::hasTable('pos_return_numbers')) {
+            Schema::table('pos_return_numbers', fn (Blueprint $table) => $table->dropForeign('pos_return_numbers_workspace_fk'));
         }
 
         if ($this->hasIndex('transfers', 'transfers_workspace_number_unique')) {

@@ -21,9 +21,13 @@ class PosModuleTest extends TestCase
     use RefreshDatabase;
 
     private User $owner;
+
     private Organization $organization;
+
     private Workspace $workspace;
+
     private Warehouse $warehouse;
+
     private ProductServiceItem $product;
 
     protected function setUp(): void

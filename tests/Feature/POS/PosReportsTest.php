@@ -5,8 +5,6 @@ namespace Tests\Feature\POS;
 use App\Models\Organization;
 use App\Models\Plan;
 use App\Models\POS\BillingCounter;
-use App\Models\POS\PosSale;
-use App\Models\POS\PosSaleItem;
 use App\Models\ProductServiceItem;
 use App\Models\User;
 use App\Models\UserActiveModule;
@@ -21,10 +19,15 @@ class PosReportsTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private Organization $organization;
+
     private Workspace $workspace;
+
     private Warehouse $warehouse;
+
     private BillingCounter $counter;
+
     private ProductServiceItem $product;
 
     protected function setUp(): void
