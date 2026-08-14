@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountBankTransferController;
 use App\Http\Controllers\AccountReferenceController;
 use Illuminate\Support\Facades\Route;
 
@@ -29,11 +30,11 @@ Route::middleware(['auth', 'module.status:account', 'account.permission'])->pref
     Route::get('bank-transactions', [AccountReferenceController::class, 'bankTransactions'])->name('bank-transactions.index');
     Route::post('bank-transactions/{journalLine}/mark-reconciled', [AccountReferenceController::class, 'markBankTransactionReconciled'])->name('bank-transactions.reconcile');
 
-    Route::get('bank-transfers', [AccountReferenceController::class, 'bankTransfers'])->name('bank-transfers.index');
-    Route::post('bank-transfer-drafts', [AccountReferenceController::class, 'storeBankTransferDraft'])->name('bank-transfers.draft');
-    Route::put('bank-transfers/{bankTransfer}', [AccountReferenceController::class, 'updateBankTransfer'])->name('bank-transfers.update');
-    Route::delete('bank-transfers/{bankTransfer}', [AccountReferenceController::class, 'destroyBankTransfer'])->name('bank-transfers.destroy');
-    Route::post('bank-transfers/{bankTransfer}/process', [AccountReferenceController::class, 'processBankTransfer'])->name('bank-transfers.process');
+    Route::get('bank-transfers', [AccountBankTransferController::class, 'index'])->name('bank-transfers.index');
+    Route::post('bank-transfer-drafts', [AccountBankTransferController::class, 'store'])->name('bank-transfers.draft');
+    Route::put('bank-transfers/{bankTransfer}', [AccountBankTransferController::class, 'update'])->name('bank-transfers.update');
+    Route::delete('bank-transfers/{bankTransfer}', [AccountBankTransferController::class, 'destroy'])->name('bank-transfers.destroy');
+    Route::post('bank-transfers/{bankTransfer}/process', [AccountBankTransferController::class, 'process'])->name('bank-transfers.process');
 
     Route::get('revenue-categories', [AccountReferenceController::class, 'categories'])->defaults('type', 'revenue')->name('revenue-categories.index');
     Route::post('revenue-categories', [AccountReferenceController::class, 'storeCategory'])->defaults('type', 'revenue')->name('revenue-categories.store');
