@@ -13,24 +13,17 @@ class AccountExpense extends Model
     protected $table = 'account_expenses';
 
     protected $fillable = [
-        'organization_id',
-        'workspace_id',
-        'vendor_id',
-        'account_id',
-        'category_id',
-        'amount',
-        'date',
-        'payment_method',
-        'reference',
-        'description',
-        'receipt',
-        'journal_entry_id',
-        'created_by',
+        'organization_id', 'workspace_id', 'vendor_id', 'account_id', 'category_id',
+        'amount', 'date', 'payment_method', 'reference', 'description', 'status',
+        'approved_at', 'approved_by', 'posted_at', 'posted_by', 'receipt',
+        'journal_entry_id', 'created_by',
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
         'date' => 'date',
+        'approved_at' => 'datetime',
+        'posted_at' => 'datetime',
     ];
 
     public function scopeForWorkspace(Builder $query, int $organizationId, int $workspaceId): Builder
@@ -46,6 +39,11 @@ class AccountExpense extends Model
     public function account()
     {
         return $this->belongsTo(LedgerAccount::class, 'account_id');
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(AccountTransactionCategory::class, 'category_id');
     }
 
     public function journalEntry()
