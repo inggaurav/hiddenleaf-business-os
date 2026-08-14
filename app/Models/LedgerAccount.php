@@ -7,11 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class LedgerAccount extends Model
 {
-    protected $fillable = ['organization_id', 'workspace_id', 'account_type_id', 'parent_id', 'code', 'name', 'currency', 'is_bank', 'is_active'];
+    protected $fillable = [
+        'organization_id', 'workspace_id', 'account_type_id', 'parent_id', 'code', 'name',
+        'currency', 'is_bank', 'bank_name', 'account_holder', 'account_number', 'branch_name',
+        'iban', 'swift_code', 'opening_balance', 'is_active',
+    ];
 
     protected function casts(): array
     {
-        return ['is_bank' => 'boolean', 'is_active' => 'boolean'];
+        return [
+            'is_bank' => 'boolean',
+            'is_active' => 'boolean',
+            'opening_balance' => 'decimal:2',
+        ];
     }
 
     public function type()
@@ -21,7 +29,7 @@ class LedgerAccount extends Model
 
     public function journalLines()
     {
-        return $this->hasMany(JournalLine::class);
+        return $this->hasMany(JournalLine::class, 'ledger_account_id');
     }
 
     public function scopeForWorkspace(Builder $query, int $organizationId, int $workspaceId): Builder
