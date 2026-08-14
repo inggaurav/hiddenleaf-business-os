@@ -8,15 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 class AccountBankTransfer extends Model
 {
     protected $fillable = [
-        'organization_id', 'workspace_id', 'from_account_id', 'to_account_id',
-        'journal_entry_id', 'amount', 'transfer_date', 'reference', 'status',
-        'processed_at', 'processed_by', 'created_by',
+        'organization_id', 'workspace_id', 'transfer_number', 'from_account_id', 'to_account_id',
+        'journal_entry_id', 'amount', 'transfer_charges', 'transfer_date', 'reference', 'description',
+        'status', 'processed_at', 'processed_by', 'created_by',
     ];
 
     protected function casts(): array
     {
         return [
             'amount' => 'decimal:2',
+            'transfer_charges' => 'decimal:2',
             'transfer_date' => 'date',
             'processed_at' => 'datetime',
         ];
