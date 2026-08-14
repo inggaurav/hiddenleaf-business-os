@@ -12,8 +12,8 @@ RUN npm run build
 FROM php:8.4-cli-bookworm
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends git libpq-dev libzip-dev unzip \
-    && docker-php-ext-install pcntl pdo_pgsql zip \
+    && apt-get install -y --no-install-recommends git libonig-dev libpng-dev libpq-dev libxml2-dev libzip-dev unzip \
+    && docker-php-ext-install bcmath gd mbstring pcntl pdo_pgsql xml zip \
     && pecl install redis \
     && docker-php-ext-enable redis \
     && rm -rf /var/lib/apt/lists/*

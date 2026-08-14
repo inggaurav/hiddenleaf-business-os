@@ -32,7 +32,9 @@ class DatabaseNotificationController extends Controller
         abort_unless($item->workspace_id === null || (int) $item->workspace_id === (int) session('active_workspace_id'), 404);
         $item->markAsRead();
 
-        return response()->noContent();
+        return $request->isMethod('patch')
+            ? response()->noContent()
+            : response()->json(['success' => true]);
     }
 
     public function markAllRead(Request $request)
@@ -42,6 +44,8 @@ class DatabaseNotificationController extends Controller
             ->where(fn ($query) => $query->whereNull('workspace_id')->orWhere('workspace_id', $workspaceId))
             ->update(['read_at' => now()]);
 
-        return response()->noContent();
+        return $request->isMethod('patch')
+            ? response()->noContent()
+            : response()->json(['success' => true]);
     }
 }

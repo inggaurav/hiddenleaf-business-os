@@ -336,8 +336,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('notification-templates', NotificationTemplateController::class)->only(['index', 'show', 'update']);
     Route::post('notification-templates/{notificationTemplate}/preview', [NotificationTemplateController::class, 'preview'])->name('notification-templates.preview');
     Route::get('notifications', [DatabaseNotificationController::class, 'index'])->name('notifications.index');
-    Route::patch('notifications/read-all', [DatabaseNotificationController::class, 'markAllRead'])->name('notifications.read-all');
-    Route::patch('notifications/{notification}/read', [DatabaseNotificationController::class, 'markRead'])->name('notifications.read');
+    Route::match(['post', 'patch'], 'notifications/read-all', [DatabaseNotificationController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::match(['post', 'patch'], 'notifications/{notification}/read', [DatabaseNotificationController::class, 'markRead'])->name('notifications.read');
 
     // RBAC Roles (Explicit actions matching RoleController)
     Route::resource('roles', RoleController::class)->except(['show']);
