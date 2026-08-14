@@ -32,7 +32,7 @@ class StockMovementService
         ?int $sourceWarehouseId = null,
         ?int $destinationWarehouseId = null
     ): StockMovement {
-        if ($quantity <= 0) {
+        if (InventoryQuantity::of($quantity)->isLessThanOrEqual(InventoryQuantity::of(0))) {
             throw new InvalidArgumentException('Movement quantity must be greater than zero.');
         }
 
@@ -83,22 +83,28 @@ class StockMovementService
                     'product_id' => $productId,
                     'quantity' => 0,
                 ]);
-                $currentQty = 0.0;
+                $currentQty = InventoryQuantity::of(0);
             } else {
-                $currentQty = (float) $stock->quantity;
+                $currentQty = InventoryQuantity::of($stock->quantity);
             }
 
-            $qtyChange = $quantity * $direction;
-            $newQty = round($currentQty + $qtyChange, 4);
+            $qtyObj = InventoryQuantity::of($quantity);
+            
+            if ($direction === -1) {
+                $newQty = $currentQty->subtract($qtyObj);
+            } else {
+                $newQty = $currentQty->add($qtyObj);
+            }
 
-            if ($newQty < 0 && $direction === -1) {
+            if ($newQty->isNegative() && $direction === -1) {
                 throw new InvalidArgumentException("Insufficient stock in warehouse {$warehouse->name} for {$product->name}. Requested {$quantity}, available {$currentQty}.");
             }
 
-            $stock->update(['quantity' => $newQty]);
+            $stock->update(['quantity' => $newQty->toString()]);
 
-            $cost = $unitCost ?? (float) ($product->purchase_price ?: $product->sale_price ?: 0);
-            $totalCost = round($cost * $quantity, 2);
+            $costVal = $unitCost ?? (float) ($product->purchase_price ?: $product->sale_price ?: 0);
+            $cost = \App\Domain\Accounting\Money::of($costVal);
+            $totalCost = $cost->multiplyByDecimal($qtyObj->toString());
 
             return StockMovement::create([
                 'organization_id' => $organizationId,
@@ -108,9 +114,9 @@ class StockMovementService
                 'type' => $movementType,
                 'quantity' => $quantity,
                 'direction' => $direction,
-                'balance_after' => $newQty,
-                'unit_cost' => $cost,
-                'total_cost' => $totalCost,
+                'balance_after' => $newQty->toString(),
+                'unit_cost' => $cost->toStorageString(),
+                'total_cost' => $totalCost->toStorageString(),
                 'reference_type' => $referenceType,
                 'reference_id' => $referenceId,
                 'source_warehouse_id' => $sourceWarehouseId,

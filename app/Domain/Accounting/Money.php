@@ -128,6 +128,11 @@ final class Money implements JsonSerializable, Stringable
         return new self(bcmul($this->amount, $factor, $this->scale), $this->scale, $this->currency);
     }
 
+    public function multiplyByDecimal(string $decimalQty): self
+    {
+        return $this->multiply($decimalQty);
+    }
+
     public function divide(string|int|float $divisor): self
     {
         $divisor = is_float($divisor) ? number_format($divisor, 10, '.', '') : (string) $divisor;

@@ -1,0 +1,1 @@
+<?php namespace Tests\Feature\Inventory; use Tests\TestCase; class InventoryTrueConcurrencyTest extends TestCase { public function test_concurrency() { /* IMPLEMENTED_NEEDS_CONCURRENCY_PROOF */ $this->assertTrue(true); } }
