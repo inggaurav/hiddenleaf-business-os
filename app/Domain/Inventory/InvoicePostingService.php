@@ -2,6 +2,7 @@
 
 namespace App\Domain\Inventory;
 
+use App\Domain\Accounting\CommercialAccountingService;
 use App\Models\ProductServiceItem;
 use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
@@ -13,7 +14,11 @@ use RuntimeException;
 
 class InvoicePostingService
 {
-    public function __construct(private readonly StockAdjustmentService $stock, private readonly AuditLogger $audit) {}
+    public function __construct(
+        private readonly StockAdjustmentService $stock,
+        private readonly AuditLogger $audit,
+        private readonly CommercialAccountingService $accounting,
+    ) {}
 
     public function postPurchase(PurchaseInvoice $invoice, User $actor): void
     {
@@ -59,10 +64,19 @@ class InvoicePostingService
                 }
             }
 
+            // Commercial document, inventory and financial posting are one
+            // atomic unit. A ledger failure rolls the entire transaction back.
             $locked->update(['status' => 1]);
+            if ($locked instanceof SalesInvoice) {
+                $this->accounting->postSalesInvoice($locked, $actor);
+            } else {
+                $this->accounting->postPurchaseInvoice($locked, $actor);
+            }
+
             $this->audit->log($actor->id, $locked->organization_id, $locked->workspace_id, $event, $locked->getMorphClass(), (string) $locked->id, [
                 'invoice_id' => $locked->invoice_id,
                 'total_amount' => $locked->total_amount,
+                'accounting_posted' => true,
             ], critical: true);
         });
     }
