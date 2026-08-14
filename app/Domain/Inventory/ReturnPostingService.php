@@ -2,6 +2,7 @@
 
 namespace App\Domain\Inventory;
 
+use App\Domain\Accounting\CommercialAccountingService;
 use App\Models\ProductServiceItem;
 use App\Models\PurchaseInvoice;
 use App\Models\PurchaseReturn;
@@ -15,7 +16,11 @@ use RuntimeException;
 
 class ReturnPostingService
 {
-    public function __construct(private readonly StockAdjustmentService $stock, private readonly AuditLogger $audit) {}
+    public function __construct(
+        private readonly StockAdjustmentService $stock,
+        private readonly AuditLogger $audit,
+        private readonly CommercialAccountingService $accounting,
+    ) {}
 
     public function completePurchase(PurchaseReturn $return, User $actor): void
     {
@@ -50,8 +55,21 @@ class ReturnPostingService
                     $this->stock->adjust($product, $warehouse, $direction * (float) $line->quantity, $event.' '.$locked->return_id, $actor, $direction > 0 ? 'sales_return_received' : 'purchase_return_issued', $locked);
                 }
             }
+
+            // Inventory restoration/reversal, adjustment note and ledger effect are
+            // committed as one transaction. Source identity makes the note idempotent.
             $locked->update(['status' => 2]);
-            $this->audit->log($actor->id, $locked->organization_id, $locked->workspace_id, $event, $locked->getMorphClass(), (string) $locked->id, ['return_id' => $locked->return_id, 'total_amount' => $locked->total_amount], critical: true);
+            if ($locked instanceof SalesInvoiceReturn && $invoice instanceof SalesInvoice) {
+                $this->accounting->postSalesReturn($locked, $invoice, $actor);
+            } elseif ($locked instanceof PurchaseReturn && $invoice instanceof PurchaseInvoice) {
+                $this->accounting->postPurchaseReturn($locked, $invoice, $actor);
+            }
+
+            $this->audit->log($actor->id, $locked->organization_id, $locked->workspace_id, $event, $locked->getMorphClass(), (string) $locked->id, [
+                'return_id' => $locked->return_id,
+                'total_amount' => $locked->total_amount,
+                'accounting_adjustment_created' => true,
+            ], critical: true);
         });
     }
 }
