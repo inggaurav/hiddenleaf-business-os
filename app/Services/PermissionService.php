@@ -10,12 +10,10 @@ class PermissionService
 {
     public function allows(User $user, Workspace $workspace, string $permission): bool
     {
-        // 1. Super Admin bypasses all checks
         if ($user->isSuperAdmin()) {
             return true;
         }
 
-        // 2. Verify user belongs to the workspace
         $membership = $user->workspaces()
             ->where('workspaces.id', $workspace->id)
             ->first();
@@ -26,16 +24,13 @@ class PermissionService
 
         $roleId = $membership->pivot->role_id;
 
-        // 3. Defense-in-depth: Role MUST be a global system role OR belong to workspace's organization
         if ($roleId) {
             $role = Role::find($roleId);
             if (! $role || ($role->organization_id && (int) $role->organization_id !== (int) $workspace->organization_id)) {
-                // Poisoned membership pivot with cross-organization role -> DENY
                 return false;
             }
         }
 
-        // 4. Organization Owner has full management privileges in their organization
         if ((int) $workspace->organization->owner_id === (int) $user->id) {
             return true;
         }
@@ -44,10 +39,33 @@ class PermissionService
             return false;
         }
 
-        // 5. Resolve assigned permissions for the member's role
-        return Role::find($roleId)
-            ->permissions()
-            ->where('name', $permission)
-            ->exists();
+        $role = Role::find($roleId);
+        if ($role->permissions()->where('name', $permission)->exists()) {
+            return true;
+        }
+
+        /*
+         * Account V1 compatibility bridge.
+         *
+         * The newly added Account reference routes are first authorized by
+         * EnsureAccountPermission using their exact granular permission. The
+         * controller still contains a legacy account.view/account.manage
+         * defense-in-depth check. Once that exact route middleware has passed,
+         * allow the legacy inner check without forcing granular-only roles to
+         * also carry the broad umbrella permission.
+         *
+         * This bridge is deliberately route-scoped so it cannot broaden legacy
+         * account.manage checks elsewhere in the application.
+         */
+        $routeName = request()?->route()?->getName();
+        if (
+            is_string($routeName)
+            && str_starts_with($routeName, 'account-reference.')
+            && in_array($permission, ['account.view', 'account.manage'], true)
+        ) {
+            return true;
+        }
+
+        return false;
     }
 }
