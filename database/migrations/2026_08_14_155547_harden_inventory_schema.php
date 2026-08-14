@@ -23,12 +23,14 @@ return new class extends Migration
         Schema::table('stock_movements', function (Blueprint $table) {
             $table->decimal('quantity', 15, 4)->change();
             $table->decimal('balance_after', 15, 4)->change();
+            $table->decimal('unit_cost', 18, 4)->nullable()->change();
+            $table->decimal('total_cost', 18, 4)->nullable()->change();
         });
     }
 
     public function down(): void
     {
         // Keep current decimal precision on rollback. Narrowing historical stock
-        // quantities would be destructive for fractional inventory.
+        // quantities/costs would be destructive for fractional inventory.
     }
 };
