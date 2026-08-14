@@ -1,1 +1,5 @@
-import DataPanel from '@/Components/DataPanel';export default function Webhooks(){return <DataPanel title="Webhooks" description="Tenant webhook subscriptions, signing secrets, delivery tests, and status."/>;}
+import DataPanel from '@/Components/DataPanel';
+
+export default function Webhooks() {
+  return <DataPanel title="Webhooks" description="Tenant webhook subscriptions, signing secrets, delivery tests, and status." />;
+}

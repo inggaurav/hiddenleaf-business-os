@@ -1,81 +1,74 @@
 import React from 'react';
-import { Head, useForm } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
+import AppShell from '@/Layouts/AppShell';
+import { Card } from '@/Components/UI/Card';
+import { Button } from '@/Components/UI/Button';
+import { Input } from '@/Components/UI/Input';
+import { Badge } from '@/Components/UI/Badge';
+import { SectionHeader } from '@/Components/UI/SectionHeader';
+import { Save, ShieldCheck, HardDrive } from 'lucide-react';
 
-export default function SettingsIndex({ settings }: any) {
-    const { data, setData, post, processing, errors } = useForm({
-        site_name: settings.site_name || '',
-        default_currency: settings.default_currency || 'USD',
-        timezone: settings.timezone || 'UTC',
-        theme_color: settings.theme_color || '#000000',
-    });
+export default function SuperAdminSettings() {
+  const { settings = {} } = usePage<any>().props;
 
-    const submit = (e: React.FormEvent) => {
-        e.preventDefault();
-        post('/super-admin/settings');
-    };
+  const { data, setData, post, processing } = useForm({
+    app_name: settings.app_name || 'HiddenLeaf BusinessOS',
+    footer_text: settings.footer_text || '© 2026 HiddenLeaf Inc. All rights reserved.',
+    default_storage_limit: settings.default_storage_limit || '1024',
+    max_workspaces_per_tenant: settings.max_workspaces_per_tenant || '5',
+  });
 
-    return (
-        <div className="min-h-screen bg-gray-100">
-            <Head title="Global Settings" />
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    post('/super-admin/settings');
+  };
 
-            <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                        <h1 className="text-2xl font-bold mb-6">Global Settings</h1>
+  return (
+    <AppShell title="Super Admin Global Settings">
+      <div className="max-w-3xl mx-auto space-y-6">
+        <SectionHeader
+          title="Global SaaS Configuration"
+          description="Master parameters governing all tenant organizations and root platform branding."
+          badge={<Badge variant="purple" size="sm">Root Master</Badge>}
+        />
 
-                        <form onSubmit={submit} className="space-y-4 max-w-lg">
-                            <div>
-                                <label className="block text-sm font-medium">Site Name</label>
-                                <input
-                                    type="text"
-                                    value={data.site_name}
-                                    onChange={(e) => setData('site_name', e.target.value)}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                />
-                                {errors.site_name && <p className="text-red-500 text-sm">{errors.site_name}</p>}
-                            </div>
+        <form onSubmit={handleSubmit}>
+          <Card level={0} className="space-y-4">
+            <Input
+              label="Global Application Title"
+              value={data.app_name}
+              onChange={(e) => setData('app_name', e.target.value)}
+              required
+            />
+            <Input
+              label="Footer Notice"
+              value={data.footer_text}
+              onChange={(e) => setData('footer_text', e.target.value)}
+            />
 
-                            <div>
-                                <label className="block text-sm font-medium">Default Currency</label>
-                                <input
-                                    type="text"
-                                    value={data.default_currency}
-                                    onChange={(e) => setData('default_currency', e.target.value)}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium">Timezone</label>
-                                <input
-                                    type="text"
-                                    value={data.timezone}
-                                    onChange={(e) => setData('timezone', e.target.value)}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium">Theme Color</label>
-                                <input
-                                    type="color"
-                                    value={data.theme_color}
-                                    onChange={(e) => setData('theme_color', e.target.value)}
-                                    className="mt-1 block w-full h-10 rounded-md border-gray-300 shadow-sm p-1"
-                                />
-                            </div>
-
-                            <button
-                                type="submit"
-                                disabled={processing}
-                                className="bg-blue-500 text-white px-4 py-2 rounded shadow hover:bg-blue-600"
-                            >
-                                Save Settings
-                            </button>
-                        </form>
-                    </div>
-                </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Input
+                label="Default Storage Allocation (MB)"
+                type="number"
+                value={data.default_storage_limit}
+                onChange={(e) => setData('default_storage_limit', e.target.value)}
+              />
+              <Input
+                label="Max Workspaces per Tenant"
+                type="number"
+                value={data.max_workspaces_per_tenant}
+                onChange={(e) => setData('max_workspaces_per_tenant', e.target.value)}
+              />
             </div>
-        </div>
-    );
+
+            <div className="pt-4 flex items-center justify-end">
+              <Button type="submit" variant="primary" loading={processing} icon={<Save className="w-4 h-4" />}>
+                Save Master Settings
+              </Button>
+            </div>
+          </Card>
+        </form>
+      </div>
+    </AppShell>
+  );
 }

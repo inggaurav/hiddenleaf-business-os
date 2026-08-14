@@ -1,11 +1,16 @@
 import React from 'react';
-import { useForm } from '@inertiajs/react';
-import { Button } from '@ui/Button';
+import { useForm, Link, usePage } from '@inertiajs/react';
+import { Card } from '@/Components/UI/Card';
+import { Button } from '@/Components/UI/Button';
+import { Input } from '@/Components/UI/Input';
+import { Lock, Mail, Save } from 'lucide-react';
 
-export default function ResetPassword({ token }: { token: string }) {
+export default function ResetPassword() {
+  const { token, email } = usePage<any>().props;
+
   const { data, setData, post, processing, errors } = useForm({
-    token,
-    email: '',
+    token: token || '',
+    email: email || '',
     password: '',
     password_confirmation: '',
   });
@@ -16,44 +21,57 @@ export default function ResetPassword({ token }: { token: string }) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
-      <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-xl p-8 shadow-xl">
-        <h1 className="text-xl font-bold text-slate-100 text-center mb-6">Set New Password</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Email</label>
-            <input
+    <div className="min-h-screen bg-[var(--bg-0)] text-[var(--text-primary)] flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="max-w-md w-full relative z-10 space-y-6">
+        <div className="text-center space-y-2">
+          <h1 className="text-2xl font-bold tracking-tight text-white">Choose New Password</h1>
+          <p className="text-xs text-gray-400">Set a new password for your enterprise account</p>
+        </div>
+
+        <Card level={1} className="p-6 sm:p-8 space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              label="Email Address"
               type="email"
               value={data.email}
               onChange={(e) => setData('email', e.target.value)}
-              className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-lg text-slate-100 focus:outline-none focus:border-emerald-500 text-sm"
+              error={errors.email}
               required
             />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">New Password</label>
-            <input
+
+            <Input
+              label="New Password"
               type="password"
+              leftIcon={<Lock className="w-4 h-4 text-gray-400" />}
               value={data.password}
               onChange={(e) => setData('password', e.target.value)}
-              className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-lg text-slate-100 focus:outline-none focus:border-emerald-500 text-sm"
+              error={errors.password}
               required
             />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Confirm New Password</label>
-            <input
+
+            <Input
+              label="Confirm New Password"
               type="password"
+              leftIcon={<Lock className="w-4 h-4 text-gray-400" />}
               value={data.password_confirmation}
               onChange={(e) => setData('password_confirmation', e.target.value)}
-              className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-lg text-slate-100 focus:outline-none focus:border-emerald-500 text-sm"
               required
             />
-          </div>
-          <Button type="submit" isLoading={processing} className="w-full">
-            Update Password
-          </Button>
-        </form>
+
+            <div className="pt-2">
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                loading={processing}
+                className="w-full"
+                icon={<Save className="w-4 h-4" />}
+              >
+                Reset Password
+              </Button>
+            </div>
+          </form>
+        </Card>
       </div>
     </div>
   );

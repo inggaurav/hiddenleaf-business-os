@@ -25,8 +25,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             RequestId::class,
             Installed::class,
-            HandleInertiaRequests::class,
             EnsureTenantContext::class,
+            HandleInertiaRequests::class,
         ]);
 
         $middleware->api(append: [RequestId::class]);

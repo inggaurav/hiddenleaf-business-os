@@ -1,10 +1,17 @@
 import React from 'react';
-import { useForm, Link } from '@inertiajs/react';
-import { Button } from '@ui/Button';
+import { useForm, usePage, Link } from '@inertiajs/react';
+import AppShell from '@/Layouts/AppShell';
+import { Card } from '@/Components/UI/Card';
+import { Button } from '@/Components/UI/Button';
+import { Input } from '@/Components/UI/Input';
+import { SectionHeader } from '@/Components/UI/SectionHeader';
+import { ArrowLeft, Save } from 'lucide-react';
 
-export default function Edit({ workspace }: { workspace: { id: number; name: string } }) {
+export default function WorkspacesEdit() {
+  const { workspace } = usePage<any>().props;
+
   const { data, setData, put, processing, errors } = useForm({
-    name: workspace.name,
+    name: workspace?.name || '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -13,28 +20,41 @@ export default function Edit({ workspace }: { workspace: { id: number; name: str
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-8">
-      <div className="max-w-xl mx-auto bg-slate-900 border border-slate-800 rounded-xl p-6">
-        <h1 className="text-xl font-bold mb-4">Edit Workspace</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider mb-2">Workspace Name</label>
-            <input
-              type="text"
+    <AppShell title={`Edit Workspace: ${workspace?.name}`}>
+      <div className="max-w-2xl mx-auto space-y-6">
+        <SectionHeader
+          title={`Edit Workspace: ${workspace?.name}`}
+          description="Rename this workspace partition."
+          actions={
+            <Link href="/workspaces">
+              <Button variant="ghost" size="sm" icon={<ArrowLeft className="w-4 h-4" />}>
+                Back to Workspaces
+              </Button>
+            </Link>
+          }
+        />
+
+        <form onSubmit={handleSubmit}>
+          <Card level={0} className="space-y-4">
+            <Input
+              label="Workspace Name"
               value={data.name}
               onChange={(e) => setData('name', e.target.value)}
-              className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-lg text-sm text-slate-100"
+              error={errors.name}
               required
             />
-            {errors.name && <p className="text-xs text-rose-400 mt-1">{errors.name}</p>}
-          </div>
 
-          <div className="flex justify-between items-center pt-2">
-            <Link href="/workspaces" className="text-xs text-slate-400 hover:underline">Cancel</Link>
-            <Button type="submit" isLoading={processing}>Save Changes</Button>
-          </div>
+            <div className="pt-4 flex items-center justify-end gap-2 border-t border-[var(--border-subtle)]">
+              <Link href="/workspaces">
+                <Button variant="ghost">Cancel</Button>
+              </Link>
+              <Button type="submit" variant="primary" loading={processing} icon={<Save className="w-4 h-4" />}>
+                Update Workspace
+              </Button>
+            </div>
+          </Card>
         </form>
       </div>
-    </div>
+    </AppShell>
   );
 }
