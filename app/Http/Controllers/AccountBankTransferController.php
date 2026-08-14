@@ -29,7 +29,10 @@ class AccountBankTransferController extends Controller
                 ->paginate(30)
                 ->withQueryString(),
             'accounts' => LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)
-                ->where('is_bank', true)->where('is_active', true)->orderBy('name')->get(),
+                ->where('is_bank', true)
+                ->where('is_active', true)
+                ->orderBy('name')
+                ->get(),
         ]);
     }
 
@@ -39,20 +42,29 @@ class AccountBankTransferController extends Controller
         $data = $this->validateTransfer($request, $workspace);
 
         return DB::transaction(function () use ($data, $workspace, $request, $ledger) {
-            $this->assertSufficientBalance($workspace, (int) $data['from_account_id'], Money::of($data['amount'])->add(Money::of($data['transfer_charges'] ?? 0)), $ledger);
+            Workspace::whereKey($workspace->id)->lockForUpdate()->firstOrFail();
+
+            $this->assertSufficientBalance(
+                $workspace,
+                (int) $data['from_account_id'],
+                Money::of($data['amount'])->add(Money::of($data['transfer_charges'] ?? 0)),
+                $ledger
+            );
+
             $feeAccount = $this->feeAccount($workspace);
+            $transferNumber = $this->nextTransferNumber($workspace);
 
             $entry = $ledger->createEntry($workspace->organization_id, $workspace->id, [
                 'entry_date' => $data['transfer_date'],
-                'reference' => $data['reference'] ?? null,
-                'description' => $data['description'] ?? 'Pending bank transfer',
+                'reference' => $data['reference'] ?? $transferNumber,
+                'description' => $data['description'] ?? 'Pending bank transfer '.$transferNumber,
                 'lines' => $this->transferLines($data, $feeAccount->id),
             ], $request->user());
 
             $transfer = AccountBankTransfer::create($data + [
                 'organization_id' => $workspace->organization_id,
                 'workspace_id' => $workspace->id,
-                'transfer_number' => $this->nextTransferNumber($workspace),
+                'transfer_number' => $transferNumber,
                 'journal_entry_id' => $entry->id,
                 'status' => 'pending',
                 'created_by' => $request->user()->id,
@@ -70,16 +82,26 @@ class AccountBankTransferController extends Controller
         $data = $this->validateTransfer($request, $workspace);
 
         DB::transaction(function () use ($bankTransfer, $data, $workspace, $ledger) {
-            $locked = AccountBankTransfer::forWorkspace($workspace->organization_id, $workspace->id)->lockForUpdate()->findOrFail($bankTransfer->id);
+            $locked = AccountBankTransfer::forWorkspace($workspace->organization_id, $workspace->id)
+                ->lockForUpdate()
+                ->findOrFail($bankTransfer->id);
             abort_unless(in_array($locked->status, ['pending', 'draft'], true), 422, 'Only pending transfers can be edited.');
-            $this->assertSufficientBalance($workspace, (int) $data['from_account_id'], Money::of($data['amount'])->add(Money::of($data['transfer_charges'] ?? 0)), $ledger);
+
+            $this->assertSufficientBalance(
+                $workspace,
+                (int) $data['from_account_id'],
+                Money::of($data['amount'])->add(Money::of($data['transfer_charges'] ?? 0)),
+                $ledger
+            );
+
             $feeAccount = $this->feeAccount($workspace);
             $entry = JournalEntry::whereKey($locked->journal_entry_id)->lockForUpdate()->firstOrFail();
             abort_unless($entry->status === 'draft', 422, 'Transfer journal is already posted.');
+
             $entry->update([
                 'entry_date' => $data['transfer_date'],
-                'reference' => $data['reference'] ?? null,
-                'description' => $data['description'] ?? 'Pending bank transfer',
+                'reference' => $data['reference'] ?? $locked->transfer_number,
+                'description' => $data['description'] ?? 'Pending bank transfer '.$locked->transfer_number,
             ]);
             $entry->lines()->delete();
             foreach ($this->transferLines($data, $feeAccount->id) as $line) {
@@ -102,8 +124,11 @@ class AccountBankTransferController extends Controller
         abort_unless(in_array($bankTransfer->status, ['pending', 'draft'], true), 422, 'Only pending transfers can be deleted.');
 
         DB::transaction(function () use ($bankTransfer, $workspace) {
-            $locked = AccountBankTransfer::forWorkspace($workspace->organization_id, $workspace->id)->lockForUpdate()->findOrFail($bankTransfer->id);
+            $locked = AccountBankTransfer::forWorkspace($workspace->organization_id, $workspace->id)
+                ->lockForUpdate()
+                ->findOrFail($bankTransfer->id);
             abort_unless(in_array($locked->status, ['pending', 'draft'], true), 422, 'Only pending transfers can be deleted.');
+
             $journalId = $locked->journal_entry_id;
             $locked->delete();
             JournalEntry::whereKey($journalId)->where('status', 'draft')->delete();
@@ -116,6 +141,7 @@ class AccountBankTransferController extends Controller
     {
         $workspace = $this->workspace($request);
         $this->assertTransfer($bankTransfer, $workspace);
+
         if (in_array($bankTransfer->status, ['posted', 'completed'], true)) {
             return back()->with('success', 'Bank transfer already processed.');
         }
@@ -123,7 +149,10 @@ class AccountBankTransferController extends Controller
 
         try {
             DB::transaction(function () use ($bankTransfer, $workspace, $request, $ledger) {
-                $locked = AccountBankTransfer::forWorkspace($workspace->organization_id, $workspace->id)->lockForUpdate()->findOrFail($bankTransfer->id);
+                $locked = AccountBankTransfer::forWorkspace($workspace->organization_id, $workspace->id)
+                    ->lockForUpdate()
+                    ->findOrFail($bankTransfer->id);
+
                 if (in_array($locked->status, ['posted', 'completed'], true)) {
                     return;
                 }
@@ -141,8 +170,6 @@ class AccountBankTransferController extends Controller
                 ]);
             });
         } catch (\Throwable $e) {
-            // Do not partially post. The transaction above has rolled back. Marking
-            // failed is deliberately outside it so the operational failure is visible.
             AccountBankTransfer::forWorkspace($workspace->organization_id, $workspace->id)
                 ->whereKey($bankTransfer->id)
                 ->whereIn('status', ['pending', 'draft'])
@@ -164,6 +191,7 @@ class AccountBankTransferController extends Controller
             'reference' => ['nullable', 'string', 'max:100'],
             'description' => ['nullable', 'string', 'max:2000'],
         ]);
+
         $data['transfer_charges'] = Money::of($data['transfer_charges'] ?? 0)->toStorageString();
         $data['amount'] = Money::of($data['amount'])->toStorageString();
 
@@ -180,10 +208,13 @@ class AccountBankTransferController extends Controller
     private function assertSufficientBalance(Workspace $workspace, int $accountId, Money $required, LedgerService $ledger, bool $lock = false): void
     {
         $query = LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)
-            ->where('is_bank', true)->whereKey($accountId);
+            ->where('is_bank', true)
+            ->whereKey($accountId);
+
         if ($lock) {
             $query->lockForUpdate();
         }
+
         $account = $query->firstOrFail();
         $balanceRow = $ledger->balances($workspace->organization_id, $workspace->id)->firstWhere('id', $account->id);
         $available = Money::of($balanceRow?->balance ?? 0);
@@ -194,7 +225,11 @@ class AccountBankTransferController extends Controller
     {
         $type = AccountType::firstOrCreate(
             ['workspace_id' => $workspace->id, 'name' => 'Expenses'],
-            ['organization_id' => $workspace->organization_id, 'classification' => 'expense', 'normal_balance' => 'debit']
+            [
+                'organization_id' => $workspace->organization_id,
+                'classification' => 'expense',
+                'normal_balance' => 'debit',
+            ]
         );
         $currency = LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)->value('currency') ?: 'USD';
 
@@ -216,10 +251,12 @@ class AccountBankTransferController extends Controller
         $amount = Money::of($data['amount']);
         $charges = Money::of($data['transfer_charges'] ?? 0);
         $total = $amount->add($charges);
+
         $lines = [
             ['account_id' => $data['to_account_id'], 'debit' => $amount->toStorageString(), 'credit' => '0.00'],
             ['account_id' => $data['from_account_id'], 'debit' => '0.00', 'credit' => $total->toStorageString()],
         ];
+
         if ($charges->isPositive()) {
             $lines[] = ['account_id' => $feeAccountId, 'debit' => $charges->toStorageString(), 'credit' => '0.00'];
         }
@@ -229,13 +266,18 @@ class AccountBankTransferController extends Controller
 
     private function nextTransferNumber(Workspace $workspace): string
     {
-        $next = AccountBankTransfer::forWorkspace($workspace->organization_id, $workspace->id)->lockForUpdate()->count() + 1;
+        $next = AccountBankTransfer::forWorkspace($workspace->organization_id, $workspace->id)->count() + 1;
+
         return 'TRF-'.now()->format('Ymd').'-'.str_pad((string) $next, 5, '0', STR_PAD_LEFT);
     }
 
     private function assertTransfer(AccountBankTransfer $transfer, Workspace $workspace): void
     {
-        abort_unless((int) $transfer->organization_id === (int) $workspace->organization_id && (int) $transfer->workspace_id === (int) $workspace->id, 404);
+        abort_unless(
+            (int) $transfer->organization_id === (int) $workspace->organization_id
+                && (int) $transfer->workspace_id === (int) $workspace->id,
+            404
+        );
     }
 
     private function workspace(Request $request): Workspace
