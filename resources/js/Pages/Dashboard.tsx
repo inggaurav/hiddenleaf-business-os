@@ -43,8 +43,11 @@ export default function Dashboard() {
   const productCount = metrics?.products ?? 0;
   const openTicketCount = metrics?.open_tickets ?? stats?.tickets ?? 0;
   const salesTotal = metrics?.sales ?? 0;
+  const paidInvoices = metrics?.paid_invoices ?? 0;
   const purchaseTotal = metrics?.purchases ?? 0;
+  const postedPurchases = metrics?.posted_purchases ?? 0;
   const activeProjects = metrics?.active_projects ?? 0;
+  const openTasks = metrics?.open_tasks ?? 0;
   const openLeads = metrics?.open_leads ?? 0;
   const todayPosSales = metrics?.today_pos_sales ?? 0;
   const roleTitle = user?.role ? String(user.role).replace('_', ' ').toUpperCase() : 'MEMBER';
@@ -148,28 +151,28 @@ export default function Dashboard() {
             title="Total Sales Invoiced"
             value={formatCurrency(salesTotal)}
             icon={<TrendingUp className="w-5 h-5 text-emerald-400" />}
-            subtitle="Posted customer sales"
+            subtitle={paidInvoices > 0 ? `${paidInvoices} paid customer invoices` : 'Posted customer sales'}
           />
 
           <MetricCard
             title="Purchasing Volume"
             value={formatCurrency(purchaseTotal)}
             icon={<DollarSign className="w-5 h-5 text-amber-400" />}
-            subtitle="Recognized vendor bills"
+            subtitle={postedPurchases > 0 ? `${postedPurchases} vendor bills` : 'Recognized vendor bills'}
           />
 
           <MetricCard
             title="Active Projects"
             value={activeProjects}
             icon={<FolderKanban className="w-5 h-5 text-indigo-400" />}
-            subtitle={`${openLeads} open sales leads`}
+            subtitle={`${openTasks} open project tasks`}
           />
 
           <MetricCard
             title="Open Tickets"
             value={openTicketCount}
             icon={<Activity className="w-5 h-5 text-sky-400" />}
-            subtitle={`${userCount} workspace members`}
+            subtitle={openTicketCount > 0 ? `${openTicketCount} active support requests` : 'All support tickets resolved'}
           />
         </div>
 
