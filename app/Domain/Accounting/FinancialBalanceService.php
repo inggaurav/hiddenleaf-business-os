@@ -10,80 +10,71 @@ use App\Models\CustomerPayment;
 use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
 use App\Models\VendorPayment;
-use App\Models\Workspace;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Authoritative manager for customer and vendor balances.
  *
- * Guarantees that stored balance columns are strictly derived from
- * posted invoices, payments, and credit/debit notes with zero drift.
+ * Posted commercial documents are the debit/credit source; voided payments and
+ * unapplied adjustment notes must never reduce the authoritative outstanding
+ * balance.
  */
 class FinancialBalanceService
 {
-    /**
-     * Compute the exact outstanding receivable balance for a customer.
-     *
-     * Balance = Σ(Invoices where status != draft) - Σ(CustomerPayments) - Σ(CreditNotes)
-     */
     public function computeCustomerBalance(AccountCustomer $customer): Money
     {
         $invoiceTotal = Money::of(
             SalesInvoice::where('organization_id', $customer->organization_id)
                 ->where('workspace_id', $customer->workspace_id)
                 ->where('customer_id', $customer->id)
-                ->whereNotIn('status', ['draft', 0])
+                ->whereNotIn('status', ['draft', 0, 'void'])
                 ->sum('total_amount')
         );
 
         $payments = Money::of(
             CustomerPayment::forWorkspace($customer->organization_id, $customer->workspace_id)
                 ->where('customer_id', $customer->id)
+                ->where('status', '!=', 'void')
                 ->sum('amount')
         );
 
         $creditNotes = Money::of(
             AccountCreditNote::forWorkspace($customer->organization_id, $customer->workspace_id)
                 ->where('customer_id', $customer->id)
+                ->where('status', 'applied')
                 ->sum('amount')
         );
 
         return $invoiceTotal->subtract($payments)->subtract($creditNotes);
     }
 
-    /**
-     * Compute the exact outstanding payable balance for a vendor.
-     *
-     * Balance = Σ(PurchaseInvoices where status != draft) - Σ(VendorPayments) - Σ(DebitNotes)
-     */
     public function computeVendorBalance(AccountVendor $vendor): Money
     {
         $purchaseTotal = Money::of(
             PurchaseInvoice::where('organization_id', $vendor->organization_id)
                 ->where('workspace_id', $vendor->workspace_id)
                 ->where('vendor_id', $vendor->id)
-                ->whereNotIn('status', ['draft', 0])
+                ->whereNotIn('status', ['draft', 0, 'void'])
                 ->sum('total_amount')
         );
 
         $payments = Money::of(
             VendorPayment::forWorkspace($vendor->organization_id, $vendor->workspace_id)
                 ->where('vendor_id', $vendor->id)
+                ->where('status', '!=', 'void')
                 ->sum('amount')
         );
 
         $debitNotes = Money::of(
             AccountDebitNote::forWorkspace($vendor->organization_id, $vendor->workspace_id)
                 ->where('vendor_id', $vendor->id)
+                ->where('status', 'applied')
                 ->sum('amount')
         );
 
         return $purchaseTotal->subtract($payments)->subtract($debitNotes);
     }
 
-    /**
-     * Atomically recalculate and update a customer's cached balance.
-     */
     public function syncCustomerBalance(AccountCustomer $customer): Money
     {
         return DB::transaction(function () use ($customer) {
@@ -95,9 +86,6 @@ class FinancialBalanceService
         });
     }
 
-    /**
-     * Atomically recalculate and update a vendor's cached balance.
-     */
     public function syncVendorBalance(AccountVendor $vendor): Money
     {
         return DB::transaction(function () use ($vendor) {
@@ -110,9 +98,7 @@ class FinancialBalanceService
     }
 
     /**
-     * Reconcile all customer and vendor balances across a workspace or entire database.
-     *
-     * @return array{customers_checked: int, customers_fixed: int, vendors_checked: int, vendors_fixed: int}
+     * @return array{customers_checked:int,customers_fixed:int,vendors_checked:int,vendors_fixed:int}
      */
     public function reconcileWorkspaceBalances(?int $workspaceId = null): array
     {
