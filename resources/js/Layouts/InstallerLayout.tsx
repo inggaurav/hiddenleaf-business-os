@@ -41,14 +41,14 @@ export default function InstallerLayout({ steps, currentStep, children }: Instal
         </div>
       </header>
 
-      <main className="relative mx-auto grid max-w-[1480px] gap-5 px-3 py-4 sm:px-6 sm:py-7 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-7 lg:px-10">
-        <aside className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-3 backdrop-blur-xl lg:sticky lg:top-7 lg:h-fit lg:p-5" aria-label="Installation progress">
+      <main className="relative mx-auto grid w-full max-w-[1480px] min-w-0 gap-5 overflow-hidden px-3 py-4 sm:px-6 sm:py-7 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-7 lg:px-10">
+        <aside className="min-w-0 max-w-full overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.035] p-3 backdrop-blur-xl lg:sticky lg:top-7 lg:h-fit lg:p-5" aria-label="Installation progress">
           <div className="mb-4 hidden lg:block">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Installation progress</p>
             <p className="mt-1 text-sm text-slate-300">Step {currentStep + 1} of {steps.length}</p>
           </div>
 
-          <ol className="flex gap-2 overflow-x-auto pb-1 lg:block lg:space-y-1 lg:overflow-visible" aria-label="Installer steps">
+          <ol className="flex w-full min-w-0 gap-2 overflow-x-auto pb-1 lg:block lg:space-y-1 lg:overflow-visible" aria-label="Installer steps">
             {steps.map((step, index) => {
               const complete = index < currentStep;
               const active = index === currentStep;

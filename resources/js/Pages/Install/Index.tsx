@@ -211,7 +211,7 @@ export default function InstallIndex({ steps, requirements = {}, modules = [], a
         }),
       });
       const payload = await response.json().catch(() => ({}));
-      if (!response.ok || !payload.success) throw new Error(payload.message || 'Connection failed. Verify the database details and try again.');
+      if (!response.ok || !payload.success) throw new Error('Connection failed. Verify the driver, host, credentials, database, and network configuration.');
       setDatabaseState('success');
       setDatabaseMessage(payload.message || 'Database connection successful.');
       setData('db_password', '');
@@ -429,14 +429,14 @@ export default function InstallIndex({ steps, requirements = {}, modules = [], a
                 {modules.map((module) => {
                   const selected = data.modules.includes(module.alias);
                   return (
-                    <label key={module.alias} className={`cursor-pointer rounded-xl border p-4 transition ${selected ? 'border-emerald-400/30 bg-emerald-400/[0.07]' : 'border-white/[0.08] bg-white/[0.025] hover:border-white/15'}`}>
+                    <div key={module.alias} className={`rounded-xl border p-4 transition ${selected ? 'border-emerald-400/30 bg-emerald-400/[0.07]' : 'border-white/[0.08] bg-white/[0.025] hover:border-white/15'}`}>
                       <div className="flex items-start justify-between gap-3">
                         <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/[0.06] text-slate-300"><WalletCards className="h-4 w-4" /></span>
                         <Checkbox aria-label={`Select ${module.name}`} checked={selected} onChange={() => toggleModule(module.alias)} />
                       </div>
                       <p className="mt-4 text-sm font-semibold text-white">{module.name}</p>
                       <p className="mt-1 text-xs text-slate-500">Bundled core module</p>
-                    </label>
+                    </div>
                   );
                 })}
               </div>
