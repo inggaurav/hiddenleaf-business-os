@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Account;
 
+use App\Domain\Accounting\CurrencyMismatchException;
 use App\Domain\Accounting\Money;
 use PHPUnit\Framework\TestCase;
 
@@ -61,5 +62,27 @@ class MoneyPrecisionTest extends TestCase
     {
         $this->assertEquals('10.50', Money::of(10.5)->toString());
         $this->assertEquals('10.00', Money::of(10)->toString());
+    }
+
+    public function test_same_currency_arithmetic_is_allowed(): void
+    {
+        $total = Money::forCurrency('10.25', 'USD')->add(Money::forCurrency('1.75', 'USD'));
+
+        $this->assertSame('USD', $total->getCurrency());
+        $this->assertSame('12.00', $total->toStorageString());
+    }
+
+    public function test_cross_currency_arithmetic_is_rejected(): void
+    {
+        $this->expectException(CurrencyMismatchException::class);
+
+        Money::forCurrency('10.00', 'USD')->add(Money::forCurrency('10', 'JPY'));
+    }
+
+    public function test_currency_aware_precision_scales(): void
+    {
+        $this->assertSame('100', Money::forCurrency('100.49', 'JPY')->toStorageString());
+        $this->assertSame('1.234', Money::forCurrency('1.2344', 'KWD')->toStorageString());
+        $this->assertSame('1.2345', Money::forCurrency('1.23459', 'CLF')->toStorageString());
     }
 }
