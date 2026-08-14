@@ -28,34 +28,30 @@ class AccountDashboardService
         $orgId = $workspace->organization_id;
         $wsId = $workspace->id;
 
-        // 1. Customer & Vendor counts — ONLY from canonical entities, no fallbacks
         $totalClients = AccountCustomer::forWorkspace($orgId, $wsId)->count();
         $totalVendors = AccountVendor::forWorkspace($orgId, $wsId)->count();
 
-        // 2. Customer & Vendor Payments — ONLY from payment records, no invoice fallback
         $totalCustomerPayment = Money::of(CustomerPayment::forWorkspace($orgId, $wsId)->sum('amount'));
         $totalVendorPayment = Money::of(VendorPayment::forWorkspace($orgId, $wsId)->sum('amount'));
 
-        // 3. Ledger Balances & Revenue / Expense from canonical sources
         $balances = $this->ledgerService->balances($orgId, $wsId);
-        $byClass = $balances->groupBy(fn ($account) => $account->type->classification ?? 'asset')->map->sum('balance');
+        $byClass = $balances
+            ->groupBy(fn ($account) => $account->type->classification ?? 'asset')
+            ->map->sum('balance');
 
-        $ledgerRevenue = Money::of($byClass['income'] ?? 0);
-        $ledgerExpense = Money::of($byClass['expense'] ?? 0);
-
+        // Explicit metric semantics: direct transactions never replace ledger income,
+        // and ledger income never masquerades as direct WorkDo-style revenue records.
         $directRevenue = Money::of(AccountRevenue::forWorkspace($orgId, $wsId)->sum('amount'));
         $directExpense = Money::of(AccountExpense::forWorkspace($orgId, $wsId)->sum('amount'));
+        $accountingIncome = Money::of($byClass['income'] ?? 0);
+        $accountingExpense = Money::of($byClass['expense'] ?? 0);
+        $directNetProfit = $directRevenue->subtract($directExpense);
+        $netAccountingIncome = $accountingIncome->subtract($accountingExpense);
 
-        $revenue = $directRevenue->isPositive() ? $directRevenue : $ledgerRevenue;
-        $expense = $directExpense->isPositive() ? $directExpense : $ledgerExpense;
-        $netProfit = $revenue->subtract($expense);
-
-        // 4. Cash & Bank balances
         $bankAccounts = LedgerAccount::forWorkspace($orgId, $wsId)->where('is_bank', true)->get();
         $cashBankBalance = Money::of($balances->whereIn('id', $bankAccounts->pluck('id'))->sum('balance'));
 
-        // 5. Receivables & Payables — correct partial calculation
-        //    receivable = invoice total - applied payments - applied credit notes
+        // Receivable = posted/sent/partial invoice total - applied payments - applied credit notes.
         $invoiceTotal = Money::of(
             SalesInvoice::where('organization_id', $orgId)
                 ->where('workspace_id', $wsId)
@@ -72,13 +68,16 @@ class AccountDashboardService
                 ->whereNotNull('invoice_id')
                 ->sum('amount')
         );
-        $receivables = $invoiceTotal->subtract($appliedCustomerPayments)->subtract($appliedCreditNotes)->max(Money::zero());
+        $receivables = $invoiceTotal
+            ->subtract($appliedCustomerPayments)
+            ->subtract($appliedCreditNotes)
+            ->max(Money::zero());
 
-        //    payable = purchase total - applied payments - applied debit notes
+        // Payable = posted/ordered/partial purchase total - applied payments - applied debit notes.
         $purchaseTotal = Money::of(
             PurchaseInvoice::where('organization_id', $orgId)
                 ->where('workspace_id', $wsId)
-                ->where(fn ($q) => $q->whereIn('status', ['posted', 'ordered', 1, 2]))
+                ->where(fn ($q) => $q->whereIn('status', ['posted', 'ordered', 'partial', 1, 2]))
                 ->sum('total_amount')
         );
         $appliedVendorPayments = Money::of(
@@ -91,9 +90,11 @@ class AccountDashboardService
                 ->whereNotNull('purchase_invoice_id')
                 ->sum('amount')
         );
-        $payables = $purchaseTotal->subtract($appliedVendorPayments)->subtract($appliedDebitNotes)->max(Money::zero());
+        $payables = $purchaseTotal
+            ->subtract($appliedVendorPayments)
+            ->subtract($appliedDebitNotes)
+            ->max(Money::zero());
 
-        // 6. Monthly trends (past 6 months) — ONLY from payment records by payment_date
         $monthlyCustomerPayments = [];
         $monthlyVendorPayments = [];
 
@@ -128,54 +129,79 @@ class AccountDashboardService
             ];
         }
 
-        // 7. Recent Revenues — ONLY from AccountRevenue, empty if none
-        $recentRevenues = AccountRevenue::forWorkspace($orgId, $wsId)->with('customer')->latest('date')->limit(5)->get()
-            ->map(fn ($r) => [
-                'id' => $r->id,
-                'title' => $r->reference ?? 'REV-' . $r->id,
-                'description' => ($r->customer?->name ?? 'Direct Revenue') . ($r->payment_method ? ' via ' . ucfirst($r->payment_method) : ''),
-                'amount' => Money::of($r->amount)->toFloat(),
-                'date' => $r->date ? $r->date->toDateString() : now()->toDateString(),
+        $recentRevenues = AccountRevenue::forWorkspace($orgId, $wsId)
+            ->with('customer')
+            ->latest('date')
+            ->limit(5)
+            ->get()
+            ->map(fn ($revenue) => [
+                'id' => $revenue->id,
+                'title' => $revenue->reference ?? 'REV-'.$revenue->id,
+                'description' => ($revenue->customer?->name ?? 'Direct Revenue')
+                    .($revenue->payment_method ? ' via '.ucfirst($revenue->payment_method) : ''),
+                'amount' => Money::of($revenue->amount)->toFloat(),
+                'date' => $revenue->date ? $revenue->date->toDateString() : now()->toDateString(),
                 'status' => 'received',
             ]);
 
-        // 8. Recent Expenses — ONLY from AccountExpense, empty if none
-        $recentExpenses = AccountExpense::forWorkspace($orgId, $wsId)->with('vendor')->latest('date')->limit(5)->get()
-            ->map(fn ($e) => [
-                'id' => $e->id,
-                'title' => $e->reference ?? 'EXP-' . $e->id,
-                'description' => ($e->vendor?->name ?? 'Direct Expense') . ($e->payment_method ? ' via ' . ucfirst($e->payment_method) : ''),
-                'amount' => Money::of($e->amount)->toFloat(),
-                'date' => $e->date ? $e->date->toDateString() : now()->toDateString(),
+        $recentExpenses = AccountExpense::forWorkspace($orgId, $wsId)
+            ->with('vendor')
+            ->latest('date')
+            ->limit(5)
+            ->get()
+            ->map(fn ($expense) => [
+                'id' => $expense->id,
+                'title' => $expense->reference ?? 'EXP-'.$expense->id,
+                'description' => ($expense->vendor?->name ?? 'Direct Expense')
+                    .($expense->payment_method ? ' via '.ucfirst($expense->payment_method) : ''),
+                'amount' => Money::of($expense->amount)->toFloat(),
+                'date' => $expense->date ? $expense->date->toDateString() : now()->toDateString(),
                 'status' => 'paid',
             ]);
 
-        // 9. Recent Journals
         $recentJournals = JournalEntry::where('organization_id', $orgId)
             ->where('workspace_id', $wsId)
             ->latest('entry_date')
             ->limit(5)
             ->get()
-            ->map(fn ($j) => [
-                'id' => $j->id,
-                'reference' => $j->reference ?? 'JRN-' . $j->id,
-                'description' => $j->description ?? 'Journal Entry',
-                'entry_date' => $j->entry_date,
-                'status' => $j->status,
+            ->map(fn ($journal) => [
+                'id' => $journal->id,
+                'reference' => $journal->reference ?? 'JRN-'.$journal->id,
+                'description' => $journal->description ?? 'Journal Entry',
+                'entry_date' => $journal->entry_date,
+                'status' => $journal->status,
             ]);
 
         return [
             'stats' => [
                 'total_clients' => $totalClients,
                 'total_vendors' => $totalVendors,
-                'total_revenue' => $revenue->toFloat(),
-                'total_expense' => $expense->toFloat(),
+
+                // WorkDo-equivalent direct Revenue / Expense entities.
+                'total_revenue' => $directRevenue->toFloat(),
+                'total_expense' => $directExpense->toFloat(),
+                'net_profit' => $directNetProfit->toFloat(),
+
+                // Explicit ledger-based accounting metrics.
+                'direct_revenue' => $directRevenue->toFloat(),
+                'direct_expense' => $directExpense->toFloat(),
+                'accounting_income' => $accountingIncome->toFloat(),
+                'accounting_expense' => $accountingExpense->toFloat(),
+                'net_accounting_income' => $netAccountingIncome->toFloat(),
+
                 'total_customer_payment' => $totalCustomerPayment->toFloat(),
                 'total_vendor_payment' => $totalVendorPayment->toFloat(),
-                'net_profit' => $netProfit->toFloat(),
                 'cash_bank_balance' => $cashBankBalance->toFloat(),
                 'receivables' => $receivables->toFloat(),
                 'payables' => $payables->toFloat(),
+            ],
+            'metricSemantics' => [
+                'total_revenue' => 'Sum of account_revenues direct revenue transactions.',
+                'total_expense' => 'Sum of account_expenses direct expense transactions.',
+                'accounting_income' => 'Net balance of ledger accounts classified as income.',
+                'accounting_expense' => 'Net balance of ledger accounts classified as expense.',
+                'customer_payments' => 'Recorded customer_payments grouped by payment_date.',
+                'vendor_payments' => 'Recorded vendor_payments grouped by payment_date.',
             ],
             'monthlyCustomerPayments' => $monthlyCustomerPayments,
             'monthlyVendorPayments' => $monthlyVendorPayments,
@@ -186,7 +212,7 @@ class AccountDashboardService
                 'assets' => Money::of($byClass['asset'] ?? 0)->toFloat(),
                 'liabilities' => Money::of($byClass['liability'] ?? 0)->toFloat(),
                 'equity' => Money::of($byClass['equity'] ?? 0)->toFloat(),
-                'net_income' => $netProfit->toFloat(),
+                'net_income' => $netAccountingIncome->toFloat(),
             ],
         ];
     }
