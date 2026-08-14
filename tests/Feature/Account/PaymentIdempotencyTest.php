@@ -31,8 +31,51 @@ class PaymentIdempotencyTest extends TestCase
 
         UserActiveModule::create(['workspace_id' => $ws->id, 'module_name' => 'account']);
 
-        $assetType = AccountType::create(['organization_id' => $org->id, 'workspace_id' => $ws->id, 'name' => 'Assets', 'classification' => 'asset', 'normal_balance' => 'debit']);
-        $bank = LedgerAccount::create(['organization_id' => $org->id, 'workspace_id' => $ws->id, 'account_type_id' => $assetType->id, 'code' => '1010', 'name' => 'Bank', 'currency' => 'USD', 'is_bank' => true, 'is_active' => true]);
+        $assetType = AccountType::create([
+            'organization_id' => $org->id,
+            'workspace_id' => $ws->id,
+            'name' => 'Assets',
+            'classification' => 'asset',
+            'normal_balance' => 'debit',
+        ]);
+        $liabilityType = AccountType::create([
+            'organization_id' => $org->id,
+            'workspace_id' => $ws->id,
+            'name' => 'Liabilities',
+            'classification' => 'liability',
+            'normal_balance' => 'credit',
+        ]);
+
+        $bank = LedgerAccount::create([
+            'organization_id' => $org->id,
+            'workspace_id' => $ws->id,
+            'account_type_id' => $assetType->id,
+            'code' => '1010',
+            'name' => 'Bank',
+            'currency' => 'USD',
+            'is_bank' => true,
+            'is_active' => true,
+        ]);
+        LedgerAccount::create([
+            'organization_id' => $org->id,
+            'workspace_id' => $ws->id,
+            'account_type_id' => $assetType->id,
+            'code' => '1200',
+            'name' => 'Accounts Receivable',
+            'currency' => 'USD',
+            'is_bank' => false,
+            'is_active' => true,
+        ]);
+        LedgerAccount::create([
+            'organization_id' => $org->id,
+            'workspace_id' => $ws->id,
+            'account_type_id' => $liabilityType->id,
+            'code' => '2000',
+            'name' => 'Accounts Payable',
+            'currency' => 'USD',
+            'is_bank' => false,
+            'is_active' => true,
+        ]);
 
         $customer = AccountCustomer::create(['organization_id' => $org->id, 'workspace_id' => $ws->id, 'name' => 'Cust', 'balance' => 1000]);
         $vendor = AccountVendor::create(['organization_id' => $org->id, 'workspace_id' => $ws->id, 'name' => 'Vend', 'balance' => 1000]);
