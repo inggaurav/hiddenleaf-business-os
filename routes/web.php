@@ -148,6 +148,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('bank-transfer/{payment}', [BankTransferPaymentController::class, 'destroy'])->name('bank-transfer.destroy');
 
     // Sales & Procurement Routes
+    // Accounting Module Routes
     Route::middleware('module.status:account')->prefix('accounting')->name('accounting.')->group(function () {
         Route::get('/', [AccountingController::class, 'dashboard'])->name('index');
         Route::get('dashboard', [AccountingController::class, 'dashboard'])->name('dashboard');
@@ -160,6 +161,38 @@ Route::middleware(['auth'])->group(function () {
         Route::get('reports', [AccountingController::class, 'reports'])->name('reports');
         Route::post('bank-transfers', [AccountingController::class, 'bankTransfer'])->name('bank-transfers.store');
         Route::post('bank-reconciliations', [AccountingController::class, 'reconcile'])->name('bank-reconciliations.store');
+
+        // Customers & Vendors
+        Route::get('customers', [AccountingController::class, 'customers'])->name('customers.index');
+        Route::post('customers', [AccountingController::class, 'storeCustomer'])->name('customers.store');
+        Route::put('customers/{customer}', [AccountingController::class, 'updateCustomer'])->name('customers.update');
+        Route::delete('customers/{customer}', [AccountingController::class, 'destroyCustomer'])->name('customers.destroy');
+
+        Route::get('vendors', [AccountingController::class, 'vendors'])->name('vendors.index');
+        Route::post('vendors', [AccountingController::class, 'storeVendor'])->name('vendors.store');
+        Route::put('vendors/{vendor}', [AccountingController::class, 'updateVendor'])->name('vendors.update');
+        Route::delete('vendors/{vendor}', [AccountingController::class, 'destroyVendor'])->name('vendors.destroy');
+
+        // Customer & Vendor Payments
+        Route::get('customer-payments', [AccountingController::class, 'customerPayments'])->name('customer-payments.index');
+        Route::post('customer-payments', [AccountingController::class, 'storeCustomerPayment'])->name('customer-payments.store');
+
+        Route::get('vendor-payments', [AccountingController::class, 'vendorPayments'])->name('vendor-payments.index');
+        Route::post('vendor-payments', [AccountingController::class, 'storeVendorPayment'])->name('vendor-payments.store');
+
+        // Revenues & Expenses
+        Route::get('revenues', [AccountingController::class, 'revenues'])->name('revenues.index');
+        Route::post('revenues', [AccountingController::class, 'storeRevenue'])->name('revenues.store');
+
+        Route::get('expenses', [AccountingController::class, 'expenses'])->name('expenses.index');
+        Route::post('expenses', [AccountingController::class, 'storeExpense'])->name('expenses.store');
+
+        // Credit & Debit Notes
+        Route::get('credit-notes', [AccountingController::class, 'creditNotes'])->name('credit-notes.index');
+        Route::post('credit-notes', [AccountingController::class, 'storeCreditNote'])->name('credit-notes.store');
+
+        Route::get('debit-notes', [AccountingController::class, 'debitNotes'])->name('debit-notes.index');
+        Route::post('debit-notes', [AccountingController::class, 'storeDebitNote'])->name('debit-notes.store');
     });
     Route::get('account/dashboard', [AccountingController::class, 'dashboard'])->middleware('module.status:account');
     Route::get('account', [AccountingController::class, 'dashboard'])->middleware('module.status:account');

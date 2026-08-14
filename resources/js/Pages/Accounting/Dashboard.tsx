@@ -241,6 +241,97 @@ export default function AccountingDashboard({
           </Card>
         </div>
 
+        {/* Accounting Workflows & Directories */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <Link
+            href="/accounting/customers"
+            className="p-3.5 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] hover:border-purple-500/40 hover:bg-white/[0.02] spring-transition space-y-1 block"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-[var(--text-primary)]">Customers</span>
+              <Users className="w-3.5 h-3.5 text-indigo-400" />
+            </div>
+            <p className="text-[11px] text-[var(--text-tertiary)]">Directory & receivables</p>
+          </Link>
+
+          <Link
+            href="/accounting/vendors"
+            className="p-3.5 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] hover:border-purple-500/40 hover:bg-white/[0.02] spring-transition space-y-1 block"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-[var(--text-primary)]">Vendors</span>
+              <Building2 className="w-3.5 h-3.5 text-sky-400" />
+            </div>
+            <p className="text-[11px] text-[var(--text-tertiary)]">Suppliers & payables</p>
+          </Link>
+
+          <Link
+            href="/accounting/customer-payments"
+            className="p-3.5 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] hover:border-purple-500/40 hover:bg-white/[0.02] spring-transition space-y-1 block"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-[var(--text-primary)]">Customer Payments</span>
+              <ArrowDownRight className="w-3.5 h-3.5 text-emerald-400" />
+            </div>
+            <p className="text-[11px] text-[var(--text-tertiary)]">Collections & receipts</p>
+          </Link>
+
+          <Link
+            href="/accounting/vendor-payments"
+            className="p-3.5 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] hover:border-purple-500/40 hover:bg-white/[0.02] spring-transition space-y-1 block"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-[var(--text-primary)]">Vendor Payments</span>
+              <ArrowUpRight className="w-3.5 h-3.5 text-amber-400" />
+            </div>
+            <p className="text-[11px] text-[var(--text-tertiary)]">Disbursements & bills</p>
+          </Link>
+
+          <Link
+            href="/accounting/revenues"
+            className="p-3.5 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] hover:border-purple-500/40 hover:bg-white/[0.02] spring-transition space-y-1 block"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-[var(--text-primary)]">Direct Revenues</span>
+              <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
+            </div>
+            <p className="text-[11px] text-[var(--text-tertiary)]">Non-invoice income</p>
+          </Link>
+
+          <Link
+            href="/accounting/expenses"
+            className="p-3.5 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] hover:border-purple-500/40 hover:bg-white/[0.02] spring-transition space-y-1 block"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-[var(--text-primary)]">Direct Expenses</span>
+              <TrendingDown className="w-3.5 h-3.5 text-rose-400" />
+            </div>
+            <p className="text-[11px] text-[var(--text-tertiary)]">Operating costs</p>
+          </Link>
+
+          <Link
+            href="/accounting/credit-notes"
+            className="p-3.5 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] hover:border-purple-500/40 hover:bg-white/[0.02] spring-transition space-y-1 block"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-[var(--text-primary)]">Credit Notes</span>
+              <FileText className="w-3.5 h-3.5 text-amber-400" />
+            </div>
+            <p className="text-[11px] text-[var(--text-tertiary)]">Customer adjustments</p>
+          </Link>
+
+          <Link
+            href="/accounting/debit-notes"
+            className="p-3.5 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] hover:border-purple-500/40 hover:bg-white/[0.02] spring-transition space-y-1 block"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-[var(--text-primary)]">Debit Notes</span>
+              <FileText className="w-3.5 h-3.5 text-rose-400" />
+            </div>
+            <p className="text-[11px] text-[var(--text-tertiary)]">Vendor debit claims</p>
+          </Link>
+        </div>
+
         {/* Financial Position Snapshot */}
         <Card level={0} className="space-y-4">
           <div className="flex items-center justify-between">

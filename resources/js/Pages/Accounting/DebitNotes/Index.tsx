@@ -1,0 +1,218 @@
+import React, { useState } from 'react';
+import { Head, router } from '@inertiajs/react';
+import AppShell from '@/Layouts/AppShell';
+import { Card } from '@/Components/UI/Card';
+import { Button } from '@/Components/UI/Button';
+import { Badge } from '@/Components/UI/Badge';
+import { Plus, Calendar } from 'lucide-react';
+
+interface DebitNote {
+  id: number;
+  amount: number;
+  date: string;
+  description: string | null;
+  status: string;
+  vendor?: { id: number; name: string };
+  purchase_invoice?: { id: number; invoice_id: string; total_amount: number };
+}
+
+interface Props {
+  debitNotes: {
+    data: DebitNote[];
+    total: number;
+  };
+  vendors: Array<{ id: number; name: string }>;
+  bills: Array<{ id: number; invoice_id: string; total_amount: number }>;
+}
+
+export default function DebitNotesIndex({ debitNotes, vendors, bills }: Props) {
+  const [showModal, setShowModal] = useState(false);
+  const [form, setForm] = useState({
+    vendor_id: '',
+    purchase_invoice_id: '',
+    amount: '',
+    date: new Date().toISOString().split('T')[0],
+    description: '',
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    router.post('/accounting/debit-notes', form, {
+      onSuccess: () => {
+        setShowModal(false);
+        setForm({
+          vendor_id: '',
+          purchase_invoice_id: '',
+          amount: '',
+          date: new Date().toISOString().split('T')[0],
+          description: '',
+        });
+      },
+    });
+  };
+
+  return (
+    <AppShell>
+      <Head title="Accounting — Debit Notes" />
+
+      <div className="space-y-6 max-w-7xl mx-auto pb-12">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">
+              Debit Notes
+            </h1>
+            <p className="text-xs text-[var(--text-secondary)] mt-1">
+              Issue debit claims to vendors and apply adjustments against purchase invoices and bills.
+            </p>
+          </div>
+
+          <Button
+            variant="primary"
+            icon={<Plus className="w-4 h-4" />}
+            onClick={() => setShowModal(true)}
+          >
+            Issue Debit Note
+          </Button>
+        </div>
+
+        <Card level={0} className="overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs text-[var(--text-secondary)]">
+              <thead className="bg-[var(--surface-2)] text-[var(--text-tertiary)] uppercase font-semibold border-b border-[var(--border-subtle)]">
+                <tr>
+                  <th className="px-5 py-3">Date</th>
+                  <th className="px-5 py-3">Vendor</th>
+                  <th className="px-5 py-3">Bill / Purchase Invoice</th>
+                  <th className="px-5 py-3">Reason / Description</th>
+                  <th className="px-5 py-3">Amount</th>
+                  <th className="px-5 py-3">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--border-subtle)]">
+                {debitNotes.data.length > 0 ? (
+                  debitNotes.data.map((dn) => (
+                    <tr key={dn.id} className="hover:bg-white/[0.02] spring-transition">
+                      <td className="px-5 py-3.5 font-medium text-[var(--text-primary)]">
+                        <div className="flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
+                          <span>{dn.date}</span>
+                        </div>
+                      </td>
+                      <td className="px-5 py-3.5 font-medium text-[var(--text-primary)]">
+                        {dn.vendor?.name ?? '—'}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        {dn.purchase_invoice?.invoice_id ? (
+                          <Badge variant="brand" size="sm">{dn.purchase_invoice.invoice_id}</Badge>
+                        ) : '—'}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        {dn.description ?? 'Debit claim'}
+                      </td>
+                      <td className="px-5 py-3.5 font-bold text-amber-400">
+                        ${Number(dn.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <Badge variant="success" size="sm">{dn.status}</Badge>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={6} className="px-5 py-8 text-center text-[var(--text-tertiary)]">
+                      No debit notes issued in this workspace.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
+          <div className="w-full max-w-lg bg-[var(--surface-1)] border border-[var(--border-subtle)] rounded-2xl p-6 shadow-2xl space-y-4">
+            <h2 className="text-base font-bold text-[var(--text-primary)]">Issue New Debit Note</h2>
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <div>
+                <label className="block text-[11px] font-semibold text-[var(--text-secondary)] mb-1">Vendor</label>
+                <select
+                  value={form.vendor_id}
+                  onChange={(e) => setForm({ ...form, vendor_id: e.target.value })}
+                  className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]"
+                >
+                  <option value="">Select Vendor (Optional)</option>
+                  {vendors.map((v) => (
+                    <option key={v.id} value={v.id}>{v.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold text-[var(--text-secondary)] mb-1">Apply to Purchase Bill</label>
+                <select
+                  value={form.purchase_invoice_id}
+                  onChange={(e) => setForm({ ...form, purchase_invoice_id: e.target.value })}
+                  className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]"
+                >
+                  <option value="">Select Bill (Optional)</option>
+                  {bills.map((bill) => (
+                    <option key={bill.id} value={bill.id}>{bill.invoice_id} (${bill.total_amount})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-semibold text-[var(--text-secondary)] mb-1">Amount ($) *</label>
+                  <input
+                    required
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    value={form.amount}
+                    onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                    className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-[var(--text-secondary)] mb-1">Date *</label>
+                  <input
+                    required
+                    type="date"
+                    value={form.date}
+                    onChange={(e) => setForm({ ...form, date: e.target.value })}
+                    className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold text-[var(--text-secondary)] mb-1">Reason / Description</label>
+                <textarea
+                  rows={2}
+                  value={form.description}
+                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  placeholder="e.g. Return debit claim or vendor discount"
+                  className="w-full px-3 py-2 text-xs bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)]"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <Button variant="ghost" size="sm" type="button" onClick={() => setShowModal(false)}>
+                  Cancel
+                </Button>
+                <Button variant="primary" size="sm" type="submit">
+                  Issue Debit Note
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </AppShell>
+  );
+}
