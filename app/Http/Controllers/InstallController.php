@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Domain\Installation\DatabaseConfigurator;
 use App\Domain\Installation\InstallationService;
 use App\Services\ModuleManager;
+use HiddenLeaf\Domain\Licensing\Services\LicenseManager;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -38,7 +39,46 @@ class InstallController extends Controller
             'requirements' => $requirements,
             'isInstalled' => false,
             'modules' => collect($modules->getAllModules())->map(fn ($module) => ['alias' => $module->getAlias(), 'name' => $module->getName()])->values(),
+            'businessOsVersion' => config('modules.core_version'),
+            'environment' => app()->environment(),
+            'phpVersion' => PHP_VERSION,
+            'laravelVersion' => app()->version(),
         ]);
+    }
+
+    public function validateLicense(Request $request, LicenseManager $licenses): JsonResponse
+    {
+        $this->abortWhenInstalled();
+        $validated = $request->validate([
+            'license_token' => ['required', 'string', 'max:65536'],
+            'license_domain' => ['required', 'string', 'max:253', 'regex:/^(localhost|(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}|\d{1,3}(?:\.\d{1,3}){3})$/i'],
+        ]);
+
+        $result = $licenses->verifySignedToken($validated['license_token'], $validated['license_domain']);
+        $status = (string) ($result['status'] ?? ($result['valid'] ? 'valid' : 'invalid'));
+
+        if ($result['valid']) {
+            return response()->json([
+                'valid' => true,
+                'status' => 'valid',
+                'message' => ! empty($result['grace_period'])
+                    ? 'License validated within its configured grace period.'
+                    : 'License validated.',
+            ]);
+        }
+
+        $message = match ($status) {
+            'expired' => 'The license has expired.',
+            'revoked' => 'The license has been revoked.',
+            'suspended' => 'The license has been suspended.',
+            'domain_mismatch' => 'The license is not valid for this domain.',
+            'not_active' => 'The license is not active.',
+            'configuration_error' => 'License validation is unavailable.',
+            'invalid_signature' => 'The license signature is invalid.',
+            default => 'The license token is invalid.',
+        };
+
+        return response()->json(['valid' => false, 'status' => $status, 'message' => $message], 422);
     }
 
     public function testDatabase(Request $request, DatabaseConfigurator $database): JsonResponse

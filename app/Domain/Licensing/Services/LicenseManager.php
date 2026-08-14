@@ -90,12 +90,12 @@ class LicenseManager
     public function verifySignedToken(string $token, ?string $domain = null): array
     {
         if (! $this->publicKey) {
-            return ['valid' => false, 'error' => 'LICENSING_PUBLIC_KEY is not configured.'];
+            return ['valid' => false, 'status' => 'configuration_error', 'error' => 'LICENSING_PUBLIC_KEY is not configured.'];
         }
 
         $parts = explode('.', $token);
         if (count($parts) !== 3) {
-            return ['valid' => false, 'error' => 'Invalid token structure'];
+            return ['valid' => false, 'status' => 'invalid', 'error' => 'Invalid token structure'];
         }
 
         [$encodedHeader, $encodedPayload, $encodedSignature] = $parts;
@@ -104,29 +104,35 @@ class LicenseManager
         $signature = $this->base64UrlDecode($encodedSignature);
 
         if (! is_array($header) || ($header['alg'] ?? null) !== 'RS256' || ! is_array($payload) || $signature === '') {
-            return ['valid' => false, 'error' => 'Invalid token payload or algorithm'];
+            return ['valid' => false, 'status' => 'invalid', 'error' => 'Invalid token payload or algorithm'];
         }
 
         $verificationKey = @openssl_pkey_get_public($this->publicKey);
         if (! $verificationKey) {
-            return ['valid' => false, 'error' => 'Invalid signature'];
+            return ['valid' => false, 'status' => 'invalid_signature', 'error' => 'Invalid signature'];
         }
 
         $verification = openssl_verify($encodedHeader.'.'.$encodedPayload, $signature, $verificationKey, OPENSSL_ALGO_SHA256);
         if ($verification !== 1) {
-            return ['valid' => false, 'error' => 'Invalid signature'];
+            return ['valid' => false, 'status' => 'invalid_signature', 'error' => 'Invalid signature'];
         }
 
         if (isset($payload['nbf']) && time() < (int) $payload['nbf']) {
-            return ['valid' => false, 'error' => 'License token is not active yet'];
+            return ['valid' => false, 'status' => 'not_active', 'error' => 'License token is not active yet'];
         }
 
         if ($domain && isset($payload['domain']) && ! $this->domainMatches((string) $payload['domain'], $domain)) {
-            return ['valid' => false, 'error' => "Domain mismatch: license is bound to {$payload['domain']}."];
+            return ['valid' => false, 'status' => 'domain_mismatch', 'error' => "Domain mismatch: license is bound to {$payload['domain']}."];
         }
 
-        if (($payload['license_status'] ?? 'active') !== 'active' || ($payload['activation_status'] ?? 'active') !== 'active') {
-            return ['valid' => false, 'error' => 'License or activation is not active'];
+        $licenseStatus = strtolower((string) ($payload['license_status'] ?? 'active'));
+        $activationStatus = strtolower((string) ($payload['activation_status'] ?? 'active'));
+        if ($licenseStatus !== 'active' || $activationStatus !== 'active') {
+            $status = in_array($licenseStatus, ['revoked', 'suspended', 'expired'], true)
+                ? $licenseStatus
+                : (in_array($activationStatus, ['revoked', 'suspended', 'expired'], true) ? $activationStatus : 'not_active');
+
+            return ['valid' => false, 'status' => $status, 'error' => 'License or activation is not active'];
         }
 
         if (isset($payload['exp']) && time() > (int) $payload['exp']) {
@@ -135,10 +141,10 @@ class LicenseManager
                 return ['valid' => true, 'grace_period' => true, 'payload' => $payload];
             }
 
-            return ['valid' => false, 'error' => 'License expired'];
+            return ['valid' => false, 'status' => 'expired', 'error' => 'License expired'];
         }
 
-        return ['valid' => true, 'grace_period' => false, 'payload' => $payload];
+        return ['valid' => true, 'status' => 'valid', 'grace_period' => false, 'payload' => $payload];
     }
 
     private function normalizeKey(?string $key): ?string

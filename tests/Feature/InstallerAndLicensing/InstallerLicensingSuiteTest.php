@@ -9,6 +9,7 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\Support\LicenseTestKeys;
 use Tests\TestCase;
 
@@ -45,7 +46,81 @@ class InstallerLicensingSuiteTest extends TestCase
     public function test_installer_requirements_view(): void
     {
         $response = $this->get('/install');
-        $response->assertStatus(200);
+        $response->assertOk()->assertInertia(fn (Assert $page) => $page
+            ->component('Install/Index', false)
+            ->where('businessOsVersion', config('modules.core_version'))
+            ->where('environment', app()->environment())
+            ->where('phpVersion', PHP_VERSION)
+            ->where('laravelVersion', app()->version()));
+    }
+
+    public function test_license_can_be_prevalidated_without_installing(): void
+    {
+        $token = app(LicenseManager::class)->createSignedToken([
+            'domain' => 'app.hiddenleaf.test',
+            'exp' => time() + 86400,
+        ]);
+
+        $this->postJson('/install/license/validate', [
+            'license_token' => $token,
+            'license_domain' => 'app.hiddenleaf.test',
+        ])->assertOk()->assertExactJson([
+            'valid' => true,
+            'status' => 'valid',
+            'message' => 'License validated.',
+        ]);
+
+        $this->assertFalse(File::exists(storage_path('installed')));
+    }
+
+    public function test_license_prevalidation_returns_safe_failure_states(): void
+    {
+        $manager = app(LicenseManager::class);
+        $domainToken = $manager->createSignedToken(['domain' => 'licensed.hiddenleaf.test', 'exp' => time() + 86400]);
+        $expiredToken = $manager->createSignedToken(['domain' => 'app.hiddenleaf.test', 'exp' => time() - (15 * 86400)]);
+        $revokedToken = $manager->createSignedToken(['domain' => 'app.hiddenleaf.test', 'license_status' => 'revoked', 'exp' => time() + 86400]);
+        $parts = explode('.', $domainToken);
+        $parts[2][0] = $parts[2][0] === 'A' ? 'B' : 'A';
+
+        foreach ([
+            [implode('.', $parts), 'licensed.hiddenleaf.test', 'invalid_signature'],
+            [$expiredToken, 'app.hiddenleaf.test', 'expired'],
+            [$domainToken, 'other.hiddenleaf.test', 'domain_mismatch'],
+            [$revokedToken, 'app.hiddenleaf.test', 'revoked'],
+        ] as [$token, $domain, $status]) {
+            $response = $this->postJson('/install/license/validate', [
+                'license_token' => $token,
+                'license_domain' => $domain,
+            ])->assertUnprocessable()->assertJson(['valid' => false, 'status' => $status]);
+
+            $this->assertStringNotContainsString('PRIVATE KEY', $response->getContent());
+            $this->assertStringNotContainsString('stack', strtolower($response->getContent()));
+        }
+    }
+
+    public function test_license_prevalidation_is_unavailable_after_installation(): void
+    {
+        File::put(storage_path('installed'), '{}');
+
+        $this->postJson('/install/license/validate', [
+            'license_token' => 'not-used',
+            'license_domain' => 'app.hiddenleaf.test',
+        ])->assertNotFound();
+    }
+
+    public function test_license_prevalidation_is_rate_limited(): void
+    {
+        for ($attempt = 1; $attempt <= 10; $attempt++) {
+            $this->postJson('/install/license/validate', [
+                'license_token' => 'invalid-token',
+                'license_domain' => 'app.hiddenleaf.test',
+            ])->assertUnprocessable();
+        }
+
+        $this->postJson('/install/license/validate', [
+            'license_token' => 'invalid-token',
+            'license_domain' => 'app.hiddenleaf.test',
+        ])->assertTooManyRequests();
     }
 
     public function test_real_multi_step_installation_lifecycle(): void

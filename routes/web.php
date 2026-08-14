@@ -58,6 +58,9 @@ Route::get('/', function () {
 Route::get('/install', [InstallController::class, 'index'])->name('install.index');
 Route::post('/install', [InstallController::class, 'setup'])->name('install.setup');
 Route::post('/install/test-db', [InstallController::class, 'testDatabase'])->name('install.test-db');
+Route::post('/install/license/validate', [InstallController::class, 'validateLicense'])
+    ->middleware('throttle:10,1')
+    ->name('install.license.validate');
 Route::get('/site/{slug}', [LandingPageController::class, 'publicSite'])->name('landing.public');
 Route::get('/site/{slug}/{page}', [LandingPageController::class, 'publicPage'])->name('landing.page');
 

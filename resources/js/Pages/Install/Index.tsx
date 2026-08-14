@@ -48,12 +48,14 @@ interface InstallerProps {
   steps?: string[];
   requirements?: InstallerRequirements;
   modules?: InstallerModule[];
-  appVersion?: string;
+  businessOsVersion?: string;
   environment?: string;
+  phpVersion?: string;
+  laravelVersion?: string;
 }
 
 type DatabaseState = 'idle' | 'testing' | 'success' | 'error';
-type LicenseState = 'idle' | 'ready' | 'invalid';
+type LicenseState = 'idle' | 'validating' | 'ready' | 'invalid';
 
 const defaultSteps: InstallerStep[] = [
   { label: 'Welcome', shortLabel: 'Welcome' },
@@ -135,12 +137,13 @@ function ErrorBanner({ message, onRetry }: { message: string; onRetry?: () => vo
   );
 }
 
-export default function InstallIndex({ steps, requirements = {}, modules = [], appVersion, environment }: InstallerProps) {
+export default function InstallIndex({ steps, requirements = {}, modules = [], businessOsVersion, environment, phpVersion, laravelVersion }: InstallerProps) {
   const normalizedSteps = (steps?.length === 9 ? steps : defaultSteps.map((step) => step.label)).map((label, index) => ({ label, shortLabel: defaultSteps[index]?.shortLabel ?? label }));
   const [currentStep, setCurrentStep] = useState(0);
   const [databaseState, setDatabaseState] = useState<DatabaseState>('idle');
   const [databaseMessage, setDatabaseMessage] = useState('');
   const [licenseState, setLicenseState] = useState<LicenseState>('idle');
+  const [licenseMessage, setLicenseMessage] = useState('');
   const [showDatabasePassword, setShowDatabasePassword] = useState(false);
   const [showAdminPassword, setShowAdminPassword] = useState(false);
   const [installing, setInstalling] = useState(false);
@@ -223,14 +226,39 @@ export default function InstallIndex({ steps, requirements = {}, modules = [], a
     }
   };
 
-  const validateLicenseInput = () => {
+  const validateLicenseInput = async () => {
     clearErrors('license_token', 'license_domain');
     const domainValid = /^(localhost|(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}|\d{1,3}(?:\.\d{1,3}){3})$/i.test(data.license_domain.trim());
     if (!data.license_token.trim() || !domainValid) {
       setLicenseState('invalid');
+      setLicenseMessage('Enter a signed token and a valid licensed domain.');
       return;
     }
-    setLicenseState('ready');
+
+    setLicenseState('validating');
+    setLicenseMessage('Validating the signed entitlement...');
+    try {
+      const response = await fetch('/install/license/validate', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': csrfToken(),
+        },
+        body: JSON.stringify({
+          license_token: data.license_token,
+          license_domain: data.license_domain,
+        }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok || !payload.valid) throw new Error(payload.message || 'License validation failed.');
+      setLicenseState('ready');
+      setLicenseMessage(payload.message || 'License validated.');
+    } catch (error) {
+      setLicenseState('invalid');
+      setLicenseMessage(error instanceof Error ? error.message : 'License validation failed.');
+    }
   };
 
   const toggleModule = (alias: string) => {
@@ -279,8 +307,9 @@ export default function InstallIndex({ steps, requirements = {}, modules = [], a
                 </div>
               </div>
               <dl className="grid gap-3">
-                <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-4"><dt className="text-xs text-slate-500">BusinessOS version</dt><dd className="mt-1 text-sm font-medium text-slate-200">{appVersion ?? 'Managed by server release'}</dd></div>
-                <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-4"><dt className="text-xs text-slate-500">PHP detected</dt><dd className="mt-1 text-sm font-medium text-slate-200">{requirements.php_version ?? 'Not reported'}</dd></div>
+                <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-4"><dt className="text-xs text-slate-500">BusinessOS version</dt><dd className="mt-1 text-sm font-medium text-slate-200">{businessOsVersion}</dd></div>
+                <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-4"><dt className="text-xs text-slate-500">PHP detected</dt><dd className="mt-1 text-sm font-medium text-slate-200">{phpVersion}</dd></div>
+                <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-4"><dt className="text-xs text-slate-500">Laravel version</dt><dd className="mt-1 text-sm font-medium text-slate-200">{laravelVersion}</dd></div>
                 <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-4"><dt className="text-xs text-slate-500">Environment</dt><dd className="mt-1 text-sm font-medium text-slate-200">{environment ?? 'Installer mode'}</dd></div>
               </dl>
             </div>
@@ -373,11 +402,11 @@ export default function InstallIndex({ steps, requirements = {}, modules = [], a
             <div className="space-y-5">
               <div>
                 <label htmlFor="license-token" className="mb-1.5 block text-xs font-medium tracking-wide text-slate-300">License / entitlement token</label>
-                <textarea id="license-token" rows={5} className={`${fieldClass} resize-y font-mono text-xs leading-5`} value={data.license_token} onChange={(event) => { setData('license_token', event.target.value); setLicenseState('idle'); }} aria-describedby="license-token-help" aria-invalid={Boolean(errors.license_token)} autoComplete="off" spellCheck={false} required />
+                <textarea id="license-token" rows={5} className={`${fieldClass} resize-y font-mono text-xs leading-5`} value={data.license_token} onChange={(event) => { setData('license_token', event.target.value); setLicenseState('idle'); setLicenseMessage(''); }} aria-describedby="license-token-help" aria-invalid={Boolean(errors.license_token)} autoComplete="off" spellCheck={false} required />
                 <p id="license-token-help" className="mt-1.5 text-xs text-slate-500">The token is submitted only to the local installer and is never included in summaries or error details.</p>
                 {errors.license_token && <p className="mt-1 text-xs text-rose-400">{errors.license_token}</p>}
               </div>
-              <Input label="Licensed Domain" value={data.license_domain} onChange={(event) => { setData('license_domain', event.target.value); setLicenseState('idle'); }} error={errors.license_domain} placeholder="business.example.com" autoComplete="url" required />
+              <Input label="Licensed Domain" value={data.license_domain} onChange={(event) => { setData('license_domain', event.target.value); setLicenseState('idle'); setLicenseMessage(''); }} error={errors.license_domain} placeholder="business.example.com" autoComplete="url" required />
             </div>
 
             <div className="mt-6 rounded-xl border border-white/[0.08] bg-white/[0.025] p-4">
@@ -385,12 +414,12 @@ export default function InstallIndex({ steps, requirements = {}, modules = [], a
                 <div aria-live="polite">
                   <p className="text-sm font-medium text-slate-200">Entitlement status</p>
                   <p className={`mt-1 text-xs ${licenseState === 'ready' ? 'text-emerald-300' : licenseState === 'invalid' ? 'text-rose-300' : 'text-slate-500'}`}>
-                    {licenseState === 'ready' ? 'Ready for signed verification during installation.' : licenseState === 'invalid' ? 'Enter a token and a valid licensed domain.' : 'Not checked yet.'}
+                    {licenseMessage || 'Not checked yet.'}
                   </p>
                 </div>
-                <Button type="button" variant="secondary" onClick={validateLicenseInput} icon={<ShieldCheck className="h-4 w-4" />}>Prepare License</Button>
+                <Button type="button" variant="secondary" loading={licenseState === 'validating'} onClick={validateLicenseInput} icon={<ShieldCheck className="h-4 w-4" />}>Validate License</Button>
               </div>
-              <p className="mt-3 border-t border-white/[0.07] pt-3 text-xs leading-5 text-slate-500">Cryptographic states such as expired, revoked, suspended, or domain mismatch are returned by the secure installer during final verification. No signing keys or token internals are exposed here.</p>
+              <p className="mt-3 border-t border-white/[0.07] pt-3 text-xs leading-5 text-slate-500">Validation checks the signature, activation state, expiry, and licensed domain without installing the application. No signing keys or token internals are exposed.</p>
             </div>
           </StepBody>
           <StepFooter back={() => setCurrentStep(4)} next={() => setCurrentStep(6)} nextDisabled={!licenseReady} />
