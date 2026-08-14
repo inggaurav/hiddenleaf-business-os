@@ -97,7 +97,7 @@ class StockMovementService
             }
 
             if ($newQty->isNegative() && $direction === -1) {
-                throw new InvalidArgumentException("Insufficient stock in warehouse {$warehouse->name} for {$product->name}. Requested {$quantity}, available {$currentQty}.");
+                throw new \RuntimeException("Insufficient stock in warehouse {$warehouse->name} for {$product->name}. Requested {$quantity}, available {$currentQty}.");
             }
 
             $stock->update(['quantity' => $newQty->toString()]);
