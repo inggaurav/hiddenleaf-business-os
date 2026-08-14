@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use RuntimeException;
 
 class StockMovement extends Model
 {
@@ -25,6 +26,7 @@ class StockMovement extends Model
         'total_cost',
         'reference_type',
         'reference_id',
+        'reference_line_id',
         'source_warehouse_id',
         'destination_warehouse_id',
         'reason',
@@ -32,14 +34,24 @@ class StockMovement extends Model
         'created_by',
     ];
 
+    protected static function booted(): void
+    {
+        static::updating(function () {
+            throw new RuntimeException('Stock movements are immutable. Record a compensating movement instead.');
+        });
+        static::deleting(function () {
+            throw new RuntimeException('Stock movements are immutable and cannot be deleted.');
+        });
+    }
+
     protected function casts(): array
     {
         return [
-            'quantity' => 'decimal:2',
+            'quantity' => 'decimal:4',
             'direction' => 'integer',
-            'balance_after' => 'decimal:2',
+            'balance_after' => 'decimal:4',
             'unit_cost' => 'decimal:4',
-            'total_cost' => 'decimal:2',
+            'total_cost' => 'decimal:4',
         ];
     }
 
