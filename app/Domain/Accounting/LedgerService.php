@@ -2,6 +2,8 @@
 
 namespace App\Domain\Accounting;
 
+use App\Models\AccountCreditNote;
+use App\Models\AccountDebitNote;
 use App\Models\JournalEntry;
 use App\Models\LedgerAccount;
 use App\Models\User;
@@ -28,14 +30,21 @@ class LedgerService
             Workspace::whereKey($workspaceId)->lockForUpdate()->firstOrFail();
             $number = 'JE-'.now()->format('Ymd').'-'.str_pad((string) (JournalEntry::where('workspace_id', $workspaceId)->count() + 1), 5, '0', STR_PAD_LEFT);
             $entry = JournalEntry::create([
-                'organization_id' => $organizationId, 'workspace_id' => $workspaceId, 'entry_number' => $number,
-                'entry_date' => $data['entry_date'], 'reference' => $data['reference'] ?? null,
-                'description' => $data['description'] ?? null, 'status' => 'draft', 'created_by' => $actor->id,
+                'organization_id' => $organizationId,
+                'workspace_id' => $workspaceId,
+                'entry_number' => $number,
+                'entry_date' => $data['entry_date'],
+                'reference' => $data['reference'] ?? null,
+                'description' => $data['description'] ?? null,
+                'status' => 'draft',
+                'created_by' => $actor->id,
             ]);
             foreach ($data['lines'] as $line) {
                 $entry->lines()->create([
-                    'ledger_account_id' => $line['account_id'], 'description' => $line['description'] ?? null,
-                    'debit' => $line['debit'] ?? 0, 'credit' => $line['credit'] ?? 0,
+                    'ledger_account_id' => $line['account_id'],
+                    'description' => $line['description'] ?? null,
+                    'debit' => $line['debit'] ?? 0,
+                    'credit' => $line['credit'] ?? 0,
                 ]);
             }
 
@@ -52,17 +61,23 @@ class LedgerService
             }
             $this->assertBalanced($locked->lines()->get()->map(fn ($line) => ['debit' => $line->debit, 'credit' => $line->credit])->all());
             $locked->update(['status' => 'posted', 'posted_at' => now(), 'posted_by' => $actor->id]);
+
+            // Legacy direct note creation posts the journal after the note row is
+            // created. Persist that relationship centrally so note history always
+            // links back to its immutable ledger evidence.
+            if (preg_match('/^CN-(\d+)$/', (string) $locked->reference, $match)) {
+                AccountCreditNote::whereKey((int) $match[1])->whereNull('journal_entry_id')->update(['journal_entry_id' => $locked->id]);
+            }
+            if (preg_match('/^DN-(\d+)$/', (string) $locked->reference, $match)) {
+                AccountDebitNote::whereKey((int) $match[1])->whereNull('journal_entry_id')->update(['journal_entry_id' => $locked->id]);
+            }
+
             $this->audit->log($actor->id, $locked->organization_id, $locked->workspace_id, 'journal.posted', 'journal_entry', (string) $locked->id, ['entry_number' => $locked->entry_number], critical: true);
 
             return $locked->refresh();
         });
     }
 
-    /**
-     * Post an immutable reversing journal for a previously posted entry.
-     * The original entry remains posted for audit history; the new entry swaps
-     * every debit/credit so net ledger effect becomes zero.
-     */
     public function reverse(JournalEntry $entry, User $actor, ?string $reference = null, ?string $description = null): JournalEntry
     {
         return DB::transaction(function () use ($entry, $actor, $reference, $description) {
@@ -84,16 +99,7 @@ class LedgerService
             ], $actor);
 
             $this->post($reversal, $actor);
-            $this->audit->log(
-                $actor->id,
-                $locked->organization_id,
-                $locked->workspace_id,
-                'journal.reversed',
-                'journal_entry',
-                (string) $locked->id,
-                ['original' => $locked->entry_number, 'reversal' => $reversal->entry_number],
-                critical: true
-            );
+            $this->audit->log($actor->id, $locked->organization_id, $locked->workspace_id, 'journal.reversed', 'journal_entry', (string) $locked->id, ['original' => $locked->entry_number, 'reversal' => $reversal->entry_number], critical: true);
 
             return $reversal->refresh();
         });
@@ -108,9 +114,7 @@ class LedgerService
             ->orderBy('code')->get()->map(function ($account) {
                 $debit = Money::of($account->debit_total ?? 0);
                 $credit = Money::of($account->credit_total ?? 0);
-                $balance = $account->type->normal_balance === 'credit'
-                    ? $credit->subtract($debit)
-                    : $debit->subtract($credit);
+                $balance = $account->type->normal_balance === 'credit' ? $credit->subtract($debit) : $debit->subtract($credit);
                 $account->balance = $balance->toStorageString();
 
                 return $account;
