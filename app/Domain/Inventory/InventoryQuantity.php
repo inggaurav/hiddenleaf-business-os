@@ -3,69 +3,109 @@
 namespace App\Domain\Inventory;
 
 use InvalidArgumentException;
+use Stringable;
 
-class InventoryQuantity
+/**
+ * Immutable fixed-scale inventory quantity.
+ *
+ * Inventory quantities are authoritative decimal values and must never pass
+ * through PHP floating point arithmetic. Four decimal places supports common
+ * fractional units while keeping all stock services deterministic.
+ */
+final class InventoryQuantity implements Stringable
 {
+    public const SCALE = 4;
+
     private string $value;
 
     private function __construct(string $value)
     {
-        $this->value = static::normalize($value);
+        $this->value = self::normalize($value);
     }
 
-    public static function of(string|int|float $value): self
+    public static function of(self|string|int $value): self
     {
-        return new self((string) $value);
+        return $value instanceof self ? $value : new self((string) $value);
+    }
+
+    public static function zero(): self
+    {
+        return new self('0');
     }
 
     public static function normalize(string $value): string
     {
-        return bcadd($value, '0', 4);
+        if (! is_numeric($value)) {
+            throw new InvalidArgumentException("Invalid inventory quantity: {$value}");
+        }
+
+        return bcadd($value, '0', self::SCALE);
     }
 
-    public function add(self $other): self
+    public function add(self|string|int $other): self
     {
-        return new self(bcadd($this->value, $other->value, 4));
+        $other = self::of($other);
+
+        return new self(bcadd($this->value, $other->value, self::SCALE));
     }
 
-    public function subtract(self $other): self
+    public function subtract(self|string|int $other): self
     {
-        return new self(bcsub($this->value, $other->value, 4));
+        $other = self::of($other);
+
+        return new self(bcsub($this->value, $other->value, self::SCALE));
     }
 
-    public function compare(self $other): int
+    public function negate(): self
     {
-        return bccomp($this->value, $other->value, 4);
+        return new self(bcmul($this->value, '-1', self::SCALE));
     }
 
-    public function greaterThan(self $other): bool
+    public function compare(self|string|int $other): int
     {
-        return $this->compare($other) === 1;
-    }
-    
-    public function isLessThan(self $other): bool
-    {
-        return $this->compare($other) === -1;
+        $other = self::of($other);
+
+        return bccomp($this->value, $other->value, self::SCALE);
     }
 
-    public function isLessThanOrEqual(self $other): bool
+    public function greaterThan(self|string|int $other): bool
+    {
+        return $this->compare($other) > 0;
+    }
+
+    public function isLessThan(self|string|int $other): bool
+    {
+        return $this->compare($other) < 0;
+    }
+
+    public function isLessThanOrEqual(self|string|int $other): bool
     {
         return $this->compare($other) <= 0;
     }
 
     public function isZero(): bool
     {
-        return $this->compare(self::of(0)) === 0;
+        return $this->compare(self::zero()) === 0;
     }
 
     public function isNegative(): bool
     {
-        return $this->compare(self::of(0)) === -1;
+        return $this->compare(self::zero()) < 0;
+    }
+
+    public function isPositive(): bool
+    {
+        return $this->compare(self::zero()) > 0;
     }
 
     public function absolute(): self
     {
-        return $this->isNegative() ? new self(bcsub('0', $this->value, 4)) : new self($this->value);
+        return $this->isNegative() ? $this->negate() : new self($this->value);
+    }
+
+    public function toStorageString(): string
+    {
+        return $this->value;
     }
 
     public function toString(): string
