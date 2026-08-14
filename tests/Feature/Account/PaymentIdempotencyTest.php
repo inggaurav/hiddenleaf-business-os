@@ -57,24 +57,25 @@ class PaymentIdempotencyTest extends TestCase
             'idempotency_key' => 'idemp-cust-same',
         ];
 
-        // First request
         $this->actingAs($env['user'])
             ->withSession(['active_organization_id' => $env['org']->id, 'active_workspace_id' => $env['ws']->id])
-            ->postJson('/accounting/customer-payments', $payload)
+            ->post('/accounting/customer-payments', $payload)
             ->assertRedirect();
 
-        // Exact retry with same payload returns idempotent redirect success
         $this->actingAs($env['user'])
             ->withSession(['active_organization_id' => $env['org']->id, 'active_workspace_id' => $env['ws']->id])
-            ->postJson('/accounting/customer-payments', $payload)
+            ->post('/accounting/customer-payments', $payload)
             ->assertRedirect();
+
+        $this->assertDatabaseCount('customer_payments', 1);
+        $this->assertDatabaseCount('journal_entries', 1);
     }
 
-    public function test_same_idempotency_key_with_different_payload_returns_409(): void
+    public function test_same_idempotency_key_with_different_amount_returns_409(): void
     {
         $env = $this->setupEnv();
 
-        $payload1 = [
+        $payload = [
             'customer_id' => $env['customer']->id,
             'invoice_id' => $env['sale']->id,
             'account_id' => $env['bank']->id,
@@ -84,34 +85,56 @@ class PaymentIdempotencyTest extends TestCase
             'idempotency_key' => 'idemp-cust-diff',
         ];
 
-        $payload2 = [
-            'customer_id' => $env['customer']->id,
-            'invoice_id' => $env['sale']->id,
-            'account_id' => $env['bank']->id,
-            'amount' => 200, // Different amount
-            'payment_date' => now()->toDateString(),
-            'payment_method' => 'bank_transfer',
-            'idempotency_key' => 'idemp-cust-diff',
-        ];
-
-        // First request
         $this->actingAs($env['user'])
             ->withSession(['active_organization_id' => $env['org']->id, 'active_workspace_id' => $env['ws']->id])
-            ->postJson('/accounting/customer-payments', $payload1)
+            ->post('/accounting/customer-payments', $payload)
             ->assertRedirect();
 
-        // Conflicting request with altered payload returns 409
+        $payload['amount'] = 200;
         $this->actingAs($env['user'])
             ->withSession(['active_organization_id' => $env['org']->id, 'active_workspace_id' => $env['ws']->id])
-            ->postJson('/accounting/customer-payments', $payload2)
+            ->post('/accounting/customer-payments', $payload)
             ->assertStatus(409);
     }
 
-    public function test_vendor_payment_idempotency_behavior(): void
+    public function test_same_key_same_amount_but_different_customer_payload_returns_409(): void
+    {
+        $env = $this->setupEnv();
+        $otherCustomer = AccountCustomer::create([
+            'organization_id' => $env['org']->id,
+            'workspace_id' => $env['ws']->id,
+            'name' => 'Other Customer',
+            'balance' => 0,
+        ]);
+
+        $payload = [
+            'customer_id' => $env['customer']->id,
+            'account_id' => $env['bank']->id,
+            'amount' => 100,
+            'payment_date' => now()->toDateString(),
+            'payment_method' => 'cash',
+            'idempotency_key' => 'same-amount-different-customer',
+        ];
+
+        $this->actingAs($env['user'])
+            ->withSession(['active_organization_id' => $env['org']->id, 'active_workspace_id' => $env['ws']->id])
+            ->post('/accounting/customer-payments', $payload)
+            ->assertRedirect();
+
+        $payload['customer_id'] = $otherCustomer->id;
+        $this->actingAs($env['user'])
+            ->withSession(['active_organization_id' => $env['org']->id, 'active_workspace_id' => $env['ws']->id])
+            ->post('/accounting/customer-payments', $payload)
+            ->assertStatus(409);
+
+        $this->assertDatabaseCount('customer_payments', 1);
+    }
+
+    public function test_vendor_payment_idempotency_requires_exact_fingerprint(): void
     {
         $env = $this->setupEnv();
 
-        $payload1 = [
+        $payload = [
             'vendor_id' => $env['vendor']->id,
             'purchase_invoice_id' => $env['purchase']->id,
             'account_id' => $env['bank']->id,
@@ -121,36 +144,26 @@ class PaymentIdempotencyTest extends TestCase
             'idempotency_key' => 'idemp-vend-test',
         ];
 
-        $payload2 = [
-            'vendor_id' => $env['vendor']->id,
-            'purchase_invoice_id' => $env['purchase']->id,
-            'account_id' => $env['bank']->id,
-            'amount' => 300, // Different amount
-            'payment_date' => now()->toDateString(),
-            'payment_method' => 'cash',
-            'idempotency_key' => 'idemp-vend-test',
-        ];
-
-        // First request
         $this->actingAs($env['user'])
             ->withSession(['active_organization_id' => $env['org']->id, 'active_workspace_id' => $env['ws']->id])
-            ->postJson('/accounting/vendor-payments', $payload1)
+            ->post('/accounting/vendor-payments', $payload)
             ->assertRedirect();
 
-        // Exact retry -> success
         $this->actingAs($env['user'])
             ->withSession(['active_organization_id' => $env['org']->id, 'active_workspace_id' => $env['ws']->id])
-            ->postJson('/accounting/vendor-payments', $payload1)
+            ->post('/accounting/vendor-payments', $payload)
             ->assertRedirect();
 
-        // Mismatched payload -> 409
+        $payload['payment_method'] = 'bank_transfer';
         $this->actingAs($env['user'])
             ->withSession(['active_organization_id' => $env['org']->id, 'active_workspace_id' => $env['ws']->id])
-            ->postJson('/accounting/vendor-payments', $payload2)
+            ->post('/accounting/vendor-payments', $payload)
             ->assertStatus(409);
+
+        $this->assertDatabaseCount('vendor_payments', 1);
     }
 
-    public function test_null_idempotency_key_allows_multiple_payments(): void
+    public function test_json_financial_submission_without_idempotency_key_is_rejected(): void
     {
         $env = $this->setupEnv();
 
@@ -166,11 +179,8 @@ class PaymentIdempotencyTest extends TestCase
         $this->actingAs($env['user'])
             ->withSession(['active_organization_id' => $env['org']->id, 'active_workspace_id' => $env['ws']->id])
             ->postJson('/accounting/customer-payments', $payload)
-            ->assertRedirect();
+            ->assertStatus(422);
 
-        $this->actingAs($env['user'])
-            ->withSession(['active_organization_id' => $env['org']->id, 'active_workspace_id' => $env['ws']->id])
-            ->postJson('/accounting/customer-payments', $payload)
-            ->assertRedirect();
+        $this->assertDatabaseCount('customer_payments', 0);
     }
 }
