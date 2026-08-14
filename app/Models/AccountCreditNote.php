@@ -13,20 +13,14 @@ class AccountCreditNote extends Model
     protected $table = 'account_credit_notes';
 
     protected $fillable = [
-        'organization_id',
-        'workspace_id',
-        'invoice_id',
-        'customer_id',
-        'amount',
-        'date',
-        'description',
-        'status',
-        'created_by',
+        'organization_id', 'workspace_id', 'invoice_id', 'customer_id', 'amount',
+        'date', 'description', 'status', 'journal_entry_id', 'approved_at', 'approved_by', 'created_by',
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
         'date' => 'date',
+        'approved_at' => 'datetime',
     ];
 
     public function scopeForWorkspace(Builder $query, int $organizationId, int $workspaceId): Builder
@@ -42,5 +36,10 @@ class AccountCreditNote extends Model
     public function invoice()
     {
         return $this->belongsTo(SalesInvoice::class, 'invoice_id');
+    }
+
+    public function journalEntry()
+    {
+        return $this->belongsTo(JournalEntry::class, 'journal_entry_id');
     }
 }
