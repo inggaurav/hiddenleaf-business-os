@@ -1,0 +1,92 @@
+[
+  {
+    "model": "Workdo\\ProductService\\Models\\ProductServiceItem",
+    "table": "product_service_items",
+    "fields": [
+      "id",
+      "name",
+      "sku",
+      "tax_ids",
+      "category_id",
+      "description",
+      "long_description",
+      "sale_price",
+      "purchase_price",
+      "unit",
+      "image",
+      "images",
+      "type",
+      "is_active",
+      "creator_id",
+      "created_by",
+      "created_at",
+      "updated_at"
+    ],
+    "relationships": [
+      "category",
+      "unitRelation",
+      "warehouseStocks"
+    ]
+  },
+  {
+    "model": "Workdo\\ProductService\\Models\\ProductServiceCategory",
+    "table": "product_service_categories",
+    "fields": [
+      "id",
+      "name",
+      "color",
+      "creator_id",
+      "created_by",
+      "created_at",
+      "updated_at"
+    ],
+    "relationships": [
+      "items"
+    ]
+  },
+  {
+    "model": "Workdo\\ProductService\\Models\\ProductServiceTax",
+    "table": "product_service_taxes",
+    "fields": [
+      "id",
+      "tax_name",
+      "rate",
+      "creator_id",
+      "created_by",
+      "created_at",
+      "updated_at"
+    ],
+    "relationships": []
+  },
+  {
+    "model": "Workdo\\ProductService\\Models\\ProductServiceUnit",
+    "table": "product_service_units",
+    "fields": [
+      "id",
+      "unit_name",
+      "creator_id",
+      "created_by",
+      "created_at",
+      "updated_at"
+    ],
+    "relationships": [
+      "items"
+    ]
+  },
+  {
+    "model": "Workdo\\ProductService\\Models\\WarehouseStock",
+    "table": "warehouse_stocks",
+    "fields": [
+      "id",
+      "product_id",
+      "warehouse_id",
+      "quantity",
+      "created_at",
+      "updated_at"
+    ],
+    "relationships": [
+      "product",
+      "warehouse"
+    ]
+  }
+]

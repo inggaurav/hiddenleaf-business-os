@@ -1,0 +1,50 @@
+[
+  {
+    "screen": "ProductService/Items/Index",
+    "name": "Products & Services Catalog",
+    "route": "product-service.items.index",
+    "description": "Paginated list of catalog items with type, price, category, taxes, and warehouse stock breakdown."
+  },
+  {
+    "screen": "ProductService/Items/Create",
+    "name": "Create Catalog Item",
+    "route": "product-service.items.create",
+    "description": "Form for creating a product or service item."
+  },
+  {
+    "screen": "ProductService/Items/Edit",
+    "name": "Edit Catalog Item",
+    "route": "product-service.items.edit",
+    "description": "Form for modifying catalog item details, prices, and tax associations."
+  },
+  {
+    "screen": "ProductService/Items/Show",
+    "name": "Catalog Item Detail",
+    "route": "product-service.items.show",
+    "description": "Item overview, assigned warehouses, description, and transactions."
+  },
+  {
+    "screen": "ProductService/Stock/Index",
+    "name": "Warehouse Stock Ledger",
+    "route": "product-service.stock.index",
+    "description": "Multi-warehouse stock inventory view with quick adjustment modal."
+  },
+  {
+    "screen": "ProductService/SystemSetup/Categories/Index",
+    "name": "Product Categories",
+    "route": "product-service.item-categories.index",
+    "description": "Category management with color coding."
+  },
+  {
+    "screen": "ProductService/SystemSetup/Taxes/Index",
+    "name": "Product Taxes",
+    "route": "product-service.taxes.index",
+    "description": "Tax definitions and percentage rates."
+  },
+  {
+    "screen": "ProductService/SystemSetup/Units/Index",
+    "name": "Product Units",
+    "route": "product-service.units.index",
+    "description": "Units of measurement for physical products."
+  }
+]

@@ -1,0 +1,110 @@
+[
+  {
+    "name": "manage-product-service-item",
+    "guard_name": "web",
+    "module": "ProductService",
+    "description": "View and manage catalog items"
+  },
+  {
+    "name": "create-product-service-item",
+    "guard_name": "web",
+    "module": "ProductService",
+    "description": "Create catalog item"
+  },
+  {
+    "name": "edit-product-service-item",
+    "guard_name": "web",
+    "module": "ProductService",
+    "description": "Edit catalog item"
+  },
+  {
+    "name": "delete-product-service-item",
+    "guard_name": "web",
+    "module": "ProductService",
+    "description": "Delete catalog item"
+  },
+  {
+    "name": "manage-stock",
+    "guard_name": "web",
+    "module": "ProductService",
+    "description": "View warehouse stock levels"
+  },
+  {
+    "name": "create-stock",
+    "guard_name": "web",
+    "module": "ProductService",
+    "description": "Create or adjust warehouse stock"
+  },
+  {
+    "name": "manage-product-service-categories",
+    "guard_name": "web",
+    "module": "ProductService",
+    "description": "View item categories"
+  },
+  {
+    "name": "create-product-service-categories",
+    "guard_name": "web",
+    "module": "ProductService",
+    "description": "Create item category"
+  },
+  {
+    "name": "edit-product-service-categories",
+    "guard_name": "web",
+    "module": "ProductService",
+    "description": "Edit item category"
+  },
+  {
+    "name": "delete-product-service-categories",
+    "guard_name": "web",
+    "module": "ProductService",
+    "description": "Delete item category"
+  },
+  {
+    "name": "manage-product-service-taxes",
+    "guard_name": "web",
+    "module": "ProductService",
+    "description": "View tax definitions"
+  },
+  {
+    "name": "create-product-service-taxes",
+    "guard_name": "web",
+    "module": "ProductService",
+    "description": "Create tax definition"
+  },
+  {
+    "name": "edit-product-service-taxes",
+    "guard_name": "web",
+    "module": "ProductService",
+    "description": "Edit tax definition"
+  },
+  {
+    "name": "delete-product-service-taxes",
+    "guard_name": "web",
+    "module": "ProductService",
+    "description": "Delete tax definition"
+  },
+  {
+    "name": "manage-product-service-units",
+    "guard_name": "web",
+    "module": "ProductService",
+    "description": "View units of measurement"
+  },
+  {
+    "name": "create-product-service-units",
+    "guard_name": "web",
+    "module": "ProductService",
+    "description": "Create unit of measurement"
+  },
+  {
+    "name": "edit-product-service-units",
+    "guard_name": "web",
+    "module": "ProductService",
+    "description": "Edit unit of measurement"
+  },
+  {
+    "name": "delete-product-service-units",
+    "guard_name": "web",
+    "module": "ProductService",
+    "description": "Delete unit of measurement"
+  }
+]

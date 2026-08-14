@@ -1,0 +1,232 @@
+[
+  {
+    "method": "GET",
+    "uri": "product-service/dashboard",
+    "route_name": "product-service.dashboard",
+    "controller": "App\\Http\\Controllers\\ProductServiceController",
+    "controller_method": "dashboard",
+    "permission": "product_service.manage",
+    "page": "ProductService/Dashboard",
+    "test_evidence": "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php"
+  },
+  {
+    "method": "GET",
+    "uri": "inventory/dashboard",
+    "route_name": "inventory.dashboard",
+    "controller": "App\\Http\\Controllers\\ProductServiceController",
+    "controller_method": "dashboard",
+    "permission": "product_service.manage",
+    "page": "ProductService/Dashboard",
+    "test_evidence": "tests/Feature/Dashboards/ModuleDashboardIsolationTest.php"
+  },
+  {
+    "method": "GET",
+    "uri": "product-service",
+    "route_name": "product-service.index",
+    "controller": "App\\Http\\Controllers\\ProductServiceController",
+    "controller_method": "index",
+    "permission": "product_service.manage",
+    "page": "ProductService/Index",
+    "test_evidence": "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php"
+  },
+  {
+    "method": "GET",
+    "uri": "product-service/create",
+    "route_name": "product-service.create",
+    "controller": "App\\Http\\Controllers\\ProductServiceController",
+    "controller_method": "create",
+    "permission": "product_service.manage",
+    "page": "ProductService/Create",
+    "test_evidence": "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php"
+  },
+  {
+    "method": "POST",
+    "uri": "product-service",
+    "route_name": "product-service.store",
+    "controller": "App\\Http\\Controllers\\ProductServiceController",
+    "controller_method": "store",
+    "permission": "product_service.manage",
+    "page": "ProductService/Index",
+    "test_evidence": "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php"
+  },
+  {
+    "method": "GET",
+    "uri": "product-service/{product_service}/edit",
+    "route_name": "product-service.edit",
+    "controller": "App\\Http\\Controllers\\ProductServiceController",
+    "controller_method": "edit",
+    "permission": "product_service.manage",
+    "page": "ProductService/Edit",
+    "test_evidence": "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php"
+  },
+  {
+    "method": "PUT",
+    "uri": "product-service/{product_service}",
+    "route_name": "product-service.update",
+    "controller": "App\\Http\\Controllers\\ProductServiceController",
+    "controller_method": "update",
+    "permission": "product_service.manage",
+    "page": "ProductService/Index",
+    "test_evidence": "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php"
+  },
+  {
+    "method": "DELETE",
+    "uri": "product-service/{product_service}",
+    "route_name": "product-service.destroy",
+    "controller": "App\\Http\\Controllers\\ProductServiceController",
+    "controller_method": "destroy",
+    "permission": "product_service.manage",
+    "page": "ProductService/Index",
+    "test_evidence": "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php"
+  },
+  {
+    "method": "POST",
+    "uri": "product-service/categories",
+    "route_name": "product-service.categories.store",
+    "controller": "App\\Http\\Controllers\\ProductServiceController",
+    "controller_method": "storeCategory",
+    "permission": "product_service.manage",
+    "page": "ProductService/Index",
+    "test_evidence": "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php"
+  },
+  {
+    "method": "POST",
+    "uri": "product-service/units",
+    "route_name": "product-service.units.store",
+    "controller": "App\\Http\\Controllers\\ProductServiceController",
+    "controller_method": "storeUnit",
+    "permission": "product_service.manage",
+    "page": "ProductService/Index",
+    "test_evidence": "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php"
+  },
+  {
+    "method": "POST",
+    "uri": "product-service/taxes",
+    "route_name": "product-service.taxes.store",
+    "controller": "App\\Http\\Controllers\\ProductServiceController",
+    "controller_method": "storeTax",
+    "permission": "product_service.manage",
+    "page": "ProductService/Index",
+    "test_evidence": "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php"
+  },
+  {
+    "method": "POST",
+    "uri": "product-service/{productService}/adjust-stock",
+    "route_name": "product-service.adjust-stock",
+    "controller": "App\\Http\\Controllers\\ProductServiceController",
+    "controller_method": "adjust",
+    "permission": "inventory.adjust",
+    "page": "ProductService/Index",
+    "test_evidence": "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php"
+  },
+  {
+    "method": "GET",
+    "uri": "warehouses",
+    "route_name": "warehouses.index",
+    "controller": "App\\Http\\Controllers\\WarehouseController",
+    "controller_method": "index",
+    "permission": "inventory.manage",
+    "page": "Warehouses/Index",
+    "test_evidence": "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php"
+  },
+  {
+    "method": "GET",
+    "uri": "warehouses/create",
+    "route_name": "warehouses.create",
+    "controller": "App\\Http\\Controllers\\WarehouseController",
+    "controller_method": "create",
+    "permission": "inventory.manage",
+    "page": "Warehouses/Create",
+    "test_evidence": "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php"
+  },
+  {
+    "method": "POST",
+    "uri": "warehouses",
+    "route_name": "warehouses.store",
+    "controller": "App\\Http\\Controllers\\WarehouseController",
+    "controller_method": "store",
+    "permission": "inventory.manage",
+    "page": "Warehouses/Index",
+    "test_evidence": "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php"
+  },
+  {
+    "method": "GET",
+    "uri": "warehouses/{warehouse}/edit",
+    "route_name": "warehouses.edit",
+    "controller": "App\\Http\\Controllers\\WarehouseController",
+    "controller_method": "edit",
+    "permission": "inventory.manage",
+    "page": "Warehouses/Edit",
+    "test_evidence": "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php"
+  },
+  {
+    "method": "PUT",
+    "uri": "warehouses/{warehouse}",
+    "route_name": "warehouses.update",
+    "controller": "App\\Http\\Controllers\\WarehouseController",
+    "controller_method": "update",
+    "permission": "inventory.manage",
+    "page": "Warehouses/Index",
+    "test_evidence": "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php"
+  },
+  {
+    "method": "DELETE",
+    "uri": "warehouses/{warehouse}",
+    "route_name": "warehouses.destroy",
+    "controller": "App\\Http\\Controllers\\WarehouseController",
+    "controller_method": "destroy",
+    "permission": "inventory.manage",
+    "page": "Warehouses/Index",
+    "test_evidence": "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php"
+  },
+  {
+    "method": "GET",
+    "uri": "transfers",
+    "route_name": "transfers.index",
+    "controller": "App\\Http\\Controllers\\TransferController",
+    "controller_method": "index",
+    "permission": "inventory.manage",
+    "page": "Transfers/Index",
+    "test_evidence": "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php"
+  },
+  {
+    "method": "GET",
+    "uri": "transfers/create",
+    "route_name": "transfers.create",
+    "controller": "App\\Http\\Controllers\\TransferController",
+    "controller_method": "create",
+    "permission": "inventory.manage",
+    "page": "Transfers/Create",
+    "test_evidence": "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php"
+  },
+  {
+    "method": "POST",
+    "uri": "transfers",
+    "route_name": "transfers.store",
+    "controller": "App\\Http\\Controllers\\TransferController",
+    "controller_method": "store",
+    "permission": "inventory.manage",
+    "page": "Transfers/Index",
+    "test_evidence": "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php"
+  },
+  {
+    "method": "GET",
+    "uri": "transfers/{transfer}",
+    "route_name": "transfers.show",
+    "controller": "App\\Http\\Controllers\\TransferController",
+    "controller_method": "show",
+    "permission": "inventory.manage",
+    "page": "Transfers/Show",
+    "test_evidence": "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php"
+  },
+  {
+    "method": "DELETE",
+    "uri": "transfers/{transfer}",
+    "route_name": "transfers.destroy",
+    "controller": "App\\Http\\Controllers\\TransferController",
+    "controller_method": "destroy",
+    "permission": "inventory.manage",
+    "page": "Transfers/Index",
+    "test_evidence": "tests/Feature/SalesProcurement/SalesProcurementCoreTest.php"
+  }
+]

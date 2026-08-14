@@ -34,6 +34,11 @@ class ValidateParityEvidenceCommand extends Command
             $this->validateScreenRegistry($finalScreenRegistry, $errors);
         }
 
+        $productServiceParity = base_path('docs/reference/productservice-parity-v2.json');
+        if (File::exists($productServiceParity)) {
+            $this->validateProductServiceParity($productServiceParity, $errors);
+        }
+
         if ($this->option('write')) {
             $this->writeRouteEvidence();
         }
@@ -240,6 +245,28 @@ class ValidateParityEvidenceCommand extends Command
         [$actualClass, $actualMethod] = array_pad(explode('@', $actual, 2), 2, null);
 
         return $expectedMethod === $actualMethod && class_basename($expectedClass) === class_basename($actualClass);
+    }
+
+    private function validateProductServiceParity(string $path, array &$errors): void
+    {
+        $rows = $this->readJson($path);
+        foreach ($rows as $index => $row) {
+            $routeName = $row['route_name'] ?? null;
+            $evidenceFile = $row['evidence_file'] ?? null;
+
+            if (! $routeName) {
+                $errors[] = basename($path).": row #{$index} is missing route_name.";
+                continue;
+            }
+
+            if (! RouteFacade::has($routeName)) {
+                $errors[] = basename($path).": route '{$routeName}' does not exist in live route collection.";
+            }
+
+            if ($evidenceFile && ! File::exists(base_path($evidenceFile))) {
+                $errors[] = basename($path).": evidence file '{$evidenceFile}' for route '{$routeName}' does not exist.";
+            }
+        }
     }
 
     private function readJson(string $path): array

@@ -47,15 +47,24 @@ class StockAdjustmentService
                 ['product_id' => $product->id, 'warehouse_id' => $warehouse->id],
                 ['quantity' => $balance],
             );
+            $direction = $quantity >= 0 ? 1 : -1;
+            $absQty = abs($quantity);
+            $unitCost = (float) ($product->purchase_price ?: $product->sale_price ?: 0);
+            $totalCost = round($unitCost * $absQty, 2);
+
             $movement = StockMovement::create([
                 'organization_id' => $product->organization_id,
                 'workspace_id' => $product->workspace_id,
                 'warehouse_id' => $warehouse->id,
                 'product_id' => $product->id,
                 'type' => $type,
-                'quantity' => $quantity,
+                'quantity' => $absQty,
+                'direction' => $direction,
                 'balance_after' => $balance,
+                'unit_cost' => $unitCost,
+                'total_cost' => $totalCost,
                 'reason' => $reason,
+                'notes' => $reason,
                 'created_by' => $actor->id,
                 'reference_type' => $reference?->getMorphClass(),
                 'reference_id' => $reference?->getKey(),
@@ -64,6 +73,7 @@ class StockAdjustmentService
                 'product_id' => $product->id,
                 'warehouse_id' => $warehouse->id,
                 'quantity' => $quantity,
+                'direction' => $direction,
                 'balance_after' => $balance,
                 'reason' => $reason,
             ], critical: true);

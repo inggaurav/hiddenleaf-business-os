@@ -1,0 +1,222 @@
+[
+  {
+    "method": "GET",
+    "uri": "product-service/items",
+    "route_name": "product-service.items.index",
+    "controller": "Workdo\\ProductService\\Http\\Controllers\\ProductServiceItemController",
+    "controller_method": "index",
+    "permission": "manage-product-service-item",
+    "module": "ProductService",
+    "type": "FUNCTIONAL"
+  },
+  {
+    "method": "GET",
+    "uri": "product-service/items/create",
+    "route_name": "product-service.items.create",
+    "controller": "Workdo\\ProductService\\Http\\Controllers\\ProductServiceItemController",
+    "controller_method": "create",
+    "permission": "create-product-service-item",
+    "module": "ProductService",
+    "type": "FUNCTIONAL"
+  },
+  {
+    "method": "POST",
+    "uri": "product-service/items",
+    "route_name": "product-service.items.store",
+    "controller": "Workdo\\ProductService\\Http\\Controllers\\ProductServiceItemController",
+    "controller_method": "store",
+    "permission": "create-product-service-item",
+    "module": "ProductService",
+    "type": "FUNCTIONAL"
+  },
+  {
+    "method": "GET",
+    "uri": "product-service/items/{item}",
+    "route_name": "product-service.items.show",
+    "controller": "Workdo\\ProductService\\Http\\Controllers\\ProductServiceItemController",
+    "controller_method": "show",
+    "permission": "manage-product-service-item",
+    "module": "ProductService",
+    "type": "FUNCTIONAL"
+  },
+  {
+    "method": "GET",
+    "uri": "product-service/items/{item}/edit",
+    "route_name": "product-service.items.edit",
+    "controller": "Workdo\\ProductService\\Http\\Controllers\\ProductServiceItemController",
+    "controller_method": "edit",
+    "permission": "edit-product-service-item",
+    "module": "ProductService",
+    "type": "FUNCTIONAL"
+  },
+  {
+    "method": "PUT",
+    "uri": "product-service/items/{item}",
+    "route_name": "product-service.items.update",
+    "controller": "Workdo\\ProductService\\Http\\Controllers\\ProductServiceItemController",
+    "controller_method": "update",
+    "permission": "edit-product-service-item",
+    "module": "ProductService",
+    "type": "FUNCTIONAL"
+  },
+  {
+    "method": "DELETE",
+    "uri": "product-service/items/{item}",
+    "route_name": "product-service.items.destroy",
+    "controller": "Workdo\\ProductService\\Http\\Controllers\\ProductServiceItemController",
+    "controller_method": "destroy",
+    "permission": "delete-product-service-item",
+    "module": "ProductService",
+    "type": "FUNCTIONAL"
+  },
+  {
+    "method": "GET",
+    "uri": "product-service/stock",
+    "route_name": "product-service.stock.index",
+    "controller": "Workdo\\ProductService\\Http\\Controllers\\ProductServiceItemController",
+    "controller_method": "stockIndex",
+    "permission": "manage-stock",
+    "module": "ProductService",
+    "type": "FUNCTIONAL"
+  },
+  {
+    "method": "POST",
+    "uri": "product-service/stock",
+    "route_name": "product-service.stock.store",
+    "controller": "Workdo\\ProductService\\Http\\Controllers\\ProductServiceItemController",
+    "controller_method": "stockStore",
+    "permission": "create-stock",
+    "module": "ProductService",
+    "type": "FUNCTIONAL"
+  },
+  {
+    "method": "GET",
+    "uri": "product-service/item-categories",
+    "route_name": "product-service.item-categories.index",
+    "controller": "Workdo\\ProductService\\Http\\Controllers\\CategoryController",
+    "controller_method": "index",
+    "permission": "manage-product-service-categories",
+    "module": "ProductService",
+    "type": "FUNCTIONAL"
+  },
+  {
+    "method": "POST",
+    "uri": "product-service/item-categories",
+    "route_name": "product-service.item-categories.store",
+    "controller": "Workdo\\ProductService\\Http\\Controllers\\CategoryController",
+    "controller_method": "store",
+    "permission": "create-product-service-categories",
+    "module": "ProductService",
+    "type": "FUNCTIONAL"
+  },
+  {
+    "method": "PUT",
+    "uri": "product-service/item-categories/{itemCategory}",
+    "route_name": "product-service.item-categories.update",
+    "controller": "Workdo\\ProductService\\Http\\Controllers\\CategoryController",
+    "controller_method": "update",
+    "permission": "edit-product-service-categories",
+    "module": "ProductService",
+    "type": "FUNCTIONAL"
+  },
+  {
+    "method": "DELETE",
+    "uri": "product-service/item-categories/{itemCategory}",
+    "route_name": "product-service.item-categories.destroy",
+    "controller": "Workdo\\ProductService\\Http\\Controllers\\CategoryController",
+    "controller_method": "destroy",
+    "permission": "delete-product-service-categories",
+    "module": "ProductService",
+    "type": "FUNCTIONAL"
+  },
+  {
+    "method": "GET",
+    "uri": "product-service/taxes",
+    "route_name": "product-service.taxes.index",
+    "controller": "Workdo\\ProductService\\Http\\Controllers\\TaxController",
+    "controller_method": "index",
+    "permission": "manage-product-service-taxes",
+    "module": "ProductService",
+    "type": "FUNCTIONAL"
+  },
+  {
+    "method": "POST",
+    "uri": "product-service/taxes",
+    "route_name": "product-service.taxes.store",
+    "controller": "Workdo\\ProductService\\Http\\Controllers\\TaxController",
+    "controller_method": "store",
+    "permission": "create-product-service-taxes",
+    "module": "ProductService",
+    "type": "FUNCTIONAL"
+  },
+  {
+    "method": "PUT",
+    "uri": "product-service/taxes/{tax}",
+    "route_name": "product-service.taxes.update",
+    "controller": "Workdo\\ProductService\\Http\\Controllers\\TaxController",
+    "controller_method": "update",
+    "permission": "edit-product-service-taxes",
+    "module": "ProductService",
+    "type": "FUNCTIONAL"
+  },
+  {
+    "method": "DELETE",
+    "uri": "product-service/taxes/{tax}",
+    "route_name": "product-service.taxes.destroy",
+    "controller": "Workdo\\ProductService\\Http\\Controllers\\TaxController",
+    "controller_method": "destroy",
+    "permission": "delete-product-service-taxes",
+    "module": "ProductService",
+    "type": "FUNCTIONAL"
+  },
+  {
+    "method": "GET",
+    "uri": "product-service/units",
+    "route_name": "product-service.units.index",
+    "controller": "Workdo\\ProductService\\Http\\Controllers\\UnitController",
+    "controller_method": "index",
+    "permission": "manage-product-service-units",
+    "module": "ProductService",
+    "type": "FUNCTIONAL"
+  },
+  {
+    "method": "POST",
+    "uri": "product-service/units",
+    "route_name": "product-service.units.store",
+    "controller": "Workdo\\ProductService\\Http\\Controllers\\UnitController",
+    "controller_method": "store",
+    "permission": "create-product-service-units",
+    "module": "ProductService",
+    "type": "FUNCTIONAL"
+  },
+  {
+    "method": "PUT",
+    "uri": "product-service/units/{unit}",
+    "route_name": "product-service.units.update",
+    "controller": "Workdo\\ProductService\\Http\\Controllers\\UnitController",
+    "controller_method": "update",
+    "permission": "edit-product-service-units",
+    "module": "ProductService",
+    "type": "FUNCTIONAL"
+  },
+  {
+    "method": "DELETE",
+    "uri": "product-service/units/{unit}",
+    "route_name": "product-service.units.destroy",
+    "controller": "Workdo\\ProductService\\Http\\Controllers\\UnitController",
+    "controller_method": "destroy",
+    "permission": "delete-product-service-units",
+    "module": "ProductService",
+    "type": "FUNCTIONAL"
+  },
+  {
+    "method": "GET",
+    "uri": "api/product-service/items",
+    "route_name": "api.product-service.items.index",
+    "controller": "Workdo\\ProductService\\Http\\Controllers\\ProductServiceItemController",
+    "controller_method": "apiIndex",
+    "permission": "manage-product-service-item",
+    "module": "ProductService",
+    "type": "FUNCTIONAL"
+  }
+]

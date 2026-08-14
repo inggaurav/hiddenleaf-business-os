@@ -33,6 +33,8 @@ class DatabaseSeeder extends Seeder
             ['module' => 'productservice', 'resource' => 'inventory', 'action' => 'manage', 'name' => 'inventory.manage'],
             ['module' => 'sales', 'resource' => 'sales', 'action' => 'manage', 'name' => 'sales.manage'],
             ['module' => 'procurement', 'resource' => 'purchases', 'action' => 'manage', 'name' => 'procurement.manage'],
+            // Granular ProductService & Inventory permissions for WorkDo parity
+            ...$this->productServicePermissions(),
 
             // Legacy Account umbrella permissions retained for existing tenants.
             ['module' => 'account', 'resource' => 'ledger', 'action' => 'view', 'name' => 'account.view'],
@@ -102,6 +104,49 @@ class DatabaseSeeder extends Seeder
                     'resource' => $resource,
                     'action' => $action,
                     'name' => "account.{$resource}.{$action}",
+                ];
+            }
+        }
+
+        return $rows;
+    }
+
+    private function productServicePermissions(): array
+    {
+        $definitions = [
+            'item' => ['view', 'create', 'update', 'delete'],
+            'category' => ['view', 'create', 'update', 'delete'],
+            'unit' => ['view', 'create', 'update', 'delete'],
+            'tax' => ['view', 'create', 'update', 'delete'],
+        ];
+
+        $rows = [];
+        foreach ($definitions as $resource => $actions) {
+            foreach ($actions as $action) {
+                $rows[] = [
+                    'module' => 'productservice',
+                    'resource' => $resource,
+                    'action' => $action,
+                    'name' => "product_service.{$resource}.{$action}",
+                ];
+            }
+        }
+
+        $invDefinitions = [
+            'warehouse' => ['view', 'create', 'update', 'delete'],
+            'transfer' => ['view', 'create', 'delete'],
+            'stock' => ['view', 'adjust'],
+            'movement' => ['view'],
+            'report' => ['view'],
+        ];
+
+        foreach ($invDefinitions as $resource => $actions) {
+            foreach ($actions as $action) {
+                $rows[] = [
+                    'module' => 'inventory',
+                    'resource' => $resource,
+                    'action' => $action,
+                    'name' => "inventory.{$resource}.{$action}",
                 ];
             }
         }

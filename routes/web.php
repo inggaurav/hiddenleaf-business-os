@@ -265,15 +265,27 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware('module.status:productservice')->prefix('product-service')->name('product-service.')->group(function () {
         Route::get('dashboard', [ProductServiceController::class, 'dashboard'])->name('dashboard');
+        Route::get('stock', [ProductServiceController::class, 'stockIndex'])->name('stock.index');
+        Route::post('stock', [ProductServiceController::class, 'adjust'])->name('stock.store');
+        Route::get('categories', [ProductServiceController::class, 'categoriesIndex'])->name('categories.index');
         Route::post('categories', [ProductServiceController::class, 'storeCategory'])->name('categories.store');
+        Route::put('categories/{category}', [ProductServiceController::class, 'updateCategory'])->name('categories.update');
+        Route::delete('categories/{category}', [ProductServiceController::class, 'destroyCategory'])->name('categories.destroy');
+        Route::get('units', [ProductServiceController::class, 'unitsIndex'])->name('units.index');
         Route::post('units', [ProductServiceController::class, 'storeUnit'])->name('units.store');
+        Route::put('units/{unit}', [ProductServiceController::class, 'updateUnit'])->name('units.update');
+        Route::delete('units/{unit}', [ProductServiceController::class, 'destroyUnit'])->name('units.destroy');
+        Route::get('taxes', [ProductServiceController::class, 'taxesIndex'])->name('taxes.index');
         Route::post('taxes', [ProductServiceController::class, 'storeTax'])->name('taxes.store');
+        Route::put('taxes/{tax}', [ProductServiceController::class, 'updateTax'])->name('taxes.update');
+        Route::delete('taxes/{tax}', [ProductServiceController::class, 'destroyTax'])->name('taxes.destroy');
         Route::post('{productService}/adjust-stock', [ProductServiceController::class, 'adjust'])->name('adjust-stock');
     });
     Route::get('inventory/dashboard', [ProductServiceController::class, 'dashboard'])->middleware('module.status:productservice')->name('inventory.dashboard');
+    Route::get('inventory/movements', [ProductServiceController::class, 'movements'])->middleware('module.status:productservice')->name('inventory.movements');
+    Route::get('api/product-service/items', [ProductServiceController::class, 'apiIndex'])->middleware('module.status:productservice')->name('api.product-service.items.index');
 
     Route::resource('product-service', ProductServiceController::class)
-        ->except(['show'])
         ->middleware('module.status:productservice');
     Route::resource('warehouses', WarehouseController::class);
     Route::resource('transfers', TransferController::class)->except(['edit', 'update']);

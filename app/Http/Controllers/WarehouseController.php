@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\StockMovement;
 use App\Models\Warehouse;
 use App\Models\Workspace;
 use Illuminate\Http\Request;
@@ -12,14 +13,15 @@ class WarehouseController extends Controller
 {
     public function index(Request $request)
     {
-        $workspace = $this->workspace($request);
+        $workspace = $this->workspace($request, 'inventory.warehouse.view');
         $wsId = $workspace->id;
         $orgId = $workspace->organization_id;
 
         $warehouses = Warehouse::query()
-            ->when($wsId, fn ($q) => $q->where('workspace_id', $wsId))
-            ->when($orgId, fn ($q) => $q->where('organization_id', $orgId))
+            ->where('workspace_id', $wsId)
+            ->where('organization_id', $orgId)
             ->when($request->search, fn ($q) => $q->where('name', 'like', "%{$request->search}%"))
+            ->withCount('stocks')
             ->latest()
             ->paginate($request->input('per_page', 10))
             ->withQueryString();
@@ -31,31 +33,34 @@ class WarehouseController extends Controller
 
     public function create(Request $request)
     {
-        $this->workspace($request);
+        $this->workspace($request, 'inventory.warehouse.create');
 
         return Inertia::render('Warehouses/Create');
     }
 
     public function store(Request $request)
     {
+        $workspace = $this->workspace($request, 'inventory.warehouse.create');
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'code' => 'nullable|string|max:32',
             'address' => 'nullable|string',
             'city' => 'nullable|string|max:100',
             'city_zip' => 'nullable|string|max:20',
+            'phone' => 'nullable|string|max:64',
+            'is_active' => 'boolean',
         ]);
-
-        $workspace = $this->workspace($request);
-        $wsId = $workspace->id;
-        $orgId = $workspace->organization_id;
 
         Warehouse::create([
             'name' => $validated['name'],
+            'code' => $validated['code'] ?? null,
             'address' => $validated['address'] ?? null,
             'city' => $validated['city'] ?? null,
             'city_zip' => $validated['city_zip'] ?? null,
-            'organization_id' => $orgId,
-            'workspace_id' => $wsId,
+            'phone' => $validated['phone'] ?? null,
+            'is_active' => $validated['is_active'] ?? true,
+            'organization_id' => $workspace->organization_id,
+            'workspace_id' => $workspace->id,
             'created_by' => Auth::id(),
         ]);
 
@@ -64,14 +69,16 @@ class WarehouseController extends Controller
 
     public function show(Request $request, Warehouse $warehouse)
     {
-        $this->assertWarehouse($warehouse, $this->workspace($request));
+        $workspace = $this->workspace($request, 'inventory.warehouse.view');
+        $this->assertWarehouse($warehouse, $workspace);
 
         return redirect()->route('warehouses.edit', $warehouse);
     }
 
     public function edit(Request $request, Warehouse $warehouse)
     {
-        $this->assertWarehouse($warehouse, $this->workspace($request));
+        $workspace = $this->workspace($request, 'inventory.warehouse.update');
+        $this->assertWarehouse($warehouse, $workspace);
 
         return Inertia::render('Warehouses/Edit', [
             'warehouse' => $warehouse,
@@ -80,12 +87,17 @@ class WarehouseController extends Controller
 
     public function update(Request $request, Warehouse $warehouse)
     {
-        $this->assertWarehouse($warehouse, $this->workspace($request));
+        $workspace = $this->workspace($request, 'inventory.warehouse.update');
+        $this->assertWarehouse($warehouse, $workspace);
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'code' => 'nullable|string|max:32',
             'address' => 'nullable|string',
             'city' => 'nullable|string|max:100',
             'city_zip' => 'nullable|string|max:20',
+            'phone' => 'nullable|string|max:64',
+            'is_active' => 'boolean',
         ]);
 
         $warehouse->update($validated);
@@ -95,23 +107,39 @@ class WarehouseController extends Controller
 
     public function destroy(Request $request, Warehouse $warehouse)
     {
-        $this->assertWarehouse($warehouse, $this->workspace($request));
-        abort_if($warehouse->stocks()->where('quantity', '>', 0)->exists(), 422, 'Warehouses with stock cannot be deleted.');
+        $workspace = $this->workspace($request, 'inventory.warehouse.delete');
+        $this->assertWarehouse($warehouse, $workspace);
+
+        if ($warehouse->stocks()->where('quantity', '>', 0)->exists()) {
+            abort(422, 'Warehouses with active stock balances cannot be deleted.');
+        }
+
+        if (StockMovement::where('warehouse_id', $warehouse->id)->exists()) {
+            abort(422, 'Warehouses with historical inventory movements cannot be deleted.');
+        }
+
         $warehouse->delete();
 
         return redirect()->route('warehouses.index')->with('success', 'Warehouse deleted successfully.');
     }
 
-    private function workspace(Request $request): Workspace
+    private function workspace(Request $request, string $permission = 'inventory.warehouse.view'): Workspace
     {
-        $workspace = Workspace::query()->with('organization')->find($request->session()->get('active_workspace_id'));
-        abort_unless($workspace && $request->user()->canInWorkspace('inventory.manage', $workspace), 403);
+        $workspace = Workspace::with('organization')->findOrFail($request->session()->get('active_workspace_id'));
+        $user = $request->user();
+        abort_unless($user, 401);
+
+        abort_unless(
+            $user->canInWorkspace($permission, $workspace) || $user->canInWorkspace('inventory.manage', $workspace),
+            403,
+            'Permission denied'
+        );
 
         return $workspace;
     }
 
     private function assertWarehouse(Warehouse $warehouse, Workspace $workspace): void
     {
-        abort_unless((int) $warehouse->organization_id === (int) $workspace->organization_id && (int) $warehouse->workspace_id === (int) $workspace->id, 404);
+        abort_if((int) $warehouse->workspace_id !== (int) $workspace->id || (int) $warehouse->organization_id !== (int) $workspace->organization_id, 404);
     }
 }

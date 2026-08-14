@@ -27,18 +27,23 @@ class InventoryTransferService
 
         return DB::transaction(function () use ($from, $to, $product, $quantity, $date, $actor) {
             $transfer = Transfer::create([
+                'transfer_number' => 'TRF-'.now()->timestamp.'-'.rand(100, 999),
                 'from_warehouse' => $from->id,
                 'to_warehouse' => $to->id,
                 'product_id' => $product->id,
                 'quantity' => $quantity,
                 'date' => $date,
+                'status' => 'completed',
+                'processed_at' => now(),
+                'processed_by' => $actor->id,
                 'organization_id' => $from->organization_id,
                 'workspace_id' => $from->workspace_id,
                 'created_by' => $actor->id,
             ]);
-            $this->stock->adjust($product, $from, -$quantity, 'Transfer to '.$to->name, $actor, 'transfer_out', $transfer);
-            $this->stock->adjust($product, $to, $quantity, 'Transfer from '.$from->name, $actor, 'transfer_in', $transfer);
+            $this->stock->adjust($product, $from, -$quantity, 'Transfer #'.$transfer->transfer_number.' to '.$to->name, $actor, 'transfer_out', $transfer);
+            $this->stock->adjust($product, $to, $quantity, 'Transfer #'.$transfer->transfer_number.' from '.$from->name, $actor, 'transfer_in', $transfer);
             $this->audit->log($actor->id, $from->organization_id, $from->workspace_id, 'inventory.transferred', 'transfer', (string) $transfer->id, [
+                'transfer_number' => $transfer->transfer_number,
                 'product_id' => $product->id,
                 'from_warehouse_id' => $from->id,
                 'to_warehouse_id' => $to->id,
