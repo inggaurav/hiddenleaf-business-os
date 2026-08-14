@@ -13,26 +13,16 @@ class CustomerPayment extends Model
     protected $table = 'customer_payments';
 
     protected $fillable = [
-        'organization_id',
-        'workspace_id',
-        'customer_id',
-        'invoice_id',
-        'account_id',
-        'amount',
-        'payment_date',
-        'payment_method',
-        'reference',
-        'description',
-        'receipt',
-        'idempotency_key',
-        'request_fingerprint',
-        'journal_entry_id',
-        'created_by',
+        'organization_id', 'workspace_id', 'customer_id', 'invoice_id', 'account_id',
+        'amount', 'payment_date', 'payment_method', 'reference', 'description', 'receipt',
+        'idempotency_key', 'request_fingerprint', 'status', 'voided_at', 'voided_by',
+        'journal_entry_id', 'created_by',
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
         'payment_date' => 'date',
+        'voided_at' => 'datetime',
     ];
 
     public function scopeForWorkspace(Builder $query, int $organizationId, int $workspaceId): Builder
