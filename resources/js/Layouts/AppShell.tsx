@@ -26,6 +26,7 @@ import {
   NavigationGroup,
   NavigationItem,
 } from '@/Navigation/NavigationRegistry';
+import { SUPER_ADMIN_NAVIGATION_GROUPS } from '@/Navigation/SuperAdminNavigationRegistry';
 import { CommandPalette } from '@/Components/Navigation/CommandPalette';
 import { WorkspaceSwitcher } from '@/Components/Navigation/WorkspaceSwitcher';
 import { NotificationCenter } from '@/Components/Navigation/NotificationCenter';
@@ -48,20 +49,26 @@ export default function AppShell({ title, children, breadcrumbs }: AppShellProps
   const isSuperAdmin = Boolean(user?.is_super_admin);
   const userPermissions = user?.permissions || [];
   const enabledModules = tenant?.modules || [];
+  const inTenantContext = Boolean(tenant?.organization_id && tenant?.workspace_id);
+  const useSuperAdminNavigation = isSuperAdmin && !inTenantContext;
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [mrFoxOpen, setMrFoxOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
-  // Filter groups authorized for current user
-  const authorizedGroups: NavigationGroup[] = filterNavigation(
-    ALL_NAVIGATION_GROUPS,
-    user,
-    isSuperAdmin,
-    userPermissions,
-    enabledModules
-  );
+  // Super Admin receives a dedicated platform menu. When a Super Admin has
+  // explicitly entered a tenant context, the tenant menu becomes available for
+  // support/impersonation work without changing the underlying account role.
+  const authorizedGroups: NavigationGroup[] = useSuperAdminNavigation
+    ? SUPER_ADMIN_NAVIGATION_GROUPS
+    : filterNavigation(
+        ALL_NAVIGATION_GROUPS,
+        user,
+        false,
+        userPermissions,
+        enabledModules
+      );
 
   // Global keyboard shortcuts (Cmd+K and Cmd+J)
   useEffect(() => {
@@ -109,7 +116,7 @@ export default function AppShell({ title, children, breadcrumbs }: AppShellProps
         {/* Brand Header */}
         <div>
           <div className="h-16 flex items-center justify-between px-5 border-b border-[var(--border-subtle)]">
-            <Link href="/dashboard" className="flex items-center gap-2.5 group">
+            <Link href={useSuperAdminNavigation ? '/super-admin/dashboard' : '/dashboard'} className="flex items-center gap-2.5 group">
               <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center shadow-md shadow-purple-500/20 group-hover:scale-105 spring-transition">
                 <MrFoxMark size={20} />
               </div>
@@ -268,7 +275,7 @@ export default function AppShell({ title, children, breadcrumbs }: AppShellProps
         {/* Page Breadcrumbs */}
         {breadcrumbs && breadcrumbs.length > 0 && (
           <div className="px-4 sm:px-6 py-2.5 border-b border-[var(--border-subtle)] bg-[var(--surface-1)] flex items-center gap-1.5 text-xs text-[var(--text-tertiary)]">
-            <Link href="/dashboard" className="hover:text-[var(--text-primary)] spring-transition">
+            <Link href={useSuperAdminNavigation ? '/super-admin/dashboard' : '/dashboard'} className="hover:text-[var(--text-primary)] spring-transition">
               Home
             </Link>
             {breadcrumbs.map((crumb, idx) => (
