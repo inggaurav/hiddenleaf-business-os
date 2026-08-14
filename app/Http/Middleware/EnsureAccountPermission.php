@@ -8,15 +8,19 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Granular RBAC for the WorkDo-equivalent Account surface.
+ * Granular RBAC for every HiddenLeaf Account route.
  *
- * Legacy account.view/account.manage permissions remain accepted as umbrella
- * permissions so existing tenants are not locked out during the V1 migration.
+ * Legacy account.view/account.manage remain umbrella permissions during V1 so
+ * existing tenant roles keep working while new roles can be least-privilege.
  */
 class EnsureAccountPermission
 {
     public function handle(Request $request, Closure $next): Response
     {
+        if (! $request->is('accounting') && ! $request->is('accounting/*')) {
+            return $next($request);
+        }
+
         $workspace = Workspace::with('organization')->find($request->session()->get('active_workspace_id'));
         abort_unless($workspace, 403);
 
@@ -43,8 +47,48 @@ class EnsureAccountPermission
 
     private function permissionForRoute(string $routeName): ?string
     {
-        $name = str_replace('account-reference.', '', $routeName);
+        if (str_starts_with($routeName, 'account-reference.')) {
+            return $this->referencePermission(str_replace('account-reference.', '', $routeName));
+        }
 
+        if (! str_starts_with($routeName, 'accounting.')) {
+            return null;
+        }
+
+        $name = str_replace('accounting.', '', $routeName);
+
+        return match (true) {
+            $name === 'index', $name === 'dashboard' => 'account.dashboard.view',
+            $name === 'accounts' => 'account.ledger_account.view',
+            $name === 'types.store' => 'account.account_type.create',
+            $name === 'accounts.store' => 'account.ledger_account.create',
+            $name === 'journals' => 'account.journal.view',
+            $name === 'journals.store' => 'account.journal.create',
+            $name === 'journals.post' => 'account.journal.post',
+            $name === 'reports' => 'account.report.view',
+            $name === 'bank-transfers.store' => 'account.bank_transfer.process',
+            $name === 'bank-reconciliations.store' => 'account.bank_transaction.reconcile',
+
+            str_starts_with($name, 'customers.') => $this->crudPermission('customer', $name),
+            str_starts_with($name, 'vendors.') => $this->crudPermission('vendor', $name),
+            $name === 'customer-payments.index' => 'account.customer_payment.view',
+            $name === 'customer-payments.store' => 'account.customer_payment.create',
+            $name === 'vendor-payments.index' => 'account.vendor_payment.view',
+            $name === 'vendor-payments.store' => 'account.vendor_payment.create',
+            $name === 'revenues.index' => 'account.revenue.view',
+            $name === 'revenues.store' => 'account.revenue.create',
+            $name === 'expenses.index' => 'account.expense.view',
+            $name === 'expenses.store' => 'account.expense.create',
+            $name === 'credit-notes.index' => 'account.credit_note.view',
+            $name === 'credit-notes.store' => 'account.credit_note.create',
+            $name === 'debit-notes.index' => 'account.debit_note.view',
+            $name === 'debit-notes.store' => 'account.debit_note.create',
+            default => null,
+        };
+    }
+
+    private function referencePermission(string $name): ?string
+    {
         return match (true) {
             str_starts_with($name, 'bank-accounts.') => $this->crudPermission('bank_account', $name),
             str_starts_with($name, 'account-types.') => $this->crudPermission('account_type', $name),
