@@ -44,7 +44,7 @@ class NavigationAndUiIntegrityTest extends TestCase
                 $this->assertStringNotContainsString(
                     $forbidden,
                     $content,
-                    "Forbidden fake data claim '{$forbidden}' found in file: " . $file->getRelativePathname()
+                    "Forbidden fake data claim '{$forbidden}' found in file: ".$file->getRelativePathname()
                 );
             }
         }
@@ -291,7 +291,7 @@ class NavigationAndUiIntegrityTest extends TestCase
         $actionContent = File::get(resource_path('js/Navigation/ActionRegistry.ts'));
         $foxContent = File::get(resource_path('js/Components/MrFox/MrFoxPanel.tsx'));
 
-        $combined = $navContent . "\n" . $actionContent . "\n" . $foxContent;
+        $combined = $navContent."\n".$actionContent."\n".$foxContent;
 
         preg_match_all("/permission:\s*['\"]([^'\"]+)['\"]/", $combined, $matches);
         $frontendPermissions = array_unique($matches[1]);
@@ -315,7 +315,7 @@ class NavigationAndUiIntegrityTest extends TestCase
         $actionContent = File::get(resource_path('js/Navigation/ActionRegistry.ts'));
         $foxContent = File::get(resource_path('js/Components/MrFox/MrFoxPanel.tsx'));
 
-        $combined = $navContent . "\n" . $actionContent . "\n" . $foxContent;
+        $combined = $navContent."\n".$actionContent."\n".$foxContent;
 
         preg_match_all("/href:\s*['\"]([^'\"]+)['\"]/", $combined, $matches);
         $frontendHrefs = array_unique($matches[1]);
@@ -324,17 +324,18 @@ class NavigationAndUiIntegrityTest extends TestCase
 
         $registeredRoutes = collect(Route::getRoutes()->getRoutes())
             ->filter(fn ($r) => in_array('GET', $r->methods()))
-            ->map(fn ($r) => '/' . ltrim($r->uri(), '/'))
+            ->map(fn ($r) => '/'.ltrim($r->uri(), '/'))
             ->toArray();
 
         foreach ($frontendHrefs as $href) {
-            $normalized = '/' . ltrim(parse_url($href, PHP_URL_PATH), '/');
+            $normalized = '/'.ltrim(parse_url($href, PHP_URL_PATH), '/');
             $hasMatchingRoute = collect($registeredRoutes)->contains(function ($routeUri) use ($normalized) {
                 if ($routeUri === $normalized) {
                     return true;
                 }
                 $pattern = preg_replace('/\{[^}]+\}/', '[^/]+', $routeUri);
-                return (bool) preg_match('#^' . $pattern . '$#', $normalized);
+
+                return (bool) preg_match('#^'.$pattern.'$#', $normalized);
             });
 
             $this->assertTrue(
