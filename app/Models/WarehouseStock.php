@@ -17,7 +17,7 @@ class WarehouseStock extends Model
 
     protected function casts(): array
     {
-        return ['quantity' => 'decimal:2'];
+        return ['quantity' => 'decimal:4'];
     }
 
     public function product()
