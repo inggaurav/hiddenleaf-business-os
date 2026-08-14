@@ -24,9 +24,14 @@ class ValidateParityEvidenceCommand extends Command
             $this->validateActionRegistry($accountRegistry, $errors);
         }
 
-        $finalRegistry = base_path('docs/reference/workdo-action-parity-final.json');
-        if (File::exists($finalRegistry)) {
-            $this->validateFinalSummary($finalRegistry, $errors);
+        $finalActionRegistry = base_path('docs/reference/workdo-action-parity-final.json');
+        if (File::exists($finalActionRegistry)) {
+            $this->validateFinalActionSummary($finalActionRegistry, $errors);
+        }
+
+        $finalScreenRegistry = base_path('docs/reference/workdo-screen-parity-final.json');
+        if (File::exists($finalScreenRegistry)) {
+            $this->validateScreenRegistry($finalScreenRegistry, $errors);
         }
 
         if ($this->option('write')) {
@@ -50,7 +55,7 @@ class ValidateParityEvidenceCommand extends Command
 
     private function validateActionRegistry(string $path, array &$errors): void
     {
-        $data = json_decode(File::get($path), true, 512, JSON_THROW_ON_ERROR);
+        $data = $this->readJson($path);
         $actions = $data['actions'] ?? [];
         $verifiedRows = 0;
 
@@ -75,10 +80,7 @@ class ValidateParityEvidenceCommand extends Command
                 continue;
             }
 
-            $matched = collect(RouteFacade::getRoutes()->getRoutes())->first(function (Route $route) use ($method, $uri) {
-                return in_array($method, $route->methods(), true) && trim($route->uri(), '/') === trim($uri, '/');
-            });
-
+            $matched = $this->findRoute($method, $uri);
             if (! $matched) {
                 $errors[] = basename($path).": {$routeSpec} does not exist in the live route collection.";
                 continue;
@@ -104,9 +106,9 @@ class ValidateParityEvidenceCommand extends Command
         }
     }
 
-    private function validateFinalSummary(string $path, array &$errors): void
+    private function validateFinalActionSummary(string $path, array &$errors): void
     {
-        $data = json_decode(File::get($path), true, 512, JSON_THROW_ON_ERROR);
+        $data = $this->readJson($path);
         $rows = $data['actions'] ?? [];
         $claimedVerified = (int) ($data['verified_actions'] ?? 0);
         $verifiedRows = count(array_filter($rows, fn (array $row) => ($row['status'] ?? null) === 'VERIFIED'));
@@ -118,6 +120,44 @@ class ValidateParityEvidenceCommand extends Command
 
         if ($claimedVerified !== $verifiedRows) {
             $errors[] = basename($path).": claims {$claimedVerified} verified actions but contains {$verifiedRows} VERIFIED evidence rows.";
+        }
+    }
+
+    private function validateScreenRegistry(string $path, array &$errors): void
+    {
+        $data = $this->readJson($path);
+        $screens = $data['screens'] ?? [];
+        $claimedVerified = (int) ($data['verified_screens'] ?? 0);
+        $verifiedRows = 0;
+
+        foreach ($screens as $index => $screen) {
+            if (($screen['status'] ?? null) === 'VERIFIED') {
+                $verifiedRows++;
+            }
+
+            $routeSpec = trim((string) ($screen['route'] ?? ''));
+            if ($routeSpec === '') {
+                $errors[] = basename($path).": screen #{$index} has no route evidence.";
+                continue;
+            }
+
+            [$method, $uri] = $this->parseRouteSpec($routeSpec, $path, $index, $errors);
+            if ($method === null || $uri === null) {
+                continue;
+            }
+
+            if (! $this->findRoute($method, $uri)) {
+                $errors[] = basename($path).": screen route {$routeSpec} does not exist in the live route collection.";
+            }
+        }
+
+        if ($claimedVerified > 0 && $screens === []) {
+            $errors[] = basename($path).": claims {$claimedVerified} verified screens but contains no screen evidence rows.";
+            return;
+        }
+
+        if ($claimedVerified !== $verifiedRows) {
+            $errors[] = basename($path).": claims {$claimedVerified} verified screens but contains {$verifiedRows} VERIFIED evidence rows.";
         }
     }
 
@@ -160,11 +200,19 @@ class ValidateParityEvidenceCommand extends Command
     {
         $parts = preg_split('/\s+/', $spec, 2);
         if (count($parts) !== 2) {
-            $errors[] = basename($path).": action #{$index} has invalid route spec {$spec}.";
+            $errors[] = basename($path).": row #{$index} has invalid route spec {$spec}.";
             return [null, null];
         }
 
         return [strtoupper($parts[0]), ltrim($parts[1], '/')];
+    }
+
+    private function findRoute(string $method, string $uri): ?Route
+    {
+        return collect(RouteFacade::getRoutes()->getRoutes())->first(function (Route $route) use ($method, $uri) {
+            return in_array($method, $route->methods(), true)
+                && trim($route->uri(), '/') === trim($uri, '/');
+        });
     }
 
     private function controllerMatches(string $expected, string $actual): bool
@@ -184,6 +232,11 @@ class ValidateParityEvidenceCommand extends Command
         [$actualClass, $actualMethod] = array_pad(explode('@', $actual, 2), 2, null);
 
         return $expectedMethod === $actualMethod && class_basename($expectedClass) === class_basename($actualClass);
+    }
+
+    private function readJson(string $path): array
+    {
+        return json_decode(File::get($path), true, 512, JSON_THROW_ON_ERROR);
     }
 
     private function writeRouteEvidence(): void
