@@ -14,25 +14,68 @@ use App\Models\SalesInvoice;
 use App\Models\TasklyProject;
 use App\Models\TasklyTask;
 use App\Models\User;
+use App\Models\UserActiveModule;
 use App\Models\Workspace;
+use App\Services\BusinessRoleResolver;
+use App\Services\DashboardDestinationService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class HomeController extends Controller
 {
-    public function Dashboard(Request $request)
-    {
+    public function Dashboard(
+        Request $request,
+        DashboardDestinationService $dashboardDestination,
+        BusinessRoleResolver $businessRoleResolver
+    ) {
         $user = $request->user();
         $orgId = $request->session()->get('active_organization_id');
         $wsId = $request->session()->get('active_workspace_id');
 
+        // WorkDo parity: Super Admin owns a dedicated platform dashboard rather
+        // than entering tenant navigation. Tenant impersonation/context remains
+        // possible by explicitly selecting an organization/workspace first.
+        if ($user->isSuperAdmin() && ! $orgId) {
+            return redirect()->route('super-admin.dashboard');
+        }
+
+        $workspace = $wsId
+            ? Workspace::with('organization')->whereKey($wsId)->first()
+            : null;
+
+        // WorkDo parity: /dashboard redirects a tenant actor to the first active
+        // module dashboard they are allowed to use. `?overview=1` deliberately
+        // preserves HiddenLeaf's richer executive overview as a secondary view.
+        if ($workspace && ! $request->boolean('overview')) {
+            $enabledModules = UserActiveModule::where('workspace_id', $workspace->id)
+                ->pluck('module_name')
+                ->map(static fn ($module) => strtolower((string) $module))
+                ->values()
+                ->all();
+
+            if ($enabledModules === []) {
+                $enabledModules = $request->session()->get('enabled_modules', []);
+            }
+
+            $destination = $dashboardDestination->firstPermittedRoute(
+                $user,
+                $workspace,
+                is_array($enabledModules) ? $enabledModules : []
+            );
+
+            if ($destination) {
+                return redirect()->route($destination);
+            }
+        }
+
+        $organization = null;
         if ($user->isSuperAdmin() && ! $orgId) {
             $usersCount = User::count();
             $workspacesCount = Workspace::count();
             $ticketsCount = HelpdeskTicket::count();
             $recentLogs = AuditLog::with('actor')->latest()->take(5)->get();
         } else {
-            // Strictly scoped to active tenant organization & workspace
+            // Strictly scoped to active tenant organization & workspace.
             $organization = $orgId ? Organization::find($orgId) : null;
             $usersCount = $organization ? $organization->members()->count() : 1;
             $workspacesCount = $orgId ? Workspace::where('organization_id', $orgId)->count() : 1;
@@ -43,6 +86,7 @@ class HomeController extends Controller
         }
 
         return Inertia::render('Dashboard', [
+            'businessRole' => $businessRoleResolver->resolve($user, $workspace),
             'stats' => [
                 'users' => $usersCount,
                 'workspaces' => $workspacesCount,
