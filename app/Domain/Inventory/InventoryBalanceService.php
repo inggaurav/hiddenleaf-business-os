@@ -54,7 +54,12 @@ class InventoryBalanceService
                 $status = abs($diff) < 0.0001 ? 'MATCH' : 'DISCREPANCY';
 
                 if ($status === 'DISCREPANCY' && $repair) {
-                    DB::transaction(function () use ($warehouse, $product, $calculatedQty, &$stock) {
+                    DB::transaction(function () use ($warehouse, $product, $calculatedQty, $diff, &$stock) {
+                        $stock = WarehouseStock::where('warehouse_id', $warehouse->id)
+                            ->where('product_id', $product->id)
+                            ->lockForUpdate()
+                            ->first();
+                            
                         if ($stock) {
                             $stock->update(['quantity' => $calculatedQty]);
                         } else {
@@ -64,6 +69,21 @@ class InventoryBalanceService
                                 'quantity' => $calculatedQty,
                             ]);
                         }
+                        
+                        app(\HiddenLeaf\Kernel\Services\AuditLogger::class)->log(
+                            null, 
+                            $warehouse->organization_id, 
+                            $warehouse->workspace_id, 
+                            'inventory.reconcile_repair', 
+                            'warehouse_stock', 
+                            (string) $stock->id, 
+                            [
+                                'previous_quantity' => $stock ? ($stock->quantity - $diff) : 0,
+                                'new_quantity' => $calculatedQty,
+                                'difference' => $diff
+                            ], 
+                            critical: true
+                        );
                     });
                     $status = 'REPAIRED';
                 }

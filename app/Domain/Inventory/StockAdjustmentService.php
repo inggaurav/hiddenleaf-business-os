@@ -36,45 +36,34 @@ class StockAdjustmentService
         }
 
         return DB::transaction(function () use ($product, $warehouse, $quantity, $reason, $actor, $type, $reference) {
-            $stock = WarehouseStock::query()->where(['product_id' => $product->id, 'warehouse_id' => $warehouse->id])->lockForUpdate()->first();
-            $current = (float) ($stock?->quantity ?? 0);
-            $balance = round($current + $quantity, 2);
-            if ($balance < 0) {
-                throw new RuntimeException('Stock adjustment would create negative inventory.');
-            }
-
-            $stock = WarehouseStock::updateOrCreate(
-                ['product_id' => $product->id, 'warehouse_id' => $warehouse->id],
-                ['quantity' => $balance],
-            );
+            $movementService = app(StockMovementService::class);
+            
             $direction = $quantity >= 0 ? 1 : -1;
             $absQty = abs($quantity);
             $unitCost = (float) ($product->purchase_price ?: $product->sale_price ?: 0);
-            $totalCost = round($unitCost * $absQty, 2);
+            
+            $movement = $movementService->recordMovement(
+                organizationId: $product->organization_id,
+                workspaceId: $product->workspace_id,
+                warehouseId: $warehouse->id,
+                productId: $product->id,
+                movementType: $type,
+                quantity: $absQty,
+                direction: $direction,
+                referenceType: $reference?->getMorphClass(),
+                referenceId: $reference?->getKey(),
+                unitCost: $unitCost,
+                reason: $reason,
+                notes: $reason,
+                actor: $actor
+            );
 
-            $movement = StockMovement::create([
-                'organization_id' => $product->organization_id,
-                'workspace_id' => $product->workspace_id,
-                'warehouse_id' => $warehouse->id,
-                'product_id' => $product->id,
-                'type' => $type,
-                'quantity' => $absQty,
-                'direction' => $direction,
-                'balance_after' => $balance,
-                'unit_cost' => $unitCost,
-                'total_cost' => $totalCost,
-                'reason' => $reason,
-                'notes' => $reason,
-                'created_by' => $actor->id,
-                'reference_type' => $reference?->getMorphClass(),
-                'reference_id' => $reference?->getKey(),
-            ]);
             $this->audit->log($actor->id, $product->organization_id, $product->workspace_id, 'inventory.'.$type, 'stock_movement', (string) $movement->id, [
                 'product_id' => $product->id,
                 'warehouse_id' => $warehouse->id,
                 'quantity' => $quantity,
                 'direction' => $direction,
-                'balance_after' => $balance,
+                'balance_after' => $movement->balance_after,
                 'reason' => $reason,
             ], critical: true);
 
