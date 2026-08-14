@@ -3,37 +3,41 @@
 namespace App\Domain\POS;
 
 use App\Models\POS\PosNumber;
+use App\Models\POS\PosSale;
 use Illuminate\Support\Facades\DB;
 
 class PosNumberService
 {
     /**
-     * Generate a concurrency-safe workspace-scoped POS sale number.
-     * Format: POS-YYYYMMDD-00001
+     * Concurrency-safe workspace/day sequence.
+     * The DB unique(workspace_id,date) constraint closes the first-row race.
      */
     public function next(int $workspaceId): string
     {
         return DB::transaction(function () use ($workspaceId) {
             $date = now()->format('Ymd');
 
-            $record = PosNumber::lockForUpdate()
+            DB::table('pos_numbers')->insertOrIgnore([
+                'workspace_id' => $workspaceId,
+                'date' => $date,
+                'last_number' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            $record = PosNumber::query()
                 ->where('workspace_id', $workspaceId)
                 ->where('date', $date)
-                ->first();
+                ->lockForUpdate()
+                ->firstOrFail();
 
-            if ($record) {
-                $record->increment('last_number');
-                $seq = $record->last_number;
-            } else {
-                PosNumber::create([
-                    'workspace_id' => $workspaceId,
-                    'date' => $date,
-                    'last_number' => 1,
-                ]);
-                $seq = 1;
-            }
+            do {
+                $record->last_number = ((int) $record->last_number) + 1;
+                $record->save();
+                $number = sprintf('POS-%s-%05d', $date, $record->last_number);
+            } while (PosSale::where('workspace_id', $workspaceId)->where('sale_number', $number)->exists());
 
-            return sprintf('POS-%s-%05d', $date, $seq);
+            return $number;
         });
     }
 }
