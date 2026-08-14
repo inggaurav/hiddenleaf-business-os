@@ -6,6 +6,7 @@ use App\Models\JournalEntry;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use RuntimeException;
 
 class PosReturn extends Model
 {
@@ -21,6 +22,20 @@ class PosReturn extends Model
         'processed_at' => 'datetime',
         'refund_amount' => 'string',
     ];
+
+    protected static function booted(): void
+    {
+        static::updating(function (self $return) {
+            if ($return->getOriginal('status') === 'completed') {
+                throw new RuntimeException('Completed POS returns are immutable.');
+            }
+        });
+        static::deleting(function (self $return) {
+            if ($return->status === 'completed') {
+                throw new RuntimeException('Completed POS returns cannot be deleted.');
+            }
+        });
+    }
 
     public function sale(): BelongsTo
     {
