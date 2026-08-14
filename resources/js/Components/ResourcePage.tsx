@@ -135,7 +135,7 @@ export function createIndexPage(config: IndexConfig) {
 
           <DataTable
             columns={tableColumns}
-            data={records}
+            data={collection ?? []}
             searchPlaceholder={`Search ${config.title.toLowerCase()}...`}
             emptyTitle={`No ${config.title.toLowerCase()} found`}
             emptyDescription={`Create your first ${config.title.toLowerCase()} record.`}

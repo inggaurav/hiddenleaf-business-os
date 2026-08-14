@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from '@inertiajs/react';
 import { 
   ChevronUp, 
   ChevronDown, 
@@ -24,7 +25,7 @@ export interface Column<T = any> {
 }
 
 export interface DataTableProps<T = any> {
-  data: T[];
+  data: T[] | LaravelPaginator<T>;
   columns: Column<T>[];
   keyExtractor?: (row: T) => string | number;
   searchable?: boolean;
@@ -36,6 +37,19 @@ export interface DataTableProps<T = any> {
   emptyTitle?: string;
   emptyDescription?: string;
   headerActions?: React.ReactNode;
+}
+
+export interface LaravelPaginator<T = any> {
+  data: T[];
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+  from?: number | null;
+  to?: number | null;
+  prev_page_url?: string | null;
+  next_page_url?: string | null;
+  links?: Array<{ url: string | null; label: string; active: boolean }>;
 }
 
 export function DataTable<T = any>({
@@ -57,6 +71,8 @@ export function DataTable<T = any>({
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [currentPage, setCurrentPage] = useState(1);
 
+  const serverPaginator = !Array.isArray(data) && Array.isArray(data?.data) ? data : null;
+  const rows = Array.isArray(data) ? data : serverPaginator?.data ?? [];
   const finalEmptyTitle = emptyTitle || emptyMessage;
   const finalEmptySubtitle = emptyDescription || emptySubtitle;
 
@@ -65,10 +81,10 @@ export function DataTable<T = any>({
 
   // Filter
   const filteredData = React.useMemo(() => {
-    if (!searchTerm.trim()) return data;
+    if (!searchTerm.trim()) return rows;
     const q = searchTerm.toLowerCase();
 
-    return data.filter((item: any) => {
+    return rows.filter((item: any) => {
       if (searchKeys && searchKeys.length > 0) {
         return searchKeys.some((k) => {
           const val = item[k];
@@ -81,7 +97,7 @@ export function DataTable<T = any>({
         return String(val).toLowerCase().includes(q);
       });
     });
-  }, [data, searchTerm, searchKeys]);
+  }, [rows, searchTerm, searchKeys]);
 
   // Sort
   const sortedData = React.useMemo(() => {
@@ -99,11 +115,12 @@ export function DataTable<T = any>({
   }, [filteredData, sortKey, sortOrder]);
 
   // Paginate
-  const totalPages = Math.ceil(sortedData.length / pageSize) || 1;
+  const totalPages = serverPaginator?.last_page ?? (Math.ceil(sortedData.length / pageSize) || 1);
   const paginatedData = React.useMemo(() => {
+    if (serverPaginator) return sortedData;
     const start = (currentPage - 1) * pageSize;
     return sortedData.slice(start, start + pageSize);
-  }, [sortedData, currentPage, pageSize]);
+  }, [sortedData, currentPage, pageSize, serverPaginator]);
 
   const handleSort = (column: Column<T>) => {
     const key = (column.accessorKey || column.key) as string | keyof T | undefined;
@@ -128,9 +145,9 @@ export function DataTable<T = any>({
   return (
     <Card level={0} padded={false} className="overflow-hidden">
       {/* Top Search & Filter Bar */}
-      {(searchable || headerActions) && (
+      {((searchable && !serverPaginator) || headerActions) && (
         <div className="p-4 border-b border-[var(--border-subtle)] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-[var(--surface-1)]">
-          {searchable ? (
+          {searchable && !serverPaginator ? (
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
               <input
@@ -308,36 +325,24 @@ export function DataTable<T = any>({
       {totalPages > 1 && (
         <div className="p-3 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs text-[var(--text-secondary)] bg-[var(--surface-1)]">
           <div>
-            Showing <span className="font-semibold text-[var(--text-primary)]">{(currentPage - 1) * pageSize + 1}</span> to{' '}
-            <span className="font-semibold text-[var(--text-primary)]">{Math.min(currentPage * pageSize, sortedData.length)}</span> of{' '}
-            <span className="font-semibold text-[var(--text-primary)]">{sortedData.length}</span> results
+            Showing <span className="font-semibold text-[var(--text-primary)]">{serverPaginator?.from ?? ((currentPage - 1) * pageSize + 1)}</span> to{' '}
+            <span className="font-semibold text-[var(--text-primary)]">{serverPaginator?.to ?? Math.min(currentPage * pageSize, sortedData.length)}</span> of{' '}
+            <span className="font-semibold text-[var(--text-primary)]">{serverPaginator?.total ?? sortedData.length}</span> results
           </div>
 
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-              className="p-1 rounded-lg hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent spring-transition text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer disabled:cursor-not-allowed"
-              aria-label="Previous Page"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-
-            <span className="px-2 font-mono text-[11px] text-[var(--text-tertiary)]">
-              {currentPage} / {totalPages}
-            </span>
-
-            <button
-              type="button"
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-              className="p-1 rounded-lg hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent spring-transition text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer disabled:cursor-not-allowed"
-              aria-label="Next Page"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
+          {serverPaginator ? (
+            <div className="flex items-center gap-1">
+              {serverPaginator.prev_page_url ? <Link preserveScroll href={serverPaginator.prev_page_url} className="rounded-lg p-1 hover:bg-white/10" aria-label="Previous Page"><ChevronLeft className="h-4 w-4" /></Link> : <span className="p-1 opacity-30"><ChevronLeft className="h-4 w-4" /></span>}
+              <span className="px-2 font-mono text-[11px] text-[var(--text-tertiary)]">{serverPaginator.current_page} / {serverPaginator.last_page}</span>
+              {serverPaginator.next_page_url ? <Link preserveScroll href={serverPaginator.next_page_url} className="rounded-lg p-1 hover:bg-white/10" aria-label="Next Page"><ChevronRight className="h-4 w-4" /></Link> : <span className="p-1 opacity-30"><ChevronRight className="h-4 w-4" /></span>}
+            </div>
+          ) : (
+            <div className="flex items-center gap-1">
+              <button type="button" disabled={currentPage === 1} onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))} className="p-1 rounded-lg hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent spring-transition text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer disabled:cursor-not-allowed" aria-label="Previous Page"><ChevronLeft className="w-4 h-4" /></button>
+              <span className="px-2 font-mono text-[11px] text-[var(--text-tertiary)]">{currentPage} / {totalPages}</span>
+              <button type="button" disabled={currentPage === totalPages} onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))} className="p-1 rounded-lg hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent spring-transition text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer disabled:cursor-not-allowed" aria-label="Next Page"><ChevronRight className="w-4 h-4" /></button>
+            </div>
+          )}
         </div>
       )}
     </Card>
