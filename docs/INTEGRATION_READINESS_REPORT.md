@@ -1,9 +1,13 @@
 # HiddenLeaf BusinessOS V1 Integration Readiness Report
 
-**Assessment date:** 2026-08-14  
-**Integration branch:** `integration/hiddenleaf-v1`  
-**Frozen core:** `34d68572a310c0131f6ff4478c9046c88dc80722`  
-**Assessed HEAD:** `4eda521a4b30b8b4293e60290b8082abdea39d28`  
+**Assessment date:** 2026-08-14
+
+**Integration branch:** `integration/hiddenleaf-v1`
+
+**Frozen core:** `34d68572a310c0131f6ff4478c9046c88dc80722`
+
+**Assessed code HEAD:** `4eda521a4b30b8b4293e60290b8082abdea39d28`
+
 **Verdict:** **BLOCKED — do not merge the Antigravity UI branch**
 
 ## Executive assessment
@@ -103,8 +107,10 @@ The candidate UI branch must not be merged as-is because it:
 
 ## Integration decision
 
-Backend integration branch: **READY FOR REVIEW**.  
-Antigravity UI merge: **BLOCKED**.  
+Backend integration branch: **READY FOR REVIEW**.
+
+Antigravity UI merge: **BLOCKED**.
+
 Production V1 release: **BLOCKED** until the installer and browser matrix are complete.
 
 No UI merge was performed.
