@@ -34,8 +34,7 @@ const FOX_SHORTCUTS: NavigationItem[] = [
     name: 'View Sales Invoices',
     href: '/sales-invoices',
     icon: FileText,
-    permission: 'sales.invoice.view',
-    module: 'sales',
+    permission: 'sales.manage',
     category: 'Sales',
   },
   {
@@ -43,8 +42,7 @@ const FOX_SHORTCUTS: NavigationItem[] = [
     name: 'Review Bank Transfers',
     href: '/bank-transfer',
     icon: DollarSign,
-    permission: 'bank-transfer.view',
-    module: 'core',
+    permission: 'workspace.view',
     category: 'Billing',
   },
   {
@@ -52,8 +50,7 @@ const FOX_SHORTCUTS: NavigationItem[] = [
     name: 'Customer Support Tickets',
     href: '/helpdesk-tickets',
     icon: Headphones,
-    permission: 'helpdesk.view',
-    module: 'core',
+    permission: 'workspace.view',
     category: 'Operations',
   },
   {
@@ -61,8 +58,7 @@ const FOX_SHORTCUTS: NavigationItem[] = [
     name: 'Configure AI Provider Credentials',
     href: '/settings',
     icon: Settings,
-    permission: 'settings.view',
-    module: 'core',
+    permission: 'modules.manage',
     category: 'System',
   },
 ];
