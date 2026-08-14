@@ -1,3 +1,7 @@
+# HISTORICAL / SUPERSEDED
+
+This report describes an earlier Stage 1 snapshot and is retained only for audit history. Its stack versions, SHAs, route counts, test counts, and parity claims are not current. The authoritative frozen-core record is [`CORE_FREEZE_34d6857.md`](CORE_FREEZE_34d6857.md).
+
 # HIDDENLEAF BUSINESSOS
 # STAGE 1 — FINAL VERIFIED REPORT
 

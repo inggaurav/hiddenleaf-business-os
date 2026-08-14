@@ -94,6 +94,15 @@ jobs:
       - name: Validate WorkDo parity registry
         run: composer parity:validate
 
+      - name: Validate forensic routes and Inertia contracts
+        run: composer forensic:validate
+
+      - name: Scan release sources
+        run: composer release:scan
+
+      - name: Audit frontend dependencies
+        run: npm audit --audit-level=high
+
       - name: Verify PHP code style
         run: ./vendor/bin/pint --test
 

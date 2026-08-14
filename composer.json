@@ -43,7 +43,10 @@
             "@php artisan package:discover --ansi"
         ],
         "parity:generate": "@php tools/generate-parity-registry.php",
-        "parity:validate": "@php tools/generate-parity-registry.php --check"
+        "parity:validate": "@php tools/generate-parity-registry.php --check",
+        "forensic:generate": "@php tools/forensic-audit.php",
+        "forensic:validate": "@php tools/forensic-audit.php --check",
+        "release:scan": "@php tools/release-scan.php"
     },
     "config": {
         "optimize-autoloader": true,

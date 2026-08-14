@@ -1,0 +1,1521 @@
+{
+    "schema_version": 1,
+    "contracts": [
+        {
+            "page": "AIAssistant/Index",
+            "component": "resources/js/Pages/AIAssistant/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\AIAgentChatPageController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "ai-agent/chat",
+                "name": "ai-agent.chat"
+            },
+            "props": [
+                "sessions"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Accounting/Accounts",
+            "component": "resources/js/Pages/Accounting/Accounts.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "action": "accounts",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "accounting/accounts",
+                "name": "accounting.accounts"
+            },
+            "props": [
+                "accounts",
+                "types",
+                "metrics"
+            ],
+            "permissions": [
+                "account.view"
+            ]
+        },
+        {
+            "page": "Accounting/Journals",
+            "component": "resources/js/Pages/Accounting/Journals.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "action": "journals",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "accounting/journals",
+                "name": "accounting.journals"
+            },
+            "props": [
+                "entries",
+                "accounts"
+            ],
+            "permissions": [
+                "account.view"
+            ]
+        },
+        {
+            "page": "Accounting/Reports",
+            "component": "resources/js/Pages/Accounting/Reports.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "action": "reports",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "accounting/reports",
+                "name": "accounting.reports"
+            },
+            "props": [
+                "trialBalance",
+                "profitAndLoss",
+                "balanceSheet"
+            ],
+            "permissions": [
+                "account.view"
+            ]
+        },
+        {
+            "page": "Auth/ForgotPassword",
+            "component": "resources/js/Pages/Auth/ForgotPassword.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\Auth\\PasswordController",
+            "action": "request",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "forgot-password",
+                "name": "password.request"
+            },
+            "props": [],
+            "permissions": []
+        },
+        {
+            "page": "Auth/Login",
+            "component": "resources/js/Pages/Auth/Login.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\Auth\\AuthController",
+            "action": "loginView",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "login",
+                "name": "login"
+            },
+            "props": [],
+            "permissions": []
+        },
+        {
+            "page": "Auth/Register",
+            "component": "resources/js/Pages/Auth/Register.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\Auth\\AuthController",
+            "action": "registerView",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "register",
+                "name": "register"
+            },
+            "props": [],
+            "permissions": []
+        },
+        {
+            "page": "Auth/ResetPassword",
+            "component": "resources/js/Pages/Auth/ResetPassword.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\Auth\\PasswordController",
+            "action": "resetView",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "reset-password/{token}",
+                "name": "password.reset"
+            },
+            "props": [
+                "token",
+                "email"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Auth/VerifyEmail",
+            "component": "resources/js/Pages/Auth/VerifyEmail.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\Auth\\VerifyEmailController",
+            "action": "prompt",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "verify-email",
+                "name": "verification.notice"
+            },
+            "props": [],
+            "permissions": []
+        },
+        {
+            "page": "BankTransfer/Index",
+            "component": "resources/js/Pages/BankTransfer/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\BankTransferPaymentController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "bank-transfer",
+                "name": "bank-transfer.index"
+            },
+            "props": [
+                "requests"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "CRM/Index",
+            "component": "resources/js/Pages/CRM/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\CrmController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "crm",
+                "name": "crm.index"
+            },
+            "props": [
+                "pipelines",
+                "leads",
+                "deals",
+                "metrics"
+            ],
+            "permissions": [
+                "crm.view"
+            ]
+        },
+        {
+            "page": "Coupons/Create",
+            "component": "resources/js/Pages/Coupons/Create.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\CouponController",
+            "action": "create",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "coupons/create",
+                "name": "coupons.create"
+            },
+            "props": [],
+            "permissions": []
+        },
+        {
+            "page": "Coupons/Edit",
+            "component": "resources/js/Pages/Coupons/Edit.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\CouponController",
+            "action": "edit",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "coupons/{coupon}/edit",
+                "name": "coupons.edit"
+            },
+            "props": [
+                "coupon"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Coupons/Index",
+            "component": "resources/js/Pages/Coupons/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\CouponController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "coupons",
+                "name": "coupons.index"
+            },
+            "props": [
+                "coupons",
+                "canCreate"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Coupons/Show",
+            "component": "resources/js/Pages/Coupons/Show.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\CouponController",
+            "action": "show",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "coupons/{coupon}",
+                "name": "coupons.show"
+            },
+            "props": [
+                "coupon",
+                "usageRecords"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Dashboard",
+            "component": "resources/js/Pages/Dashboard.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\HomeController",
+            "action": "Dashboard",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "dashboard",
+                "name": "dashboard"
+            },
+            "props": [
+                "stats",
+                "metrics",
+                "recentLogs"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "HRM/Index",
+            "component": "resources/js/Pages/HRM/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\HrmController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "hrm",
+                "name": "hrm.index"
+            },
+            "props": [
+                "employees",
+                "attendanceToday",
+                "pendingLeaves",
+                "payrollTotal",
+                "metrics"
+            ],
+            "permissions": [
+                "hrm.view"
+            ]
+        },
+        {
+            "page": "Helpdesk/Categories/Create",
+            "component": "resources/js/Pages/Helpdesk/Categories/Create.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\HelpdeskCategoryController",
+            "action": "create",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "helpdesk-categories/create",
+                "name": "helpdesk-categories.create"
+            },
+            "props": [],
+            "permissions": []
+        },
+        {
+            "page": "Helpdesk/Categories/Edit",
+            "component": "resources/js/Pages/Helpdesk/Categories/Edit.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\HelpdeskCategoryController",
+            "action": "edit",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "helpdesk-categories/{helpdesk_category}/edit",
+                "name": "helpdesk-categories.edit"
+            },
+            "props": [
+                "category"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Helpdesk/Categories/Index",
+            "component": "resources/js/Pages/Helpdesk/Categories/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\HelpdeskCategoryController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "helpdesk-categories",
+                "name": "helpdesk-categories.index"
+            },
+            "props": [
+                "categories"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Helpdesk/Tickets/Create",
+            "component": "resources/js/Pages/Helpdesk/Tickets/Create.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\HelpdeskTicketController",
+            "action": "create",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "helpdesk-tickets/create",
+                "name": "helpdesk-tickets.create"
+            },
+            "props": [
+                "categories"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Helpdesk/Tickets/Edit",
+            "component": "resources/js/Pages/Helpdesk/Tickets/Edit.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\HelpdeskTicketController",
+            "action": "edit",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "helpdesk-tickets/{helpdesk_ticket}/edit",
+                "name": "helpdesk-tickets.edit"
+            },
+            "props": [
+                "ticket",
+                "categories"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Helpdesk/Tickets/Index",
+            "component": "resources/js/Pages/Helpdesk/Tickets/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\HelpdeskTicketController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "helpdesk-tickets",
+                "name": "helpdesk-tickets.index"
+            },
+            "props": [
+                "tickets",
+                "categories"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Helpdesk/Tickets/Show",
+            "component": "resources/js/Pages/Helpdesk/Tickets/Show.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\HelpdeskTicketController",
+            "action": "show",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "helpdesk-tickets/{helpdesk_ticket}",
+                "name": "helpdesk-tickets.show"
+            },
+            "props": [
+                "ticket"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Install/Index",
+            "component": "resources/js/Pages/Install/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\InstallController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "install",
+                "name": "install.index"
+            },
+            "props": [
+                "steps",
+                "requirements",
+                "isInstalled",
+                "modules"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Landing/Manage",
+            "component": "resources/js/Pages/Landing/Manage.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\LandingPageController",
+            "action": "manage",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "landing",
+                "name": "landing.manage"
+            },
+            "props": [
+                "sites"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Landing/Page",
+            "component": "resources/js/Pages/Landing/Page.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\LandingPageController",
+            "action": "publicPage",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "site/{slug}/{page}",
+                "name": "landing.page"
+            },
+            "props": [
+                "site",
+                "page"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Landing/Public",
+            "component": "resources/js/Pages/Landing/Public.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\LandingPageController",
+            "action": "publicSite",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "site/{slug}",
+                "name": "landing.public"
+            },
+            "props": [
+                "site"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Languages/Create",
+            "component": "resources/js/Pages/Languages/Create.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\LanguageController",
+            "action": "create",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "languages/create",
+                "name": "languages.create"
+            },
+            "props": [],
+            "permissions": []
+        },
+        {
+            "page": "Languages/Index",
+            "component": "resources/js/Pages/Languages/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\LanguageController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "languages",
+                "name": "languages.index"
+            },
+            "props": [
+                "languages",
+                "defaultLang"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Languages/Show",
+            "component": "resources/js/Pages/Languages/Show.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\LanguageController",
+            "action": "show",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "languages/{language}",
+                "name": "languages.show"
+            },
+            "props": [
+                "language",
+                "langCode",
+                "translations"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Media/Index",
+            "component": "resources/js/Pages/Media/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\MediaController",
+            "action": "page",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "media/page",
+                "name": "media.page"
+            },
+            "props": [
+                "directories",
+                "media"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Messenger/Index",
+            "component": "resources/js/Pages/Messenger/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\MessengerController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "chats",
+                "name": "chats.index"
+            },
+            "props": [
+                "id"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Modules/Index",
+            "component": "resources/js/Pages/Modules/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\ModuleController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "modules",
+                "name": "modules.index"
+            },
+            "props": [
+                "modules",
+                "isSuperAdmin"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Orders/Index",
+            "component": "resources/js/Pages/Orders/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\OrderController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "orders",
+                "name": "orders.index"
+            },
+            "props": [
+                "orders"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Orders/Show",
+            "component": "resources/js/Pages/Orders/Show.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\OrderController",
+            "action": "show",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "orders/{order}",
+                "name": "orders.show"
+            },
+            "props": [
+                "order"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "POS/Index",
+            "component": "resources/js/Pages/POS/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\PosController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "pos",
+                "name": "pos.index"
+            },
+            "props": [
+                "registers",
+                "sessions",
+                "orders",
+                "metrics"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Plans/Create",
+            "component": "resources/js/Pages/Plans/Create.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\PlanController",
+            "action": "create",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "plans/create",
+                "name": "plans.create"
+            },
+            "props": [
+                "availableModules"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Plans/Edit",
+            "component": "resources/js/Pages/Plans/Edit.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\PlanController",
+            "action": "edit",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "plans/{plan}/edit",
+                "name": "plans.edit"
+            },
+            "props": [
+                "plan",
+                "availableModules"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Plans/Index",
+            "component": "resources/js/Pages/Plans/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\PlanController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "plans",
+                "name": "plans.index"
+            },
+            "props": [
+                "plans",
+                "canCreate",
+                "activeModules",
+                "bankTransferEnabled",
+                "bankTransferInstructions",
+                "userTrialInfo"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Plans/Subscribe",
+            "component": "resources/js/Pages/Plans/Subscribe.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\PlanController",
+            "action": "subscribe",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "plans/{plan}/subscribe",
+                "name": "plans.subscribe"
+            },
+            "props": [
+                "plan",
+                "userActiveModules",
+                "bankTransferEnabled",
+                "bankTransferInstructions",
+                "planExpireDate"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "ProductService/Create",
+            "component": "resources/js/Pages/ProductService/Create.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\ProductServiceController",
+            "action": "create",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "product-service/create",
+                "name": "product-service.create"
+            },
+            "props": [
+                "itemTypes",
+                "categories",
+                "units",
+                "taxes",
+                "warehouses"
+            ],
+            "permissions": [
+                "product_service.manage"
+            ]
+        },
+        {
+            "page": "ProductService/Edit",
+            "component": "resources/js/Pages/ProductService/Edit.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\ProductServiceController",
+            "action": "edit",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "product-service/{product_service}/edit",
+                "name": "product-service.edit"
+            },
+            "props": [
+                "itemTypes",
+                "item",
+                "categories",
+                "units",
+                "taxes",
+                "warehouses"
+            ],
+            "permissions": [
+                "product_service.manage"
+            ]
+        },
+        {
+            "page": "ProductService/Index",
+            "component": "resources/js/Pages/ProductService/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\ProductServiceController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "product-service",
+                "name": "product-service.index"
+            },
+            "props": [
+                "items",
+                "metrics"
+            ],
+            "permissions": [
+                "product_service.manage"
+            ]
+        },
+        {
+            "page": "Profile/Edit",
+            "component": "resources/js/Pages/Profile/Edit.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\Auth\\ProfileController",
+            "action": "edit",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "profile",
+                "name": "profile.edit"
+            },
+            "props": [
+                "user"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "PurchaseInvoices/Create",
+            "component": "resources/js/Pages/PurchaseInvoices/Create.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\PurchaseInvoiceController",
+            "action": "create",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "purchase-invoices/create",
+                "name": "purchase-invoices.create"
+            },
+            "props": [
+                "warehouses",
+                "products"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "PurchaseInvoices/Edit",
+            "component": "resources/js/Pages/PurchaseInvoices/Edit.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\PurchaseInvoiceController",
+            "action": "edit",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "purchase-invoices/{purchase_invoice}/edit",
+                "name": "purchase-invoices.edit"
+            },
+            "props": [
+                "invoice",
+                "warehouses",
+                "products"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "PurchaseInvoices/Index",
+            "component": "resources/js/Pages/PurchaseInvoices/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\PurchaseInvoiceController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "purchase-invoices",
+                "name": "purchase-invoices.index"
+            },
+            "props": [
+                "invoices"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "PurchaseInvoices/Show",
+            "component": "resources/js/Pages/PurchaseInvoices/Show.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\PurchaseInvoiceController",
+            "action": "show",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "purchase-invoices/{purchase_invoice}",
+                "name": "purchase-invoices.show"
+            },
+            "props": [
+                "invoice"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "PurchaseReturns/Create",
+            "component": "resources/js/Pages/PurchaseReturns/Create.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\PurchaseReturnController",
+            "action": "create",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "purchase-returns/create",
+                "name": "purchase-returns.create"
+            },
+            "props": [
+                "invoices"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "PurchaseReturns/Index",
+            "component": "resources/js/Pages/PurchaseReturns/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\PurchaseReturnController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "purchase-returns",
+                "name": "purchase-returns.index"
+            },
+            "props": [
+                "returns"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "PurchaseReturns/Show",
+            "component": "resources/js/Pages/PurchaseReturns/Show.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\PurchaseReturnController",
+            "action": "show",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "purchase-returns/{return}",
+                "name": "purchase-returns.show"
+            },
+            "props": [
+                "return"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Roles/Create",
+            "component": "resources/js/Pages/Roles/Create.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\Domain\\Auth\\RoleController",
+            "action": "create",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "roles/create",
+                "name": "roles.create"
+            },
+            "props": [
+                "permissions"
+            ],
+            "permissions": [
+                "roles.create"
+            ]
+        },
+        {
+            "page": "Roles/Edit",
+            "component": "resources/js/Pages/Roles/Edit.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\Domain\\Auth\\RoleController",
+            "action": "edit",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "roles/{role}/edit",
+                "name": "roles.edit"
+            },
+            "props": [
+                "role",
+                "permissions"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Roles/Index",
+            "component": "resources/js/Pages/Roles/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\Domain\\Auth\\RoleController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "roles",
+                "name": "roles.index"
+            },
+            "props": [
+                "roles",
+                "permissions"
+            ],
+            "permissions": [
+                "roles.view"
+            ]
+        },
+        {
+            "page": "SalesInvoices/Create",
+            "component": "resources/js/Pages/SalesInvoices/Create.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\SalesInvoiceController",
+            "action": "create",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "sales-invoices/create",
+                "name": "sales-invoices.create"
+            },
+            "props": [
+                "warehouses",
+                "products"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "SalesInvoices/Edit",
+            "component": "resources/js/Pages/SalesInvoices/Edit.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\SalesInvoiceController",
+            "action": "edit",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "sales-invoices/{sales_invoice}/edit",
+                "name": "sales-invoices.edit"
+            },
+            "props": [
+                "invoice",
+                "warehouses",
+                "products"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "SalesInvoices/Index",
+            "component": "resources/js/Pages/SalesInvoices/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\SalesInvoiceController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "sales-invoices",
+                "name": "sales-invoices.index"
+            },
+            "props": [
+                "invoices",
+                "metrics"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "SalesInvoices/Show",
+            "component": "resources/js/Pages/SalesInvoices/Show.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\SalesInvoiceController",
+            "action": "show",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "sales-invoices/{sales_invoice}",
+                "name": "sales-invoices.show"
+            },
+            "props": [
+                "invoice"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "SalesProposals/Create",
+            "component": "resources/js/Pages/SalesProposals/Create.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\SalesProposalController",
+            "action": "create",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "sales-proposals/create",
+                "name": "sales-proposals.create"
+            },
+            "props": [
+                "products"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "SalesProposals/Edit",
+            "component": "resources/js/Pages/SalesProposals/Edit.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\SalesProposalController",
+            "action": "edit",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "sales-proposals/{sales_proposal}/edit",
+                "name": "sales-proposals.edit"
+            },
+            "props": [
+                "proposal",
+                "products"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "SalesProposals/Index",
+            "component": "resources/js/Pages/SalesProposals/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\SalesProposalController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "sales-proposals",
+                "name": "sales-proposals.index"
+            },
+            "props": [
+                "proposals"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "SalesProposals/Show",
+            "component": "resources/js/Pages/SalesProposals/Show.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\SalesProposalController",
+            "action": "show",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "sales-proposals/{sales_proposal}",
+                "name": "sales-proposals.show"
+            },
+            "props": [
+                "proposal"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "SalesReturns/Create",
+            "component": "resources/js/Pages/SalesReturns/Create.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\SalesReturnController",
+            "action": "create",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "sales-returns/create",
+                "name": "sales-returns.create"
+            },
+            "props": [
+                "invoices"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "SalesReturns/Index",
+            "component": "resources/js/Pages/SalesReturns/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\SalesReturnController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "sales-returns",
+                "name": "sales-returns.index"
+            },
+            "props": [
+                "returns"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "SalesReturns/Show",
+            "component": "resources/js/Pages/SalesReturns/Show.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\SalesReturnController",
+            "action": "show",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "sales-returns/{salesReturn}",
+                "name": "sales-returns.show"
+            },
+            "props": [
+                "return"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Settings/ApiTokens",
+            "component": "resources/js/Pages/Settings/ApiTokens.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\Settings\\ApiTokenController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "settings/api-tokens",
+                "name": "settings.api-tokens.index"
+            },
+            "props": [
+                "tokens"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Settings/EmailTemplates/Index",
+            "component": "resources/js/Pages/Settings/EmailTemplates/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\EmailTemplateController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "email-templates",
+                "name": "email-templates.index"
+            },
+            "props": [
+                "templates",
+                "languages"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Settings/EmailTemplates/Show",
+            "component": "resources/js/Pages/Settings/EmailTemplates/Show.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\EmailTemplateController",
+            "action": "show",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "email-templates/{email_template}",
+                "name": "email-templates.show"
+            },
+            "props": [
+                "template",
+                "currTemplate",
+                "languages",
+                "currentLang"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Settings/Index",
+            "component": "resources/js/Pages/Settings/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\SettingController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "settings",
+                "name": "settings.index"
+            },
+            "props": [
+                "systemSettings",
+                "workspaceSettings",
+                "resolvedSettings",
+                "isSuperAdmin"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Settings/NotificationTemplates/Index",
+            "component": "resources/js/Pages/Settings/NotificationTemplates/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\NotificationTemplateController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "notification-templates",
+                "name": "notification-templates.index"
+            },
+            "props": [
+                "templates",
+                "languages"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Settings/NotificationTemplates/Show",
+            "component": "resources/js/Pages/Settings/NotificationTemplates/Show.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\NotificationTemplateController",
+            "action": "show",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "notification-templates/{notification_template}",
+                "name": "notification-templates.show"
+            },
+            "props": [
+                "template",
+                "currTemplate",
+                "languages",
+                "currentLang"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Subscriptions/Index",
+            "component": "resources/js/Pages/Subscriptions/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\SubscriptionController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "subscriptions",
+                "name": "subscriptions.index"
+            },
+            "props": [
+                "subscription",
+                "plans"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "SuperAdmin/Dashboard",
+            "component": "resources/js/Pages/SuperAdmin/Dashboard.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\SuperAdmin\\DashboardController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "super-admin/dashboard",
+                "name": "super-admin.dashboard"
+            },
+            "props": [
+                "metrics",
+                "tenantsCount",
+                "totalRevenue",
+                "activePlans"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Taskly/Index",
+            "component": "resources/js/Pages/Taskly/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\TasklyController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "taskly",
+                "name": "taskly.index"
+            },
+            "props": [
+                "projects",
+                "tasks",
+                "costs",
+                "metrics"
+            ],
+            "permissions": [
+                "taskly.view"
+            ]
+        },
+        {
+            "page": "Transfers/Create",
+            "component": "resources/js/Pages/Transfers/Create.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\TransferController",
+            "action": "create",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "transfers/create",
+                "name": "transfers.create"
+            },
+            "props": [
+                "warehouses",
+                "products"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Transfers/Index",
+            "component": "resources/js/Pages/Transfers/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\TransferController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "transfers",
+                "name": "transfers.index"
+            },
+            "props": [
+                "transfers"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Transfers/Show",
+            "component": "resources/js/Pages/Transfers/Show.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\TransferController",
+            "action": "show",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "transfers/{transfer}",
+                "name": "transfers.show"
+            },
+            "props": [
+                "transfer"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Update/Index",
+            "component": "resources/js/Pages/Update/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\UpdateController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "update",
+                "name": "update.index"
+            },
+            "props": [
+                "currentVersion",
+                "channel",
+                "history"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Users/Create",
+            "component": "resources/js/Pages/Users/Create.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\Auth\\UserController",
+            "action": "create",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "users/create",
+                "name": "users.create"
+            },
+            "props": [
+                "roles"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Users/Edit",
+            "component": "resources/js/Pages/Users/Edit.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\Auth\\UserController",
+            "action": "edit",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "users/{user}/edit",
+                "name": "users.edit"
+            },
+            "props": [
+                "user",
+                "roles"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Users/Index",
+            "component": "resources/js/Pages/Users/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\Auth\\UserController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "users",
+                "name": "users.index"
+            },
+            "props": [
+                "users",
+                "roles",
+                "plans",
+                "isSuperAdmin"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Users/LoginHistory",
+            "component": "resources/js/Pages/Users/LoginHistory.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\Auth\\UserController",
+            "action": "loginHistory",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "users-login-history",
+                "name": "users.login-history"
+            },
+            "props": [
+                "logs"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Warehouses/Create",
+            "component": "resources/js/Pages/Warehouses/Create.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\WarehouseController",
+            "action": "create",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "warehouses/create",
+                "name": "warehouses.create"
+            },
+            "props": [],
+            "permissions": []
+        },
+        {
+            "page": "Warehouses/Edit",
+            "component": "resources/js/Pages/Warehouses/Edit.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\WarehouseController",
+            "action": "edit",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "warehouses/{warehouse}/edit",
+                "name": "warehouses.edit"
+            },
+            "props": [
+                "warehouse"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Warehouses/Index",
+            "component": "resources/js/Pages/Warehouses/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\WarehouseController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "warehouses",
+                "name": "warehouses.index"
+            },
+            "props": [
+                "warehouses"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Webhooks/Index",
+            "component": "resources/js/Pages/Webhooks/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\WebhookController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "webhooks",
+                "name": "webhooks.index"
+            },
+            "props": [
+                "webhooks"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Workspaces/Edit",
+            "component": "resources/js/Pages/Workspaces/Edit.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\MultiTenancy\\WorkspaceController",
+            "action": "edit",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "workspaces/{id}/edit",
+                "name": "workspaces.edit"
+            },
+            "props": [
+                "workspace"
+            ],
+            "permissions": []
+        },
+        {
+            "page": "Workspaces/Index",
+            "component": "resources/js/Pages/Workspaces/Index.tsx",
+            "component_exists": true,
+            "controller": "App\\Http\\Controllers\\MultiTenancy\\WorkspaceController",
+            "action": "index",
+            "route": {
+                "method": "GET|HEAD",
+                "uri": "workspaces",
+                "name": "workspaces.index"
+            },
+            "props": [
+                "workspaces"
+            ],
+            "permissions": []
+        }
+    ]
+}

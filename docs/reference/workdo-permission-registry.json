@@ -1,0 +1,252 @@
+{
+    "schema_version": 2,
+    "reference_sha": "0b996a0050abcdffa2770a82fbb9261eeb2805bd",
+    "permissions": [
+        {
+            "permission": "account.manage",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true
+            ],
+            "status": "IMPLEMENTED"
+        },
+        {
+            "permission": "account.view",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true
+            ],
+            "status": "IMPLEMENTED"
+        },
+        {
+            "permission": "crm.manage",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true
+            ],
+            "status": "IMPLEMENTED"
+        },
+        {
+            "permission": "crm.view",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true
+            ],
+            "status": "IMPLEMENTED"
+        },
+        {
+            "permission": "hrm.manage",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true
+            ],
+            "status": "IMPLEMENTED"
+        },
+        {
+            "permission": "hrm.view",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true
+            ],
+            "status": "IMPLEMENTED"
+        },
+        {
+            "permission": "inventory.adjust",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true,
+                true
+            ],
+            "status": "IMPLEMENTED"
+        },
+        {
+            "permission": "inventory.manage",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true
+            ],
+            "status": "IMPLEMENTED"
+        },
+        {
+            "permission": "landing.manage",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true
+            ],
+            "status": "IMPLEMENTED"
+        },
+        {
+            "permission": "modules.manage",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true
+            ],
+            "status": "IMPLEMENTED"
+        },
+        {
+            "permission": "pos.manage",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true
+            ],
+            "status": "IMPLEMENTED"
+        },
+        {
+            "permission": "procurement.manage",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true,
+                true
+            ],
+            "status": "IMPLEMENTED"
+        },
+        {
+            "permission": "product_service.manage",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true
+            ],
+            "status": "IMPLEMENTED"
+        },
+        {
+            "permission": "roles.assign_permissions",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true
+            ],
+            "status": "IMPLEMENTED"
+        },
+        {
+            "permission": "roles.create",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true
+            ],
+            "status": "IMPLEMENTED"
+        },
+        {
+            "permission": "roles.view",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true
+            ],
+            "status": "IMPLEMENTED"
+        },
+        {
+            "permission": "sales.manage",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true,
+                true,
+                true
+            ],
+            "status": "IMPLEMENTED"
+        },
+        {
+            "permission": "taskly.manage",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true
+            ],
+            "status": "IMPLEMENTED"
+        },
+        {
+            "permission": "taskly.view",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true
+            ],
+            "status": "IMPLEMENTED"
+        },
+        {
+            "permission": "users.change_password",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true
+            ],
+            "status": "IMPLEMENTED"
+        },
+        {
+            "permission": "users.toggle_status",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true
+            ],
+            "status": "IMPLEMENTED"
+        },
+        {
+            "permission": "webhooks.manage",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true
+            ],
+            "status": "IMPLEMENTED"
+        },
+        {
+            "permission": "workspace.create",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true,
+                true
+            ],
+            "status": "IMPLEMENTED"
+        },
+        {
+            "permission": "workspace.delete",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true
+            ],
+            "status": "IMPLEMENTED"
+        },
+        {
+            "permission": "workspace.members.assign_role",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true
+            ],
+            "status": "IMPLEMENTED"
+        },
+        {
+            "permission": "workspace.members.invite",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true
+            ],
+            "status": "IMPLEMENTED"
+        },
+        {
+            "permission": "workspace.members.remove",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true
+            ],
+            "status": "IMPLEMENTED"
+        },
+        {
+            "permission": "workspace.switch",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true
+            ],
+            "status": "IMPLEMENTED"
+        },
+        {
+            "permission": "workspace.update",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true
+            ],
+            "status": "IMPLEMENTED"
+        },
+        {
+            "permission": "workspace.view",
+            "reference_evidence": [],
+            "hiddenleaf_evidence": [
+                true,
+                true
+            ],
+            "status": "IMPLEMENTED"
+        }
+    ]
+}
