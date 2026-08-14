@@ -6,6 +6,7 @@ use App\Contracts\AssistantProviderContract;
 use App\Contracts\MessengerTransportContract;
 use App\Services\Assistant\LocalAssistantProvider;
 use App\Services\CacheMessengerTransport;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -18,6 +19,6 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        //
+        Route::middleware('web')->group(base_path('routes/account-reference.php'));
     }
 }
