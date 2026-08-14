@@ -23,7 +23,7 @@ final class InventoryQuantity implements Stringable
         $this->value = self::normalize($value);
     }
 
-    public static function of(self|string|int $value): self
+    public static function of(self|string|int|float $value): self
     {
         return $value instanceof self ? $value : new self((string) $value);
     }

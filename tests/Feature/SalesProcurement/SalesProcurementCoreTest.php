@@ -279,7 +279,7 @@ class SalesProcurementCoreTest extends TestCase
             ->assertJsonFragment([
                 'name' => 'Industrial Router',
                 'sku' => 'RTR-100',
-                'quantity' => '12.00',
+                'quantity' => '12.0000',
             ])
             ->assertJsonMissing(['name' => 'Network Installation']);
 

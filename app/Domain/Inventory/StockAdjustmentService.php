@@ -24,7 +24,7 @@ class StockAdjustmentService
     public function adjust(
         ProductServiceItem $product,
         Warehouse $warehouse,
-        InventoryQuantity|string|int $quantity,
+        InventoryQuantity|string|int|float $quantity,
         string $reason,
         User $actor,
         string $type = 'adjusted',

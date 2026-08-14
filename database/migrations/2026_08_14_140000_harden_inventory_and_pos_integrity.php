@@ -132,10 +132,41 @@ return new class extends Migration
 
     public function down(): void
     {
-        // Hardening constraints are intentionally not rolled back destructively.
-        // Dropping them on a production downgrade could reopen duplication and
-        // tenancy defects. Application rollback should deploy the preceding
-        // release without deleting preserved business data.
+        if (Schema::hasTable('pos_idempotency_keys')) {
+            Schema::dropIfExists('pos_idempotency_keys');
+        }
+
+        if ($this->hasIndex('transfers', 'transfers_workspace_number_unique')) {
+            Schema::table('transfers', fn (Blueprint $table) => $table->dropUnique('transfers_workspace_number_unique'));
+        }
+
+        if ($this->hasIndex('stock_movements', 'stock_movements_source_unique')) {
+            Schema::table('stock_movements', fn (Blueprint $table) => $table->dropUnique('stock_movements_source_unique'));
+        }
+
+        if ($this->hasIndex('warehouse_stocks', 'warehouse_stocks_warehouse_product_unique')) {
+            Schema::table('warehouse_stocks', fn (Blueprint $table) => $table->dropUnique('warehouse_stocks_warehouse_product_unique'));
+        }
+
+        if ($this->hasIndex('pos_sales', 'pos_sales_workspace_idempotency_unique')) {
+            Schema::table('pos_sales', fn (Blueprint $table) => $table->dropUnique('pos_sales_workspace_idempotency_unique'));
+        }
+
+        if ($this->hasIndex('pos_sales', 'pos_sales_workspace_number_unique')) {
+            Schema::table('pos_sales', fn (Blueprint $table) => $table->dropUnique('pos_sales_workspace_number_unique'));
+        }
+
+        if ($this->hasIndex('pos_returns', 'pos_returns_workspace_number_unique')) {
+            Schema::table('pos_returns', fn (Blueprint $table) => $table->dropUnique('pos_returns_workspace_number_unique'));
+        }
+
+        if ($this->hasIndex('pos_numbers', 'pos_numbers_workspace_date_unique')) {
+            Schema::table('pos_numbers', fn (Blueprint $table) => $table->dropUnique('pos_numbers_workspace_date_unique'));
+        }
+
+        if ($this->hasIndex('pos_return_numbers', 'pos_return_numbers_workspace_date_unique')) {
+            Schema::table('pos_return_numbers', fn (Blueprint $table) => $table->dropUnique('pos_return_numbers_workspace_date_unique'));
+        }
     }
 
     private function hasIndex(string $table, string $name): bool

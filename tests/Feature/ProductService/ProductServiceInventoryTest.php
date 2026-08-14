@@ -62,8 +62,8 @@ class ProductServiceInventoryTest extends TestCase
             'reason' => 'Opening stock',
         ])->assertSessionHasNoErrors();
 
-        $this->assertSame('12.50', WarehouseStock::sole()->quantity);
-        $this->assertSame('12.50', StockMovement::sole()->balance_after);
+        $this->assertSame('12.5000', WarehouseStock::sole()->quantity);
+        $this->assertSame('12.5000', StockMovement::sole()->balance_after);
         $this->assertDatabaseHas('audit_logs', ['action' => 'inventory.adjusted', 'workspace_id' => $this->workspace->id]);
 
         $this->tenantRequest()->post("/product-service/{$product->id}/adjust-stock", [
@@ -71,7 +71,7 @@ class ProductServiceInventoryTest extends TestCase
             'quantity' => -20,
             'reason' => 'Invalid correction',
         ])->assertServerError();
-        $this->assertSame('12.50', WarehouseStock::sole()->quantity);
+        $this->assertSame('12.5000', WarehouseStock::sole()->quantity);
     }
 
     public function test_cross_tenant_catalog_and_warehouse_idor_are_rejected(): void

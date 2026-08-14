@@ -140,8 +140,8 @@ class PosController extends Controller
 
     public function store(Request $request): JsonResponse|RedirectResponse
     {
-        if (! $request->filled('idempotency_key') && $request->hasHeader('Idempotency-Key')) {
-            $request->merge(['idempotency_key' => $request->header('Idempotency-Key')]);
+        if (! $request->filled('idempotency_key')) {
+            $request->merge(['idempotency_key' => $request->header('Idempotency-Key') ?: (string) Str::uuid()]);
         }
 
         $validated = $request->validate([
