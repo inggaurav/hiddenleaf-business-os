@@ -9,7 +9,7 @@ interface WorkspaceItem {
 
 export const WorkspaceSwitcher: React.FC = () => {
   const { tenant } = usePage<any>().props;
-  const activeTitle = tenant?.workspace_title || 'Default Workspace';
+  const activeTitle = tenant?.workspace_title || 'No workspace selected';
   const activeId = tenant?.workspace_id;
   const workspaces: WorkspaceItem[] = tenant?.available_workspaces || [];
 
@@ -69,7 +69,7 @@ export const WorkspaceSwitcher: React.FC = () => {
   };
 
   return (
-    <div className="relative inline-block text-left" ref={containerRef}>
+    <div className="relative min-w-0 text-left" ref={containerRef}>
       <button
         ref={buttonRef}
         type="button"
@@ -77,12 +77,12 @@ export const WorkspaceSwitcher: React.FC = () => {
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-label={`Current Workspace: ${activeTitle}. Click to switch workspace.`}
-        className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-[var(--surface-1)] hover:bg-[var(--surface-2)] border border-[var(--border-subtle)] hover:border-[var(--border-medium)] spring-transition text-xs font-semibold text-[var(--text-primary)] cursor-pointer"
+        className="flex min-w-0 items-center gap-1.5 px-2 py-1.5 sm:gap-2.5 sm:px-3 rounded-xl bg-[var(--surface-1)] hover:bg-[var(--surface-2)] border border-[var(--border-subtle)] hover:border-[var(--border-medium)] spring-transition text-xs font-semibold text-[var(--text-primary)] cursor-pointer"
       >
         <div className="w-5 h-5 rounded-lg bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-sm flex-shrink-0">
           <Layers className="w-3 h-3" />
         </div>
-        <span className="truncate max-w-[140px] sm:max-w-[200px] text-left">{activeTitle}</span>
+        <span className="truncate max-w-[92px] min-[430px]:max-w-[140px] sm:max-w-[200px] text-left">{activeTitle}</span>
         <ChevronDown className={`w-3.5 h-3.5 text-[var(--text-tertiary)] spring-transition ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 

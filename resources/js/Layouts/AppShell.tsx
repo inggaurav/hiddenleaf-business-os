@@ -210,8 +210,8 @@ export default function AppShell({ title, children, breadcrumbs }: AppShellProps
       {/* ========================================================================= */}
       <div className="lg:pl-64 flex flex-col min-h-screen">
         {/* Top Header Navbar */}
-        <header className="sticky top-0 z-30 h-16 glass-1 border-b border-[var(--border-subtle)] px-4 sm:px-6 flex items-center justify-between gap-4 bg-[var(--surface-1)]">
-          <div className="flex items-center gap-3">
+        <header className="sticky top-0 z-30 h-16 glass-1 border-b border-[var(--border-subtle)] px-2 sm:px-6 flex items-center justify-between gap-2 sm:gap-4 bg-[var(--surface-1)]">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             {/* Mobile Menu Trigger */}
             <button
               type="button"
@@ -244,9 +244,11 @@ export default function AppShell({ title, children, breadcrumbs }: AppShellProps
           </div>
 
           {/* Right Header Actions */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex flex-shrink-0 items-center gap-1 sm:gap-3">
             {/* Theme Mode Switcher */}
-            <ThemeSwitcher />
+            <div className="hidden min-[430px]:block">
+              <ThemeSwitcher />
+            </div>
 
             {/* Notification Center */}
             <NotificationCenter />

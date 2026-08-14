@@ -114,7 +114,10 @@ class InstallController extends Controller
             'modules.*' => ['string', Rule::in($availableModules)],
             'language' => ['required', 'string', 'max:10'],
             'currency' => ['required', 'string', 'size:3'],
-            'timezone' => ['required', 'timezone'],
+            // Browsers may return backwards-compatible IANA aliases such as
+            // Asia/Calcutta. PHP supports them, so the installer must accept
+            // the same identifiers it can legitimately prefill.
+            'timezone' => ['required', 'timezone:all_with_bc'],
             'storage_driver' => ['required', Rule::in(['local', 's3'])],
         ]);
 

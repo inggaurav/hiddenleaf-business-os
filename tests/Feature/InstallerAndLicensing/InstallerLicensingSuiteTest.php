@@ -4,6 +4,7 @@ namespace Tests\Feature\InstallerAndLicensing;
 
 use App\Models\Setting;
 use App\Models\User;
+use App\Models\Workspace;
 use HiddenLeaf\Domain\Licensing\Services\LicenseManager;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Facades\DB;
@@ -146,7 +147,7 @@ class InstallerLicensingSuiteTest extends TestCase
             'modules' => ['account', 'productservice'],
             'language' => 'en',
             'currency' => 'USD',
-            'timezone' => 'UTC',
+            'timezone' => 'Asia/Calcutta',
             'storage_driver' => 'local',
         ];
 
@@ -165,8 +166,28 @@ class InstallerLicensingSuiteTest extends TestCase
         $setting = Setting::where('key', 'site_name')->whereNull('workspace_id')->first();
         $this->assertNotNull($setting);
         $this->assertEquals('HiddenLeaf Enterprise Production', $setting->value);
+        $this->assertDatabaseHas('settings', ['key' => 'default_timezone', 'value' => 'Asia/Calcutta']);
         $this->assertDatabaseHas('settings', ['key' => 'installed_modules', 'value' => '["account","productservice"]']);
         $this->assertDatabaseHas('plans', ['name' => 'Free', 'free_plan' => true]);
+        $workspace = Workspace::where('name', 'Main Workspace')->first();
+        $this->assertNotNull($workspace);
+        $this->assertEquals($admin->id, $workspace->organization->owner_id);
+        $this->assertTrue($workspace->members()->whereKey($admin->id)->exists());
+        foreach ($setupData['modules'] as $module) {
+            $this->assertDatabaseHas('user_active_modules', [
+                'workspace_id' => $workspace->id,
+                'module_name' => $module,
+            ]);
+        }
+
+        $this->post('/login', [
+            'email' => $setupData['admin_email'],
+            'password' => $setupData['admin_password'],
+        ])->assertRedirect('/dashboard');
+        $this->assertEquals($workspace->id, session('active_workspace_id'));
+        $this->assertEquals($workspace->organization_id, session('active_organization_id'));
+        $this->get('/accounting/accounts')->assertOk();
+        $this->get('/product-service')->assertOk();
 
         $this->post('/install', $setupData)->assertNotFound();
     }

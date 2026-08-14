@@ -22,7 +22,7 @@ import {
 export default function Dashboard() {
   const { auth, tenant, metrics, stats } = usePage<any>().props;
   const user = auth?.user;
-  const workspaceTitle = tenant?.workspace_title || 'Default Workspace';
+  const workspaceTitle = tenant?.workspace_title || 'no selected workspace';
 
   const userCount = metrics?.members ?? stats?.users ?? 0;
   const workspaceCount = metrics?.workspaces ?? stats?.workspaces ?? 0;

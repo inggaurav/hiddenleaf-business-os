@@ -3,13 +3,18 @@
 namespace App\Domain\Installation;
 
 use App\Models\Language;
+use App\Models\Organization;
 use App\Models\Plan;
+use App\Models\Role;
 use App\Models\Setting;
 use App\Models\User;
+use App\Models\UserActiveModule;
+use App\Models\Workspace;
 use HiddenLeaf\Domain\Licensing\Services\LicenseManager;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use RuntimeException;
 
 class InstallationService
@@ -70,7 +75,7 @@ class InstallationService
             }
 
             Language::on('installer')->firstOrCreate(['code' => $input['language']], ['name' => strtoupper($input['language']), 'status' => true]);
-            Plan::on('installer')->firstOrCreate(['name' => 'Free'], [
+            $plan = Plan::on('installer')->firstOrCreate(['name' => 'Free'], [
                 'package_price_monthly' => 0,
                 'package_price_yearly' => 0,
                 'number_of_users' => 3,
@@ -81,6 +86,32 @@ class InstallationService
                 'status' => true,
                 'created_by' => $admin->id,
             ]);
+
+            $organization = Organization::on('installer')->firstOrCreate(
+                ['owner_id' => $admin->id],
+                [
+                    'name' => $input['site_name'].' Organization',
+                    'slug' => Str::slug($input['site_name']).'-'.Str::lower((string) Str::ulid()),
+                    'plan_id' => $plan->id,
+                    'is_active' => true,
+                ],
+            );
+
+            $workspace = Workspace::on('installer')->firstOrCreate(
+                ['organization_id' => $organization->id, 'slug' => 'main-workspace'],
+                ['name' => 'Main Workspace', 'created_by' => $admin->id, 'is_active' => true],
+            );
+
+            $organization->members()->syncWithoutDetaching([$admin->id => ['role' => 'owner']]);
+            $adminRole = Role::on('installer')->where('name', 'workspace-admin')->first();
+            $workspace->members()->syncWithoutDetaching([$admin->id => ['role_id' => $adminRole?->id]]);
+
+            foreach ($input['modules'] as $module) {
+                UserActiveModule::on('installer')->firstOrCreate([
+                    'workspace_id' => $workspace->id,
+                    'module_name' => $module,
+                ]);
+            }
 
             $payload = json_encode(['installed_at' => now()->toIso8601String(), 'version' => config('app.version', '1.0.0')], JSON_THROW_ON_ERROR);
             if (file_put_contents($lock, $payload, LOCK_EX) === false) {

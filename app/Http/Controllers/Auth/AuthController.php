@@ -52,6 +52,18 @@ class AuthController
             RateLimiter::clear($throttleKey);
             $request->session()->regenerate();
 
+            if (! $request->session()->has('active_workspace_id')) {
+                $workspace = $user->isSuperAdmin()
+                    ? Workspace::query()->oldest('id')->first()
+                    : $user->workspaces()->oldest('workspaces.id')->first();
+
+                if ($workspace) {
+                    $request->session()->put('active_organization_id', $workspace->organization_id);
+                    $request->session()->put('active_workspace_id', $workspace->id);
+                    $request->session()->put('active_workspace_title', $workspace->name);
+                }
+            }
+
             return redirect()->intended('/dashboard');
         }
 
