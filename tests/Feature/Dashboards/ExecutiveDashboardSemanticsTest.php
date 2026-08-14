@@ -12,6 +12,7 @@ use App\Models\TasklyTask;
 use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -61,7 +62,7 @@ class ExecutiveDashboardSemanticsTest extends TestCase
             'created_by' => $user->id,
         ]);
 
-        $stageId = \Illuminate\Support\Facades\DB::table('taskly_stages')->insertGetId([
+        $stageId = DB::table('taskly_stages')->insertGetId([
             'project_id' => $project->id,
             'name' => 'In Progress',
             'position' => 0,

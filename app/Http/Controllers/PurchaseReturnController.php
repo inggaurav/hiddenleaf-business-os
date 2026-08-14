@@ -52,7 +52,7 @@ class PurchaseReturnController extends Controller
         $lines = $invoice->items->groupBy('product_id');
         foreach ($data['items'] as $item) {
             $originalQty = (float) $lines->get($item['product_id'], collect())->sum('quantity');
-            $previouslyReturned = (float) \App\Models\PurchaseReturnItem::whereHas('purchaseReturn', fn ($q) => $q->where('purchase_invoice_id', $invoice->id)->whereIn('status', [0, 1, 2]))->where('product_id', $item['product_id'])->sum('quantity');
+            $previouslyReturned = (float) PurchaseReturnItem::whereHas('purchaseReturn', fn ($q) => $q->where('purchase_invoice_id', $invoice->id)->whereIn('status', [0, 1, 2]))->where('product_id', $item['product_id'])->sum('quantity');
             abort_unless(((float) $item['quantity'] + $previouslyReturned) <= $originalQty, 422, 'Cumulative return quantity exceeds the original purchase invoice quantity.');
         }
 

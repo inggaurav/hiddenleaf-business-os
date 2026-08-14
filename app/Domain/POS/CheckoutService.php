@@ -85,7 +85,7 @@ class CheckoutService
 
             $receiptNumber = ! empty($data['idempotency_key'])
                 ? $data['idempotency_key']
-                : 'POS-' . now()->format('Ymd') . '-' . str_pad(
+                : 'POS-'.now()->format('Ymd').'-'.str_pad(
                     (string) (PosOrder::where('workspace_id', $session->workspace_id)->count() + 1),
                     6, '0', STR_PAD_LEFT
                 );
@@ -125,7 +125,7 @@ class CheckoutService
                 ]);
                 $this->stock->adjust(
                     $line['product'], $warehouse, -$line['quantity'],
-                    'POS sale ' . $order->receipt_number, $actor, 'pos_sale', $order
+                    'POS sale '.$order->receipt_number, $actor, 'pos_sale', $order
                 );
             }
 

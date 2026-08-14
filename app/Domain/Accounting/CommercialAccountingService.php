@@ -120,11 +120,16 @@ class CommercialAccountingService
                 $this->ledger->post($entry, $actor);
             }
 
+            $customerId = null;
+            if ($invoice->customer_id && AccountCustomer::where('organization_id', $return->organization_id)->where('id', $invoice->customer_id)->exists()) {
+                $customerId = $invoice->customer_id;
+            }
+
             $note = AccountCreditNote::create([
                 'organization_id' => $return->organization_id,
                 'workspace_id' => $return->workspace_id,
                 'invoice_id' => $invoice->id,
-                'customer_id' => $invoice->customer_id,
+                'customer_id' => $customerId,
                 'amount' => $return->total_amount,
                 'date' => now()->toDateString(),
                 'description' => 'Credit from sales return '.$return->return_id,
@@ -137,8 +142,8 @@ class CommercialAccountingService
                 'created_by' => $actor->id,
             ]);
 
-            if ($invoice->customer_id) {
-                $customer = AccountCustomer::forWorkspace($return->organization_id, $return->workspace_id)->find($invoice->customer_id);
+            if ($customerId) {
+                $customer = AccountCustomer::forWorkspace($return->organization_id, $return->workspace_id)->find($customerId);
                 if ($customer) {
                     $this->balances->syncCustomerBalance($customer);
                 }
@@ -175,11 +180,16 @@ class CommercialAccountingService
                 $this->ledger->post($entry, $actor);
             }
 
+            $vendorId = null;
+            if ($invoice->vendor_id && AccountVendor::where('organization_id', $return->organization_id)->where('id', $invoice->vendor_id)->exists()) {
+                $vendorId = $invoice->vendor_id;
+            }
+
             $note = AccountDebitNote::create([
                 'organization_id' => $return->organization_id,
                 'workspace_id' => $return->workspace_id,
                 'purchase_invoice_id' => $invoice->id,
-                'vendor_id' => $invoice->vendor_id,
+                'vendor_id' => $vendorId,
                 'amount' => $return->total_amount,
                 'date' => now()->toDateString(),
                 'description' => 'Debit from purchase return '.$return->return_id,
@@ -192,8 +202,8 @@ class CommercialAccountingService
                 'created_by' => $actor->id,
             ]);
 
-            if ($invoice->vendor_id) {
-                $vendor = AccountVendor::forWorkspace($return->organization_id, $return->workspace_id)->find($invoice->vendor_id);
+            if ($vendorId) {
+                $vendor = AccountVendor::forWorkspace($return->organization_id, $return->workspace_id)->find($vendorId);
                 if ($vendor) {
                     $this->balances->syncVendorBalance($vendor);
                 }

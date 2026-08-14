@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Taskly\TasklyDashboardService;
 use App\Models\TasklyProject;
 use App\Models\TasklyStage;
 use App\Models\TasklyTask;
@@ -11,7 +12,6 @@ use HiddenLeaf\Kernel\Services\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
-use App\Domain\Taskly\TasklyDashboardService;
 use Inertia\Inertia;
 
 class TasklyController extends Controller

@@ -4,12 +4,9 @@ namespace Tests\Feature\Workflows;
 
 use App\Models\AccountCustomer;
 use App\Models\AccountVendor;
-use App\Models\CustomerPayment;
 use App\Models\HrAttendance;
 use App\Models\HrEmployee;
 use App\Models\HrPayslip;
-use App\Models\JournalEntry;
-use App\Models\LedgerAccount;
 use App\Models\Organization;
 use App\Models\Plan;
 use App\Models\PosRegister;
@@ -26,6 +23,7 @@ use App\Models\UserActiveModule;
 use App\Models\Warehouse;
 use App\Models\WarehouseStock;
 use App\Models\Workspace;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -228,7 +226,7 @@ class EndToEndCrossModuleParityTest extends TestCase
             'employee_id' => $employee->id,
             'status' => 'present',
         ]);
-        $this->assertEquals(now()->toDateString(), \Carbon\Carbon::parse(HrAttendance::first()->attendance_date)->toDateString());
+        $this->assertEquals(now()->toDateString(), Carbon::parse(HrAttendance::first()->attendance_date)->toDateString());
 
         // 3. Project & Task Tracking
         $this->actingAs($tenant['user'])->withSession($session)->post('/taskly/projects', [

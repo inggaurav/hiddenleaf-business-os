@@ -10,7 +10,6 @@ use App\Models\Transfer;
 use App\Models\Warehouse;
 use App\Models\WarehouseStock;
 use App\Models\Workspace;
-use Illuminate\Support\Facades\DB;
 
 class InventoryDashboardService
 {
@@ -71,7 +70,7 @@ class InventoryDashboardService
             ->get()
             ->map(fn ($t) => [
                 'id' => $t->id,
-                'transfer_number' => $t->transfer_number ?? 'TRF-' . $t->id,
+                'transfer_number' => $t->transfer_number ?? 'TRF-'.$t->id,
                 'from_warehouse' => $t->fromWarehouse->name ?? 'Warehouse',
                 'to_warehouse' => $t->toWarehouse->name ?? 'Warehouse',
                 'product_name' => $t->product->name ?? 'Item',

@@ -60,8 +60,8 @@ class SalesDashboardService
         // Recent Invoices
         $recentInvoices = (clone $invoices)->latest('issue_date')->limit(5)->get()->map(fn ($inv) => [
             'id' => $inv->id,
-            'invoice_number' => (string) ($inv->invoice_id ?? 'INV-' . $inv->id),
-            'customer_name' => 'Customer #' . ($inv->customer_id ?? $inv->id),
+            'invoice_number' => (string) ($inv->invoice_id ?? 'INV-'.$inv->id),
+            'customer_name' => 'Customer #'.($inv->customer_id ?? $inv->id),
             'grand_total' => (float) $inv->total_amount,
             'status' => (string) $inv->status,
             'issue_date' => $inv->issue_date ? $inv->issue_date->toDateString() : now()->toDateString(),
@@ -70,8 +70,8 @@ class SalesDashboardService
         // Recent Proposals
         $recentProposals = (clone $proposals)->latest('issue_date')->limit(5)->get()->map(fn ($prop) => [
             'id' => $prop->id,
-            'proposal_number' => (string) ($prop->proposal_id ?? $prop->proposal_number ?? 'PROP-' . $prop->id),
-            'customer_name' => 'Customer #' . ($prop->customer_id ?? $prop->id),
+            'proposal_number' => (string) ($prop->proposal_id ?? $prop->proposal_number ?? 'PROP-'.$prop->id),
+            'customer_name' => 'Customer #'.($prop->customer_id ?? $prop->id),
             'grand_total' => (float) ($prop->total_amount ?? $prop->grand_total ?? 0),
             'status' => (string) $prop->status,
             'issue_date' => $prop->issue_date ? Carbon::parse($prop->issue_date)->toDateString() : now()->toDateString(),

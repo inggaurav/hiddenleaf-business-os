@@ -5,7 +5,6 @@ namespace App\Domain\CRM;
 use App\Models\CrmDeal;
 use App\Models\CrmLead;
 use App\Models\CrmPipeline;
-use App\Models\CrmStage;
 use App\Models\Workspace;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;

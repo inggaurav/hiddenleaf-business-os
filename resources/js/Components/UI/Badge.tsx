@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type BadgeVariant = 'neutral' | 'purple' | 'success' | 'warning' | 'danger' | 'info' | 'cyan' | 'emerald' | 'amber' | 'rose' | 'indigo';
+export type BadgeVariant = 'neutral' | 'brand' | 'purple' | 'success' | 'warning' | 'danger' | 'info' | 'cyan' | 'emerald' | 'amber' | 'rose' | 'indigo';
 
 export interface BadgeProps {
   children?: React.ReactNode;
@@ -28,6 +28,7 @@ export const Badge: React.FC<BadgeProps> = ({
 
   const variantClasses: Record<BadgeVariant, string> = {
     neutral: 'bg-white/[0.06] text-[var(--text-secondary)] border border-[var(--border-subtle)]',
+    brand: 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20',
     purple: 'bg-purple-500/10 text-purple-400 border border-purple-500/20',
     success: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
     emerald: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
@@ -42,6 +43,7 @@ export const Badge: React.FC<BadgeProps> = ({
 
   const dotClasses: Record<BadgeVariant, string> = {
     neutral: 'bg-gray-400',
+    brand: 'bg-indigo-400',
     purple: 'bg-purple-400',
     success: 'bg-emerald-400',
     emerald: 'bg-emerald-400',

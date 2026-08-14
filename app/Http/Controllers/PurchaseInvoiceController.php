@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Domain\Inventory\InvoicePostingService;
+use App\Domain\Procurement\ProcurementDashboardService;
 use App\Models\ProductServiceItem;
 use App\Models\PurchaseInvoice;
 use App\Models\PurchaseInvoiceItem;
@@ -11,7 +12,6 @@ use App\Models\Workspace;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\Domain\Procurement\ProcurementDashboardService;
 use Inertia\Inertia;
 
 class PurchaseInvoiceController extends Controller

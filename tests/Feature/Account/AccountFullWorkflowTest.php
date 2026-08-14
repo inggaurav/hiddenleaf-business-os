@@ -2,21 +2,16 @@
 
 namespace Tests\Feature\Account;
 
-use App\Models\AccountCreditNote;
 use App\Models\AccountCustomer;
-use App\Models\AccountDebitNote;
-use App\Models\AccountExpense;
-use App\Models\AccountRevenue;
 use App\Models\AccountType;
 use App\Models\AccountVendor;
-use App\Models\CustomerPayment;
 use App\Models\LedgerAccount;
 use App\Models\Organization;
 use App\Models\Plan;
 use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
 use App\Models\User;
-use App\Models\VendorPayment;
+use App\Models\UserActiveModule;
 use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -35,7 +30,7 @@ class AccountFullWorkflowTest extends TestCase
         $org->members()->attach($user, ['role' => 'owner']);
         $ws->members()->attach($user);
 
-        \App\Models\UserActiveModule::create(['workspace_id' => $ws->id, 'module_name' => 'account']);
+        UserActiveModule::create(['workspace_id' => $ws->id, 'module_name' => 'account']);
 
         // Account Types
         $assetType = AccountType::create([

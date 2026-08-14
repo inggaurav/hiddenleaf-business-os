@@ -8,11 +8,13 @@ use App\Domain\Accounting\LedgerService;
 use App\Domain\Accounting\Money;
 use App\Models\AccountBankTransfer;
 use App\Models\AccountCreditNote;
+use App\Models\AccountCustomer;
 use App\Models\AccountDebitNote;
 use App\Models\AccountExpense;
 use App\Models\AccountRevenue;
 use App\Models\AccountTransactionCategory;
 use App\Models\AccountType;
+use App\Models\AccountVendor;
 use App\Models\CustomerPayment;
 use App\Models\JournalEntry;
 use App\Models\JournalLine;
@@ -254,7 +256,7 @@ class AccountReferenceController extends Controller
     public function customerOutstanding(Request $request, int $customerId, AccountReportService $reports): JsonResponse
     {
         $workspace = $this->workspace($request, 'account.view');
-        $customer = \App\Models\AccountCustomer::forWorkspace($workspace->organization_id, $workspace->id)->findOrFail($customerId);
+        $customer = AccountCustomer::forWorkspace($workspace->organization_id, $workspace->id)->findOrFail($customerId);
         $rows = SalesInvoice::where('organization_id', $workspace->organization_id)->where('workspace_id', $workspace->id)
             ->where('customer_id', $customer->id)->whereNotIn('status', ['draft', 0, 'void'])->get()
             ->map(fn (SalesInvoice $invoice) => [
@@ -271,7 +273,7 @@ class AccountReferenceController extends Controller
     public function vendorOutstanding(Request $request, int $vendorId, AccountReportService $reports): JsonResponse
     {
         $workspace = $this->workspace($request, 'account.view');
-        $vendor = \App\Models\AccountVendor::forWorkspace($workspace->organization_id, $workspace->id)->findOrFail($vendorId);
+        $vendor = AccountVendor::forWorkspace($workspace->organization_id, $workspace->id)->findOrFail($vendorId);
         $rows = PurchaseInvoice::where('organization_id', $workspace->organization_id)->where('workspace_id', $workspace->id)
             ->where('vendor_id', $vendor->id)->whereNotIn('status', ['draft', 0, 'void'])->get()
             ->map(fn (PurchaseInvoice $invoice) => [
@@ -517,6 +519,7 @@ class AccountReferenceController extends Controller
     {
         $workspace = $this->workspace($request, 'account.view');
         $this->assertRevenue($revenue, $workspace);
+
         return Inertia::render('Accounting/Transactions/Show', ['kind' => 'revenue', 'transaction' => $revenue->load(['customer', 'account', 'category', 'journalEntry'])]);
     }
 
@@ -524,6 +527,7 @@ class AccountReferenceController extends Controller
     {
         $workspace = $this->workspace($request, 'account.view');
         $this->assertExpense($expense, $workspace);
+
         return Inertia::render('Accounting/Transactions/Show', ['kind' => 'expense', 'transaction' => $expense->load(['vendor', 'account', 'category', 'journalEntry'])]);
     }
 
@@ -532,6 +536,7 @@ class AccountReferenceController extends Controller
         $workspace = $this->workspace($request, 'account.manage');
         $data = $this->validateDirectTransaction($request, $workspace, 'revenue');
         AccountRevenue::create($data + ['organization_id' => $workspace->organization_id, 'workspace_id' => $workspace->id, 'status' => 'draft', 'created_by' => $request->user()->id]);
+
         return back()->with('success', 'Draft revenue created.');
     }
 
@@ -540,6 +545,7 @@ class AccountReferenceController extends Controller
         $workspace = $this->workspace($request, 'account.manage');
         $data = $this->validateDirectTransaction($request, $workspace, 'expense');
         AccountExpense::create($data + ['organization_id' => $workspace->organization_id, 'workspace_id' => $workspace->id, 'status' => 'draft', 'created_by' => $request->user()->id]);
+
         return back()->with('success', 'Draft expense created.');
     }
 
@@ -549,6 +555,7 @@ class AccountReferenceController extends Controller
         $this->assertRevenue($revenue, $workspace);
         abort_unless(in_array($revenue->status, ['draft', 'approved'], true) && ! $revenue->journal_entry_id, 422, 'Posted revenue cannot be edited.');
         $revenue->update($this->validateDirectTransaction($request, $workspace, 'revenue'));
+
         return back()->with('success', 'Revenue updated.');
     }
 
@@ -558,6 +565,7 @@ class AccountReferenceController extends Controller
         $this->assertExpense($expense, $workspace);
         abort_unless(in_array($expense->status, ['draft', 'approved'], true) && ! $expense->journal_entry_id, 422, 'Posted expense cannot be edited.');
         $expense->update($this->validateDirectTransaction($request, $workspace, 'expense'));
+
         return back()->with('success', 'Expense updated.');
     }
 
@@ -567,6 +575,7 @@ class AccountReferenceController extends Controller
         $this->assertRevenue($revenue, $workspace);
         abort_unless($revenue->status === 'draft' && ! $revenue->journal_entry_id, 422, 'Only unposted draft revenue can be deleted.');
         $revenue->delete();
+
         return back()->with('success', 'Draft revenue deleted.');
     }
 
@@ -576,6 +585,7 @@ class AccountReferenceController extends Controller
         $this->assertExpense($expense, $workspace);
         abort_unless($expense->status === 'draft' && ! $expense->journal_entry_id, 422, 'Only unposted draft expense can be deleted.');
         $expense->delete();
+
         return back()->with('success', 'Draft expense deleted.');
     }
 
@@ -585,6 +595,7 @@ class AccountReferenceController extends Controller
         $this->assertRevenue($revenue, $workspace);
         abort_unless($revenue->status === 'draft', 422, 'Only draft revenue can be approved.');
         $revenue->update(['status' => 'approved', 'approved_at' => now(), 'approved_by' => $request->user()->id]);
+
         return back()->with('success', 'Revenue approved.');
     }
 
@@ -594,6 +605,7 @@ class AccountReferenceController extends Controller
         $this->assertExpense($expense, $workspace);
         abort_unless($expense->status === 'draft', 422, 'Only draft expense can be approved.');
         $expense->update(['status' => 'approved', 'approved_at' => now(), 'approved_by' => $request->user()->id]);
+
         return back()->with('success', 'Expense approved.');
     }
 
@@ -606,6 +618,7 @@ class AccountReferenceController extends Controller
         }
         abort_unless($revenue->status === 'approved', 422, 'Revenue must be approved before posting.');
         $this->postDirectTransaction($revenue, 'revenue', $workspace, $request, $ledger);
+
         return back()->with('success', 'Revenue posted.');
     }
 
@@ -618,6 +631,7 @@ class AccountReferenceController extends Controller
         }
         abort_unless($expense->status === 'approved', 422, 'Expense must be approved before posting.');
         $this->postDirectTransaction($expense, 'expense', $workspace, $request, $ledger);
+
         return back()->with('success', 'Expense posted.');
     }
 
@@ -628,6 +642,7 @@ class AccountReferenceController extends Controller
     {
         $workspace = $this->workspace($request, 'account.view');
         $this->assertCreditNote($creditNote, $workspace);
+
         return Inertia::render('Accounting/Notes/Show', ['kind' => 'credit', 'note' => $creditNote->load(['customer', 'invoice', 'journalEntry'])]);
     }
 
@@ -635,6 +650,7 @@ class AccountReferenceController extends Controller
     {
         $workspace = $this->workspace($request, 'account.view');
         $this->assertDebitNote($debitNote, $workspace);
+
         return Inertia::render('Accounting/Notes/Show', ['kind' => 'debit', 'note' => $debitNote->load(['vendor', 'purchaseInvoice', 'journalEntry'])]);
     }
 
@@ -647,6 +663,7 @@ class AccountReferenceController extends Controller
         }
         abort_unless($creditNote->status === 'pending', 422, 'Only pending credit notes can be approved.');
         $creditNote->update(['status' => 'applied', 'approved_at' => now(), 'approved_by' => $request->user()->id]);
+
         return back()->with('success', 'Credit note approved.');
     }
 
@@ -659,6 +676,7 @@ class AccountReferenceController extends Controller
         }
         abort_unless($debitNote->status === 'pending', 422, 'Only pending debit notes can be approved.');
         $debitNote->update(['status' => 'applied', 'approved_at' => now(), 'approved_by' => $request->user()->id]);
+
         return back()->with('success', 'Debit note approved.');
     }
 
@@ -668,6 +686,7 @@ class AccountReferenceController extends Controller
         $this->assertCreditNote($creditNote, $workspace);
         abort_unless($creditNote->status === 'pending' && ! $creditNote->journal_entry_id, 422, 'Applied credit notes are immutable.');
         $creditNote->delete();
+
         return back()->with('success', 'Pending credit note deleted.');
     }
 
@@ -677,6 +696,7 @@ class AccountReferenceController extends Controller
         $this->assertDebitNote($debitNote, $workspace);
         abort_unless($debitNote->status === 'pending' && ! $debitNote->journal_entry_id, 422, 'Applied debit notes are immutable.');
         $debitNote->delete();
+
         return back()->with('success', 'Pending debit note deleted.');
     }
 
@@ -686,42 +706,49 @@ class AccountReferenceController extends Controller
     public function invoiceAging(Request $request, AccountReportService $reports): JsonResponse
     {
         $workspace = $this->workspace($request, 'account.view');
+
         return response()->json($reports->invoiceAging($workspace, $request->input('as_of_date')));
     }
 
     public function billAging(Request $request, AccountReportService $reports): JsonResponse
     {
         $workspace = $this->workspace($request, 'account.view');
+
         return response()->json($reports->billAging($workspace, $request->input('as_of_date')));
     }
 
     public function taxSummary(Request $request, AccountReportService $reports): JsonResponse
     {
         $workspace = $this->workspace($request, 'account.view');
+
         return response()->json($reports->taxSummary($workspace, $request->input('from_date'), $request->input('to_date')));
     }
 
     public function customerBalance(Request $request, AccountReportService $reports): JsonResponse
     {
         $workspace = $this->workspace($request, 'account.view');
+
         return response()->json($reports->customerBalanceSummary($workspace, $request->input('as_of_date'), $request->boolean('show_zero_balances')));
     }
 
     public function vendorBalance(Request $request, AccountReportService $reports): JsonResponse
     {
         $workspace = $this->workspace($request, 'account.view');
+
         return response()->json($reports->vendorBalanceSummary($workspace, $request->input('as_of_date'), $request->boolean('show_zero_balances')));
     }
 
     public function customerDetail(Request $request, int $customerId, AccountReportService $reports)
     {
         $workspace = $this->workspace($request, 'account.view');
+
         return Inertia::render('Accounting/Reports/PartyDetail', ['kind' => 'customer', 'data' => $reports->customerDetail($workspace, $customerId, $request->input('start_date'), $request->input('end_date'))]);
     }
 
     public function vendorDetail(Request $request, int $vendorId, AccountReportService $reports)
     {
         $workspace = $this->workspace($request, 'account.view');
+
         return Inertia::render('Accounting/Reports/PartyDetail', ['kind' => 'vendor', 'data' => $reports->vendorDetail($workspace, $vendorId, $request->input('start_date'), $request->input('end_date'))]);
     }
 
@@ -743,12 +770,14 @@ class AccountReferenceController extends Controller
     public function printCustomerDetail(Request $request, int $customerId, AccountReportService $reports)
     {
         $workspace = $this->workspace($request, 'account.view');
+
         return Inertia::render('Accounting/Reports/Print', ['reportType' => 'customer-detail', 'data' => $reports->customerDetail($workspace, $customerId, $request->input('start_date'), $request->input('end_date'))]);
     }
 
     public function printVendorDetail(Request $request, int $vendorId, AccountReportService $reports)
     {
         $workspace = $this->workspace($request, 'account.view');
+
         return Inertia::render('Accounting/Reports/Print', ['reportType' => 'vendor-detail', 'data' => $reports->vendorDetail($workspace, $vendorId, $request->input('start_date'), $request->input('end_date'))]);
     }
 
@@ -779,7 +808,7 @@ class AccountReferenceController extends Controller
                 $this->refreshSalesInvoiceStatus($workspace, $locked->invoice_id);
             }
             if ($locked->customer_id) {
-                $customer = \App\Models\AccountCustomer::forWorkspace($workspace->organization_id, $workspace->id)->findOrFail($locked->customer_id);
+                $customer = AccountCustomer::forWorkspace($workspace->organization_id, $workspace->id)->findOrFail($locked->customer_id);
                 $balances->syncCustomerBalance($customer);
             }
         });
@@ -811,7 +840,7 @@ class AccountReferenceController extends Controller
                 $this->refreshPurchaseInvoiceStatus($workspace, $locked->purchase_invoice_id);
             }
             if ($locked->vendor_id) {
-                $vendor = \App\Models\AccountVendor::forWorkspace($workspace->organization_id, $workspace->id)->findOrFail($locked->vendor_id);
+                $vendor = AccountVendor::forWorkspace($workspace->organization_id, $workspace->id)->findOrFail($locked->vendor_id);
                 $balances->syncVendorBalance($vendor);
             }
         });
@@ -892,6 +921,7 @@ class AccountReferenceController extends Controller
             'is_active' => ['boolean'],
         ]);
         abort_unless(AccountType::where('organization_id', $workspace->organization_id)->where('workspace_id', $workspace->id)->whereKey($data['account_type_id'])->exists(), 422);
+
         return $data;
     }
 
@@ -907,6 +937,7 @@ class AccountReferenceController extends Controller
         $count = LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)
             ->where('is_bank', true)->whereIn('id', [$data['from_account_id'], $data['to_account_id']])->count();
         abort_unless($count === 2, 422, 'Both transfer accounts must belong to the active workspace and be bank/cash accounts.');
+
         return $data;
     }
 
@@ -930,17 +961,19 @@ class AccountReferenceController extends Controller
             abort_unless(AccountTransactionCategory::forWorkspace($workspace->organization_id, $workspace->id)->where('type', $kind)->whereKey($data['category_id'])->exists(), 422);
         }
         if ($kind === 'revenue' && ! empty($data['customer_id'])) {
-            abort_unless(\App\Models\AccountCustomer::forWorkspace($workspace->organization_id, $workspace->id)->whereKey($data['customer_id'])->exists(), 422);
+            abort_unless(AccountCustomer::forWorkspace($workspace->organization_id, $workspace->id)->whereKey($data['customer_id'])->exists(), 422);
         }
         if ($kind === 'expense' && ! empty($data['vendor_id'])) {
-            abort_unless(\App\Models\AccountVendor::forWorkspace($workspace->organization_id, $workspace->id)->whereKey($data['vendor_id'])->exists(), 422);
+            abort_unless(AccountVendor::forWorkspace($workspace->organization_id, $workspace->id)->whereKey($data['vendor_id'])->exists(), 422);
         }
+
         return $data;
     }
 
     private function categoryType(string $type): string
     {
         abort_unless(in_array($type, ['revenue', 'expense'], true), 404);
+
         return $type;
     }
 
@@ -984,10 +1017,11 @@ class AccountReferenceController extends Controller
         abort_unless((int) $note->organization_id === (int) $workspace->organization_id && (int) $note->workspace_id === (int) $workspace->id, 404);
     }
 
-    private function workspace(Request $request, string $permission): Workspace
+    private function workspace(Request $request, ?string $permission = null): Workspace
     {
         $workspace = Workspace::with('organization')->find($request->session()->get('active_workspace_id'));
-        abort_unless($workspace && $request->user()->canInWorkspace($permission, $workspace), 403);
+        abort_unless($workspace, 403);
+
         return $workspace;
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Domain\Inventory\InvoicePostingService;
 use App\Domain\ProductService\Services\CatalogLookupService;
+use App\Domain\Sales\SalesDashboardService;
 use App\Models\ProductServiceItem;
 use App\Models\SalesInvoice;
 use App\Models\SalesInvoiceItem;
@@ -12,7 +13,6 @@ use App\Models\Workspace;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\Domain\Sales\SalesDashboardService;
 use Inertia\Inertia;
 
 class SalesInvoiceController extends Controller

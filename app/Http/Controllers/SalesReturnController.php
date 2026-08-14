@@ -52,7 +52,7 @@ class SalesReturnController extends Controller
         $lines = $invoice->items->groupBy('product_id');
         foreach ($data['items'] as $item) {
             $originalQty = (float) $lines->get($item['product_id'], collect())->sum('quantity');
-            $previouslyReturned = (float) \App\Models\SalesInvoiceReturnItem::whereHas('return', fn ($q) => $q->where('sales_invoice_id', $invoice->id)->whereIn('status', [0, 1, 2]))->where('product_id', $item['product_id'])->sum('quantity');
+            $previouslyReturned = (float) SalesInvoiceReturnItem::whereHas('return', fn ($q) => $q->where('sales_invoice_id', $invoice->id)->whereIn('status', [0, 1, 2]))->where('product_id', $item['product_id'])->sum('quantity');
             abort_unless(((float) $item['quantity'] + $previouslyReturned) <= $originalQty, 422, 'Cumulative return quantity exceeds the original sales invoice quantity.');
         }
 

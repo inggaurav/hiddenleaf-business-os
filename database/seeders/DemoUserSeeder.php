@@ -7,6 +7,7 @@ use App\Models\Plan;
 use App\Models\Role;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Models\UserActiveModule;
 use App\Models\Workspace;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -17,6 +18,7 @@ class DemoUserSeeder extends Seeder
     {
         if (app()->isProduction()) {
             $this->command?->error('DemoUserSeeder must NOT run in production.');
+
             return;
         }
 
@@ -137,7 +139,7 @@ class DemoUserSeeder extends Seeder
         $allModules = ['account', 'hrm', 'lead', 'taskly', 'pos', 'landingpage', 'productservice', 'sales', 'procurement'];
         foreach ([$ws1, $ws2] as $ws) {
             foreach ($allModules as $mod) {
-                \App\Models\UserActiveModule::firstOrCreate([
+                UserActiveModule::firstOrCreate([
                     'workspace_id' => $ws->id,
                     'module_name' => $mod,
                 ]);

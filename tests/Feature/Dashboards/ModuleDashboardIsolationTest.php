@@ -2,9 +2,14 @@
 
 namespace Tests\Feature\Dashboards;
 
+use App\Models\AccountCustomer;
+use App\Models\AccountExpense;
+use App\Models\AccountRevenue;
+use App\Models\AccountVendor;
 use App\Models\CrmDeal;
 use App\Models\CrmLead;
 use App\Models\CrmPipeline;
+use App\Models\CustomerPayment;
 use App\Models\HrAttendance;
 use App\Models\HrEmployee;
 use App\Models\HrLeaveRequest;
@@ -22,6 +27,7 @@ use App\Models\TasklyProject;
 use App\Models\TasklyTask;
 use App\Models\User;
 use App\Models\UserActiveModule;
+use App\Models\VendorPayment;
 use App\Models\Warehouse;
 use App\Models\WarehouseStock;
 use App\Models\Workspace;
@@ -35,11 +41,15 @@ class ModuleDashboardIsolationTest extends TestCase
     use RefreshDatabase;
 
     protected User $tenantAUser;
+
     protected Organization $tenantAOrg;
+
     protected Workspace $tenantAWs;
 
     protected User $tenantBUser;
+
     protected Organization $tenantBOrg;
+
     protected Workspace $tenantBWs;
 
     protected function setUp(): void
@@ -76,17 +86,17 @@ class ModuleDashboardIsolationTest extends TestCase
     public function test_accounting_dashboard_strictly_isolates_metrics_and_transactions(): void
     {
         // Populate Tenant A Data
-        $custA = \App\Models\AccountCustomer::create([
+        $custA = AccountCustomer::create([
             'organization_id' => $this->tenantAOrg->id,
             'workspace_id' => $this->tenantAWs->id,
             'name' => 'Tenant A Customer',
         ]);
-        $vendA = \App\Models\AccountVendor::create([
+        $vendA = AccountVendor::create([
             'organization_id' => $this->tenantAOrg->id,
             'workspace_id' => $this->tenantAWs->id,
             'name' => 'Tenant A Vendor',
         ]);
-        \App\Models\CustomerPayment::create([
+        CustomerPayment::create([
             'organization_id' => $this->tenantAOrg->id,
             'workspace_id' => $this->tenantAWs->id,
             'customer_id' => $custA->id,
@@ -94,7 +104,7 @@ class ModuleDashboardIsolationTest extends TestCase
             'payment_date' => now()->toDateString(),
             'payment_method' => 'cash',
         ]);
-        \App\Models\VendorPayment::create([
+        VendorPayment::create([
             'organization_id' => $this->tenantAOrg->id,
             'workspace_id' => $this->tenantAWs->id,
             'vendor_id' => $vendA->id,
@@ -102,7 +112,7 @@ class ModuleDashboardIsolationTest extends TestCase
             'payment_date' => now()->toDateString(),
             'payment_method' => 'cash',
         ]);
-        \App\Models\AccountRevenue::create([
+        AccountRevenue::create([
             'organization_id' => $this->tenantAOrg->id,
             'workspace_id' => $this->tenantAWs->id,
             'customer_id' => $custA->id,
@@ -111,7 +121,7 @@ class ModuleDashboardIsolationTest extends TestCase
             'date' => now()->toDateString(),
             'payment_method' => 'cash',
         ]);
-        \App\Models\AccountExpense::create([
+        AccountExpense::create([
             'organization_id' => $this->tenantAOrg->id,
             'workspace_id' => $this->tenantAWs->id,
             'vendor_id' => $vendA->id,
@@ -122,12 +132,12 @@ class ModuleDashboardIsolationTest extends TestCase
         ]);
 
         // Populate Tenant B Data
-        $custB = \App\Models\AccountCustomer::create([
+        $custB = AccountCustomer::create([
             'organization_id' => $this->tenantBOrg->id,
             'workspace_id' => $this->tenantBWs->id,
             'name' => 'Tenant B Customer',
         ]);
-        \App\Models\CustomerPayment::create([
+        CustomerPayment::create([
             'organization_id' => $this->tenantBOrg->id,
             'workspace_id' => $this->tenantBWs->id,
             'customer_id' => $custB->id,
@@ -135,7 +145,7 @@ class ModuleDashboardIsolationTest extends TestCase
             'payment_date' => now()->toDateString(),
             'payment_method' => 'cash',
         ]);
-        \App\Models\AccountRevenue::create([
+        AccountRevenue::create([
             'organization_id' => $this->tenantBOrg->id,
             'workspace_id' => $this->tenantBWs->id,
             'customer_id' => $custB->id,

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\HRM\HrmDashboardService;
 use App\Domain\HRM\PayrollService;
 use App\Models\HrAttendance;
 use App\Models\HrEmployee;
@@ -17,7 +18,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use App\Domain\HRM\HrmDashboardService;
 use Inertia\Inertia;
 
 class HrmController extends Controller

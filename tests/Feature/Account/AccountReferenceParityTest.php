@@ -4,13 +4,11 @@ namespace Tests\Feature\Account;
 
 use App\Models\AccountCustomer;
 use App\Models\AccountType;
-use App\Models\AccountVendor;
 use App\Models\CustomerPayment;
 use App\Models\LedgerAccount;
 use App\Models\Organization;
 use App\Models\Plan;
 use App\Models\ProductServiceItem;
-use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
 use App\Models\SalesInvoiceItem;
 use App\Models\User;

@@ -12,6 +12,7 @@ use App\Models\ProductServiceItem;
 use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
 use App\Models\TasklyProject;
+use App\Models\TasklyTask;
 use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Http\Request;
@@ -60,7 +61,7 @@ class HomeController extends Controller
                 'open_tickets' => HelpdeskTicket::where('workspace_id', $wsId)->whereNotIn('status', ['resolved', 'closed'])->count(),
                 'resolved_tickets' => HelpdeskTicket::where('workspace_id', $wsId)->whereIn('status', ['resolved', 'closed'])->count(),
                 'active_projects' => TasklyProject::where('organization_id', $orgId)->where('workspace_id', $wsId)->where('status', 'active')->count(),
-                'open_tasks' => \App\Models\TasklyTask::where('organization_id', $orgId)->where('workspace_id', $wsId)->whereNull('completed_at')->count(),
+                'open_tasks' => TasklyTask::where('organization_id', $orgId)->where('workspace_id', $wsId)->whereNull('completed_at')->count(),
                 'open_leads' => CrmLead::where('organization_id', $orgId)->where('workspace_id', $wsId)->where('status', 'open')->count(),
                 'today_pos_sales' => (float) PosOrder::where('organization_id', $orgId)->where('workspace_id', $wsId)->whereDate('created_at', today())->where('status', 'completed')->sum('grand_total'),
             ] : null,

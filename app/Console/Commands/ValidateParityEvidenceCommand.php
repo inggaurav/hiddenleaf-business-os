@@ -67,11 +67,13 @@ class ValidateParityEvidenceCommand extends Command
             $routeSpec = trim((string) ($action['route'] ?? ''));
             if ($routeSpec === '') {
                 $errors[] = basename($path).": action #{$index} has no route evidence.";
+
                 continue;
             }
 
             if (str_starts_with($routeSpec, 'artisan ')) {
                 $this->validateTestEvidence($action, $path, $index, $errors);
+
                 continue;
             }
 
@@ -83,6 +85,7 @@ class ValidateParityEvidenceCommand extends Command
             $matched = $this->findRoute($method, $uri);
             if (! $matched) {
                 $errors[] = basename($path).": {$routeSpec} does not exist in the live route collection.";
+
                 continue;
             }
 
@@ -115,6 +118,7 @@ class ValidateParityEvidenceCommand extends Command
 
         if ($claimedVerified > 0 && $rows === []) {
             $errors[] = basename($path).": claims {$claimedVerified} verified actions but contains no action-level evidence rows.";
+
             return;
         }
 
@@ -138,6 +142,7 @@ class ValidateParityEvidenceCommand extends Command
             $routeSpec = trim((string) ($screen['route'] ?? ''));
             if ($routeSpec === '') {
                 $errors[] = basename($path).": screen #{$index} has no route evidence.";
+
                 continue;
             }
 
@@ -153,6 +158,7 @@ class ValidateParityEvidenceCommand extends Command
 
         if ($claimedVerified > 0 && $screens === []) {
             $errors[] = basename($path).": claims {$claimedVerified} verified screens but contains no screen evidence rows.";
+
             return;
         }
 
@@ -166,6 +172,7 @@ class ValidateParityEvidenceCommand extends Command
         $test = trim((string) ($action['test'] ?? ''));
         if ($test === '') {
             $errors[] = basename($path).": action #{$index} has no test evidence.";
+
             return;
         }
 
@@ -201,6 +208,7 @@ class ValidateParityEvidenceCommand extends Command
         $parts = preg_split('/\s+/', $spec, 2);
         if (count($parts) !== 2) {
             $errors[] = basename($path).": row #{$index} has invalid route spec {$spec}.";
+
             return [null, null];
         }
 

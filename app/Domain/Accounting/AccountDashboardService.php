@@ -163,8 +163,8 @@ class AccountDashboardService
                 'payables' => $payables->toFloat(),
             ],
             'metricSemantics' => [
-                'total_revenue' => 'Sum of posted account_revenues direct revenue transactions.',
-                'total_expense' => 'Sum of posted account_expenses direct expense transactions.',
+                'total_revenue' => 'Sum of account_revenues direct revenue transactions.',
+                'total_expense' => 'Sum of account_expenses direct expense transactions.',
                 'accounting_income' => 'Net balance of posted ledger accounts classified as income.',
                 'accounting_expense' => 'Net balance of posted ledger accounts classified as expense.',
                 'customer_payments' => 'Non-void customer_payments grouped by payment_date.',

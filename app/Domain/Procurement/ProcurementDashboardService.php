@@ -54,8 +54,8 @@ class ProcurementDashboardService
         // Recent Purchase Invoices
         $recentInvoices = (clone $invoices)->latest('purchase_date')->limit(5)->get()->map(fn ($inv) => [
             'id' => $inv->id,
-            'invoice_number' => (string) ($inv->invoice_id ?? 'BILL-' . $inv->id),
-            'vendor_name' => 'Vendor #' . ($inv->vendor_id ?? $inv->id),
+            'invoice_number' => (string) ($inv->invoice_id ?? 'BILL-'.$inv->id),
+            'vendor_name' => 'Vendor #'.($inv->vendor_id ?? $inv->id),
             'grand_total' => (float) $inv->total_amount,
             'status' => (string) $inv->status,
             'issue_date' => $inv->purchase_date ? $inv->purchase_date->toDateString() : now()->toDateString(),
@@ -64,8 +64,8 @@ class ProcurementDashboardService
         // Recent Purchase Returns
         $recentReturns = (clone $returns)->latest('created_at')->limit(5)->get()->map(fn ($ret) => [
             'id' => $ret->id,
-            'return_number' => (string) ($ret->return_number ?? 'PUR-RET-' . $ret->id),
-            'vendor_name' => 'Vendor #' . ($ret->vendor_id ?? $ret->id),
+            'return_number' => (string) ($ret->return_number ?? 'PUR-RET-'.$ret->id),
+            'vendor_name' => 'Vendor #'.($ret->vendor_id ?? $ret->id),
             'total_amount' => (float) $ret->total_amount,
             'status' => (string) ($ret->status ?? 'pending'),
             'created_at' => $ret->created_at ? $ret->created_at->format('M d, Y') : now()->format('M d, Y'),

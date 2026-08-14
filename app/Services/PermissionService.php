@@ -44,28 +44,6 @@ class PermissionService
             return true;
         }
 
-        /*
-         * Account V1 compatibility bridge.
-         *
-         * The newly added Account reference routes are first authorized by
-         * EnsureAccountPermission using their exact granular permission. The
-         * controller still contains a legacy account.view/account.manage
-         * defense-in-depth check. Once that exact route middleware has passed,
-         * allow the legacy inner check without forcing granular-only roles to
-         * also carry the broad umbrella permission.
-         *
-         * This bridge is deliberately route-scoped so it cannot broaden legacy
-         * account.manage checks elsewhere in the application.
-         */
-        $routeName = request()?->route()?->getName();
-        if (
-            is_string($routeName)
-            && str_starts_with($routeName, 'account-reference.')
-            && in_array($permission, ['account.view', 'account.manage'], true)
-        ) {
-            return true;
-        }
-
         return false;
     }
 }

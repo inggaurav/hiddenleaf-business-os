@@ -2,14 +2,9 @@
 
 namespace Tests\Feature\Security;
 
-use App\Models\AccountCreditNote;
 use App\Models\AccountCustomer;
-use App\Models\AccountDebitNote;
-use App\Models\AccountExpense;
-use App\Models\AccountRevenue;
 use App\Models\AccountType;
 use App\Models\AccountVendor;
-use App\Models\CustomerPayment;
 use App\Models\LedgerAccount;
 use App\Models\Organization;
 use App\Models\Plan;
@@ -17,7 +12,6 @@ use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
 use App\Models\User;
 use App\Models\UserActiveModule;
-use App\Models\VendorPayment;
 use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -66,6 +60,7 @@ class FinancialIdorTest extends TestCase
                 'amount' => 100,
                 'payment_date' => now()->toDateString(),
                 'payment_method' => 'bank_transfer',
+                'idempotency_key' => 'idor-cust-foreign-1',
             ])->assertStatus(404);
     }
 
@@ -83,6 +78,7 @@ class FinancialIdorTest extends TestCase
                 'amount' => 100,
                 'payment_date' => now()->toDateString(),
                 'payment_method' => 'bank_transfer',
+                'idempotency_key' => 'idor-cust-foreign-2',
             ])->assertStatus(404);
     }
 
@@ -100,6 +96,7 @@ class FinancialIdorTest extends TestCase
                 'amount' => 100,
                 'payment_date' => now()->toDateString(),
                 'payment_method' => 'bank_transfer',
+                'idempotency_key' => 'idor-cust-mismatch',
             ])->assertStatus(422);
     }
 
@@ -117,6 +114,7 @@ class FinancialIdorTest extends TestCase
                 'amount' => 100,
                 'payment_date' => now()->toDateString(),
                 'payment_method' => 'bank_transfer',
+                'idempotency_key' => 'idor-vend-foreign-1',
             ])->assertStatus(404);
     }
 
@@ -134,6 +132,7 @@ class FinancialIdorTest extends TestCase
                 'amount' => 100,
                 'payment_date' => now()->toDateString(),
                 'payment_method' => 'bank_transfer',
+                'idempotency_key' => 'idor-vend-foreign-2',
             ])->assertStatus(404);
     }
 

@@ -3,7 +3,6 @@
 namespace App\Domain\Taskly;
 
 use App\Models\TasklyProject;
-use App\Models\TasklyStage;
 use App\Models\TasklyTask;
 use App\Models\TasklyTimesheet;
 use App\Models\Workspace;
@@ -58,7 +57,7 @@ class TasklyDashboardService
             'project_name' => $t->project->name ?? 'No Project',
             'stage_name' => $t->stage->name ?? 'Stage',
             'due_on' => $t->due_on,
-            'is_completed' => !empty($t->completed_at),
+            'is_completed' => ! empty($t->completed_at),
             'created_at' => $t->created_at->format('M d, Y'),
         ]);
 

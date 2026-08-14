@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Domain\Inventory\StockAdjustmentService;
 use App\Domain\POS\CheckoutService;
+use App\Domain\POS\PosDashboardService;
 use App\Models\PosOrder;
 use App\Models\PosRegister;
 use App\Models\PosSession;
@@ -12,7 +13,6 @@ use App\Models\Warehouse;
 use App\Models\Workspace;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Domain\POS\PosDashboardService;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 

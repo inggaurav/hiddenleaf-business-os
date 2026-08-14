@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Account;
 
+use App\Models\AccountBankTransfer;
 use App\Models\AccountTransactionCategory;
 use App\Models\AccountType;
 use App\Models\LedgerAccount;
@@ -101,7 +102,7 @@ class AccountHardeningTest extends TestCase
                 'reference' => 'TRF-HARDEN-1',
             ])->assertRedirect();
 
-        $transfer = \App\Models\AccountBankTransfer::where('workspace_id', $tenant['workspace']->id)->firstOrFail();
+        $transfer = AccountBankTransfer::where('workspace_id', $tenant['workspace']->id)->firstOrFail();
         $this->assertSame('pending', $transfer->status);
         $this->assertSame('10.00', $transfer->transfer_charges);
 

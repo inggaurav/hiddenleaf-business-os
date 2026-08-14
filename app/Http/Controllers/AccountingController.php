@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Domain\Accounting\AccountDashboardService;
+use App\Domain\Accounting\CommercialAccountingService;
 use App\Domain\Accounting\FinancialBalanceService;
 use App\Domain\Accounting\LedgerService;
 use App\Domain\Accounting\Money;
@@ -13,6 +14,7 @@ use App\Models\AccountCustomer;
 use App\Models\AccountDebitNote;
 use App\Models\AccountExpense;
 use App\Models\AccountRevenue;
+use App\Models\AccountTransactionCategory;
 use App\Models\AccountType;
 use App\Models\AccountVendor;
 use App\Models\BankReconciliation;
@@ -24,6 +26,8 @@ use App\Models\SalesInvoice;
 use App\Models\VendorPayment;
 use App\Models\Workspace;
 use HiddenLeaf\Kernel\Services\AuditLogger;
+use Illuminate\Database\QueryException;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -336,17 +340,18 @@ class AccountingController extends Controller
 
                 $journalEntryId = null;
                 if (! empty($data['account_id'])) {
+                    $systemAccounts = app(CommercialAccountingService::class)->systemAccounts($workspace->organization_id, $workspace->id);
                     $arAccount = LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)
                         ->where('name', 'Accounts Receivable')
                         ->first() ?? LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)
                         ->where('is_bank', false)
-                        ->first();
+                        ->first() ?? $systemAccounts['receivable'];
 
                     if ($arAccount) {
                         $entry = $ledger->createEntry($workspace->organization_id, $workspace->id, [
                             'entry_date' => $data['payment_date'],
-                            'reference' => $data['reference'] ?? 'PAY-CUST',
-                            'description' => 'Customer Payment' . ($invoice ? ' for Invoice ' . ($invoice->invoice_id ?? $invoice->id) : ''),
+                            'reference' => $data['reference'] ?? 'PAY-CUST-'.now()->timestamp,
+                            'description' => 'Customer Payment'.($invoice ? ' for Invoice '.($invoice->invoice_id ?? $invoice->id) : ''),
                             'lines' => [
                                 ['account_id' => $data['account_id'], 'debit' => $data['amount'], 'credit' => 0],
                                 ['account_id' => $arAccount->id, 'debit' => 0, 'credit' => $data['amount']],
@@ -385,7 +390,7 @@ class AccountingController extends Controller
 
                 $this->audit->log($request->user()->id, $workspace->organization_id, $workspace->id, 'payment.recorded', 'customer_payment', (string) $payment->id, ['amount' => $payment->amount]);
             });
-        } catch (\Illuminate\Database\UniqueConstraintViolationException|\Illuminate\Database\QueryException $e) {
+        } catch (UniqueConstraintViolationException|QueryException $e) {
             if (! empty($idempotencyKey) && (str_contains($e->getMessage(), 'idempotency') || str_contains($e->getMessage(), 'UNIQUE') || str_contains($e->getMessage(), 'cp_ws_idempotency_unique'))) {
                 $existing = CustomerPayment::forWorkspace($workspace->organization_id, $workspace->id)
                     ->where('idempotency_key', $idempotencyKey)
@@ -494,17 +499,18 @@ class AccountingController extends Controller
 
                 $journalEntryId = null;
                 if (! empty($data['account_id'])) {
+                    $systemAccounts = app(CommercialAccountingService::class)->systemAccounts($workspace->organization_id, $workspace->id);
                     $apAccount = LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)
                         ->where('name', 'Accounts Payable')
                         ->first() ?? LedgerAccount::forWorkspace($workspace->organization_id, $workspace->id)
                         ->where('is_bank', false)
-                        ->first();
+                        ->first() ?? $systemAccounts['payable'];
 
                     if ($apAccount) {
                         $entry = $ledger->createEntry($workspace->organization_id, $workspace->id, [
                             'entry_date' => $data['payment_date'],
-                            'reference' => $data['reference'] ?? 'PAY-VEND',
-                            'description' => 'Vendor Payment' . ($bill ? ' for Bill ' . ($bill->invoice_id ?? $bill->id) : ''),
+                            'reference' => $data['reference'] ?? 'PAY-VEND-'.now()->timestamp,
+                            'description' => 'Vendor Payment'.($bill ? ' for Bill '.($bill->invoice_id ?? $bill->id) : ''),
                             'lines' => [
                                 ['account_id' => $apAccount->id, 'debit' => $data['amount'], 'credit' => 0],
                                 ['account_id' => $data['account_id'], 'debit' => 0, 'credit' => $data['amount']],
@@ -534,7 +540,7 @@ class AccountingController extends Controller
                 }
 
                 // Synchronize vendor balance authoritative state
-                if (! empty($data['vendor_id'])) {
+                if ($data['vendor_id']) {
                     $vendor = AccountVendor::forWorkspace($workspace->organization_id, $workspace->id)
                         ->lockForUpdate()
                         ->findOrFail($data['vendor_id']);
@@ -543,7 +549,7 @@ class AccountingController extends Controller
 
                 $this->audit->log($request->user()->id, $workspace->organization_id, $workspace->id, 'payment.recorded', 'vendor_payment', (string) $payment->id, ['amount' => $payment->amount]);
             });
-        } catch (\Illuminate\Database\UniqueConstraintViolationException|\Illuminate\Database\QueryException $e) {
+        } catch (UniqueConstraintViolationException|QueryException $e) {
             if (! empty($idempotencyKey) && (str_contains($e->getMessage(), 'idempotency') || str_contains($e->getMessage(), 'UNIQUE') || str_contains($e->getMessage(), 'vp_ws_idempotency_unique'))) {
                 $existing = VendorPayment::forWorkspace($workspace->organization_id, $workspace->id)
                     ->where('idempotency_key', $idempotencyKey)
@@ -594,6 +600,14 @@ class AccountingController extends Controller
             'description' => ['nullable', 'string'],
         ]);
 
+        if (! empty($data['category_id'])) {
+            $validCategory = AccountTransactionCategory::forWorkspace($workspace->organization_id, $workspace->id)
+                ->where('type', 'revenue')
+                ->where('id', $data['category_id'])
+                ->exists();
+            abort_unless($validCategory, 422, 'Revenue category must belong to the active workspace and be a revenue category.');
+        }
+
         // Tenant-scoped validation of all foreign IDs
         if (! empty($data['customer_id'])) {
             $resolver->resolveCustomer($workspace, $data['customer_id']);
@@ -612,7 +626,7 @@ class AccountingController extends Controller
                 if ($incomeAccount) {
                     $entry = $ledger->createEntry($workspace->organization_id, $workspace->id, [
                         'entry_date' => $data['date'],
-                        'reference' => $data['reference'] ?? 'REV-' . now()->timestamp,
+                        'reference' => $data['reference'] ?? 'REV-'.now()->timestamp,
                         'description' => $data['description'] ?? 'Revenue Transaction',
                         'lines' => [
                             ['account_id' => $data['account_id'], 'debit' => $data['amount'], 'credit' => 0],
@@ -669,6 +683,14 @@ class AccountingController extends Controller
             'description' => ['nullable', 'string'],
         ]);
 
+        if (! empty($data['category_id'])) {
+            $validCategory = AccountTransactionCategory::forWorkspace($workspace->organization_id, $workspace->id)
+                ->where('type', 'expense')
+                ->where('id', $data['category_id'])
+                ->exists();
+            abort_unless($validCategory, 422, 'Expense category must belong to the active workspace and be an expense category.');
+        }
+
         // Tenant-scoped validation of all foreign IDs
         if (! empty($data['vendor_id'])) {
             $resolver->resolveVendor($workspace, $data['vendor_id']);
@@ -687,7 +709,7 @@ class AccountingController extends Controller
                 if ($expenseAccount) {
                     $entry = $ledger->createEntry($workspace->organization_id, $workspace->id, [
                         'entry_date' => $data['date'],
-                        'reference' => $data['reference'] ?? 'EXP-' . now()->timestamp,
+                        'reference' => $data['reference'] ?? 'EXP-'.now()->timestamp,
                         'description' => $data['description'] ?? 'Expense Transaction',
                         'lines' => [
                             ['account_id' => $expenseAccount->id, 'debit' => $data['amount'], 'credit' => 0],
@@ -791,8 +813,8 @@ class AccountingController extends Controller
             if ($arAccount && $incomeAccount) {
                 $entry = $ledger->createEntry($workspace->organization_id, $workspace->id, [
                     'entry_date' => $data['date'],
-                    'reference' => 'CN-' . $creditNote->id,
-                    'description' => 'Credit Note' . ($invoice ? ' for Invoice ' . ($invoice->invoice_id ?? $invoice->id) : ''),
+                    'reference' => 'CN-'.$creditNote->id,
+                    'description' => 'Credit Note'.($invoice ? ' for Invoice '.($invoice->invoice_id ?? $invoice->id) : ''),
                     'lines' => [
                         ['account_id' => $incomeAccount->id, 'debit' => $data['amount'], 'credit' => 0],
                         ['account_id' => $arAccount->id, 'debit' => 0, 'credit' => $data['amount']],
@@ -883,8 +905,8 @@ class AccountingController extends Controller
             if ($apAccount && $expenseAccount) {
                 $entry = $ledger->createEntry($workspace->organization_id, $workspace->id, [
                     'entry_date' => $data['date'],
-                    'reference' => 'DN-' . $debitNote->id,
-                    'description' => 'Debit Note' . ($bill ? ' for Bill ' . ($bill->invoice_id ?? $bill->id) : ''),
+                    'reference' => 'DN-'.$debitNote->id,
+                    'description' => 'Debit Note'.($bill ? ' for Bill '.($bill->invoice_id ?? $bill->id) : ''),
                     'lines' => [
                         ['account_id' => $apAccount->id, 'debit' => $data['amount'], 'credit' => 0],
                         ['account_id' => $expenseAccount->id, 'debit' => 0, 'credit' => $data['amount']],

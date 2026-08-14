@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Inventory\InventoryDashboardService;
 use App\Domain\Inventory\StockAdjustmentService;
 use App\Models\ProductServiceCategory;
 use App\Models\ProductServiceItem;
@@ -12,7 +13,6 @@ use App\Models\Workspace;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Domain\Inventory\InventoryDashboardService;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;

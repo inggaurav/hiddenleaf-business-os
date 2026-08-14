@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PurchaseReturnItem extends Model
 {
@@ -21,7 +22,7 @@ class PurchaseReturnItem extends Model
         'price' => 'decimal:2',
     ];
 
-    public function purchaseReturn(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function purchaseReturn(): BelongsTo
     {
         return $this->belongsTo(PurchaseReturn::class, 'purchase_return_id');
     }

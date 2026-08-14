@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\CRM\CrmDashboardService;
 use App\Models\CrmDeal;
 use App\Models\CrmLead;
 use App\Models\CrmPipeline;
@@ -11,7 +12,6 @@ use HiddenLeaf\Kernel\Services\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
-use App\Domain\CRM\CrmDashboardService;
 use Inertia\Inertia;
 
 class CrmController extends Controller
