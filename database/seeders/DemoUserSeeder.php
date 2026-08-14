@@ -127,5 +127,16 @@ class DemoUserSeeder extends Seeder
                 $ws1->id => ['role_id' => $memberRole->id],
             ]);
         }
+
+        // 9. Enable all modules for Demo Workspaces
+        $allModules = ['account', 'hrm', 'lead', 'taskly', 'pos', 'landingpage', 'productservice', 'sales', 'procurement'];
+        foreach ([$ws1, $ws2] as $ws) {
+            foreach ($allModules as $mod) {
+                \App\Models\UserActiveModule::firstOrCreate([
+                    'workspace_id' => $ws->id,
+                    'module_name' => $mod,
+                ]);
+            }
+        }
     }
 }

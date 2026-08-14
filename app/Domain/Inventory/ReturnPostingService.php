@@ -33,7 +33,8 @@ class ReturnPostingService
     {
         DB::transaction(function () use ($return, $invoice, $actor, $direction, $event) {
             $locked = $return->newQuery()->whereKey($return->id)->lockForUpdate()->firstOrFail();
-            if ((int) $locked->status !== 1 || (int) $invoice->status !== 1) {
+            $allowedInvoiceStatuses = [1, 2, 3, '1', '2', '3', 'posted', 'partial', 'paid', 'sent'];
+            if ((int) $locked->status !== 1 || ! in_array($invoice->status, $allowedInvoiceStatuses, false)) {
                 throw new RuntimeException('Only approved returns for posted invoices can be completed.');
             }
             $warehouse = null;

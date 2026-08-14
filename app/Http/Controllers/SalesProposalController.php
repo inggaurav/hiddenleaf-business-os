@@ -8,6 +8,7 @@ use App\Models\SalesInvoice;
 use App\Models\SalesInvoiceItem;
 use App\Models\SalesProposal;
 use App\Models\SalesProposalItem;
+use App\Models\Warehouse;
 use App\Models\Workspace;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -202,10 +203,12 @@ class SalesProposalController extends Controller
 
         $invoiceId = strtoupper(substr(uniqid('SI-'), -10));
 
+        $warehouseId = $request->input('warehouse_id') ?? Warehouse::where('workspace_id', $salesProposal->workspace_id)->value('id');
+
         $invoice = SalesInvoice::create([
             'invoice_id' => $invoiceId,
             'customer_id' => $salesProposal->customer_id,
-            'warehouse_id' => null,
+            'warehouse_id' => $warehouseId,
             'issue_date' => now()->toDateString(),
             'due_date' => now()->addDays(30)->toDateString(),
             'total_amount' => $salesProposal->total_amount,

@@ -271,6 +271,10 @@ class AccountingController extends Controller
                     ->lockForUpdate()
                     ->findOrFail($data['invoice_id']);
                 $data['customer_id'] = $data['customer_id'] ?? $invoice->customer_id;
+
+                $alreadyPaid = (float) CustomerPayment::where('invoice_id', $invoice->id)->sum('amount');
+                $due = max(0, (float) $invoice->total_amount - $alreadyPaid);
+                abort_if((float) $data['amount'] > ($due + 0.001), 422, 'Payment amount exceeds remaining invoice balance.');
             }
 
             $journalEntryId = null;
@@ -374,6 +378,10 @@ class AccountingController extends Controller
                     ->lockForUpdate()
                     ->findOrFail($data['purchase_invoice_id']);
                 $data['vendor_id'] = $data['vendor_id'] ?? $bill->vendor_id;
+
+                $alreadyPaid = (float) VendorPayment::where('purchase_invoice_id', $bill->id)->sum('amount');
+                $due = max(0, (float) $bill->total_amount - $alreadyPaid);
+                abort_if((float) $data['amount'] > ($due + 0.001), 422, 'Payment amount exceeds remaining bill balance.');
             }
 
             $journalEntryId = null;

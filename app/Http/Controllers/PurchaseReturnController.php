@@ -24,18 +24,31 @@ class PurchaseReturnController extends Controller
     {
         $workspace = $this->workspace($request);
 
-        return Inertia::render('PurchaseReturns/Create', ['invoices' => PurchaseInvoice::with('items')->where('organization_id', $workspace->organization_id)->where('workspace_id', $workspace->id)->where('status', 1)->get()]);
+        return Inertia::render('PurchaseReturns/Create', [
+            'invoices' => PurchaseInvoice::with('items')
+                ->where('organization_id', $workspace->organization_id)
+                ->where('workspace_id', $workspace->id)
+                ->where(fn ($q) => $q->whereIn('status', [1, 2, 3, 'posted', 'received', 'paid']))
+                ->get(),
+        ]);
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
-            'purchase_invoice_id' => ['required', 'integer'], 'date' => ['required', 'date'],
-            'items' => ['required', 'array', 'min:1'], 'items.*.product_id' => ['required', 'integer'],
-            'items.*.quantity' => ['required', 'numeric', 'gt:0'], 'items.*.price' => ['required', 'numeric', 'min:0'],
+            'purchase_invoice_id' => ['required', 'integer'],
+            'date' => ['required', 'date'],
+            'items' => ['required', 'array', 'min:1'],
+            'items.*.product_id' => ['required', 'integer'],
+            'items.*.quantity' => ['required', 'numeric', 'gt:0'],
+            'items.*.price' => ['required', 'numeric', 'min:0'],
         ]);
         $workspace = $this->workspace($request);
-        $invoice = PurchaseInvoice::with('items')->where('organization_id', $workspace->organization_id)->where('workspace_id', $workspace->id)->where('status', 1)->findOrFail($data['purchase_invoice_id']);
+        $invoice = PurchaseInvoice::with('items')
+            ->where('organization_id', $workspace->organization_id)
+            ->where('workspace_id', $workspace->id)
+            ->where(fn ($q) => $q->whereIn('status', [1, 2, 3, 'posted', 'received', 'paid']))
+            ->findOrFail($data['purchase_invoice_id']);
         $lines = $invoice->items->groupBy('product_id');
         foreach ($data['items'] as $item) {
             abort_unless((float) $item['quantity'] <= (float) $lines->get($item['product_id'], collect())->sum('quantity'), 422, 'Return quantity exceeds the purchase invoice.');
