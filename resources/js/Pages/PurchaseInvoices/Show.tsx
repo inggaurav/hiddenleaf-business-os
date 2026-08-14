@@ -65,7 +65,7 @@ export default function PurchaseInvoiceShow() {
             </div>
             <div>
               <span className="text-gray-400 block">Receiving Facility</span>
-              <span className="text-white font-semibold">{invoice?.warehouse?.name || 'Primary Hub'}</span>
+              <span className="text-white font-semibold">{invoice?.warehouse?.name ?? '—'}</span>
             </div>
             <div>
               <span className="text-gray-400 block">Payment Status</span>

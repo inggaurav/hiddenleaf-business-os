@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AuditLog;
+use App\Models\Domain\SaaS\Plan;
 use App\Models\HelpdeskTicket;
 use App\Models\Organization;
 use App\Models\ProductServiceItem;
@@ -45,6 +46,8 @@ class HomeController extends Controller
             ],
             'metrics' => $wsId ? [
                 'members' => $usersCount,
+                'workspaces' => $workspacesCount,
+                'active_plan_name' => $organization?->plan_id ? Plan::whereKey($organization->plan_id)->value('name') : null,
                 'products' => ProductServiceItem::where('organization_id', $orgId)->where('workspace_id', $wsId)->where('type', 'product')->count(),
                 'services' => ProductServiceItem::where('organization_id', $orgId)->where('workspace_id', $wsId)->where('type', 'service')->count(),
                 'sales' => (float) SalesInvoice::where('organization_id', $orgId)->where('workspace_id', $wsId)->whereIn('status', [1, 2, 3])->sum('total_amount'),

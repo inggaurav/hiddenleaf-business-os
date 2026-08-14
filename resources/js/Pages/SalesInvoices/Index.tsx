@@ -33,7 +33,7 @@ export default function SalesInvoicesIndex() {
       sortable: true,
       render: (row) => (
         <div>
-          <span className="font-semibold text-white block">{row.customer?.name || row.customer_name || 'Client Corp'}</span>
+          <span className="font-semibold text-white block">{row.customer?.name ?? (row.customer_id ? `Customer #${row.customer_id}` : '—')}</span>
           <span className="text-[11px] text-gray-400">{row.customer?.email || '—'}</span>
         </div>
       ),
@@ -44,7 +44,7 @@ export default function SalesInvoicesIndex() {
       sortable: true,
       render: (row) => (
         <span className="text-xs text-gray-300">
-          {row.warehouse?.name || 'Primary Hub'}
+          {row.warehouse?.name ?? '—'}
         </span>
       ),
     },
@@ -64,7 +64,7 @@ export default function SalesInvoicesIndex() {
       sortable: true,
       render: (row) => (
         <span className="text-xs text-gray-400">
-          {row.due_date ? new Date(row.due_date).toLocaleDateString() : 'Immediate'}
+          {row.due_date ? new Date(row.due_date).toLocaleDateString() : '—'}
         </span>
       ),
     },
@@ -72,7 +72,7 @@ export default function SalesInvoicesIndex() {
       key: 'status',
       header: 'Status',
       sortable: true,
-      render: (row) => <StatusBadge status={row.status || 'Draft'} />,
+      render: (row) => <StatusBadge status={String(row.status ?? 'unknown')} />,
     },
     {
       key: 'actions',

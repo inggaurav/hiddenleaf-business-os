@@ -20,13 +20,14 @@ import {
 } from 'lucide-react';
 
 export default function Dashboard() {
-  const { auth, tenant, metrics } = usePage<any>().props;
+  const { auth, tenant, metrics, stats } = usePage<any>().props;
   const user = auth?.user;
   const workspaceTitle = tenant?.workspace_title || 'Default Workspace';
 
-  const userCount = metrics?.users_count ?? 1;
-  const workspaceCount = metrics?.workspaces_count ?? (tenant?.available_workspaces?.length || 1);
-  const activePlan = metrics?.active_plan_name || 'Standard Plan';
+  const userCount = metrics?.members ?? stats?.users ?? 0;
+  const workspaceCount = metrics?.workspaces ?? stats?.workspaces ?? 0;
+  const productCount = metrics?.products ?? 0;
+  const openTicketCount = metrics?.open_tickets ?? stats?.tickets ?? 0;
   const roleTitle = user?.role ? String(user.role).replace('_', ' ').toUpperCase() : 'MEMBER';
 
   return (
@@ -72,17 +73,17 @@ export default function Dashboard() {
           />
 
           <MetricCard
-            title="Subscription Tier"
-            value={activePlan}
-            icon={<CreditCard className="w-5 h-5 text-emerald-400" />}
-            subtitle="Current billing plan"
+            title="Products"
+            value={productCount}
+            icon={<ShoppingBag className="w-5 h-5 text-emerald-400" />}
+            subtitle="Workspace catalog records"
           />
 
           <MetricCard
-            title="System Security"
-            value="Enforced"
-            icon={<ShieldCheck className="w-5 h-5 text-amber-400" />}
-            subtitle="Tenant RBAC & Isolation"
+            title="Open Tickets"
+            value={openTicketCount}
+            icon={<Activity className="w-5 h-5 text-amber-400" />}
+            subtitle="Unresolved workspace requests"
           />
         </div>
 
@@ -108,7 +109,7 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <Link href="/ai-agent">
+              <Link href="/ai-agent/chat">
                 <Button variant="intelligence" size="sm" icon={<Sparkles className="w-3.5 h-3.5" />}>
                   Open Assistant
                 </Button>

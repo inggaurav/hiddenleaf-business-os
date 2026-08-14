@@ -8,6 +8,7 @@ use App\Models\Domain\SaaS\Plan;
 use App\Models\Domain\SaaS\Subscription;
 use App\Models\HelpdeskTicket;
 use App\Models\Organization;
+use App\Models\User;
 use App\Models\UserActiveModule;
 use App\Models\Workspace;
 use Inertia\Inertia;
@@ -17,6 +18,7 @@ class DashboardController
     public function index()
     {
         $metrics = [
+            'users' => User::count(),
             'organizations' => Organization::count(),
             'workspaces' => Workspace::count(),
             'plans' => Plan::where('status', true)->count(),

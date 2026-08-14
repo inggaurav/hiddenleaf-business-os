@@ -41,7 +41,7 @@ export default function TransferShow() {
             <div className="text-center sm:text-left">
               <span className="text-xs text-gray-400 block">Origin</span>
               <span className="font-bold text-white text-base">
-                {transfer?.from_warehouse?.name || 'Primary Hub'}
+                {transfer?.from_warehouse?.name ?? '—'}
               </span>
             </div>
 

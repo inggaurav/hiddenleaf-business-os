@@ -61,11 +61,11 @@ export default function SalesInvoiceShow() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
             <div>
               <span className="text-gray-400 block">Customer</span>
-              <span className="text-white font-semibold">{invoice?.customer?.name || invoice?.customer_name || 'Client Corp'}</span>
+              <span className="text-white font-semibold">{invoice?.customer?.name ?? (invoice?.customer_id ? `Customer #${invoice.customer_id}` : '—')}</span>
             </div>
             <div>
               <span className="text-gray-400 block">Fulfillment Hub</span>
-              <span className="text-white font-semibold">{invoice?.warehouse?.name || 'Primary Hub'}</span>
+              <span className="text-white font-semibold">{invoice?.warehouse?.name ?? '—'}</span>
             </div>
             <div>
               <span className="text-gray-400 block">Due Date</span>

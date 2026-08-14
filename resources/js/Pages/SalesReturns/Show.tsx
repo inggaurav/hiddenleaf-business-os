@@ -53,7 +53,7 @@ export default function SalesReturnShow() {
           <div className="grid grid-cols-2 gap-4 text-xs">
             <div>
               <span className="text-gray-400 block">Customer</span>
-              <span className="text-white font-semibold">{salesReturn?.customer?.name || salesReturn?.customer_id || 'Client Corp'}</span>
+              <span className="text-white font-semibold">{salesReturn?.customer?.name ?? (salesReturn?.customer_id ? `Customer #${salesReturn.customer_id}` : '—')}</span>
             </div>
             <div>
               <span className="text-gray-400 block">Linked Invoice</span>

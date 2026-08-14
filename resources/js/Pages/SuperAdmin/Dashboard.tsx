@@ -8,7 +8,7 @@ import { SectionHeader } from '@/Components/UI/SectionHeader';
 import { ShieldCheck, Building, Users, CreditCard, Layers, DollarSign, Sliders } from 'lucide-react';
 
 export default function SuperAdminDashboard() {
-  const { totalUsers = 0, totalOrders = 0, totalPlans = 0, totalWorkspaces = 0 } = usePage<any>().props;
+  const { metrics = {} } = usePage<any>().props;
 
   return (
     <AppShell title="Super Admin Control Center">
@@ -36,7 +36,7 @@ export default function SuperAdminDashboard() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <MetricCard
             title="Global Tenant Users"
-            value={totalUsers}
+            value={metrics.users ?? 0}
             icon={<Users className="w-5 h-5 text-violet-400" />}
             trend={{ value: 'Active', positive: true, label: 'across tenants' }}
             subtitle="Registered accounts"
@@ -44,7 +44,7 @@ export default function SuperAdminDashboard() {
 
           <MetricCard
             title="Total Workspaces"
-            value={totalWorkspaces}
+            value={metrics.workspaces ?? 0}
             icon={<Layers className="w-5 h-5 text-indigo-400" />}
             trend={{ value: 'Healthy', positive: true, label: 'operational pods' }}
             subtitle="Isolated namespaces"
@@ -52,7 +52,7 @@ export default function SuperAdminDashboard() {
 
           <MetricCard
             title="SaaS Plans"
-            value={totalPlans}
+            value={metrics.plans ?? 0}
             icon={<CreditCard className="w-5 h-5 text-purple-400" />}
             trend={{ value: 'Available', neutral: true, label: 'tiers configured' }}
             subtitle="Commercial catalog"
@@ -60,7 +60,7 @@ export default function SuperAdminDashboard() {
 
           <MetricCard
             title="Processed Orders"
-            value={totalOrders}
+            value={metrics.orders ?? 0}
             icon={<DollarSign className="w-5 h-5 text-emerald-400" />}
             trend={{ value: 'Audited', positive: true, label: 'payment receipts' }}
             subtitle="Billing revenue"
