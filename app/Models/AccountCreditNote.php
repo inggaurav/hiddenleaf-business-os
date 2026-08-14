@@ -14,7 +14,8 @@ class AccountCreditNote extends Model
 
     protected $fillable = [
         'organization_id', 'workspace_id', 'invoice_id', 'customer_id', 'amount',
-        'date', 'description', 'status', 'journal_entry_id', 'approved_at', 'approved_by', 'created_by',
+        'date', 'description', 'source_type', 'source_id', 'status', 'journal_entry_id',
+        'approved_at', 'approved_by', 'created_by',
     ];
 
     protected $casts = [
