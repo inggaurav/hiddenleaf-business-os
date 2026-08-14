@@ -4,6 +4,7 @@ use App\Console\Commands\InstallBusinessOs;
 use App\Console\Commands\ReconcileFinancialBalancesCommand;
 use App\Console\Commands\ValidateParityEvidenceCommand;
 use App\Http\Middleware\CheckModuleStatus;
+use App\Http\Middleware\EnsureAccountPermission;
 use App\Http\Middleware\EnsureApiWorkspace;
 use App\Http\Middleware\EnsureFinancialIdempotency;
 use App\Http\Middleware\EnsureTenantContext;
@@ -42,6 +43,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'module.status' => CheckModuleStatus::class,
             'api.workspace' => EnsureApiWorkspace::class,
+            'account.permission' => EnsureAccountPermission::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
