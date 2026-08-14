@@ -1,20 +1,23 @@
 {
-  "total_bundled_actions": 128,
-  "verified_actions": 128,
-  "partial_actions": 0,
+  "status": "REFERENCE_MAPPING_REQUIRED",
+  "reason": "The previous 128/128 summary was manually aggregated and did not contain 128 individual resolvable evidence rows. It has been invalidated until action-level WorkDo reference mappings are regenerated and pass php artisan parity:validate.",
+  "legacy_reference_action_count": 128,
+  "verified_actions": 0,
+  "partial_actions": 128,
   "missing_actions": 0,
   "intentionally_different": 0,
+  "actions": [],
   "modules": {
-    "account": { "total": 32, "verified": 32, "partial": 0, "missing": 0 },
-    "productservice": { "total": 14, "verified": 14, "partial": 0, "missing": 0 },
-    "sales": { "total": 15, "verified": 15, "partial": 0, "missing": 0 },
-    "procurement": { "total": 13, "verified": 13, "partial": 0, "missing": 0 },
-    "hrm": { "total": 16, "verified": 16, "partial": 0, "missing": 0 },
-    "crm": { "total": 12, "verified": 12, "partial": 0, "missing": 0 },
-    "taskly": { "total": 10, "verified": 10, "partial": 0, "missing": 0 },
-    "pos": { "total": 8, "verified": 8, "partial": 0, "missing": 0 },
-    "helpdesk": { "total": 4, "verified": 4, "partial": 0, "missing": 0 },
-    "media": { "total": 2, "verified": 2, "partial": 0, "missing": 0 },
-    "messenger": { "total": 2, "verified": 2, "partial": 0, "missing": 0 }
+    "account": { "legacy_total": 32, "status": "HIDDENLEAF_EVIDENCE_AVAILABLE_REFERENCE_MAPPING_PENDING" },
+    "productservice": { "legacy_total": 14, "status": "REFERENCE_MAPPING_PENDING" },
+    "sales": { "legacy_total": 15, "status": "REFERENCE_MAPPING_PENDING" },
+    "procurement": { "legacy_total": 13, "status": "REFERENCE_MAPPING_PENDING" },
+    "hrm": { "legacy_total": 16, "status": "REFERENCE_MAPPING_PENDING" },
+    "crm": { "legacy_total": 12, "status": "REFERENCE_MAPPING_PENDING" },
+    "taskly": { "legacy_total": 10, "status": "REFERENCE_MAPPING_PENDING" },
+    "pos": { "legacy_total": 8, "status": "REFERENCE_MAPPING_PENDING" },
+    "helpdesk": { "legacy_total": 4, "status": "REFERENCE_MAPPING_PENDING" },
+    "media": { "legacy_total": 2, "status": "REFERENCE_MAPPING_PENDING" },
+    "messenger": { "legacy_total": 2, "status": "REFERENCE_MAPPING_PENDING" }
   }
 }
