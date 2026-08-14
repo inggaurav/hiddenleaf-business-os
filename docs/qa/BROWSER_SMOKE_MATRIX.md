@@ -4,7 +4,7 @@ This matrix is deterministic execution guidance for the final integrated UI. Row
 
 | Area | Route | Actor / permission | Expected result | Mutation | Tenant-security expectation | Status |
 |---|---|---|---|---|---|---|
-| Authentication | `/login` | Guest | Valid login reaches dashboard; invalid credentials stay generic | Session created | No tenant selected from request input | NOT EXECUTED |
+| Authentication | `/login` | Guest | Valid login reaches dashboard; invalid credentials stay generic | Session created | No tenant selected from request input | BLOCKED — fresh install redirects to failed installer UI |
 | Dashboard | `/dashboard` | Workspace member | Real workspace metrics and recent audit activity render | None | Active organization/workspace only | NOT EXECUTED |
 | Workspace switching | `/workspaces/{workspace}/switch` | Workspace member | Context changes and dependent props refresh | Session context | Foreign workspace returns 403/404 | NOT EXECUTED |
 | Roles | `/roles` | `roles.manage` | Role list and permission assignments render | Create/update role | Foreign-organization role rejected | NOT EXECUTED |
@@ -38,8 +38,20 @@ This matrix is deterministic execution guidance for the final integrated UI. Row
 | Modules | `/modules` | `modules.manage` or Super Admin | Installed/entitled state renders | Activate/deactivate/install | Foreign workspace and unsigned ZIP rejected | NOT EXECUTED |
 | Webhooks | `/webhooks` | Workspace webhook manager | Secrets remain hidden; delivery state renders | Create/rotate/replay | Foreign subscription/delivery hidden | NOT EXECUTED |
 | API tokens | `/settings/api-tokens` | Authenticated member | Token inventory renders without token values | Create/revoke | Only actor tokens mutate | NOT EXECUTED |
-| Installer | `/install` | Fresh deployment only | Multi-step installer completes once | Install lock/database/admin | Locked installation returns 404/redirect | NOT EXECUTED |
+| Installer | `/install` | Fresh deployment only | Multi-step installer completes once | Install lock/database/admin | Locked installation returns 404/redirect | FAIL — read-only data panel; no installer controls |
 | Updater | `/update` | Super Admin | Signed manifest/history/rollback render | Install/rollback | Non-admin forbidden; maintenance always exits | NOT EXECUTED |
 | Licensing authority | `/api/v1/licensing/activate` | Authority deployment only | Persisted valid license returns signed entitlement | Activation/deactivation | Route absent on customer installs | NOT EXECUTED |
 
 For every executed row record build SHA, browser, actor IDs, organization/workspace IDs, request ID, expected/actual result, and any cleanup performed.
+
+## Execution evidence — 2026-08-14
+
+- Build: `4eda521a4b30b8b4293e60290b8082abdea39d28`
+- Browser: Playwright CLI, headless Chrome, fresh in-memory profile
+- Actor / tenant: guest; no organization or workspace selected
+- Installer request ID: `a34ff607-49f5-4fc7-9cfc-0ffd51528c09`
+- `/install` actual: HTTP 200 and correct page title, but `resources/js/Pages/Install/Index.tsx` renders a generic `DataPanel`. Raw `steps`, `requirements`, `isInstalled`, and `modules` props are displayed with no usable multi-step form or mutation controls. The guest page also exposes the authenticated application shell. Result: **FAIL**.
+- `/login` actual: redirected to `/install`, as expected for an unlocked fresh deployment. Authentication workflow therefore cannot be executed until the installer UI is usable. Result: **BLOCKED**.
+- Console: one missing `/favicon.ico` 404; no JavaScript runtime exception.
+- Screenshot: local QA artifact `output/playwright/installer-4eda521.png` (not a release source file).
+- Cleanup: browser session closed; the temporary local PHP server was stopped. No installation lock or tenant data was created.
