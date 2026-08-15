@@ -13,12 +13,10 @@ use HiddenLeaf\Http\Controllers\Api\V1\LicensingController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
-    // Public Auth & Plans
     Route::post('/auth/login', [AuthController::class, 'login']);
     Route::get('/plans', [PlanApiController::class, 'index']);
     Route::get('/plans/{plan}', [PlanApiController::class, 'show']);
 
-    // License-authority protocol endpoints never register on customer installations.
     if (config('licensing.server_enabled')) {
         Route::middleware('throttle:30,1')->group(function () {
             Route::post('/licensing/activate', [LicensingController::class, 'activate']);
@@ -28,7 +26,6 @@ Route::prefix('v1')->group(function () {
         });
     }
 
-    // Authenticated Sanctum Routes
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/user', [AuthController::class, 'me']);
         Route::post('/auth/logout', [AuthController::class, 'logout']);
@@ -39,7 +36,6 @@ Route::prefix('v1')->group(function () {
         Route::post('/tokens', [AccountController::class, 'storeToken']);
         Route::delete('/tokens/{token}', [AccountController::class, 'destroyToken'])->whereNumber('token');
 
-        // Workspaces
         Route::get('/workspaces', [WorkspaceApiController::class, 'index']);
         Route::get('/workspaces/{workspace}', [WorkspaceApiController::class, 'show']);
 
@@ -49,20 +45,32 @@ Route::prefix('v1')->group(function () {
             Route::get('/client-users', [UserDirectoryApiController::class, 'users'])->defaults('type', 'client');
             Route::get('/vendor-users', [UserDirectoryApiController::class, 'users'])->defaults('type', 'vendor');
             Route::get('/subscription', [UserDirectoryApiController::class, 'subscription']);
-            Route::get('/products-services', [ProductServiceApiController::class, 'index']);
-            Route::get('/products-services/{item}', [ProductServiceApiController::class, 'show'])->whereNumber('item');
 
-            Route::get('/warehouses', [SalesProcurementApiController::class, 'warehouses']);
-            Route::get('/purchase-invoices', [SalesProcurementApiController::class, 'purchaseInvoices']);
-            Route::get('/sales-invoices', [SalesProcurementApiController::class, 'salesInvoices']);
-            Route::get('/sales-proposals', [SalesProcurementApiController::class, 'salesProposals']);
+            Route::middleware('api.module:productservice')->group(function () {
+                Route::get('/products-services', [ProductServiceApiController::class, 'index']);
+                Route::get('/products-services/{item}', [ProductServiceApiController::class, 'show'])->whereNumber('item');
+                Route::get('/warehouses', [SalesProcurementApiController::class, 'warehouses']);
+            });
 
-            Route::get('/helpdesk/tickets', [HelpdeskApiController::class, 'tickets']);
-            Route::post('/helpdesk/tickets', [HelpdeskApiController::class, 'storeTicket']);
-            Route::get('/helpdesk/tickets/{ticket}', [HelpdeskApiController::class, 'ticketDetails']);
+            Route::middleware('api.module:procurement')->group(function () {
+                Route::get('/purchase-invoices', [SalesProcurementApiController::class, 'purchaseInvoices']);
+            });
 
-            Route::get('/media', [MediaApiController::class, 'index']);
-            Route::post('/media/upload', [MediaApiController::class, 'upload']);
+            Route::middleware('api.module:sales')->group(function () {
+                Route::get('/sales-invoices', [SalesProcurementApiController::class, 'salesInvoices']);
+                Route::get('/sales-proposals', [SalesProcurementApiController::class, 'salesProposals']);
+            });
+
+            Route::middleware('api.module:helpdesk')->group(function () {
+                Route::get('/helpdesk/tickets', [HelpdeskApiController::class, 'tickets']);
+                Route::post('/helpdesk/tickets', [HelpdeskApiController::class, 'storeTicket']);
+                Route::get('/helpdesk/tickets/{ticket}', [HelpdeskApiController::class, 'ticketDetails']);
+            });
+
+            Route::middleware('api.module:media')->group(function () {
+                Route::get('/media', [MediaApiController::class, 'index']);
+                Route::post('/media/upload', [MediaApiController::class, 'upload']);
+            });
         });
     });
 });
