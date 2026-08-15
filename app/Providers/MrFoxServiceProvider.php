@@ -2,6 +2,14 @@
 
 namespace App\Providers;
 
+use App\Domain\Communications\Actions\CommunicationReplyGenerator;
+use App\Domain\Communications\Actions\CommunicationSendService;
+use App\Domain\Communications\Matching\AttentionPriorityCalculator;
+use App\Domain\Communications\Matching\IdentityMatcher;
+use App\Domain\Communications\Matching\InteractionClassificationEngine;
+use App\Domain\Communications\Providers\CommunicationProviderRegistry;
+use App\Domain\Communications\Sync\CommunicationSyncService;
+use App\Domain\Communications\Webhooks\CommunicationWebhookService;
 use App\Domain\MrFox\Agent\MrFoxAgent;
 use App\Domain\MrFox\Approvals\ActionApprovalService;
 use App\Domain\MrFox\Context\BusinessContextService;
@@ -17,6 +25,13 @@ use App\Domain\MrFox\Tools\AccountingPnlTool;
 use App\Domain\MrFox\Tools\BrandProfileGetTool;
 use App\Domain\MrFox\Tools\BusinessAlertsTool;
 use App\Domain\MrFox\Tools\BusinessDashboardSummaryTool;
+use App\Domain\MrFox\Tools\CommunicationsDraftReplyTool;
+use App\Domain\MrFox\Tools\CommunicationsGetTool;
+use App\Domain\MrFox\Tools\CommunicationsSearchTool;
+use App\Domain\MrFox\Tools\CommunicationsSendReplyTool;
+use App\Domain\MrFox\Tools\CommunicationsSummarizeTool;
+use App\Domain\MrFox\Tools\CommunicationsUnreadSummaryTool;
+use App\Domain\MrFox\Tools\CommunicationsUrgentSummaryTool;
 use App\Domain\MrFox\Tools\CrmAddNoteTool;
 use App\Domain\MrFox\Tools\CrmCreateLeadTool;
 use App\Domain\MrFox\Tools\CrmGetLeadTool;
@@ -51,6 +66,16 @@ class MrFoxServiceProvider extends ServiceProvider
         $this->app->singleton(KnowledgeSearchService::class);
         $this->app->singleton(SkillRegistry::class);
         $this->app->singleton(ContentReviewEngine::class);
+
+        // Communications Domain Singletons
+        $this->app->singleton(CommunicationProviderRegistry::class);
+        $this->app->singleton(InteractionClassificationEngine::class);
+        $this->app->singleton(AttentionPriorityCalculator::class);
+        $this->app->singleton(IdentityMatcher::class);
+        $this->app->singleton(CommunicationSyncService::class);
+        $this->app->singleton(CommunicationWebhookService::class);
+        $this->app->singleton(CommunicationSendService::class);
+        $this->app->singleton(CommunicationReplyGenerator::class);
 
         $this->app->singleton(MrFoxToolRegistry::class, function ($app) {
             $registry = new MrFoxToolRegistry();
@@ -99,6 +124,15 @@ class MrFoxServiceProvider extends ServiceProvider
                 $app->make(ProviderRouter::class),
                 $app->make(ContentReviewEngine::class)
             ));
+
+            // Unified Communications Tools
+            $registry->register(new CommunicationsSearchTool());
+            $registry->register(new CommunicationsGetTool());
+            $registry->register(new CommunicationsUnreadSummaryTool());
+            $registry->register(new CommunicationsUrgentSummaryTool());
+            $registry->register(new CommunicationsSummarizeTool($app->make(ProviderRouter::class)));
+            $registry->register(new CommunicationsDraftReplyTool($app->make(CommunicationReplyGenerator::class)));
+            $registry->register(new CommunicationsSendReplyTool($app->make(CommunicationSendService::class)));
 
             return $registry;
         });

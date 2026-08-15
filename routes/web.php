@@ -70,6 +70,11 @@ Route::post('/install/license/validate', [InstallController::class, 'validateLic
 Route::get('/site/{slug}', [LandingPageController::class, 'publicSite'])->name('landing.public');
 Route::get('/site/{slug}/{page}', [LandingPageController::class, 'publicPage'])->name('landing.page');
 
+// Public Communications Webhook Endpoint
+Route::match(['get', 'post'], 'api/v1/webhooks/communications/{provider}', [\App\Http\Controllers\Communications\CommunicationWebhookController::class, 'handle'])
+    ->name('webhooks.communications')
+    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class, \App\Http\Middleware\EnsureTenantContext::class]);
+
 // Public & Guest Routes
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'loginView'])->name('login');
@@ -435,6 +440,16 @@ Route::middleware(['auth'])->group(function () {
         Route::get('conversations/{id}', [\App\Http\Controllers\MrFox\MrFoxChatController::class, 'getConversationMessages'])->name('conversations.show');
         Route::post('actions/{id}/approve', [\App\Http\Controllers\MrFox\MrFoxChatController::class, 'approveAction'])->name('actions.approve');
         Route::post('actions/{id}/reject', [\App\Http\Controllers\MrFox\MrFoxChatController::class, 'rejectAction'])->name('actions.reject');
+    });
+
+    // Unified Communications Inbox
+    Route::get('inbox', [\App\Http\Controllers\Communications\UnifiedInboxController::class, 'index'])->name('inbox.index');
+    Route::prefix('api/v1/communications')->name('communications.')->group(function () {
+        Route::get('conversations', [\App\Http\Controllers\Communications\UnifiedInboxController::class, 'getConversations'])->name('conversations');
+        Route::get('conversations/{id}', [\App\Http\Controllers\Communications\UnifiedInboxController::class, 'getThread'])->name('thread');
+        Route::post('conversations/{id}/reply', [\App\Http\Controllers\Communications\UnifiedInboxController::class, 'reply'])->name('reply');
+        Route::post('conversations/{id}/draft', [\App\Http\Controllers\Communications\UnifiedInboxController::class, 'draftReply'])->name('draft');
+        Route::post('conversations/{id}/link-crm', [\App\Http\Controllers\Communications\UnifiedInboxController::class, 'linkCrm'])->name('link-crm');
     });
 
     // General & System Settings
