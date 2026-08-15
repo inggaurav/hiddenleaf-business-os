@@ -14,6 +14,7 @@ use App\Http\Middleware\EnsureFinancialIdempotency;
 use App\Http\Middleware\EnsurePosPermission;
 use App\Http\Middleware\EnsureProductServicePermission;
 use App\Http\Middleware\EnsureTenantContext;
+use App\Http\Middleware\EnsureWorkspaceModuleAccess;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\Installed;
 use App\Http\Middleware\RequestId;
@@ -48,6 +49,7 @@ return Application::configure(basePath: dirname(__DIR__))
             RequestId::class,
             Installed::class,
             EnsureTenantContext::class,
+            EnsureWorkspaceModuleAccess::class,
             EnsureAccountPermission::class,
             EnsureProductServicePermission::class,
             EnsurePosPermission::class,
