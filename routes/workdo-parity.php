@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ModuleSectionController;
+use App\Http\Controllers\SuperAdmin\CompanyController;
+use App\Http\Middleware\SuperAdminMiddleware;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['web', 'auth'])->group(function () {
@@ -18,4 +20,9 @@ Route::middleware(['web', 'auth'])->group(function () {
         ->where('section', 'projects|tasks|milestones|timesheets|issues')
         ->middleware('module.status:taskly')
         ->name('taskly.section');
+
+    Route::middleware(SuperAdminMiddleware::class)->prefix('super-admin')->name('super-admin.')->group(function () {
+        Route::get('/companies', [CompanyController::class, 'index'])->name('companies.index');
+        Route::patch('/companies/{organization}', [CompanyController::class, 'update'])->name('companies.update');
+    });
 });
