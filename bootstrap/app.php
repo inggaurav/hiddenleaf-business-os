@@ -1,6 +1,7 @@
 <?php
 
 use App\Console\Commands\AccountingConcurrencyProbeCommand;
+use App\Console\Commands\CreateDemoWorkspaceCommand;
 use App\Console\Commands\InstallBusinessOs;
 use App\Console\Commands\ReconcileFinancialBalancesCommand;
 use App\Console\Commands\ReconcileInventoryCommand;
@@ -31,6 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withCommands([
         InstallBusinessOs::class,
+        CreateDemoWorkspaceCommand::class,
         ReconcileFinancialBalancesCommand::class,
         ReconcileInventoryCommand::class,
         ValidateParityEvidenceCommand::class,
