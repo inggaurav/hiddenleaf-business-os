@@ -1,0 +1,30 @@
+{
+    "total_schedules": 5,
+    "schedules": [
+        {
+            "command": "subscriptions:check-expiry",
+            "frequency": "daily",
+            "purpose": "Expire past-due tenant SaaS subscriptions"
+        },
+        {
+            "command": "invoices:generate-recurring",
+            "frequency": "daily",
+            "purpose": "Generate recurring sales invoices"
+        },
+        {
+            "command": "reminders:send-due",
+            "frequency": "hourly",
+            "purpose": "Send task and payment due reminders"
+        },
+        {
+            "command": "inventory:check-low-stock",
+            "frequency": "daily",
+            "purpose": "Dispatch low stock email alerts to warehouse managers"
+        },
+        {
+            "command": "webhooks:retry-failed",
+            "frequency": "everyThirtyMinutes",
+            "purpose": "Retry pending failed webhook deliveries"
+        }
+    ]
+}

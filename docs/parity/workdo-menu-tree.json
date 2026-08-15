@@ -1,0 +1,306 @@
+{
+    "total_items": 45,
+    "tree": [
+        {
+            "title": "Dashboard",
+            "route": "/dashboard",
+            "permission": "dashboard.view",
+            "icon": "LayoutDashboard"
+        },
+        {
+            "title": "CRM",
+            "permission": "crm.manage",
+            "icon": "UserCheck",
+            "children": [
+                {
+                    "title": "Leads",
+                    "route": "/crm/leads",
+                    "permission": "lead.manage"
+                },
+                {
+                    "title": "Deals",
+                    "route": "/crm/deals",
+                    "permission": "deal.manage"
+                },
+                {
+                    "title": "Pipelines",
+                    "route": "/crm/pipelines",
+                    "permission": "pipeline.manage"
+                },
+                {
+                    "title": "Activities",
+                    "route": "/crm/activities",
+                    "permission": "crm.manage"
+                },
+                {
+                    "title": "Webforms",
+                    "route": "/crm/webforms",
+                    "permission": "crm.manage"
+                }
+            ]
+        },
+        {
+            "title": "Sales",
+            "permission": "sales.manage",
+            "icon": "FileText",
+            "children": [
+                {
+                    "title": "Proposals",
+                    "route": "/sales-proposals",
+                    "permission": "sales-proposals.manage"
+                },
+                {
+                    "title": "Invoices",
+                    "route": "/sales-invoices",
+                    "permission": "sales-invoices.manage"
+                },
+                {
+                    "title": "Returns",
+                    "route": "/sales-returns",
+                    "permission": "sales-returns.manage"
+                },
+                {
+                    "title": "Credit Notes",
+                    "route": "/credit-notes",
+                    "permission": "account.manage"
+                }
+            ]
+        },
+        {
+            "title": "Purchases",
+            "permission": "purchases.manage",
+            "icon": "ShoppingCart",
+            "children": [
+                {
+                    "title": "Purchase Invoices",
+                    "route": "/purchase-invoices",
+                    "permission": "purchase-invoices.manage"
+                },
+                {
+                    "title": "Purchase Returns",
+                    "route": "/purchase-returns",
+                    "permission": "purchase-returns.manage"
+                },
+                {
+                    "title": "Debit Notes",
+                    "route": "/debit-notes",
+                    "permission": "account.manage"
+                },
+                {
+                    "title": "Vendors",
+                    "route": "/vendors",
+                    "permission": "vendor.manage"
+                }
+            ]
+        },
+        {
+            "title": "Products & Inventory",
+            "permission": "productservice.manage",
+            "icon": "Package",
+            "children": [
+                {
+                    "title": "Products & Services",
+                    "route": "/product-service",
+                    "permission": "productservice.manage"
+                },
+                {
+                    "title": "Warehouses",
+                    "route": "/warehouses",
+                    "permission": "warehouses.manage"
+                },
+                {
+                    "title": "Transfers",
+                    "route": "/transfers",
+                    "permission": "transfers.manage"
+                },
+                {
+                    "title": "Stock Movements",
+                    "route": "/stock-movements",
+                    "permission": "inventory.view"
+                }
+            ]
+        },
+        {
+            "title": "POS",
+            "permission": "pos.manage",
+            "icon": "CreditCard",
+            "children": [
+                {
+                    "title": "Registers & Sessions",
+                    "route": "/pos",
+                    "permission": "pos.manage"
+                },
+                {
+                    "title": "Orders",
+                    "route": "/pos/orders",
+                    "permission": "pos.manage"
+                },
+                {
+                    "title": "Returns",
+                    "route": "/pos/returns",
+                    "permission": "pos.refund"
+                }
+            ]
+        },
+        {
+            "title": "Accounting",
+            "permission": "account.manage",
+            "icon": "DollarSign",
+            "children": [
+                {
+                    "title": "Chart of Accounts",
+                    "route": "/accounting/accounts",
+                    "permission": "account.manage"
+                },
+                {
+                    "title": "Journal Entries",
+                    "route": "/accounting/journals",
+                    "permission": "journal.manage"
+                },
+                {
+                    "title": "Bank Accounts",
+                    "route": "/bank-accounts",
+                    "permission": "bank.manage"
+                },
+                {
+                    "title": "Bank Transfers",
+                    "route": "/bank-transfers",
+                    "permission": "bank.manage"
+                },
+                {
+                    "title": "Revenues",
+                    "route": "/revenues",
+                    "permission": "account.manage"
+                },
+                {
+                    "title": "Expenses",
+                    "route": "/expenses",
+                    "permission": "account.manage"
+                },
+                {
+                    "title": "Financial Reports",
+                    "route": "/accounting/reports",
+                    "permission": "account.view"
+                }
+            ]
+        },
+        {
+            "title": "HRM",
+            "permission": "hrm.manage",
+            "icon": "Users",
+            "children": [
+                {
+                    "title": "Employees",
+                    "route": "/hrm/employees",
+                    "permission": "employee.manage"
+                },
+                {
+                    "title": "Attendance",
+                    "route": "/hrm/attendance",
+                    "permission": "attendance.manage"
+                },
+                {
+                    "title": "Leaves",
+                    "route": "/hrm/leaves",
+                    "permission": "leave.manage"
+                },
+                {
+                    "title": "Payroll",
+                    "route": "/hrm/payroll",
+                    "permission": "payroll.manage"
+                }
+            ]
+        },
+        {
+            "title": "Projects (Taskly)",
+            "permission": "taskly.manage",
+            "icon": "Kanban",
+            "children": [
+                {
+                    "title": "Projects",
+                    "route": "/taskly/projects",
+                    "permission": "taskly.manage"
+                },
+                {
+                    "title": "Tasks & Kanban",
+                    "route": "/taskly/tasks",
+                    "permission": "taskly.manage"
+                },
+                {
+                    "title": "Timesheets",
+                    "route": "/taskly/timesheets",
+                    "permission": "taskly.timesheet.manage"
+                }
+            ]
+        },
+        {
+            "title": "Platform & SaaS",
+            "permission": "saas.manage",
+            "icon": "Shield",
+            "children": [
+                {
+                    "title": "Plans & Subscriptions",
+                    "route": "/plans",
+                    "permission": "plans.manage"
+                },
+                {
+                    "title": "Coupons",
+                    "route": "/coupons",
+                    "permission": "coupons.manage"
+                },
+                {
+                    "title": "Orders",
+                    "route": "/orders",
+                    "permission": "orders.manage"
+                },
+                {
+                    "title": "Bank Transfer Reviews",
+                    "route": "/bank-transfer-payments",
+                    "permission": "bank-transfer.manage"
+                },
+                {
+                    "title": "Landing Page CMS",
+                    "route": "/landing/manage",
+                    "permission": "landingpage.manage"
+                },
+                {
+                    "title": "Modules & Addons",
+                    "route": "/modules",
+                    "permission": "modules.manage"
+                }
+            ]
+        },
+        {
+            "title": "Settings",
+            "permission": "settings.manage",
+            "icon": "Settings",
+            "children": [
+                {
+                    "title": "Company Settings",
+                    "route": "/settings",
+                    "permission": "settings.manage"
+                },
+                {
+                    "title": "Email Templates",
+                    "route": "/settings/email-templates",
+                    "permission": "settings.manage"
+                },
+                {
+                    "title": "Notification Templates",
+                    "route": "/settings/notification-templates",
+                    "permission": "settings.manage"
+                },
+                {
+                    "title": "Languages & Translations",
+                    "route": "/languages",
+                    "permission": "languages.manage"
+                },
+                {
+                    "title": "Webhooks",
+                    "route": "/webhooks",
+                    "permission": "webhooks.manage"
+                }
+            ]
+        }
+    ]
+}

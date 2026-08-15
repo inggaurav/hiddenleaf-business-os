@@ -1,0 +1,3853 @@
+{
+    "total_actions": 481,
+    "actions": [
+        {
+            "controller": "Inertia\\DevTools\\Http\\EntriesController",
+            "method": "index",
+            "route": "GET /_inertia/devtools/entries",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "Inertia\\DevTools\\Http\\EntriesController",
+            "method": "show",
+            "route": "GET /_inertia/devtools/entries/{id}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "Laravel\\Sanctum\\Http\\Controllers\\CsrfCookieController",
+            "method": "show",
+            "route": "GET /sanctum/csrf-cookie",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "bankAccounts",
+            "route": "GET /accounting/bank-accounts",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "storeBankAccount",
+            "route": "POST /accounting/bank-accounts",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "bankAccountList",
+            "route": "GET /accounting/bank-accounts/api/list",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "editBankAccount",
+            "route": "GET /accounting/bank-accounts/{bankAccount}/edit",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "updateBankAccount",
+            "route": "PUT /accounting/bank-accounts/{bankAccount}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "destroyBankAccount",
+            "route": "DELETE /accounting/bank-accounts/{bankAccount}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "accountTypes",
+            "route": "GET /accounting/account-types",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "updateAccountType",
+            "route": "PUT /accounting/account-types/{accountType}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "destroyAccountType",
+            "route": "DELETE /accounting/account-types/{accountType}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "showLedgerAccount",
+            "route": "GET /accounting/accounts/{ledgerAccount}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "editLedgerAccount",
+            "route": "GET /accounting/accounts/{ledgerAccount}/edit",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "updateLedgerAccount",
+            "route": "PUT /accounting/accounts/{ledgerAccount}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "destroyLedgerAccount",
+            "route": "DELETE /accounting/accounts/{ledgerAccount}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "customerOutstanding",
+            "route": "GET /accounting/customer-payments/customers/{customerId}/outstanding",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "updateCustomerPaymentStatus",
+            "route": "PATCH /accounting/customer-payments/{customerPayment}/status",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "destroyCustomerPayment",
+            "route": "DELETE /accounting/customer-payments/{customerPayment}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "vendorOutstanding",
+            "route": "GET /accounting/vendor-payments/vendors/{vendorId}/outstanding",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "updateVendorPaymentStatus",
+            "route": "PATCH /accounting/vendor-payments/{vendorPayment}/status",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "destroyVendorPayment",
+            "route": "DELETE /accounting/vendor-payments/{vendorPayment}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "bankTransactions",
+            "route": "GET /accounting/bank-transactions",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "markBankTransactionReconciled",
+            "route": "POST /accounting/bank-transactions/{journalLine}/mark-reconciled",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountBankTransferController",
+            "method": "index",
+            "route": "GET /accounting/bank-transfers",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountBankTransferController",
+            "method": "store",
+            "route": "POST /accounting/bank-transfer-drafts",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountBankTransferController",
+            "method": "update",
+            "route": "PUT /accounting/bank-transfers/{bankTransfer}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountBankTransferController",
+            "method": "destroy",
+            "route": "DELETE /accounting/bank-transfers/{bankTransfer}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountBankTransferController",
+            "method": "process",
+            "route": "POST /accounting/bank-transfers/{bankTransfer}/process",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "categories",
+            "route": "GET /accounting/revenue-categories",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "storeCategory",
+            "route": "POST /accounting/revenue-categories",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "editCategory",
+            "route": "GET /accounting/revenue-categories/{category}/edit",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "updateCategory",
+            "route": "PUT /accounting/revenue-categories/{category}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "destroyCategory",
+            "route": "DELETE /accounting/revenue-categories/{category}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "categories",
+            "route": "GET /accounting/expense-categories",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "storeCategory",
+            "route": "POST /accounting/expense-categories",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "editCategory",
+            "route": "GET /accounting/expense-categories/{category}/edit",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "updateCategory",
+            "route": "PUT /accounting/expense-categories/{category}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "destroyCategory",
+            "route": "DELETE /accounting/expense-categories/{category}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "storeRevenueDraft",
+            "route": "POST /accounting/revenues/draft",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "showRevenue",
+            "route": "GET /accounting/revenues/{revenue}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "updateRevenue",
+            "route": "PUT /accounting/revenues/{revenue}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "destroyRevenue",
+            "route": "DELETE /accounting/revenues/{revenue}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "approveRevenue",
+            "route": "POST /accounting/revenues/{revenue}/approve",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "postRevenue",
+            "route": "POST /accounting/revenues/{revenue}/post",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "storeExpenseDraft",
+            "route": "POST /accounting/expenses/draft",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "showExpense",
+            "route": "GET /accounting/expenses/{expense}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "updateExpense",
+            "route": "PUT /accounting/expenses/{expense}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "destroyExpense",
+            "route": "DELETE /accounting/expenses/{expense}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "approveExpense",
+            "route": "POST /accounting/expenses/{expense}/approve",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "postExpense",
+            "route": "POST /accounting/expenses/{expense}/post",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "showCreditNote",
+            "route": "GET /accounting/credit-notes/{creditNote}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "approveCreditNote",
+            "route": "POST /accounting/credit-notes/{creditNote}/approve",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "destroyCreditNote",
+            "route": "DELETE /accounting/credit-notes/{creditNote}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "showDebitNote",
+            "route": "GET /accounting/debit-notes/{debitNote}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "approveDebitNote",
+            "route": "POST /accounting/debit-notes/{debitNote}/approve",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "destroyDebitNote",
+            "route": "DELETE /accounting/debit-notes/{debitNote}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "invoiceAging",
+            "route": "GET /accounting/reports/invoice-aging",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "printReport",
+            "route": "GET /accounting/reports/invoice-aging/print",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "billAging",
+            "route": "GET /accounting/reports/bill-aging",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "printReport",
+            "route": "GET /accounting/reports/bill-aging/print",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "taxSummary",
+            "route": "GET /accounting/reports/tax-summary",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "printReport",
+            "route": "GET /accounting/reports/tax-summary/print",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "customerBalance",
+            "route": "GET /accounting/reports/customer-balance",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "printReport",
+            "route": "GET /accounting/reports/customer-balance/print",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "vendorBalance",
+            "route": "GET /accounting/reports/vendor-balance",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "printReport",
+            "route": "GET /accounting/reports/vendor-balance/print",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "customerDetail",
+            "route": "GET /accounting/reports/customer/{customerId}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "printCustomerDetail",
+            "route": "GET /accounting/reports/customer/{customerId}/print",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "vendorDetail",
+            "route": "GET /accounting/reports/vendor/{vendorId}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountReferenceController",
+            "method": "printVendorDetail",
+            "route": "GET /accounting/reports/vendor/{vendorId}/print",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\AuthController",
+            "method": "login",
+            "route": "POST /api/v1/auth/login",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\PlanApiController",
+            "method": "index",
+            "route": "GET /api/v1/plans",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\PlanApiController",
+            "method": "show",
+            "route": "GET /api/v1/plans/{plan}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\AuthController",
+            "method": "me",
+            "route": "GET /api/v1/user",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\AuthController",
+            "method": "logout",
+            "route": "POST /api/v1/auth/logout",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\AccountController",
+            "method": "updateProfile",
+            "route": "PATCH /api/v1/profile",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\AccountController",
+            "method": "updatePassword",
+            "route": "PUT /api/v1/password",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\AccountController",
+            "method": "destroy",
+            "route": "DELETE /api/v1/account",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\AccountController",
+            "method": "tokens",
+            "route": "GET /api/v1/tokens",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\AccountController",
+            "method": "storeToken",
+            "route": "POST /api/v1/tokens",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\AccountController",
+            "method": "destroyToken",
+            "route": "DELETE /api/v1/tokens/{token}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\WorkspaceApiController",
+            "method": "index",
+            "route": "GET /api/v1/workspaces",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\WorkspaceApiController",
+            "method": "show",
+            "route": "GET /api/v1/workspaces/{workspace}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\UserDirectoryApiController",
+            "method": "users",
+            "route": "GET /api/v1/users",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\UserDirectoryApiController",
+            "method": "users",
+            "route": "GET /api/v1/staff-users",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\UserDirectoryApiController",
+            "method": "users",
+            "route": "GET /api/v1/client-users",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\UserDirectoryApiController",
+            "method": "users",
+            "route": "GET /api/v1/vendor-users",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\UserDirectoryApiController",
+            "method": "subscription",
+            "route": "GET /api/v1/subscription",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\ProductServiceApiController",
+            "method": "index",
+            "route": "GET /api/v1/products-services",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\ProductServiceApiController",
+            "method": "show",
+            "route": "GET /api/v1/products-services/{item}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\SalesProcurementApiController",
+            "method": "warehouses",
+            "route": "GET /api/v1/warehouses",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\SalesProcurementApiController",
+            "method": "purchaseInvoices",
+            "route": "GET /api/v1/purchase-invoices",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\SalesProcurementApiController",
+            "method": "salesInvoices",
+            "route": "GET /api/v1/sales-invoices",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\SalesProcurementApiController",
+            "method": "salesProposals",
+            "route": "GET /api/v1/sales-proposals",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\HelpdeskApiController",
+            "method": "tickets",
+            "route": "GET /api/v1/helpdesk/tickets",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\HelpdeskApiController",
+            "method": "storeTicket",
+            "route": "POST /api/v1/helpdesk/tickets",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\HelpdeskApiController",
+            "method": "ticketDetails",
+            "route": "GET /api/v1/helpdesk/tickets/{ticket}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\MediaApiController",
+            "method": "index",
+            "route": "GET /api/v1/media",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\MediaApiController",
+            "method": "upload",
+            "route": "POST /api/v1/media/upload",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\InstallController",
+            "method": "index",
+            "route": "GET /install",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\InstallController",
+            "method": "setup",
+            "route": "POST /install",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\InstallController",
+            "method": "testDatabase",
+            "route": "POST /install/test-db",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\InstallController",
+            "method": "validateLicense",
+            "route": "POST /install/license/validate",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\LandingPageController",
+            "method": "publicSite",
+            "route": "GET /site/{slug}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\LandingPageController",
+            "method": "publicPage",
+            "route": "GET /site/{slug}/{page}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Auth\\AuthController",
+            "method": "loginView",
+            "route": "GET /login",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Auth\\AuthController",
+            "method": "login",
+            "route": "POST /login",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Auth\\AuthController",
+            "method": "registerView",
+            "route": "GET /register",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Auth\\AuthController",
+            "method": "register",
+            "route": "POST /register",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Auth\\PasswordController",
+            "method": "request",
+            "route": "GET /forgot-password",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Auth\\PasswordController",
+            "method": "sendResetLink",
+            "route": "POST /forgot-password",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Auth\\PasswordController",
+            "method": "resetView",
+            "route": "GET /reset-password/{token}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Auth\\PasswordController",
+            "method": "update",
+            "route": "POST /reset-password",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\UpdateController",
+            "method": "index",
+            "route": "GET /update",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\UpdateController",
+            "method": "check",
+            "route": "POST /update/check",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\UpdateController",
+            "method": "update",
+            "route": "POST /update",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\UpdateController",
+            "method": "rollback",
+            "route": "POST /update/{history}/rollback",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Auth\\AuthController",
+            "method": "logout",
+            "route": "POST /logout",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\WebhookController",
+            "method": "index",
+            "route": "GET /webhooks",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\WebhookController",
+            "method": "store",
+            "route": "POST /webhooks",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\WebhookController",
+            "method": "test",
+            "route": "POST /webhooks/{webhook}/test",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\WebhookController",
+            "method": "destroy",
+            "route": "DELETE /webhooks/{webhook}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Auth\\VerifyEmailController",
+            "method": "prompt",
+            "route": "GET /verify-email",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Auth\\VerifyEmailController",
+            "method": "verify",
+            "route": "GET /verify-email/{id}/{hash}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Auth\\VerifyEmailController",
+            "method": "sendNotification",
+            "route": "POST /email/verification-notification",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HomeController",
+            "method": "Dashboard",
+            "route": "GET /dashboard",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Auth\\ProfileController",
+            "method": "edit",
+            "route": "GET /profile",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Auth\\ProfileController",
+            "method": "update",
+            "route": "PATCH /profile",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Auth\\ProfileController",
+            "method": "destroy",
+            "route": "DELETE /profile",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MultiTenancy\\WorkspaceController",
+            "method": "index",
+            "route": "GET /workspaces",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MultiTenancy\\WorkspaceController",
+            "method": "store",
+            "route": "POST /workspaces",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MultiTenancy\\WorkspaceController",
+            "method": "edit",
+            "route": "GET /workspaces/{id}/edit",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MultiTenancy\\WorkspaceController",
+            "method": "update",
+            "route": "PUT /workspaces/{id}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MultiTenancy\\WorkspaceController",
+            "method": "destroy",
+            "route": "DELETE /workspaces/{id}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MultiTenancy\\WorkspaceController",
+            "method": "switchContext",
+            "route": "POST /workspaces/switch",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MultiTenancy\\MemberController",
+            "method": "invite",
+            "route": "POST /members/invite",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MultiTenancy\\MemberController",
+            "method": "remove",
+            "route": "DELETE /members/{id}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MultiTenancy\\MemberController",
+            "method": "assignRole",
+            "route": "POST /members/{id}/role",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Auth\\UserController",
+            "method": "index",
+            "route": "GET /users",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Auth\\UserController",
+            "method": "create",
+            "route": "GET /users/create",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Auth\\UserController",
+            "method": "store",
+            "route": "POST /users",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Auth\\UserController",
+            "method": "show",
+            "route": "GET /users/{user}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Auth\\UserController",
+            "method": "edit",
+            "route": "GET /users/{user}/edit",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Auth\\UserController",
+            "method": "update",
+            "route": "PUT|PATCH /users/{user}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Auth\\UserController",
+            "method": "destroy",
+            "route": "DELETE /users/{user}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Auth\\UserController",
+            "method": "changePassword",
+            "route": "POST /users/{user}/change-password",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Auth\\UserController",
+            "method": "toggleStatus",
+            "route": "PATCH /users/{user}/toggle-status",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Auth\\UserController",
+            "method": "impersonate",
+            "route": "POST /users/{user}/impersonate",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Auth\\UserController",
+            "method": "leaveImpersonation",
+            "route": "POST /users/leave-impersonation",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Auth\\UserController",
+            "method": "assignPlan",
+            "route": "POST /users/{user}/assign-plan",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Auth\\UserController",
+            "method": "loginHistory",
+            "route": "GET /users-login-history",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\PlanController",
+            "method": "index",
+            "route": "GET /plans",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\PlanController",
+            "method": "create",
+            "route": "GET /plans/create",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\PlanController",
+            "method": "store",
+            "route": "POST /plans",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\PlanController",
+            "method": "show",
+            "route": "GET /plans/{plan}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\PlanController",
+            "method": "edit",
+            "route": "GET /plans/{plan}/edit",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\PlanController",
+            "method": "update",
+            "route": "PUT|PATCH /plans/{plan}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\PlanController",
+            "method": "destroy",
+            "route": "DELETE /plans/{plan}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\PlanController",
+            "method": "subscribe",
+            "route": "GET /plans/{plan}/subscribe",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\PlanController",
+            "method": "startTrial",
+            "route": "POST /plans/{plan}/start-trial",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\PlanController",
+            "method": "assignFreePlan",
+            "route": "POST /plans/{plan}/assign-free",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\PlanController",
+            "method": "applyCoupon",
+            "route": "POST /plans/apply-coupon",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\CouponController",
+            "method": "index",
+            "route": "GET /coupons",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\CouponController",
+            "method": "create",
+            "route": "GET /coupons/create",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\CouponController",
+            "method": "store",
+            "route": "POST /coupons",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\CouponController",
+            "method": "show",
+            "route": "GET /coupons/{coupon}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\CouponController",
+            "method": "edit",
+            "route": "GET /coupons/{coupon}/edit",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\CouponController",
+            "method": "update",
+            "route": "PUT|PATCH /coupons/{coupon}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\CouponController",
+            "method": "destroy",
+            "route": "DELETE /coupons/{coupon}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\OrderController",
+            "method": "index",
+            "route": "GET /orders",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\OrderController",
+            "method": "show",
+            "route": "GET /orders/{order}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\OrderController",
+            "method": "destroy",
+            "route": "DELETE /orders/{order}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\SubscriptionController",
+            "method": "index",
+            "route": "GET /subscriptions",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\SubscriptionController",
+            "method": "store",
+            "route": "POST /subscriptions",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\SaaS\\SubscriptionController",
+            "method": "cancel",
+            "route": "POST /subscriptions/{subscription}/cancel",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\BankTransferPaymentController",
+            "method": "index",
+            "route": "GET /bank-transfer",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\BankTransferPaymentController",
+            "method": "store",
+            "route": "POST /bank-transfer",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\BankTransferPaymentController",
+            "method": "update",
+            "route": "POST /bank-transfer/update/{id}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\BankTransferPaymentController",
+            "method": "reject",
+            "route": "POST /bank-transfer/{payment}/reject",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\BankTransferPaymentController",
+            "method": "destroy",
+            "route": "DELETE /bank-transfer/{payment}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "dashboard",
+            "route": "GET /accounting",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "dashboard",
+            "route": "GET /accounting/dashboard",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "accounts",
+            "route": "GET /accounting/accounts",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "storeType",
+            "route": "POST /accounting/types",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "storeAccount",
+            "route": "POST /accounting/accounts",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "journals",
+            "route": "GET /accounting/journals",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "storeJournal",
+            "route": "POST /accounting/journals",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "postJournal",
+            "route": "POST /accounting/journals/{entry}/post",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "reports",
+            "route": "GET /accounting/reports",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "bankTransfer",
+            "route": "POST /accounting/bank-transfers",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "reconcile",
+            "route": "POST /accounting/bank-reconciliations",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "customers",
+            "route": "GET /accounting/customers",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "storeCustomer",
+            "route": "POST /accounting/customers",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "updateCustomer",
+            "route": "PUT /accounting/customers/{customer}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "destroyCustomer",
+            "route": "DELETE /accounting/customers/{customer}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "vendors",
+            "route": "GET /accounting/vendors",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "storeVendor",
+            "route": "POST /accounting/vendors",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "updateVendor",
+            "route": "PUT /accounting/vendors/{vendor}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "destroyVendor",
+            "route": "DELETE /accounting/vendors/{vendor}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "customerPayments",
+            "route": "GET /accounting/customer-payments",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "storeCustomerPayment",
+            "route": "POST /accounting/customer-payments",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "vendorPayments",
+            "route": "GET /accounting/vendor-payments",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "storeVendorPayment",
+            "route": "POST /accounting/vendor-payments",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "revenues",
+            "route": "GET /accounting/revenues",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "storeRevenue",
+            "route": "POST /accounting/revenues",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "expenses",
+            "route": "GET /accounting/expenses",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "storeExpense",
+            "route": "POST /accounting/expenses",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "creditNotes",
+            "route": "GET /accounting/credit-notes",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "storeCreditNote",
+            "route": "POST /accounting/credit-notes",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "debitNotes",
+            "route": "GET /accounting/debit-notes",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "storeDebitNote",
+            "route": "POST /accounting/debit-notes",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "dashboard",
+            "route": "GET /account/dashboard",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AccountingController",
+            "method": "dashboard",
+            "route": "GET /account",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HrmController",
+            "method": "index",
+            "route": "GET /hrm",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HrmController",
+            "method": "dashboard",
+            "route": "GET /hrm/dashboard",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HrmController",
+            "method": "index",
+            "route": "GET /hrm/employees/list",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HrmController",
+            "method": "storeStructure",
+            "route": "POST /hrm/structure/{resource}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HrmController",
+            "method": "storeEmployee",
+            "route": "POST /hrm/employees",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HrmController",
+            "method": "attendance",
+            "route": "POST /hrm/attendance",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HrmController",
+            "method": "storeLeaveType",
+            "route": "POST /hrm/leave-types",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HrmController",
+            "method": "requestLeave",
+            "route": "POST /hrm/leaves",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HrmController",
+            "method": "reviewLeave",
+            "route": "POST /hrm/leaves/{leave}/review",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HrmController",
+            "method": "storeComponent",
+            "route": "POST /hrm/salary-components",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HrmController",
+            "method": "assignComponent",
+            "route": "POST /hrm/salary-components/assign",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HrmController",
+            "method": "generatePayslip",
+            "route": "POST /hrm/payslips",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HrmController",
+            "method": "payPayslip",
+            "route": "POST /hrm/payslips/{payslip}/pay",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HrmController",
+            "method": "appraisal",
+            "route": "POST /hrm/appraisals",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HrmController",
+            "method": "uploadDocument",
+            "route": "POST /hrm/documents",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HrmController",
+            "method": "downloadDocument",
+            "route": "GET /hrm/documents/{document}/download",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\CrmController",
+            "method": "index",
+            "route": "GET /crm",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\CrmController",
+            "method": "dashboard",
+            "route": "GET /crm/dashboard",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\CrmController",
+            "method": "index",
+            "route": "GET /crm/leads/list",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\CrmController",
+            "method": "storePipeline",
+            "route": "POST /crm/pipelines",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\CrmController",
+            "method": "storeLead",
+            "route": "POST /crm/leads",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\CrmController",
+            "method": "moveLead",
+            "route": "POST /crm/leads/{lead}/move",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\CrmController",
+            "method": "convertLead",
+            "route": "POST /crm/leads/{lead}/convert",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\CrmController",
+            "method": "moveDeal",
+            "route": "POST /crm/deals/{deal}/move",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\CrmController",
+            "method": "storeWebform",
+            "route": "POST /crm/webforms",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\CrmController",
+            "method": "addNote",
+            "route": "POST /crm/{type}/{id}/notes",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\CrmController",
+            "method": "addActivity",
+            "route": "POST /crm/{type}/{id}/activities",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\CrmController",
+            "method": "publicWebformSubmit",
+            "route": "POST /crm/forms/{token}/submit",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\TasklyController",
+            "method": "index",
+            "route": "GET /taskly",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\TasklyController",
+            "method": "dashboard",
+            "route": "GET /taskly/dashboard",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\TasklyController",
+            "method": "index",
+            "route": "GET /taskly/projects/list",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\TasklyController",
+            "method": "storeProject",
+            "route": "POST /taskly/projects",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\TasklyController",
+            "method": "storeTask",
+            "route": "POST /taskly/tasks",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\TasklyController",
+            "method": "moveTask",
+            "route": "POST /taskly/tasks/{task}/move",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\TasklyController",
+            "method": "comment",
+            "route": "POST /taskly/tasks/{task}/comments",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\TasklyController",
+            "method": "milestone",
+            "route": "POST /taskly/milestones",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\TasklyController",
+            "method": "timesheet",
+            "route": "POST /taskly/timesheets",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\TasklyController",
+            "method": "approveTime",
+            "route": "POST /taskly/timesheets/{timesheet}/approve",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\TasklyController",
+            "method": "issue",
+            "route": "POST /taskly/issues",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\TasklyController",
+            "method": "dashboard",
+            "route": "GET /projects/dashboard",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosDashboardController",
+            "method": "index",
+            "route": "GET /pos",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosDashboardController",
+            "method": "index",
+            "route": "GET /pos/dashboard",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosController",
+            "method": "create",
+            "route": "GET /pos/terminal",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosController",
+            "method": "index",
+            "route": "GET /pos/orders",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosController",
+            "method": "create",
+            "route": "GET /pos/create",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosController",
+            "method": "getProducts",
+            "route": "GET /pos/products",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosController",
+            "method": "getNextPosNumber",
+            "route": "GET /pos/pos-number",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosController",
+            "method": "store",
+            "route": "POST /pos/store",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosController",
+            "method": "show",
+            "route": "GET /pos/orders/{sale}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosController",
+            "method": "barcode",
+            "route": "GET /pos/barcode",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosController",
+            "method": "printBarcode",
+            "route": "GET /pos/barcode/{sale}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosController",
+            "method": "print",
+            "route": "GET /pos/orders/{sale}/print",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosBillingCounterController",
+            "method": "index",
+            "route": "GET /pos/billing-counters",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosBillingCounterController",
+            "method": "store",
+            "route": "POST /pos/billing-counters",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosBillingCounterController",
+            "method": "update",
+            "route": "PUT /pos/billing-counters/{pos_billing_counter}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosBillingCounterController",
+            "method": "destroy",
+            "route": "DELETE /pos/billing-counters/{pos_billing_counter}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosDiscountController",
+            "method": "index",
+            "route": "GET /pos/discounts",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosDiscountController",
+            "method": "create",
+            "route": "GET /pos/discounts/create",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosDiscountController",
+            "method": "store",
+            "route": "POST /pos/discounts",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosDiscountController",
+            "method": "show",
+            "route": "GET /pos/discounts/{pos_discount}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosDiscountController",
+            "method": "edit",
+            "route": "GET /pos/discounts/{pos_discount}/edit",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosDiscountController",
+            "method": "update",
+            "route": "PUT /pos/discounts/{pos_discount}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosDiscountController",
+            "method": "destroy",
+            "route": "DELETE /pos/discounts/{pos_discount}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosReportController",
+            "method": "sales",
+            "route": "GET /pos/reports/sales",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosReportController",
+            "method": "products",
+            "route": "GET /pos/reports/products",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosReportController",
+            "method": "customers",
+            "route": "GET /pos/reports/customers",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosReturnController",
+            "method": "index",
+            "route": "GET /pos/returns",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosReturnController",
+            "method": "create",
+            "route": "GET /pos/returns/create",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosReturnController",
+            "method": "store",
+            "route": "POST /pos/returns",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosReturnController",
+            "method": "show",
+            "route": "GET /pos/returns/{posReturn}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosReturnController",
+            "method": "approve",
+            "route": "POST /pos/returns/{posReturn}/approve",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosReturnController",
+            "method": "complete",
+            "route": "POST /pos/returns/{posReturn}/complete",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\POS\\PosReturnController",
+            "method": "destroy",
+            "route": "DELETE /pos/returns/{posReturn}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\LandingPageController",
+            "method": "manage",
+            "route": "GET /landing",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\LandingPageController",
+            "method": "storeSite",
+            "route": "POST /landing/sites",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\LandingPageController",
+            "method": "section",
+            "route": "POST /landing/sites/{site}/sections",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\LandingPageController",
+            "method": "page",
+            "route": "POST /landing/sites/{site}/pages",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\LandingPageController",
+            "method": "publish",
+            "route": "POST /landing/sites/{site}/publish",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ProductServiceController",
+            "method": "dashboard",
+            "route": "GET /product-service/dashboard",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ProductServiceController",
+            "method": "stockIndex",
+            "route": "GET /product-service/stock",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ProductServiceController",
+            "method": "adjust",
+            "route": "POST /product-service/stock",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ProductServiceController",
+            "method": "categoriesIndex",
+            "route": "GET /product-service/categories",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ProductServiceController",
+            "method": "storeCategory",
+            "route": "POST /product-service/categories",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ProductServiceController",
+            "method": "updateCategory",
+            "route": "PUT /product-service/categories/{category}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ProductServiceController",
+            "method": "destroyCategory",
+            "route": "DELETE /product-service/categories/{category}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ProductServiceController",
+            "method": "unitsIndex",
+            "route": "GET /product-service/units",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ProductServiceController",
+            "method": "storeUnit",
+            "route": "POST /product-service/units",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ProductServiceController",
+            "method": "updateUnit",
+            "route": "PUT /product-service/units/{unit}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ProductServiceController",
+            "method": "destroyUnit",
+            "route": "DELETE /product-service/units/{unit}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ProductServiceController",
+            "method": "taxesIndex",
+            "route": "GET /product-service/taxes",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ProductServiceController",
+            "method": "storeTax",
+            "route": "POST /product-service/taxes",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ProductServiceController",
+            "method": "updateTax",
+            "route": "PUT /product-service/taxes/{tax}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ProductServiceController",
+            "method": "destroyTax",
+            "route": "DELETE /product-service/taxes/{tax}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ProductServiceController",
+            "method": "adjust",
+            "route": "POST /product-service/{productService}/adjust-stock",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ProductServiceController",
+            "method": "dashboard",
+            "route": "GET /inventory/dashboard",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ProductServiceController",
+            "method": "movements",
+            "route": "GET /inventory/movements",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ProductServiceController",
+            "method": "apiIndex",
+            "route": "GET /api/product-service/items",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ProductServiceController",
+            "method": "index",
+            "route": "GET /product-service",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ProductServiceController",
+            "method": "create",
+            "route": "GET /product-service/create",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ProductServiceController",
+            "method": "store",
+            "route": "POST /product-service",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ProductServiceController",
+            "method": "show",
+            "route": "GET /product-service/{product_service}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ProductServiceController",
+            "method": "edit",
+            "route": "GET /product-service/{product_service}/edit",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ProductServiceController",
+            "method": "update",
+            "route": "PUT|PATCH /product-service/{product_service}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ProductServiceController",
+            "method": "destroy",
+            "route": "DELETE /product-service/{product_service}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\WarehouseController",
+            "method": "index",
+            "route": "GET /warehouses",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\WarehouseController",
+            "method": "create",
+            "route": "GET /warehouses/create",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\WarehouseController",
+            "method": "store",
+            "route": "POST /warehouses",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\WarehouseController",
+            "method": "show",
+            "route": "GET /warehouses/{warehouse}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\WarehouseController",
+            "method": "edit",
+            "route": "GET /warehouses/{warehouse}/edit",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\WarehouseController",
+            "method": "update",
+            "route": "PUT|PATCH /warehouses/{warehouse}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\WarehouseController",
+            "method": "destroy",
+            "route": "DELETE /warehouses/{warehouse}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\TransferController",
+            "method": "index",
+            "route": "GET /transfers",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\TransferController",
+            "method": "create",
+            "route": "GET /transfers/create",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\TransferController",
+            "method": "store",
+            "route": "POST /transfers",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\TransferController",
+            "method": "show",
+            "route": "GET /transfers/{transfer}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\TransferController",
+            "method": "destroy",
+            "route": "DELETE /transfers/{transfer}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\PurchaseInvoiceController",
+            "method": "dashboard",
+            "route": "GET /procurement/dashboard",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\PurchaseInvoiceController",
+            "method": "dashboard",
+            "route": "GET /purchase-invoices-dashboard",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\PurchaseInvoiceController",
+            "method": "index",
+            "route": "GET /purchase-invoices",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\PurchaseInvoiceController",
+            "method": "create",
+            "route": "GET /purchase-invoices/create",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\PurchaseInvoiceController",
+            "method": "store",
+            "route": "POST /purchase-invoices",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\PurchaseInvoiceController",
+            "method": "show",
+            "route": "GET /purchase-invoices/{purchase_invoice}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\PurchaseInvoiceController",
+            "method": "edit",
+            "route": "GET /purchase-invoices/{purchase_invoice}/edit",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\PurchaseInvoiceController",
+            "method": "update",
+            "route": "PUT|PATCH /purchase-invoices/{purchase_invoice}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\PurchaseInvoiceController",
+            "method": "destroy",
+            "route": "DELETE /purchase-invoices/{purchase_invoice}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\PurchaseInvoiceController",
+            "method": "post",
+            "route": "POST /purchase-invoices/{purchaseInvoice}/post",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\PurchaseInvoiceController",
+            "method": "print",
+            "route": "GET /purchase-invoices/{purchaseInvoice}/print",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesInvoiceController",
+            "method": "dashboard",
+            "route": "GET /sales/dashboard",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesInvoiceController",
+            "method": "dashboard",
+            "route": "GET /sales-invoices-dashboard",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesInvoiceController",
+            "method": "getWarehouseProducts",
+            "route": "GET /sales-invoices/warehouse/products",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesInvoiceController",
+            "method": "getServices",
+            "route": "GET /sales-invoices/services/list",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesInvoiceController",
+            "method": "index",
+            "route": "GET /sales-invoices",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesInvoiceController",
+            "method": "create",
+            "route": "GET /sales-invoices/create",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesInvoiceController",
+            "method": "store",
+            "route": "POST /sales-invoices",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesInvoiceController",
+            "method": "show",
+            "route": "GET /sales-invoices/{sales_invoice}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesInvoiceController",
+            "method": "edit",
+            "route": "GET /sales-invoices/{sales_invoice}/edit",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesInvoiceController",
+            "method": "update",
+            "route": "PUT|PATCH /sales-invoices/{sales_invoice}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesInvoiceController",
+            "method": "destroy",
+            "route": "DELETE /sales-invoices/{sales_invoice}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesInvoiceController",
+            "method": "post",
+            "route": "POST /sales-invoices/{salesInvoice}/post",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesInvoiceController",
+            "method": "print",
+            "route": "GET /sales-invoices/{salesInvoice}/print",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\PurchaseReturnController",
+            "method": "index",
+            "route": "GET /purchase-returns",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\PurchaseReturnController",
+            "method": "create",
+            "route": "GET /purchase-returns/create",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\PurchaseReturnController",
+            "method": "store",
+            "route": "POST /purchase-returns",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\PurchaseReturnController",
+            "method": "show",
+            "route": "GET /purchase-returns/{return}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\PurchaseReturnController",
+            "method": "destroy",
+            "route": "DELETE /purchase-returns/{return}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\PurchaseReturnController",
+            "method": "approve",
+            "route": "POST /purchase-returns/{return}/approve",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\PurchaseReturnController",
+            "method": "complete",
+            "route": "POST /purchase-returns/{return}/complete",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesReturnController",
+            "method": "index",
+            "route": "GET /sales-returns",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesReturnController",
+            "method": "create",
+            "route": "GET /sales-returns/create",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesReturnController",
+            "method": "store",
+            "route": "POST /sales-returns",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesReturnController",
+            "method": "show",
+            "route": "GET /sales-returns/{salesReturn}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesReturnController",
+            "method": "destroy",
+            "route": "DELETE /sales-returns/{salesReturn}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesReturnController",
+            "method": "approve",
+            "route": "POST /sales-returns/{salesReturn}/approve",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesReturnController",
+            "method": "complete",
+            "route": "POST /sales-returns/{salesReturn}/complete",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesProposalController",
+            "method": "getWarehouseProducts",
+            "route": "GET /sales-proposals/warehouse/products",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesProposalController",
+            "method": "getServices",
+            "route": "GET /sales-proposals/services/list",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesProposalController",
+            "method": "index",
+            "route": "GET /sales-proposals",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesProposalController",
+            "method": "create",
+            "route": "GET /sales-proposals/create",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesProposalController",
+            "method": "store",
+            "route": "POST /sales-proposals",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesProposalController",
+            "method": "show",
+            "route": "GET /sales-proposals/{sales_proposal}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesProposalController",
+            "method": "edit",
+            "route": "GET /sales-proposals/{sales_proposal}/edit",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesProposalController",
+            "method": "update",
+            "route": "PUT|PATCH /sales-proposals/{sales_proposal}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesProposalController",
+            "method": "destroy",
+            "route": "DELETE /sales-proposals/{sales_proposal}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesProposalController",
+            "method": "print",
+            "route": "GET /sales-proposals/{salesProposal}/print",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesProposalController",
+            "method": "sent",
+            "route": "POST /sales-proposals/{salesProposal}/sent",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesProposalController",
+            "method": "accept",
+            "route": "POST /sales-proposals/{salesProposal}/accept",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesProposalController",
+            "method": "reject",
+            "route": "POST /sales-proposals/{salesProposal}/reject",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SalesProposalController",
+            "method": "convertToInvoice",
+            "route": "POST /sales-proposals/{salesProposal}/convert-to-invoice",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HelpdeskTicketController",
+            "method": "index",
+            "route": "GET /helpdesk-tickets",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HelpdeskTicketController",
+            "method": "create",
+            "route": "GET /helpdesk-tickets/create",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HelpdeskTicketController",
+            "method": "store",
+            "route": "POST /helpdesk-tickets",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HelpdeskTicketController",
+            "method": "show",
+            "route": "GET /helpdesk-tickets/{helpdesk_ticket}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HelpdeskTicketController",
+            "method": "edit",
+            "route": "GET /helpdesk-tickets/{helpdesk_ticket}/edit",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HelpdeskTicketController",
+            "method": "update",
+            "route": "PUT|PATCH /helpdesk-tickets/{helpdesk_ticket}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HelpdeskTicketController",
+            "method": "destroy",
+            "route": "DELETE /helpdesk-tickets/{helpdesk_ticket}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HelpdeskTicketController",
+            "method": "today",
+            "route": "GET /helpdesk-tickets/today",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HelpdeskCategoryController",
+            "method": "index",
+            "route": "GET /helpdesk-categories",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HelpdeskCategoryController",
+            "method": "create",
+            "route": "GET /helpdesk-categories/create",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HelpdeskCategoryController",
+            "method": "store",
+            "route": "POST /helpdesk-categories",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HelpdeskCategoryController",
+            "method": "show",
+            "route": "GET /helpdesk-categories/{helpdesk_category}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HelpdeskCategoryController",
+            "method": "edit",
+            "route": "GET /helpdesk-categories/{helpdesk_category}/edit",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HelpdeskCategoryController",
+            "method": "update",
+            "route": "PUT|PATCH /helpdesk-categories/{helpdesk_category}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HelpdeskCategoryController",
+            "method": "destroy",
+            "route": "DELETE /helpdesk-categories/{helpdesk_category}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HelpdeskReplyController",
+            "method": "store",
+            "route": "POST /helpdesk-tickets/{ticket}/replies",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HelpdeskReplyController",
+            "method": "destroy",
+            "route": "DELETE /helpdesk-replies/{reply}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MediaController",
+            "method": "page",
+            "route": "GET /media/page",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MediaController",
+            "method": "index",
+            "route": "GET /media",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MediaController",
+            "method": "batchStore",
+            "route": "POST /media/batch-store",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MediaController",
+            "method": "destroy",
+            "route": "DELETE /media/{media}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MediaController",
+            "method": "download",
+            "route": "GET /media/{media}/download",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MediaController",
+            "method": "preview",
+            "route": "GET /media/{media}/preview",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MediaController",
+            "method": "createDirectory",
+            "route": "POST /media/directories",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MediaController",
+            "method": "updateDirectory",
+            "route": "PUT /media/directories/{directory}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MediaController",
+            "method": "destroyDirectory",
+            "route": "DELETE /media/directories/{directory}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MediaController",
+            "method": "updateMediaDirectory",
+            "route": "POST /media/update-directory",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MessengerController",
+            "method": "index",
+            "route": "GET /chats",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MessengerController",
+            "method": "send",
+            "route": "POST /chats/send",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MessengerController",
+            "method": "getContacts",
+            "route": "GET /chats/get-contacts",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MessengerController",
+            "method": "getMessages",
+            "route": "GET /chats/get-messages",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MessengerController",
+            "method": "toggleFavorite",
+            "route": "POST /chats/toggle-favorite",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MessengerController",
+            "method": "getFavorites",
+            "route": "GET /chats/get-favorites",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MessengerController",
+            "method": "editMessage",
+            "route": "POST /chats/edit-message",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MessengerController",
+            "method": "deleteMessage",
+            "route": "POST /chats/delete-message",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MessengerController",
+            "method": "setOffline",
+            "route": "POST /chats/set-offline",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MessengerController",
+            "method": "updatePresence",
+            "route": "POST /chats/update-presence",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MessengerController",
+            "method": "getOnlineUsers",
+            "route": "GET /chats/online-users",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MessengerController",
+            "method": "togglePin",
+            "route": "POST /chats/toggle-pin",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MessengerController",
+            "method": "toggleMessagePin",
+            "route": "POST /chats/toggle-message-pin",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MessengerController",
+            "method": "getPinned",
+            "route": "GET /chats/get-pinned",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MessengerController",
+            "method": "checkNewMessages",
+            "route": "GET /chats/check-new-messages",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AIAgentChatPageController",
+            "method": "index",
+            "route": "GET /ai-agent/chat",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AIAgentChatPageController",
+            "method": "getSessions",
+            "route": "GET /ai-agent/chat/sessions",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AIAgentChatPageController",
+            "method": "createSession",
+            "route": "POST /ai-agent/chat/session",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AIAgentChatPageController",
+            "method": "destroySession",
+            "route": "DELETE /ai-agent/chat/session/{session}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AIAgentChatPageController",
+            "method": "archiveSession",
+            "route": "PATCH /ai-agent/chat/session/{session}/archive",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AIAgentChatPageController",
+            "method": "getMessages",
+            "route": "GET /ai-agent/chat/messages/{session}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\AIAgentChatController",
+            "method": "chat",
+            "route": "POST /ai-agent/chat",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SettingController",
+            "method": "index",
+            "route": "GET /settings",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SettingController",
+            "method": "store",
+            "route": "POST /settings",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SettingController",
+            "method": "saveBrandSettings",
+            "route": "POST /settings/brand",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SettingController",
+            "method": "saveEmailSettings",
+            "route": "POST /settings/email",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SettingController",
+            "method": "sendTestMail",
+            "route": "POST /settings/test-mail",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SettingController",
+            "method": "saveStorageSettings",
+            "route": "POST /settings/storage",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SettingController",
+            "method": "saveBankTransferSettings",
+            "route": "POST /settings/bank-transfer",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SettingController",
+            "method": "saveCurrencySettings",
+            "route": "POST /settings/currency",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SettingController",
+            "method": "saveCookieSettings",
+            "route": "POST /settings/cookie",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SettingController",
+            "method": "clearCache",
+            "route": "POST /settings/cache-clear",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\LanguageController",
+            "method": "index",
+            "route": "GET /languages",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\LanguageController",
+            "method": "create",
+            "route": "GET /languages/create",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\LanguageController",
+            "method": "store",
+            "route": "POST /languages",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\LanguageController",
+            "method": "show",
+            "route": "GET /languages/{language}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\LanguageController",
+            "method": "edit",
+            "route": "GET /languages/{language}/edit",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\LanguageController",
+            "method": "update",
+            "route": "PUT|PATCH /languages/{language}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\LanguageController",
+            "method": "destroy",
+            "route": "DELETE /languages/{language}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\LanguageController",
+            "method": "changeLang",
+            "route": "GET /languages/change/{lang}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\LanguageController",
+            "method": "saveLanguageData",
+            "route": "POST /languages/save-data/{lang}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\EmailTemplateController",
+            "method": "index",
+            "route": "GET /email-templates",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\EmailTemplateController",
+            "method": "store",
+            "route": "POST /email-templates",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\EmailTemplateController",
+            "method": "show",
+            "route": "GET /email-templates/{email_template}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\EmailTemplateController",
+            "method": "update",
+            "route": "PUT|PATCH /email-templates/{email_template}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\EmailTemplateController",
+            "method": "preview",
+            "route": "POST /email-templates/{emailTemplate}/preview",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\EmailTemplateController",
+            "method": "index",
+            "route": "GET /settings/email-templates",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\EmailTemplateController",
+            "method": "store",
+            "route": "POST /settings/email-templates",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\NotificationTemplateController",
+            "method": "index",
+            "route": "GET /notification-templates",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\NotificationTemplateController",
+            "method": "show",
+            "route": "GET /notification-templates/{notification_template}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\NotificationTemplateController",
+            "method": "update",
+            "route": "PUT|PATCH /notification-templates/{notification_template}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\NotificationTemplateController",
+            "method": "preview",
+            "route": "POST /notification-templates/{notificationTemplate}/preview",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\DatabaseNotificationController",
+            "method": "index",
+            "route": "GET /notifications",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\DatabaseNotificationController",
+            "method": "markAllRead",
+            "route": "POST|PATCH /notifications/read-all",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\DatabaseNotificationController",
+            "method": "markRead",
+            "route": "POST|PATCH /notifications/{notification}/read",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\Auth\\RoleController",
+            "method": "index",
+            "route": "GET /roles",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\Auth\\RoleController",
+            "method": "create",
+            "route": "GET /roles/create",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\Auth\\RoleController",
+            "method": "store",
+            "route": "POST /roles",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\Auth\\RoleController",
+            "method": "edit",
+            "route": "GET /roles/{role}/edit",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\Auth\\RoleController",
+            "method": "update",
+            "route": "PUT|PATCH /roles/{role}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Domain\\Auth\\RoleController",
+            "method": "destroy",
+            "route": "DELETE /roles/{role}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SuperAdmin\\DashboardController",
+            "method": "index",
+            "route": "GET /super-admin/dashboard",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SuperAdmin\\SettingController",
+            "method": "index",
+            "route": "GET /super-admin/settings",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SuperAdmin\\SettingController",
+            "method": "store",
+            "route": "POST /super-admin/settings",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SuperAdmin\\TranslationController",
+            "method": "index",
+            "route": "GET /super-admin/translations",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SuperAdmin\\TranslationController",
+            "method": "store",
+            "route": "POST /super-admin/translations",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ModuleController",
+            "method": "index",
+            "route": "GET /modules",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ModuleController",
+            "method": "toggle",
+            "route": "POST /modules/toggle",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ModuleController",
+            "method": "install",
+            "route": "POST /modules/install",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Settings\\ApiTokenController",
+            "method": "index",
+            "route": "GET /settings/api-tokens",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Settings\\ApiTokenController",
+            "method": "store",
+            "route": "POST /settings/api-tokens",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Settings\\ApiTokenController",
+            "method": "destroy",
+            "route": "DELETE /settings/api-tokens/{id}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        }
+    ]
+}

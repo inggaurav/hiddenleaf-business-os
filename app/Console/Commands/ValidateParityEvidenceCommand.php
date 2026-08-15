@@ -44,6 +44,11 @@ class ValidateParityEvidenceCommand extends Command
             $this->validateProductServiceParity($posParity, $errors); // Re-use the same logic since schema is identical
         }
 
+        $parityDir = base_path('docs/parity');
+        if (File::isDirectory($parityDir)) {
+            $this->validateParityDirectory($parityDir, $errors);
+        }
+
         if ($this->option('write')) {
             $this->writeRouteEvidence();
         }
@@ -342,4 +347,67 @@ class ValidateParityEvidenceCommand extends Command
         File::put($path, json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES).PHP_EOL);
         $this->info('Wrote '.str_replace(base_path().'/', '', $path));
     }
+
+    private function validateParityDirectory(string $parityDir, array &$errors): void
+    {
+        $requiredFiles = [
+            'workdo-file-inventory.json',
+            'workdo-package-inventory.json',
+            'workdo-menu-tree.json',
+            'workdo-route-inventory.json',
+            'workdo-action-inventory.json',
+            'workdo-schema-inventory.json',
+            'workdo-permissions.json',
+            'workdo-settings-inventory.json',
+            'workdo-schedule-inventory.json',
+            'workdo-ui-inventory.json',
+            'workdo-exceptions.json',
+            'workdo-parity-final.json',
+        ];
+
+        foreach ($requiredFiles as $file) {
+            $filePath = "{$parityDir}/{$file}";
+            if (! File::exists($filePath)) {
+                $errors[] = "docs/parity/{$file} is missing.";
+                continue;
+            }
+
+            try {
+                $data = $this->readJson($filePath);
+                if (empty($data)) {
+                    $errors[] = "docs/parity/{$file} is empty.";
+                }
+            } catch (\Throwable $e) {
+                $errors[] = "docs/parity/{$file} has invalid JSON: {$e->getMessage()}";
+            }
+        }
+
+        // Validate workdo-package-inventory.json has all 9 packages COMPLETE
+        $pkgPath = "{$parityDir}/workdo-package-inventory.json";
+        if (File::exists($pkgPath)) {
+            $pkgData = $this->readJson($pkgPath);
+            $packages = $pkgData['packages'] ?? [];
+            if (count($packages) !== 9) {
+                $errors[] = sprintf('workdo-package-inventory.json: expected 9 packages, found %d', count($packages));
+            }
+            foreach ($packages as $pkg) {
+                if (($pkg['parity_status'] ?? '') !== 'COMPLETE') {
+                    $errors[] = sprintf("workdo-package-inventory.json: package %s has status '%s' (expected COMPLETE)", $pkg['package_name'] ?? 'unknown', $pkg['parity_status'] ?? 'none');
+                }
+            }
+        }
+
+        // Validate workdo-parity-final.json checklist
+        $finalPath = "{$parityDir}/workdo-parity-final.json";
+        if (File::exists($finalPath)) {
+            $finalData = $this->readJson($finalPath);
+            $checklist = $finalData['checklist'] ?? [];
+            foreach ($checklist as $item => $answer) {
+                if ($answer !== 'YES') {
+                    $errors[] = "workdo-parity-final.json: '{$item}' is '{$answer}', must be 'YES'.";
+                }
+            }
+        }
+    }
 }
+

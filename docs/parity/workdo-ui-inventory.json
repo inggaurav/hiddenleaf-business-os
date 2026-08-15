@@ -1,0 +1,170 @@
+{
+    "total_screens": 33,
+    "screens": [
+        {
+            "screen": "Dashboard",
+            "route": "/dashboard",
+            "inertia_component": "Dashboard/Index.tsx"
+        },
+        {
+            "screen": "CRM Leads & Deals",
+            "route": "/crm",
+            "inertia_component": "CRM/Index.tsx"
+        },
+        {
+            "screen": "Sales Proposals",
+            "route": "/sales-proposals",
+            "inertia_component": "SalesProposals/Index.tsx"
+        },
+        {
+            "screen": "Sales Invoices",
+            "route": "/sales-invoices",
+            "inertia_component": "SalesInvoices/Index.tsx"
+        },
+        {
+            "screen": "Sales Returns",
+            "route": "/sales-returns",
+            "inertia_component": "SalesReturns/Index.tsx"
+        },
+        {
+            "screen": "Purchase Invoices",
+            "route": "/purchase-invoices",
+            "inertia_component": "PurchaseInvoices/Index.tsx"
+        },
+        {
+            "screen": "Purchase Returns",
+            "route": "/purchase-returns",
+            "inertia_component": "PurchaseReturns/Index.tsx"
+        },
+        {
+            "screen": "Products & Services",
+            "route": "/product-service",
+            "inertia_component": "ProductService/Index.tsx"
+        },
+        {
+            "screen": "Warehouses",
+            "route": "/warehouses",
+            "inertia_component": "Warehouses/Index.tsx"
+        },
+        {
+            "screen": "Stock Transfers",
+            "route": "/transfers",
+            "inertia_component": "Transfers/Index.tsx"
+        },
+        {
+            "screen": "POS Terminal",
+            "route": "/pos",
+            "inertia_component": "POS/Index.tsx"
+        },
+        {
+            "screen": "Chart of Accounts",
+            "route": "/accounting/accounts",
+            "inertia_component": "Accounting/Accounts.tsx"
+        },
+        {
+            "screen": "Journal Entries",
+            "route": "/accounting/journals",
+            "inertia_component": "Accounting/Journals.tsx"
+        },
+        {
+            "screen": "Financial Reports",
+            "route": "/accounting/reports",
+            "inertia_component": "Accounting/Reports.tsx"
+        },
+        {
+            "screen": "HRM Employees & Payroll",
+            "route": "/hrm",
+            "inertia_component": "HRM/Index.tsx"
+        },
+        {
+            "screen": "Projects & Kanban (Taskly)",
+            "route": "/taskly",
+            "inertia_component": "Taskly/Index.tsx"
+        },
+        {
+            "screen": "SaaS Plans & Pricing",
+            "route": "/plans",
+            "inertia_component": "Plans/Index.tsx"
+        },
+        {
+            "screen": "SaaS Coupons",
+            "route": "/coupons",
+            "inertia_component": "Coupons/Index.tsx"
+        },
+        {
+            "screen": "SaaS Orders",
+            "route": "/orders",
+            "inertia_component": "Orders/Index.tsx"
+        },
+        {
+            "screen": "Bank Transfer Reviews",
+            "route": "/bank-transfer",
+            "inertia_component": "BankTransfer/Index.tsx"
+        },
+        {
+            "screen": "Landing Page CMS",
+            "route": "/landing/manage",
+            "inertia_component": "Landing/Manage.tsx"
+        },
+        {
+            "screen": "Module Manager",
+            "route": "/modules",
+            "inertia_component": "Modules/Index.tsx"
+        },
+        {
+            "screen": "Helpdesk Tickets",
+            "route": "/helpdesk-tickets",
+            "inertia_component": "Helpdesk/Tickets/Index.tsx"
+        },
+        {
+            "screen": "Media Library",
+            "route": "/media",
+            "inertia_component": "Media/Index.tsx"
+        },
+        {
+            "screen": "Messenger Chat",
+            "route": "/chats",
+            "inertia_component": "Messenger/Index.tsx"
+        },
+        {
+            "screen": "AI Assistant",
+            "route": "/ai-agent",
+            "inertia_component": "AIAssistant/Index.tsx"
+        },
+        {
+            "screen": "General Settings",
+            "route": "/settings",
+            "inertia_component": "Settings/Index.tsx"
+        },
+        {
+            "screen": "Email Templates",
+            "route": "/settings/email-templates",
+            "inertia_component": "Settings/EmailTemplates/Index.tsx"
+        },
+        {
+            "screen": "Languages & Translations",
+            "route": "/languages",
+            "inertia_component": "Languages/Index.tsx"
+        },
+        {
+            "screen": "Webhooks",
+            "route": "/webhooks",
+            "inertia_component": "Webhooks/Index.tsx"
+        },
+        {
+            "screen": "User Management",
+            "route": "/users",
+            "inertia_component": "Users/Index.tsx"
+        },
+        {
+            "screen": "Roles & Permissions",
+            "route": "/roles",
+            "inertia_component": "Roles/Index.tsx"
+        },
+        {
+            "screen": "Workspaces",
+            "route": "/workspaces",
+            "inertia_component": "Workspaces/Index.tsx"
+        }
+    ]
+}

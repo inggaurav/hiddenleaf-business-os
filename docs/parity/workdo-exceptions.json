@@ -1,0 +1,25 @@
+{
+    "policy": "Zero unexplained functional exceptions.",
+    "exceptions": [
+        {
+            "source_path": "vendor/",
+            "reason": "Third-party composer dependencies managed via composer.json.",
+            "evidence": "Managed cleanly via composer package dependencies."
+        },
+        {
+            "source_path": "node_modules/",
+            "reason": "Frontend node dependencies managed via package.json.",
+            "evidence": "Built via Vite with React/TypeScript frontend stack."
+        },
+        {
+            "source_path": "bootstrap/cache/",
+            "reason": "Framework cache directory.",
+            "evidence": "Generated at runtime by Laravel framework."
+        },
+        {
+            "source_path": "storage/",
+            "reason": "Runtime logs, session files, cache, and uploads.",
+            "evidence": "Standard ephemeral application storage."
+        }
+    ]
+}

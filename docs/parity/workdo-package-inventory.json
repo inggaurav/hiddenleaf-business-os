@@ -1,0 +1,404 @@
+{
+    "total_packages": 9,
+    "packages": [
+        {
+            "package_name": "Account",
+            "package_folder": "packages/workdo/Account",
+            "description": "Complete double-entry accounting, chart of accounts, bank transfers, reconciliations, revenues, expenses, customers, vendors, journals, financial reports",
+            "routes_count": 58,
+            "controllers_count": 17,
+            "models_count": 15,
+            "migrations_count": 12,
+            "permissions": [
+                "account.manage",
+                "account.view",
+                "bank.manage",
+                "journal.manage",
+                "customer.manage",
+                "vendor.manage"
+            ],
+            "menu_entries": [
+                "Accounting",
+                "Chart of Accounts",
+                "Journals",
+                "Bank Accounts",
+                "Bank Transfers",
+                "Reconciliation",
+                "Revenues",
+                "Expenses",
+                "Financial Reports"
+            ],
+            "settings": [
+                "account_prefix",
+                "journal_prefix",
+                "financial_year_start"
+            ],
+            "frontend_views": [
+                "resources/js/Pages/Accounting/Accounts.tsx",
+                "resources/js/Pages/Accounting/Journals.tsx",
+                "resources/js/Pages/Accounting/Reports.tsx"
+            ],
+            "commands": [
+                "ReconcileFinancialBalancesCommand",
+                "AccountingConcurrencyProbeCommand"
+            ],
+            "jobs": [
+                "PostGeneralLedgerEntryJob"
+            ],
+            "events": [
+                "JournalPostedEvent",
+                "PaymentReceivedEvent"
+            ],
+            "notifications": [
+                "PaymentNotification"
+            ],
+            "third_party_dependencies": [],
+            "external_credentials_required": false,
+            "hiddenleaf_equivalent": "app/Http/Controllers/AccountingController.php & app/Domain/Accounting/DoubleEntryService.php",
+            "parity_status": "COMPLETE"
+        },
+        {
+            "package_name": "Hrm",
+            "package_folder": "packages/workdo/Hrm",
+            "description": "Human Resource Management: employees, branches, departments, designations, shifts, attendance, leaves, payroll, payslips, allowances, deductions, appraisals",
+            "routes_count": 64,
+            "controllers_count": 22,
+            "models_count": 24,
+            "migrations_count": 18,
+            "permissions": [
+                "hrm.manage",
+                "hrm.view",
+                "employee.manage",
+                "attendance.manage",
+                "leave.manage",
+                "payroll.manage"
+            ],
+            "menu_entries": [
+                "HRM",
+                "Employees",
+                "Departments",
+                "Designations",
+                "Attendance",
+                "Leaves",
+                "Payroll",
+                "Payslips",
+                "Appraisals"
+            ],
+            "settings": [
+                "hrm_prefix",
+                "payroll_currency",
+                "leave_types"
+            ],
+            "frontend_views": [
+                "resources/js/Pages/HRM/Index.tsx"
+            ],
+            "commands": [],
+            "jobs": [
+                "GenerateMonthlyPayslipsJob"
+            ],
+            "events": [
+                "LeaveApprovedEvent",
+                "PayrollDisbursedEvent"
+            ],
+            "notifications": [
+                "LeaveStatusNotification"
+            ],
+            "third_party_dependencies": [],
+            "external_credentials_required": false,
+            "hiddenleaf_equivalent": "app/Http/Controllers/HrmController.php & app/Domain/HRM/PayrollService.php",
+            "parity_status": "COMPLETE"
+        },
+        {
+            "package_name": "LandingPage",
+            "package_folder": "packages/workdo/LandingPage",
+            "description": "Customizable SaaS marketing landing page CMS, sections, navigation bars, newsletters, custom pages, marketplace showcases",
+            "routes_count": 14,
+            "controllers_count": 4,
+            "models_count": 5,
+            "migrations_count": 4,
+            "permissions": [
+                "landingpage.manage"
+            ],
+            "menu_entries": [
+                "Landing Page",
+                "Sections",
+                "Custom Pages",
+                "Newsletter Subscribers"
+            ],
+            "settings": [
+                "landing_theme",
+                "landing_title",
+                "landing_footer"
+            ],
+            "frontend_views": [
+                "resources/js/Pages/Landing/Manage.tsx",
+                "resources/js/Pages/Landing/Show.tsx"
+            ],
+            "commands": [],
+            "jobs": [],
+            "events": [
+                "NewsletterSubscribedEvent"
+            ],
+            "notifications": [],
+            "third_party_dependencies": [],
+            "external_credentials_required": false,
+            "hiddenleaf_equivalent": "app/Http/Controllers/LandingPageController.php & app/Models/LandingPage.php",
+            "parity_status": "COMPLETE"
+        },
+        {
+            "package_name": "Lead",
+            "package_folder": "packages/workdo/Lead",
+            "description": "CRM Lead management: pipelines, stages, sources, deals, activities, tasks, webforms, lead to deal/customer conversion",
+            "routes_count": 38,
+            "controllers_count": 12,
+            "models_count": 11,
+            "migrations_count": 9,
+            "permissions": [
+                "crm.manage",
+                "lead.manage",
+                "deal.manage",
+                "pipeline.manage"
+            ],
+            "menu_entries": [
+                "CRM",
+                "Leads",
+                "Deals",
+                "Pipelines",
+                "Deal Stages",
+                "Activities",
+                "Webforms"
+            ],
+            "settings": [
+                "lead_prefix",
+                "default_pipeline"
+            ],
+            "frontend_views": [
+                "resources/js/Pages/CRM/Index.tsx"
+            ],
+            "commands": [],
+            "jobs": [],
+            "events": [
+                "LeadConvertedEvent",
+                "DealWonEvent"
+            ],
+            "notifications": [
+                "LeadAssignedNotification"
+            ],
+            "third_party_dependencies": [],
+            "external_credentials_required": false,
+            "hiddenleaf_equivalent": "app/Http/Controllers/CrmController.php & app/Models/CrmLead.php & app/Models/CrmWebform.php",
+            "parity_status": "COMPLETE"
+        },
+        {
+            "package_name": "Paypal",
+            "package_folder": "packages/workdo/Paypal",
+            "description": "PayPal payment gateway integration for subscriptions, customer invoice checkout, and webhooks",
+            "routes_count": 6,
+            "controllers_count": 2,
+            "models_count": 1,
+            "migrations_count": 1,
+            "permissions": [
+                "payment.manage"
+            ],
+            "menu_entries": [
+                "Payment Settings - PayPal"
+            ],
+            "settings": [
+                "paypal_client_id",
+                "paypal_secret",
+                "paypal_mode"
+            ],
+            "frontend_views": [
+                "resources/js/Pages/Settings/PaymentGateways.tsx"
+            ],
+            "commands": [],
+            "jobs": [
+                "ProcessPaypalWebhookJob"
+            ],
+            "events": [
+                "PaymentCapturedEvent"
+            ],
+            "notifications": [],
+            "third_party_dependencies": [
+                "srmklive/paypal"
+            ],
+            "external_credentials_required": true,
+            "hiddenleaf_equivalent": "app/Services/Payments/PaypalGatewayService.php & app/Http/Controllers/PaymentGatewayController.php",
+            "parity_status": "COMPLETE"
+        },
+        {
+            "package_name": "Pos",
+            "package_folder": "packages/workdo/Pos",
+            "description": "Point of Sale: billing counters, registers, cash/card checkout, receipts, returns, barcode scanning, POS reports",
+            "routes_count": 18,
+            "controllers_count": 6,
+            "models_count": 7,
+            "migrations_count": 6,
+            "permissions": [
+                "pos.manage",
+                "pos.sell",
+                "pos.refund"
+            ],
+            "menu_entries": [
+                "POS",
+                "Registers",
+                "Checkout Terminal",
+                "POS Orders",
+                "Billing Counters",
+                "POS Reports"
+            ],
+            "settings": [
+                "pos_prefix",
+                "pos_receipt_header",
+                "pos_receipt_footer"
+            ],
+            "frontend_views": [
+                "resources/js/Pages/POS/Index.tsx"
+            ],
+            "commands": [
+                "PosConcurrencyProbeCommand",
+                "PosSequenceConcurrencyProbeCommand"
+            ],
+            "jobs": [
+                "PostPosLedgerEntryJob"
+            ],
+            "events": [
+                "PosSaleCompletedEvent"
+            ],
+            "notifications": [],
+            "third_party_dependencies": [],
+            "external_credentials_required": false,
+            "hiddenleaf_equivalent": "app/Http/Controllers/PosController.php & app/Domain/POS/PosCheckoutService.php",
+            "parity_status": "COMPLETE"
+        },
+        {
+            "package_name": "ProductService",
+            "package_folder": "packages/workdo/ProductService",
+            "description": "Products and Services catalog, categories, units, taxes, barcodes, SKU, warehouses, stock movements, adjustments, inventory tracking",
+            "routes_count": 24,
+            "controllers_count": 4,
+            "models_count": 8,
+            "migrations_count": 6,
+            "permissions": [
+                "productservice.manage",
+                "inventory.adjust",
+                "warehouses.manage"
+            ],
+            "menu_entries": [
+                "Products & Services",
+                "Categories",
+                "Units",
+                "Taxes",
+                "Warehouses",
+                "Stock Adjustments",
+                "Inventory Ledger"
+            ],
+            "settings": [
+                "product_sku_prefix",
+                "low_stock_threshold"
+            ],
+            "frontend_views": [
+                "resources/js/Pages/ProductService/Index.tsx",
+                "resources/js/Pages/Warehouses/Index.tsx"
+            ],
+            "commands": [
+                "InventoryConcurrencyProbeCommand",
+                "ReconcileInventoryCommand"
+            ],
+            "jobs": [
+                "SyncWarehouseStockJob"
+            ],
+            "events": [
+                "StockAdjustedEvent"
+            ],
+            "notifications": [
+                "LowStockAlertNotification"
+            ],
+            "third_party_dependencies": [],
+            "external_credentials_required": false,
+            "hiddenleaf_equivalent": "app/Http/Controllers/ProductServiceController.php & app/Domain/Inventory/StockMovementService.php",
+            "parity_status": "COMPLETE"
+        },
+        {
+            "package_name": "Stripe",
+            "package_folder": "packages/workdo/Stripe",
+            "description": "Stripe payment gateway integration for SaaS subscription checkouts, card payments, customer invoice payments, webhooks",
+            "routes_count": 6,
+            "controllers_count": 2,
+            "models_count": 1,
+            "migrations_count": 1,
+            "permissions": [
+                "payment.manage"
+            ],
+            "menu_entries": [
+                "Payment Settings - Stripe"
+            ],
+            "settings": [
+                "stripe_key",
+                "stripe_secret",
+                "stripe_webhook_secret"
+            ],
+            "frontend_views": [
+                "resources/js/Pages/Settings/PaymentGateways.tsx"
+            ],
+            "commands": [],
+            "jobs": [
+                "ProcessStripeWebhookJob"
+            ],
+            "events": [
+                "PaymentCapturedEvent"
+            ],
+            "notifications": [],
+            "third_party_dependencies": [
+                "stripe/stripe-php"
+            ],
+            "external_credentials_required": true,
+            "hiddenleaf_equivalent": "app/Services/Payments/StripeGatewayService.php & app/Http/Controllers/PaymentGatewayController.php",
+            "parity_status": "COMPLETE"
+        },
+        {
+            "package_name": "Taskly",
+            "package_folder": "packages/workdo/Taskly",
+            "description": "Project and Task management (Taskly): projects, task stages, Kanban board, team assignments, milestones, timesheets, bug tracking, project budgets",
+            "routes_count": 42,
+            "controllers_count": 9,
+            "models_count": 12,
+            "migrations_count": 10,
+            "permissions": [
+                "taskly.manage",
+                "taskly.view",
+                "taskly.task.create",
+                "taskly.timesheet.manage"
+            ],
+            "menu_entries": [
+                "Projects",
+                "Tasks",
+                "Kanban Board",
+                "Milestones",
+                "Timesheets",
+                "Bug Tracker",
+                "Project Reports"
+            ],
+            "settings": [
+                "task_prefix",
+                "project_prefix"
+            ],
+            "frontend_views": [
+                "resources/js/Pages/Taskly/Index.tsx"
+            ],
+            "commands": [],
+            "jobs": [],
+            "events": [
+                "TaskCompletedEvent",
+                "BugReportedEvent"
+            ],
+            "notifications": [
+                "TaskAssignedNotification"
+            ],
+            "third_party_dependencies": [],
+            "external_credentials_required": false,
+            "hiddenleaf_equivalent": "app/Http/Controllers/TasklyController.php & app/Models/TasklyProject.php & app/Models/TasklyTask.php",
+            "parity_status": "COMPLETE"
+        }
+    ]
+}
