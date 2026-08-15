@@ -464,6 +464,17 @@ Route::middleware(['auth'])->group(function () {
     Route::post('missions/{id}/step', [\App\Http\Controllers\Automation\MrFoxMissionController::class, 'executeStep'])->name('missions.step');
     Route::post('missions/{id}/control', [\App\Http\Controllers\Automation\MrFoxMissionController::class, 'control'])->name('missions.control');
 
+    // Mr. Fox Executive Command Center & Approvals
+    Route::get('command-center', [\App\Http\Controllers\CommandCenter\CommandCenterController::class, 'index'])->name('command-center.index');
+    Route::get('command-center/health', [\App\Http\Controllers\CommandCenter\CommandCenterController::class, 'health'])->name('command-center.health');
+    Route::get('command-center/priorities', [\App\Http\Controllers\CommandCenter\CommandCenterController::class, 'priorities'])->name('command-center.priorities');
+    Route::get('command-center/briefing', [\App\Http\Controllers\CommandCenter\CommandCenterController::class, 'briefing'])->name('command-center.briefing');
+    Route::get('command-center/activity', [\App\Http\Controllers\CommandCenter\CommandCenterController::class, 'activity'])->name('command-center.activity');
+    Route::get('command-center/search', [\App\Http\Controllers\CommandCenter\CommandCenterController::class, 'search'])->name('command-center.search');
+    Route::get('command-center/approvals', [\App\Http\Controllers\CommandCenter\ApprovalCenterController::class, 'index'])->name('command-center.approvals.index');
+    Route::post('command-center/approvals/{id}/approve', [\App\Http\Controllers\CommandCenter\ApprovalCenterController::class, 'approve'])->name('command-center.approvals.approve');
+    Route::post('command-center/approvals/{id}/reject', [\App\Http\Controllers\CommandCenter\ApprovalCenterController::class, 'reject'])->name('command-center.approvals.reject');
+
     // General & System Settings
     Route::get('settings', [App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
     Route::post('settings', [App\Http\Controllers\SettingController::class, 'store'])->name('settings.store');

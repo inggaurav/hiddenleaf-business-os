@@ -9,6 +9,15 @@ use App\Domain\Automation\Missions\MissionExecutor;
 use App\Domain\Automation\Missions\MissionPlanner;
 use App\Domain\Automation\Missions\MissionStateMachine;
 use App\Domain\Automation\Triggers\TriggerRegistry;
+use App\Domain\CommandCenter\Activity\ExecutiveActivityTimelineService;
+use App\Domain\CommandCenter\Anomalies\AnomalyDetectionEngine;
+use App\Domain\CommandCenter\Briefings\ChangeDetectionService;
+use App\Domain\CommandCenter\Briefings\ExecutiveBriefingService;
+use App\Domain\CommandCenter\Health\BusinessHealthService;
+use App\Domain\CommandCenter\Priorities\BusinessPriorityService;
+use App\Domain\CommandCenter\Recommendations\ExecutiveRecommendationService;
+use App\Domain\CommandCenter\Search\BusinessSearchService;
+use App\Domain\CommandCenter\Signals\SignalDetector;
 use App\Domain\Communications\Actions\CommunicationReplyGenerator;
 use App\Domain\Communications\Actions\CommunicationSendService;
 use App\Domain\Communications\Matching\AttentionPriorityCalculator;
@@ -32,6 +41,7 @@ use App\Domain\MrFox\Tools\AccountingPnlTool;
 use App\Domain\MrFox\Tools\BrandProfileGetTool;
 use App\Domain\MrFox\Tools\BusinessAlertsTool;
 use App\Domain\MrFox\Tools\BusinessDashboardSummaryTool;
+use App\Domain\MrFox\Tools\BusinessSearchTool;
 use App\Domain\MrFox\Tools\CommunicationsDraftReplyTool;
 use App\Domain\MrFox\Tools\CommunicationsGetTool;
 use App\Domain\MrFox\Tools\CommunicationsSearchTool;
@@ -44,6 +54,11 @@ use App\Domain\MrFox\Tools\CrmCreateLeadTool;
 use App\Domain\MrFox\Tools\CrmGetLeadTool;
 use App\Domain\MrFox\Tools\CrmPipelineSummaryTool;
 use App\Domain\MrFox\Tools\CrmSearchLeadsTool;
+use App\Domain\MrFox\Tools\ExecutiveActivityTool;
+use App\Domain\MrFox\Tools\ExecutiveBriefingTool;
+use App\Domain\MrFox\Tools\ExecutiveHealthTool;
+use App\Domain\MrFox\Tools\ExecutivePrioritiesTool;
+use App\Domain\MrFox\Tools\ExecutiveRecommendationsTool;
 use App\Domain\MrFox\Tools\HrAttendanceSummaryTool;
 use App\Domain\MrFox\Tools\HrEmployeeSummaryTool;
 use App\Domain\MrFox\Tools\HrPendingLeaveTool;
@@ -97,12 +112,31 @@ class MrFoxServiceProvider extends ServiceProvider
         $this->app->singleton(MissionPlanner::class);
         $this->app->singleton(MissionExecutor::class);
 
+        // Command Center Domain Singletons
+        $this->app->singleton(SignalDetector::class);
+        $this->app->singleton(BusinessHealthService::class);
+        $this->app->singleton(BusinessPriorityService::class);
+        $this->app->singleton(ExecutiveRecommendationService::class);
+        $this->app->singleton(ChangeDetectionService::class);
+        $this->app->singleton(ExecutiveBriefingService::class);
+        $this->app->singleton(AnomalyDetectionEngine::class);
+        $this->app->singleton(BusinessSearchService::class);
+        $this->app->singleton(ExecutiveActivityTimelineService::class);
+
         $this->app->singleton(MrFoxToolRegistry::class, function ($app) {
             $registry = new MrFoxToolRegistry();
 
             // Core Dashboard & Alerts
             $registry->register(new BusinessDashboardSummaryTool());
             $registry->register(new BusinessAlertsTool($app->make(BusinessInsightService::class)));
+
+            // Executive Command Center Tools
+            $registry->register(new ExecutiveHealthTool($app->make(BusinessHealthService::class)));
+            $registry->register(new ExecutivePrioritiesTool($app->make(BusinessPriorityService::class)));
+            $registry->register(new ExecutiveBriefingTool($app->make(ExecutiveBriefingService::class)));
+            $registry->register(new ExecutiveRecommendationsTool($app->make(ExecutiveRecommendationService::class)));
+            $registry->register(new ExecutiveActivityTool($app->make(ExecutiveActivityTimelineService::class)));
+            $registry->register(new BusinessSearchTool($app->make(BusinessSearchService::class)));
 
             // CRM
             $registry->register(new CrmSearchLeadsTool());
