@@ -4,6 +4,7 @@ import AppShell from '@/Layouts/AppShell';
 import { Card } from '@/Components/UI/Card';
 import { Badge } from '@/Components/UI/Badge';
 import { ModuleSectionActions } from '@/Components/ModuleSectionActions';
+import { ModuleLifecycleActions } from '@/Components/ModuleLifecycleActions';
 import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
 
 function displayValue(value: any): string {
@@ -54,6 +55,7 @@ export default function ModuleSection() {
         </div>
 
         <ModuleSectionActions module={module} section={section} canManage={canManage} lookups={lookups} />
+        <ModuleLifecycleActions module={module} section={section} canManage={canManage} lookups={lookups} />
 
         <Card level={0} className="overflow-hidden p-0">
           <div className="overflow-x-auto">
