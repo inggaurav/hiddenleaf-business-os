@@ -20,3 +20,4 @@ yarn-error.log
 /storage/framework/testing
 /storage/framework/testing-concurrency
 .env.testing
+graphify_full_audit_map.json

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Accounting\BankTransferNumberService;
 use App\Domain\Accounting\LedgerService;
 use App\Domain\Accounting\Money;
 use App\Models\AccountBankTransfer;
@@ -266,9 +267,7 @@ class AccountBankTransferController extends Controller
 
     private function nextTransferNumber(Workspace $workspace): string
     {
-        $next = AccountBankTransfer::forWorkspace($workspace->organization_id, $workspace->id)->count() + 1;
-
-        return 'TRF-'.now()->format('Ymd').'-'.str_pad((string) $next, 5, '0', STR_PAD_LEFT);
+        return app(BankTransferNumberService::class)->next($workspace->id);
     }
 
     private function assertTransfer(AccountBankTransfer $transfer, Workspace $workspace): void

@@ -15,7 +15,10 @@ use RuntimeException;
 
 class LedgerService
 {
-    public function __construct(private readonly AuditLogger $audit) {}
+    public function __construct(
+        private readonly AuditLogger $audit,
+        private readonly ?JournalNumberService $journalNumberService = null
+    ) {}
 
     public function createEntry(int $organizationId, int $workspaceId, array $data, User $actor): JournalEntry
     {
@@ -26,9 +29,11 @@ class LedgerService
             throw new RuntimeException('Every journal line account must belong to the active workspace.');
         }
 
-        return DB::transaction(function () use ($organizationId, $workspaceId, $data, $actor) {
+        $numberService = $this->journalNumberService ?? app(JournalNumberService::class);
+
+        return DB::transaction(function () use ($organizationId, $workspaceId, $data, $actor, $numberService) {
             Workspace::whereKey($workspaceId)->lockForUpdate()->firstOrFail();
-            $number = 'JE-'.now()->format('Ymd').'-'.str_pad((string) (JournalEntry::where('workspace_id', $workspaceId)->count() + 1), 5, '0', STR_PAD_LEFT);
+            $number = $numberService->next($workspaceId);
             $entry = JournalEntry::create([
                 'organization_id' => $organizationId,
                 'workspace_id' => $workspaceId,

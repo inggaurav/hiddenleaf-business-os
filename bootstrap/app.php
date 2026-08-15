@@ -1,5 +1,6 @@
 <?php
 
+use App\Console\Commands\AccountingConcurrencyProbeCommand;
 use App\Console\Commands\InstallBusinessOs;
 use App\Console\Commands\ReconcileFinancialBalancesCommand;
 use App\Console\Commands\ReconcileInventoryCommand;
@@ -32,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ReconcileFinancialBalancesCommand::class,
         ReconcileInventoryCommand::class,
         ValidateParityEvidenceCommand::class,
+        AccountingConcurrencyProbeCommand::class,
     ])
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [
