@@ -16,6 +16,18 @@ use RuntimeException;
 
 class ModuleController extends Controller
 {
+    private const FIRST_PARTY_CAPABILITIES = [
+        'sales' => ['name' => 'Sales', 'description' => 'Customer invoices, proposals, returns and revenue workflows.'],
+        'procurement' => ['name' => 'Procurement', 'description' => 'Vendor bills, purchasing, returns and payable workflows.'],
+        'communications' => ['name' => 'Unified Communications', 'description' => 'Unified inbox and connected communication providers.'],
+        'automations' => ['name' => 'Automations', 'description' => 'Deterministic event-condition-action business automations.'],
+        'missions' => ['name' => 'Mr Fox Missions', 'description' => 'Governed multi-step AI mission planning and execution.'],
+        'command_center' => ['name' => 'Command Center', 'description' => 'Executive business health, priorities, signals and approvals.'],
+        'knowledge' => ['name' => 'Knowledge', 'description' => 'Grounded business knowledge and retrieval capabilities.'],
+        'helpdesk' => ['name' => 'Helpdesk', 'description' => 'Support tickets, categories, replies and service workflows.'],
+        'media' => ['name' => 'Media Library', 'description' => 'Workspace files and business media storage.'],
+    ];
+
     public function __construct(
         protected ModuleManager $moduleManager,
         private readonly AuditLogger $auditLogger,
@@ -27,44 +39,61 @@ class ModuleController extends Controller
         $workspaceId = $request->session()->get('active_workspace_id');
         $user = Auth::user();
         $workspace = $workspaceId ? Workspace::with('organization')->find($workspaceId) : null;
-        $modules = $this->moduleManager->getAllModules();
         $activeModules = $workspaceId
             ? UserActiveModule::where('workspace_id', $workspaceId)->pluck('module_name')->map(fn ($value) => strtolower((string) $value))->toArray()
             : [];
 
         $formattedModules = [];
-        foreach ($modules as $module) {
+        foreach ($this->moduleManager->getAllModules() as $module) {
             $alias = strtolower($module->getAlias());
-            $formattedModules[] = [
-                'name' => $module->getName(),
-                'alias' => $alias,
-                'version' => $module->getVersion(),
-                'description' => $module->getDescription(),
-                'active' => $workspace ? $this->addonManager->isActiveForWorkspace($workspace, $alias) : in_array($alias, $activeModules, true),
-                'entitled' => $workspace ? ($user->isSuperAdmin() || $this->addonManager->isPlanEntitled($workspace, $alias)) : $user->isSuperAdmin(),
-                'permissions' => $module->getPermissions(),
-                'navigation' => $module->getNavigation(),
-                'dependencies' => method_exists($module, 'dependencies') ? $module->dependencies() : [],
-            ];
+            $formattedModules[] = $this->moduleRow(
+                $workspace,
+                $user,
+                $alias,
+                $module->getName(),
+                $module->getVersion(),
+                $module->getDescription(),
+                $module->getPermissions(),
+                $module->getNavigation(),
+                method_exists($module, 'dependencies') ? $module->dependencies() : [],
+                in_array($alias, $activeModules, true),
+            );
+        }
+
+        foreach (self::FIRST_PARTY_CAPABILITIES as $alias => $meta) {
+            if (collect($formattedModules)->contains(fn ($row) => $row['alias'] === $alias)) continue;
+            $formattedModules[] = $this->moduleRow(
+                $workspace,
+                $user,
+                $alias,
+                $meta['name'],
+                (string) config('app.version', '1.0.0'),
+                $meta['description'],
+                [],
+                [],
+                [],
+                in_array($alias, $activeModules, true),
+            );
         }
 
         foreach ($this->addonManager->installed() as $addon) {
-            if (collect($formattedModules)->contains(fn ($row) => $row['alias'] === strtolower($addon->alias))) {
-                continue;
-            }
+            if (collect($formattedModules)->contains(fn ($row) => $row['alias'] === strtolower($addon->alias))) continue;
             $module = new ManifestAddonModule($addon);
-            $formattedModules[] = [
-                'name' => $module->getName(),
-                'alias' => $module->getAlias(),
-                'version' => $module->getVersion(),
-                'description' => $module->getDescription(),
-                'active' => $workspace ? $this->addonManager->isActiveForWorkspace($workspace, $module->getAlias()) : false,
-                'entitled' => $workspace ? ($user->isSuperAdmin() || $this->addonManager->isPlanEntitled($workspace, $module->getAlias())) : $user->isSuperAdmin(),
-                'permissions' => $module->getPermissions(),
-                'navigation' => $module->getNavigation(),
-                'dependencies' => $module->dependencies(),
-            ];
+            $formattedModules[] = $this->moduleRow(
+                $workspace,
+                $user,
+                $module->getAlias(),
+                $module->getName(),
+                $module->getVersion(),
+                $module->getDescription(),
+                $module->getPermissions(),
+                $module->getNavigation(),
+                $module->dependencies(),
+                false,
+            );
         }
+
+        usort($formattedModules, fn ($a, $b) => strcasecmp($a['name'], $b['name']));
 
         return Inertia::render('Modules/Index', [
             'modules' => $formattedModules,
@@ -99,11 +128,9 @@ class ModuleController extends Controller
                         if (! $user->isSuperAdmin() && ! $this->addonManager->isPlanEntitled($workspace, $alias)) {
                             throw new RuntimeException('This module is not included in the current plan.');
                         }
-                        UserActiveModule::updateOrCreate([
+                        UserActiveModule::firstOrCreate([
                             'workspace_id' => $workspace->id,
                             'module_name' => $alias,
-                        ], [
-                            'user_id' => $user->id,
                         ]);
                     }
                 } else {
@@ -137,14 +164,25 @@ class ModuleController extends Controller
     {
         $user = Auth::user();
         abort_unless($user->isSuperAdmin(), 403, 'Only super administrators can install modules.');
-
         $request->validate(['file' => 'required|file|mimes:zip|max:51200']);
         $result = $this->moduleManager->installFromZip($request->file('file')->getRealPath());
-
-        if (! $result['success']) {
-            return back()->with('error', $result['message']);
-        }
-
+        if (! $result['success']) return back()->with('error', $result['message']);
         return back()->with('success', $result['message']);
+    }
+
+    private function moduleRow(?Workspace $workspace, $user, string $alias, string $name, string $version, string $description, array $permissions, array $navigation, array $dependencies, bool $fallbackActive): array
+    {
+        $alias = strtolower($alias);
+        return [
+            'name' => $name,
+            'alias' => $alias,
+            'version' => $version,
+            'description' => $description,
+            'active' => $workspace ? $this->addonManager->isActiveForWorkspace($workspace, $alias) : $fallbackActive,
+            'entitled' => $workspace ? ($user->isSuperAdmin() || $this->addonManager->isPlanEntitled($workspace, $alias)) : $user->isSuperAdmin(),
+            'permissions' => $permissions,
+            'navigation' => $navigation,
+            'dependencies' => $dependencies,
+        ];
     }
 }
