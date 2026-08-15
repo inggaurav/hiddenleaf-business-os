@@ -20,7 +20,7 @@ return new class extends Migration
                 $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
                 $table->timestamps();
                 $table->unique(['workspace_id', 'type', 'name'], 'account_tx_category_unique');
-                $table->index(['organization_id', 'workspace_id', 'type']);
+                $table->index(['organization_id', 'workspace_id', 'type'], 'acct_tx_cat_org_ws_type_idx');
             });
         }
 

@@ -62,7 +62,7 @@ return new class extends Migration
                 $table->timestamps();
 
                 $table->unique(['account_id', 'external_thread_id']);
-                $table->index(['workspace_id', 'provider', 'status']);
+                $table->index(['workspace_id', 'provider', 'status'], 'comm_conv_ws_prov_stat_idx');
                 $table->index(['workspace_id', 'priority_score']);
                 $table->index(['workspace_id', 'unread_count']);
             });
@@ -91,7 +91,7 @@ return new class extends Migration
                 $table->timestamps();
 
                 $table->index(['conversation_id', 'sent_at']);
-                $table->index(['workspace_id', 'direction', 'delivery_status']);
+                $table->index(['workspace_id', 'direction', 'delivery_status'], 'comm_msg_ws_dir_stat_idx');
             });
         }
 

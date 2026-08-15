@@ -51,7 +51,7 @@ return new class extends Migration
                 $table->json('metadata')->nullable();
                 $table->timestamps();
 
-                $table->index(['workspace_id', 'visibility', 'sensitivity_level']);
+                $table->index(['workspace_id', 'visibility', 'sensitivity_level'], 'mrfox_kdoc_ws_vis_sens_idx');
             });
         }
 
@@ -91,7 +91,7 @@ return new class extends Migration
                 $table->json('metadata')->nullable();
                 $table->timestamps();
 
-                $table->index(['workspace_id', 'status', 'priority']);
+                $table->index(['workspace_id', 'status', 'priority'], 'mrfox_soc_ws_stat_prio_idx');
             });
         }
     }
