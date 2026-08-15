@@ -5,7 +5,7 @@ use App\Http\Controllers\SuperAdmin\CompanyController;
 use App\Http\Middleware\SuperAdminMiddleware;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['web', 'auth'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/crm/{section}', [ModuleSectionController::class, 'crm'])
         ->where('section', 'leads|deals|pipelines|webforms|activities|notes')
         ->middleware('module.status:lead')
