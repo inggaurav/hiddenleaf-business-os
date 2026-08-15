@@ -17,6 +17,8 @@ use App\Models\TasklyProject;
 use App\Models\TasklyStage;
 use App\Models\TasklyTask;
 use App\Models\User;
+use App\Models\Warehouse;
+use App\Models\WarehouseStock;
 use App\Models\Workspace;
 use Illuminate\Support\Facades\DB;
 
@@ -87,9 +89,11 @@ class DemoDataSeederService
                 'category_id' => $category->id,
                 'name' => '[DEMO] Enterprise Edge Gateway',
                 'type' => 'product',
-                'quantity' => 4,
+                'reorder_level' => 10,
                 'sale_price' => 2500.00,
                 'purchase_price' => 1400.00,
+                'is_active' => true,
+                'created_by' => $user->id,
             ]);
 
             ProductServiceItem::updateOrCreate([
@@ -100,9 +104,28 @@ class DemoDataSeederService
                 'category_id' => $category->id,
                 'name' => '[DEMO] Business OS Annual Subscription',
                 'type' => 'service',
-                'quantity' => 100,
+                'reorder_level' => 0,
                 'sale_price' => 12000.00,
                 'purchase_price' => 0.00,
+                'is_active' => true,
+                'created_by' => $user->id,
+            ]);
+
+            $warehouse = Warehouse::firstOrCreate([
+                'organization_id' => $orgId,
+                'workspace_id' => $wsId,
+                'name' => 'Main Warehouse',
+            ], [
+                'address' => 'HQ Facility',
+                'city' => 'Primary',
+                'zip_code' => '00000',
+            ]);
+
+            WarehouseStock::updateOrCreate([
+                'product_id' => $item1->id,
+                'warehouse_id' => $warehouse->id,
+            ], [
+                'quantity' => 4,
             ]);
 
             $invoice = SalesInvoice::updateOrCreate([
@@ -238,9 +261,13 @@ class DemoDataSeederService
                 ->where('name', 'like', '[DEMO]%')
                 ->delete();
 
-            $deleted += ProductServiceItem::where('workspace_id', $wsId)
+            $productIds = ProductServiceItem::where('workspace_id', $wsId)
                 ->where('sku', 'like', 'DEMO-%')
-                ->delete();
+                ->pluck('id');
+            if ($productIds->isNotEmpty()) {
+                $deleted += WarehouseStock::whereIn('product_id', $productIds)->delete();
+                $deleted += ProductServiceItem::whereIn('id', $productIds)->delete();
+            }
 
             return $deleted;
         });
