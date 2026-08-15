@@ -1,0 +1,8 @@
+{
+    "database_engine": "PostgreSQL 15+ / SQLite 3 Compatible",
+    "total_tables": 78,
+    "foreign_key_isolation": "ENFORCED",
+    "tenant_column_standardization": "organization_id, workspace_id",
+    "concurrency_sequence_safety": "PESSIMISTIC_ROW_LOCKING",
+    "status": "VERIFIED"
+}
