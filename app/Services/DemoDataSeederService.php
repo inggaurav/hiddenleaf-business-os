@@ -161,7 +161,7 @@ class DemoDataSeederService
                 'purchase_date' => now()->subDays(12)->toDateString(),
                 'due_date' => now()->addDays(10)->toDateString(),
                 'total_amount' => 4200.00,
-                'status' => 'posted',
+                'status' => 1,
                 'created_by' => $user->id,
             ]);
 
