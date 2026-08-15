@@ -5,7 +5,9 @@ namespace App\Http\Controllers\SuperAdmin;
 use App\Http\Controllers\Controller;
 use App\Models\Organization;
 use App\Models\Plan;
+use App\Models\Subscription;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class CompanyController extends Controller
@@ -29,7 +31,7 @@ class CompanyController extends Controller
 
         return Inertia::render('SuperAdmin/Companies/Index', [
             'companies' => $companies,
-            'plans' => Plan::where('status', true)->orderBy('name')->get(['id', 'name']),
+            'plans' => Plan::where('status', true)->orderBy('name')->get(['id', 'name', 'trial', 'trial_days']),
             'filters' => ['search' => $search],
         ]);
     }
@@ -41,11 +43,32 @@ class CompanyController extends Controller
             'is_active' => ['required', 'boolean'],
         ]);
 
-        $organization->update([
-            'plan_id' => $data['plan_id'] ?? null,
-            'is_active' => $data['is_active'],
-        ]);
+        DB::transaction(function () use ($organization, $data) {
+            $planId = $data['plan_id'] ?? null;
+            $plan = $planId ? Plan::findOrFail($planId) : null;
 
-        return back()->with('success', 'Company access and plan updated.');
+            $organization->forceFill([
+                'plan_id' => $plan?->id,
+                'is_active' => $data['is_active'],
+                'plan_expires_at' => $plan && $plan->trial
+                    ? now()->addDays(max(1, (int) $plan->trial_days))
+                    : $organization->plan_expires_at,
+            ])->save();
+
+            Subscription::where('organization_id', $organization->id)->update(['status' => 'inactive']);
+
+            if ($plan) {
+                Subscription::updateOrCreate(
+                    ['organization_id' => $organization->id, 'plan_id' => $plan->id],
+                    [
+                        'status' => $data['is_active'] ? 'active' : 'inactive',
+                        'starts_at' => now(),
+                        'expires_at' => $plan->trial ? now()->addDays(max(1, (int) $plan->trial_days)) : null,
+                    ]
+                );
+            }
+        });
+
+        return back()->with('success', 'Company access and plan updated. Workspace modules remain data-safe and are filtered by the new plan entitlement.');
     }
 }
