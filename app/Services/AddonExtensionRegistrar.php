@@ -10,6 +10,7 @@ use App\Domain\MrFox\Contracts\MrFoxToolContract;
 use App\Domain\MrFox\Tools\MrFoxToolRegistry;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class AddonExtensionRegistrar
 {
@@ -20,6 +21,10 @@ class AddonExtensionRegistrar
 
     public function register(): void
     {
+        if (! Schema::hasTable('addons')) {
+            return;
+        }
+
         $toolRegistry = $this->container->make(MrFoxToolRegistry::class);
         $triggerRegistry = $this->container->make(TriggerRegistry::class);
         $actionRegistry = $this->container->make(ActionRegistry::class);
