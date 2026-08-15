@@ -2,13 +2,15 @@
 
 namespace App\Services;
 
-use App\Models\Category;
 use App\Models\MrFoxBrandProfile;
 use App\Models\Organization;
+use App\Models\Permission;
 use App\Models\Plan;
 use App\Models\Role;
 use App\Models\Setting;
+use App\Models\Subscription;
 use App\Models\User;
+use App\Models\UserActiveModule;
 use App\Models\Warehouse;
 use App\Models\Workspace;
 use Illuminate\Support\Facades\DB;
@@ -17,74 +19,78 @@ use Illuminate\Support\Str;
 class TenantProvisioningService
 {
     /**
-     * Provision a complete, production-ready organization and workspace for a customer.
-     * Guaranteed to be atomic and idempotent.
+     * Provision a complete organization and primary workspace.
+     * The operation is atomic and uses the current SaaS, RBAC and module schemas.
      */
     public function provision(User $owner, array $attributes = []): array
     {
         return DB::transaction(function () use ($owner, $attributes) {
-            $companyName = $attributes['company_name'] ?? ($owner->name . "'s Organization");
+            $companyName = $attributes['company_name'] ?? ($owner->name."'s Organization");
             $currency = $attributes['currency'] ?? 'USD';
             $currencySymbol = $attributes['currency_symbol'] ?? '$';
             $timezone = $attributes['timezone'] ?? 'UTC';
 
-            // 1. Get or create Default Trial Plan (14 Days)
-            $plan = Plan::where('name', 'Starter')->first();
-            if (! $plan) {
-                $plan = Plan::create([
-                    'name' => 'Starter',
-                    'price' => 0.00,
-                    'duration' => 'month',
-                    'max_users' => 10,
-                    'max_workspaces' => 2,
-                    'trial_days' => 14,
-                    'modules' => [
-                        'account', 'crm', 'hrm', 'productservice', 'taskly',
-                        'pos', 'communications', 'automations', 'missions', 'command_center'
-                    ],
-                    'status' => true,
-                    'created_by' => $owner->id,
+            $plan = $this->starterPlan($owner);
+
+            $organization = Organization::firstOrCreate(
+                ['owner_id' => $owner->id, 'name' => $companyName],
+                [
+                    'slug' => Str::slug($companyName).'-'.Str::lower(Str::random(6)),
+                    'plan_id' => $plan->id,
+                    'plan_expires_at' => now()->addDays(max(1, (int) $plan->trial_days)),
+                    'is_active' => true,
+                    'settings' => [],
+                ]
+            );
+
+            $organization->forceFill([
+                'plan_id' => $organization->plan_id ?: $plan->id,
+                'is_active' => true,
+            ])->save();
+
+            $workspace = Workspace::firstOrCreate(
+                ['organization_id' => $organization->id, 'created_by' => $owner->id],
+                [
+                    'name' => 'Primary Workspace',
+                    'slug' => Str::slug($companyName).'-'.Str::lower(Str::random(6)),
+                    'is_active' => true,
+                ]
+            );
+
+            $roles = $this->seedRoleTemplates($organization);
+            $ownerRole = $roles['Owner'];
+
+            $organization->members()->syncWithoutDetaching([$owner->id => ['role' => 'owner']]);
+            $workspace->members()->syncWithoutDetaching([$owner->id => ['role_id' => $ownerRole->id]]);
+
+            foreach ($plan->modules ?? [] as $module) {
+                UserActiveModule::firstOrCreate([
+                    'workspace_id' => $workspace->id,
+                    'module_name' => strtolower((string) $module),
+                ], [
+                    'user_id' => $owner->id,
                 ]);
             }
 
-            // 2. Create Organization
-            $org = Organization::create([
-                'name' => $companyName,
-                'slug' => Str::slug($companyName) . '-' . Str::random(4),
-                'owner_id' => $owner->id,
-                'plan_id' => $plan->id,
-                'trial_ends_at' => now()->addDays(14),
-                'status' => 'active',
-            ]);
+            Subscription::updateOrCreate(
+                ['organization_id' => $organization->id, 'plan_id' => $plan->id],
+                [
+                    'status' => 'active',
+                    'starts_at' => now(),
+                    'expires_at' => $plan->trial ? now()->addDays(max(1, (int) $plan->trial_days)) : null,
+                ]
+            );
 
-            // 3. Create Primary Workspace
-            $ws = Workspace::create([
-                'name' => 'Primary Workspace',
-                'slug' => Str::slug($companyName) . '-' . Str::random(4),
-                'organization_id' => $org->id,
-                'created_by' => $owner->id,
-                'is_active' => true,
-            ]);
-
-            // 4. Attach Memberships
-            $org->members()->syncWithoutDetaching([$owner->id => ['role' => 'owner']]);
-            $ws->members()->syncWithoutDetaching([$owner->id]);
-
-            // 5. Seed Standard Roles & Templates
-            $this->seedRoleTemplates($org, $ws, $owner);
-
-            // 6. Seed Default System Settings
-            $this->seedDefaultSettings($org, $ws, $owner, [
+            $this->seedDefaultSettings($organization, $workspace, [
                 'currency' => $currency,
                 'currency_symbol' => $currencySymbol,
                 'timezone' => $timezone,
                 'company_name' => $companyName,
             ]);
 
-            // 7. Seed Initial Brand Profile Placeholder
             MrFoxBrandProfile::firstOrCreate([
-                'organization_id' => $org->id,
-                'workspace_id' => $ws->id,
+                'organization_id' => $organization->id,
+                'workspace_id' => $workspace->id,
             ], [
                 'name' => $companyName,
                 'industry' => $attributes['industry'] ?? 'Technology',
@@ -95,10 +101,9 @@ class TenantProvisioningService
                 'created_by' => $owner->id,
             ]);
 
-            // 8. Seed Default Warehouse
             Warehouse::firstOrCreate([
-                'organization_id' => $org->id,
-                'workspace_id' => $ws->id,
+                'organization_id' => $organization->id,
+                'workspace_id' => $workspace->id,
                 'name' => 'Main Warehouse',
             ], [
                 'address' => 'HQ Facility',
@@ -107,45 +112,92 @@ class TenantProvisioningService
             ]);
 
             return [
-                'organization' => $org,
-                'workspace' => $ws,
+                'organization' => $organization,
+                'workspace' => $workspace,
                 'plan' => $plan,
+                'roles' => $roles,
             ];
         });
     }
 
-    /**
-     * Seeds role templates for the newly created tenant.
-     */
-    private function seedRoleTemplates(Organization $org, Workspace $ws, User $owner): void
+    private function starterPlan(User $owner): Plan
     {
-        $roles = [
-            'Owner' => 'Full administrative control over all organization resources and financial records.',
-            'Admin' => 'Operational administrative rights across modules.',
-            'Finance' => 'Accounting, invoicing, expenses, payables, and revenue management.',
-            'Sales Manager' => 'CRM pipeline, leads, deals, quotes, and communications oversight.',
-            'Sales' => 'Leads, deal execution, customer records, and messaging.',
-            'HR Manager' => 'Employee records, attendance, payroll, and leave management.',
-            'Project Manager' => 'Taskly projects, milestones, task assignments, and time logs.',
-            'Team Member' => 'General task completion and internal messaging.',
-            'Viewer' => 'Read-only access across assigned operational modules.',
+        $plan = Plan::where('name', 'Starter')->first();
+        if ($plan) {
+            return $plan;
+        }
+
+        return Plan::create([
+            'name' => 'Starter',
+            'description' => 'Default onboarding trial. Pricing and commercial packaging remain configurable by Super Admin.',
+            'package_price_monthly' => 0,
+            'package_price_yearly' => 0,
+            'price_per_user_monthly' => 0,
+            'price_per_user_yearly' => 0,
+            'price_per_storage_monthly' => 0,
+            'price_per_storage_yearly' => 0,
+            'number_of_users' => 10,
+            'storage_limit' => 5 * 1024 * 1024 * 1024,
+            'workspace_limit' => 2,
+            'modules' => [
+                'account', 'crm', 'lead', 'hrm', 'productservice', 'taskly', 'pos',
+                'sales', 'procurement', 'communications', 'automations', 'missions', 'command_center',
+            ],
+            'trial' => true,
+            'trial_days' => 14,
+            'free_plan' => false,
+            'status' => true,
+            'custom_plan' => false,
+            'created_by' => $owner->id,
+        ]);
+    }
+
+    /** @return array<string, Role> */
+    private function seedRoleTemplates(Organization $organization): array
+    {
+        $templates = [
+            'Owner' => ['*'],
+            'Admin' => ['*'],
+            'Finance' => ['workspace.view', 'workspace.switch', 'account.', 'sales.', 'procurement.', 'product_service.', 'inventory.'],
+            'Sales Manager' => ['workspace.view', 'workspace.switch', 'crm.', 'sales.', 'product_service.item.view', 'inventory.stock.view'],
+            'Sales' => ['workspace.view', 'workspace.switch', 'crm.view', 'crm.manage', 'sales.manage'],
+            'HR Manager' => ['workspace.view', 'workspace.switch', 'hrm.'],
+            'Project Manager' => ['workspace.view', 'workspace.switch', 'taskly.'],
+            'Team Member' => ['workspace.view', 'workspace.switch', 'taskly.view'],
+            'Viewer' => ['workspace.view', 'workspace.switch', '.view'],
         ];
 
-        foreach ($roles as $roleName => $desc) {
-            Role::firstOrCreate([
-                'organization_id' => $org->id,
+        $allPermissions = Permission::query()->get(['id', 'name']);
+        $result = [];
+
+        foreach ($templates as $roleName => $patterns) {
+            $role = Role::firstOrCreate([
+                'organization_id' => $organization->id,
                 'name' => Str::slug($roleName),
             ], [
                 'display_name' => $roleName,
                 'is_system' => false,
             ]);
+
+            $ids = $patterns === ['*']
+                ? $allPermissions->pluck('id')->all()
+                : $allPermissions->filter(function ($permission) use ($patterns) {
+                    foreach ($patterns as $pattern) {
+                        if ($pattern === $permission->name) return true;
+                        if (str_ends_with($pattern, '.') && str_starts_with($permission->name, $pattern)) return true;
+                        if (str_starts_with($pattern, '.') && str_ends_with($permission->name, $pattern)) return true;
+                    }
+                    return false;
+                })->pluck('id')->all();
+
+            $role->permissions()->sync($ids);
+            $result[$roleName] = $role;
         }
+
+        return $result;
     }
 
-    /**
-     * Seeds default hierarchical settings for tenant.
-     */
-    private function seedDefaultSettings(Organization $org, Workspace $ws, User $owner, array $config): void
+    private function seedDefaultSettings(Organization $organization, Workspace $workspace, array $config): void
     {
         $defaultSettings = [
             'app_name' => 'HiddenLeaf Business OS',
@@ -156,20 +208,19 @@ class TenantProvisioningService
             'date_format' => 'Y-m-d',
             'time_format' => 'H:i',
             'mrfox_enabled' => '1',
-            'mrfox_default_model' => 'gemini-1.5-pro',
             'onboarding_completed' => '0',
             'onboarding_current_step' => '1',
         ];
 
-        foreach ($defaultSettings as $key => $val) {
-            Setting::firstOrCreate([
+        foreach ($defaultSettings as $key => $value) {
+            Setting::updateOrCreate([
                 'scope' => 'workspace',
-                'scope_id' => $ws->id,
+                'scope_id' => $workspace->id,
                 'key' => $key,
             ], [
-                'organization_id' => $org->id,
-                'workspace_id' => $ws->id,
-                'value' => $val,
+                'organization_id' => $organization->id,
+                'workspace_id' => $workspace->id,
+                'value' => $value,
                 'is_encrypted' => false,
             ]);
         }
