@@ -26,7 +26,10 @@ class CreateDemoWorkspaceCommand extends Command
 
     /** @var array<int, string> */
     private const DEMO_MODULES = [
+        'core',
         'account',
+        'sales',
+        'procurement',
         'crm',
         'lead',
         'hrm',
@@ -34,6 +37,8 @@ class CreateDemoWorkspaceCommand extends Command
         'pos',
         'taskly',
         'landingpage',
+        'helpdesk',
+        'media',
         'communications',
         'automations',
         'missions',
@@ -68,7 +73,7 @@ class CreateDemoWorkspaceCommand extends Command
                         'name' => 'HiddenLeaf Demo Owner',
                         'email' => $email,
                         'password' => Hash::make($generatedPassword),
-                        'role' => 'user',
+                        'role' => 'company',
                         'is_active' => true,
                     ]);
                     $user->forceFill(['email_verified_at' => now()])->save();
@@ -77,7 +82,11 @@ class CreateDemoWorkspaceCommand extends Command
                     if (method_exists($user, 'trashed') && $user->trashed()) {
                         $user->restore();
                     }
-                    $user->forceFill(['is_active' => true, 'email_verified_at' => $user->email_verified_at ?: now()]);
+                    $user->forceFill([
+                        'is_active' => true,
+                        'email_verified_at' => $user->email_verified_at ?: now(),
+                        'role' => 'company',
+                    ]);
                     if (is_string($requestedPassword) && $requestedPassword !== '') {
                         $user->password = Hash::make($requestedPassword);
                     }
@@ -135,8 +144,6 @@ class CreateDemoWorkspaceCommand extends Command
 
                 $workspace->organization()->update([
                     'plan_id' => $plan->id,
-                    'trial_ends_at' => now()->addYears(10),
-                    'status' => 'active',
                 ]);
 
                 foreach (self::DEMO_MODULES as $module) {
