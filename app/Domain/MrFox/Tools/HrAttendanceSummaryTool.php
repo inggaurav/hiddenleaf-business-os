@@ -50,7 +50,7 @@ class HrAttendanceSummaryTool implements MrFoxToolContract
 
         $totalEmployees = HrEmployee::where('workspace_id', $wsId)->count();
         $todayAttendance = HrAttendance::where('workspace_id', $wsId)
-            ->whereDate('date', today())
+            ->whereDate('attendance_date', today())
             ->get();
 
         $presentCount = $todayAttendance->where('status', 'present')->count();
