@@ -106,17 +106,32 @@ class CreateDemoWorkspaceCommand extends Command
                 $plan = Plan::firstOrCreate(
                     ['name' => 'Demo'],
                     [
-                        'price' => 0,
-                        'duration' => 'month',
-                        'max_users' => 25,
-                        'max_workspaces' => 1,
-                        'trial_days' => 3650,
+                        'description' => 'Internal demo plan with all currently testable HiddenLeaf modules enabled.',
+                        'package_price_monthly' => 0,
+                        'package_price_yearly' => 0,
+                        'price_per_user_monthly' => 0,
+                        'price_per_user_yearly' => 0,
+                        'price_per_storage_monthly' => 0,
+                        'price_per_storage_yearly' => 0,
+                        'number_of_users' => 25,
+                        'storage_limit' => 50,
+                        'workspace_limit' => 1,
                         'modules' => self::DEMO_MODULES,
+                        'trial' => true,
+                        'trial_days' => 3650,
+                        'free_plan' => true,
                         'status' => true,
+                        'custom_plan' => false,
                         'created_by' => $user->id,
                     ]
                 );
-                $plan->forceFill(['modules' => self::DEMO_MODULES, 'status' => true])->save();
+                $plan->forceFill([
+                    'modules' => self::DEMO_MODULES,
+                    'status' => true,
+                    'number_of_users' => 25,
+                    'workspace_limit' => 1,
+                    'storage_limit' => 50,
+                ])->save();
 
                 $workspace->organization()->update([
                     'plan_id' => $plan->id,
