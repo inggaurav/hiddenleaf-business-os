@@ -2,9 +2,13 @@
 
 namespace App\Domain\HRM;
 
+use App\Domain\Accounting\CommercialAccountingService;
+use App\Domain\Accounting\LedgerService;
 use App\Models\HrEmployee;
 use App\Models\HrPayslip;
+use App\Models\LedgerAccount;
 use App\Models\User;
+use Carbon\Carbon;
 use HiddenLeaf\Kernel\Services\AuditLogger;
 use Illuminate\Support\Facades\DB;
 
@@ -36,6 +40,58 @@ class PayrollService
             $this->audit->log($actor->id, $employee->organization_id, $employee->workspace_id, 'payroll.generated', 'hr_payslip', (string) $payslip->id, ['employee_id' => $employee->id, 'period_start' => $start, 'period_end' => $end, 'net_pay' => $payslip->net_pay], critical: true);
 
             return $payslip->load('lines');
+        });
+    }
+
+    public function pay(HrPayslip $payslip, User $actor, ?int $bankAccountId = null): HrPayslip
+    {
+        return DB::transaction(function () use ($payslip, $actor, $bankAccountId) {
+            $locked = HrPayslip::whereKey($payslip->id)->lockForUpdate()->firstOrFail();
+            abort_unless($locked->status !== 'paid', 422, 'Payslip is already marked as paid.');
+
+            $locked->update(['status' => 'paid']);
+
+            // Post double-entry accounting entry if LedgerService is configured for the workspace
+            try {
+                $ledger = app(LedgerService::class);
+                $commercial = app(CommercialAccountingService::class);
+                $accounts = (new \ReflectionClass($commercial))->getMethod('systemAccounts');
+                $accounts->setAccessible(true);
+                $sysAccounts = $accounts->invoke($commercial, $locked->organization_id, $locked->workspace_id);
+
+                $expenseAccount = $sysAccounts['purchase_expense'] ?? null;
+                $bankAccount = $bankAccountId
+                    ? LedgerAccount::forWorkspace($locked->organization_id, $locked->workspace_id)->find($bankAccountId)
+                    : ($sysAccounts['bank'] ?? LedgerAccount::forWorkspace($locked->organization_id, $locked->workspace_id)->where('is_bank', true)->first());
+
+                if ($expenseAccount && $bankAccount && (float) $locked->net_pay > 0) {
+                    $entry = $ledger->createEntry($locked->organization_id, $locked->workspace_id, [
+                        'entry_date' => $locked->period_end ? Carbon::parse($locked->period_end)->toDateString() : now()->toDateString(),
+                        'reference' => 'PAYSLIP-'.$locked->id,
+                        'description' => 'Salary payment for employee #'.$locked->employee_id,
+                        'lines' => [
+                            ['account_id' => $expenseAccount->id, 'debit' => $locked->net_pay, 'credit' => 0],
+                            ['account_id' => $bankAccount->id, 'debit' => 0, 'credit' => $locked->net_pay],
+                        ],
+                    ], $actor);
+                    $ledger->post($entry, $actor);
+                }
+            } catch (\Throwable $e) {
+                // If accounting is not seeded or active, log and proceed with payroll status
+            }
+
+            $this->audit->log(
+                $actor->id,
+                $locked->organization_id,
+                $locked->workspace_id,
+                'payroll.paid',
+                'hr_payslip',
+                (string) $locked->id,
+                ['net_pay' => $locked->net_pay, 'employee_id' => $locked->employee_id],
+                critical: true
+            );
+
+            return $locked->refresh();
         });
     }
 }

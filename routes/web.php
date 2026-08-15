@@ -52,6 +52,7 @@ use App\Http\Controllers\TransferController;
 use App\Http\Controllers\UpdateController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\WebhookController;
+use App\Http\Middleware\EnsureTenantContext;
 use App\Http\Middleware\SuperAdminMiddleware;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
@@ -215,6 +216,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('salary-components', [HrmController::class, 'storeComponent'])->name('salary-components.store');
         Route::post('salary-components/assign', [HrmController::class, 'assignComponent'])->name('salary-components.assign');
         Route::post('payslips', [HrmController::class, 'generatePayslip'])->name('payslips.store');
+        Route::post('payslips/{payslip}/pay', [HrmController::class, 'payPayslip'])->name('payslips.pay');
         Route::post('appraisals', [HrmController::class, 'appraisal'])->name('appraisals.store');
         Route::post('documents', [HrmController::class, 'uploadDocument'])->name('documents.store');
         Route::get('documents/{document}/download', [HrmController::class, 'downloadDocument'])->name('documents.download');
@@ -229,9 +231,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('leads/{lead}/move', [CrmController::class, 'moveLead'])->name('leads.move');
         Route::post('leads/{lead}/convert', [CrmController::class, 'convertLead'])->name('leads.convert');
         Route::post('deals/{deal}/move', [CrmController::class, 'moveDeal'])->name('deals.move');
+        Route::post('webforms', [CrmController::class, 'storeWebform'])->name('webforms.store');
         Route::post('{type}/{id}/notes', [CrmController::class, 'addNote'])->name('notes.store');
         Route::post('{type}/{id}/activities', [CrmController::class, 'addActivity'])->name('activities.store');
     });
+    Route::post('crm/forms/{token}/submit', [CrmController::class, 'publicWebformSubmit'])->name('crm.webforms.submit')->withoutMiddleware([EnsureTenantContext::class]);
 
     Route::middleware('module.status:taskly')->prefix('taskly')->name('taskly.')->group(function () {
         Route::get('/', [TasklyController::class, 'index'])->name('index');

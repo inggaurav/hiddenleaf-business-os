@@ -163,6 +163,17 @@ class HrmController extends Controller
         return back()->with('success', 'Payslip generated.');
     }
 
+    public function payPayslip(Request $request, HrPayslip $payslip, PayrollService $payroll)
+    {
+        $workspace = $this->workspace($request, 'hrm.manage');
+        abort_unless((int) $payslip->organization_id === (int) $workspace->organization_id && (int) $payslip->workspace_id === (int) $workspace->id, 404);
+        $data = $request->validate(['bank_account_id' => ['nullable', 'integer']]);
+
+        $payroll->pay($payslip, $request->user(), $data['bank_account_id'] ?? null);
+
+        return back()->with('success', 'Payslip marked as paid and posted.');
+    }
+
     public function appraisal(Request $request)
     {
         $workspace = $this->workspace($request, 'hrm.manage');

@@ -3,14 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Domain\CRM\CrmDashboardService;
+use App\Models\AccountCustomer;
 use App\Models\CrmDeal;
 use App\Models\CrmLead;
 use App\Models\CrmPipeline;
 use App\Models\CrmStage;
+use App\Models\CrmWebform;
 use App\Models\Workspace;
 use HiddenLeaf\Kernel\Services\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
@@ -80,14 +83,135 @@ class CrmController extends Controller
         $workspace = $this->workspace($request, 'crm.manage');
         $this->tenant($lead, $workspace);
         abort_unless($lead->status === 'open', 422, 'Lead already converted or closed.');
-        $data = $request->validate(['name' => ['nullable', 'string'], 'value' => ['nullable', 'numeric', 'min:0'], 'expected_close_on' => ['nullable', 'date']]);
+        $data = $request->validate([
+            'name' => ['nullable', 'string'],
+            'value' => ['nullable', 'numeric', 'min:0'],
+            'expected_close_on' => ['nullable', 'date'],
+            'create_customer' => ['nullable', 'boolean'],
+        ]);
+
         DB::transaction(function () use ($lead, $data, $request, $workspace, $audit) {
-            $deal = CrmDeal::create(['organization_id' => $workspace->organization_id, 'workspace_id' => $workspace->id, 'lead_id' => $lead->id, 'pipeline_id' => $lead->pipeline_id, 'stage_id' => $lead->stage_id, 'assigned_to' => $lead->assigned_to, 'name' => $data['name'] ?? $lead->name, 'value' => $data['value'] ?? $lead->estimated_value, 'expected_close_on' => $data['expected_close_on'] ?? null, 'status' => 'open']);
+            $customer = null;
+            if (! empty($data['create_customer'])) {
+                $customer = AccountCustomer::forWorkspace($workspace->organization_id, $workspace->id)
+                    ->where('email', $lead->email)
+                    ->whereNotNull('email')
+                    ->first();
+
+                if (! $customer) {
+                    $customer = AccountCustomer::create([
+                        'organization_id' => $workspace->organization_id,
+                        'workspace_id' => $workspace->id,
+                        'customer_id' => strtoupper(substr(uniqid('CUST-'), -8)),
+                        'name' => $lead->name,
+                        'email' => $lead->email,
+                        'contact' => $lead->phone,
+                        'billing_name' => $lead->name,
+                        'is_active' => true,
+                        'created_by' => $request->user()->id,
+                    ]);
+                }
+            }
+
+            $deal = CrmDeal::create([
+                'organization_id' => $workspace->organization_id,
+                'workspace_id' => $workspace->id,
+                'lead_id' => $lead->id,
+                'pipeline_id' => $lead->pipeline_id,
+                'stage_id' => $lead->stage_id,
+                'assigned_to' => $lead->assigned_to,
+                'name' => $data['name'] ?? $lead->name,
+                'value' => $data['value'] ?? $lead->estimated_value,
+                'expected_close_on' => $data['expected_close_on'] ?? null,
+                'status' => 'open',
+            ]);
+
             $lead->update(['status' => 'converted', 'converted_at' => now()]);
-            $audit->log($request->user()->id, $workspace->organization_id, $workspace->id, 'lead.converted', 'crm_deal', (string) $deal->id, ['lead_id' => $lead->id], critical: true);
+            $audit->log($request->user()->id, $workspace->organization_id, $workspace->id, 'lead.converted', 'crm_deal', (string) $deal->id, [
+                'lead_id' => $lead->id,
+                'customer_id' => $customer?->id,
+            ], critical: true);
         });
 
-        return back()->with('success', 'Lead converted to deal.');
+        return back()->with('success', 'Lead converted successfully.');
+    }
+
+    public function storeWebform(Request $request)
+    {
+        $workspace = $this->workspace($request, 'crm.manage');
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'pipeline_id' => ['required', 'integer'],
+            'stage_id' => ['required', 'integer'],
+            'source_id' => ['nullable', 'integer'],
+            'assigned_to' => ['nullable', 'integer'],
+            'fields' => ['nullable', 'array'],
+        ]);
+
+        $this->pipelineStage($workspace, $data['pipeline_id'], $data['stage_id']);
+        $this->assignee($workspace, $data['assigned_to'] ?? null);
+
+        $webform = CrmWebform::create([
+            'organization_id' => $workspace->organization_id,
+            'workspace_id' => $workspace->id,
+            'name' => $data['name'],
+            'token' => Str::random(40),
+            'pipeline_id' => $data['pipeline_id'],
+            'stage_id' => $data['stage_id'],
+            'source_id' => $data['source_id'] ?? null,
+            'assigned_to' => $data['assigned_to'] ?? null,
+            'is_active' => true,
+            'fields' => $data['fields'] ?? ['name', 'email', 'phone', 'company', 'message'],
+            'created_by' => $request->user()->id,
+        ]);
+
+        return back()->with('success', 'CRM Webform created.');
+    }
+
+    public function publicWebformSubmit(Request $request, string $token)
+    {
+        $webform = CrmWebform::where('token', $token)->where('is_active', true)->firstOrFail();
+
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:50'],
+            'company' => ['nullable', 'string', 'max:255'],
+            'message' => ['nullable', 'string', 'max:2000'],
+            'estimated_value' => ['nullable', 'numeric', 'min:0'],
+            'hp_fax' => ['nullable', 'string', 'max:0'], // honeypot
+        ]);
+
+        $lead = CrmLead::create([
+            'organization_id' => $webform->organization_id,
+            'workspace_id' => $webform->workspace_id,
+            'pipeline_id' => $webform->pipeline_id,
+            'stage_id' => $webform->stage_id,
+            'source_id' => $webform->source_id,
+            'assigned_to' => $webform->assigned_to,
+            'name' => $data['name'],
+            'email' => $data['email'] ?? null,
+            'phone' => $data['phone'] ?? null,
+            'company' => $data['company'] ?? null,
+            'estimated_value' => $data['estimated_value'] ?? 0,
+            'status' => 'open',
+            'created_by' => null,
+        ]);
+
+        if (! empty($data['message'])) {
+            DB::table('crm_notes')->insert([
+                'organization_id' => $webform->organization_id,
+                'workspace_id' => $webform->workspace_id,
+                'subject_type' => $lead->getMorphClass(),
+                'subject_id' => $lead->id,
+                'body' => $data['message'],
+                'created_by' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        return response()->json(['status' => 'success', 'message' => 'Thank you for your submission. Our team will contact you soon.']);
     }
 
     public function moveDeal(Request $request, CrmDeal $deal, AuditLogger $audit)
