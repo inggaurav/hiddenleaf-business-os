@@ -69,6 +69,7 @@ class ModuleController extends Controller
         return Inertia::render('Modules/Index', [
             'modules' => $formattedModules,
             'isSuperAdmin' => $user->isSuperAdmin(),
+            'canManage' => $workspace ? $user->canInWorkspace('modules.manage', $workspace) : $user->isSuperAdmin(),
         ]);
     }
 
