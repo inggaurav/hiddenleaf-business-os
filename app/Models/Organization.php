@@ -31,6 +31,11 @@ class Organization extends Model
         return $this->belongsTo(User::class, 'owner_id');
     }
 
+    public function plan()
+    {
+        return $this->belongsTo(Plan::class, 'plan_id');
+    }
+
     public function workspaces()
     {
         return $this->hasMany(Workspace::class);
