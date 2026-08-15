@@ -26,7 +26,14 @@ class CreateDemoWorkspaceCommand extends Command
 
     /** @var array<int, string> */
     private const DEMO_MODULES = [
+<<<<<<< HEAD
         'account',
+=======
+        'core',
+        'account',
+        'sales',
+        'procurement',
+>>>>>>> origin/develop/addon-framework
         'crm',
         'lead',
         'hrm',
@@ -34,6 +41,11 @@ class CreateDemoWorkspaceCommand extends Command
         'pos',
         'taskly',
         'landingpage',
+<<<<<<< HEAD
+=======
+        'helpdesk',
+        'media',
+>>>>>>> origin/develop/addon-framework
         'communications',
         'automations',
         'missions',
@@ -68,7 +80,11 @@ class CreateDemoWorkspaceCommand extends Command
                         'name' => 'HiddenLeaf Demo Owner',
                         'email' => $email,
                         'password' => Hash::make($generatedPassword),
+<<<<<<< HEAD
                         'role' => 'user',
+=======
+                        'role' => 'company',
+>>>>>>> origin/develop/addon-framework
                         'is_active' => true,
                     ]);
                     $user->forceFill(['email_verified_at' => now()])->save();
@@ -77,7 +93,15 @@ class CreateDemoWorkspaceCommand extends Command
                     if (method_exists($user, 'trashed') && $user->trashed()) {
                         $user->restore();
                     }
+<<<<<<< HEAD
                     $user->forceFill(['is_active' => true, 'email_verified_at' => $user->email_verified_at ?: now()]);
+=======
+                    $user->forceFill([
+                        'is_active' => true,
+                        'email_verified_at' => $user->email_verified_at ?: now(),
+                        'role' => 'company',
+                    ]);
+>>>>>>> origin/develop/addon-framework
                     if (is_string($requestedPassword) && $requestedPassword !== '') {
                         $user->password = Hash::make($requestedPassword);
                     }
@@ -148,7 +172,6 @@ class CreateDemoWorkspaceCommand extends Command
                         'expires_at' => now()->addYears(10),
                     ]
                 );
-
                 foreach (self::DEMO_MODULES as $module) {
                     UserActiveModule::firstOrCreate([
                         'workspace_id' => $workspace->id,

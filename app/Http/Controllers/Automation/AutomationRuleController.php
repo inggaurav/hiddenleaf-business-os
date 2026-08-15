@@ -8,8 +8,10 @@ use App\Domain\Automation\Triggers\TriggerRegistry;
 use App\Http\Controllers\Controller;
 use App\Models\AutomationRule;
 use App\Models\AutomationRun;
+use App\Models\Workspace;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -25,6 +27,8 @@ class AutomationRuleController extends Controller
     {
         $user = $request->user();
         $wsId = $user->current_workspace_id;
+        $workspace = Workspace::query()->with('organization')->findOrFail($wsId);
+        $isSuperAdmin = method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin();
 
         $rules = AutomationRule::where('workspace_id', $wsId)->latest('id')->paginate(20);
         $recentRuns = AutomationRun::where('workspace_id', $wsId)->with('rule')->latest('id')->take(15)->get();
@@ -32,8 +36,8 @@ class AutomationRuleController extends Controller
         return Inertia::render('Automation/Index', [
             'rules' => $rules,
             'recentRuns' => $recentRuns,
-            'triggers' => array_values($this->triggerRegistry->all()),
-            'actions' => array_values($this->actionRegistry->all()),
+            'triggers' => array_values($this->triggerRegistry->availableFor($workspace, $isSuperAdmin)),
+            'actions' => array_values($this->actionRegistry->availableFor($workspace, $isSuperAdmin)),
         ]);
     }
 
@@ -51,10 +55,24 @@ class AutomationRuleController extends Controller
 
         $user = $request->user();
         $wsId = $user->current_workspace_id;
-        $orgId = $user->currentWorkspace?->organization_id;
+        $workspace = Workspace::query()->with('organization')->findOrFail($wsId);
+        $isSuperAdmin = method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin();
+        $availableTriggers = $this->triggerRegistry->availableFor($workspace, $isSuperAdmin);
+        $availableActions = $this->actionRegistry->availableFor($workspace, $isSuperAdmin);
+
+        if (! isset($availableTriggers[$validated['trigger_type']])) {
+            throw ValidationException::withMessages(['trigger_type' => 'This trigger is unavailable for the current workspace or plan.']);
+        }
+
+        foreach ($validated['action_config'] as $index => $action) {
+            $name = $action['action'] ?? $action['name'] ?? null;
+            if (! is_string($name) || ! isset($availableActions[$name])) {
+                throw ValidationException::withMessages(["action_config.{$index}" => 'This action is unavailable for the current workspace or plan.']);
+            }
+        }
 
         $rule = AutomationRule::create([
-            'organization_id' => $orgId,
+            'organization_id' => $workspace->organization_id,
             'workspace_id' => $wsId,
             'created_by' => $user->id,
             'name' => $validated['name'],
@@ -72,25 +90,15 @@ class AutomationRuleController extends Controller
     public function toggle(Request $request, int $id): JsonResponse
     {
         $user = $request->user();
-        $wsId = $user->current_workspace_id;
-
-        $rule = AutomationRule::where('workspace_id', $wsId)->where('id', $id)->firstOrFail();
+        $rule = AutomationRule::where('workspace_id', $user->current_workspace_id)->where('id', $id)->firstOrFail();
         $rule->update(['enabled' => ! $rule->enabled]);
-
         return response()->json(['success' => true, 'rule' => $rule]);
     }
 
     public function getRuns(Request $request, int $id): JsonResponse
     {
-        $user = $request->user();
-        $wsId = $user->current_workspace_id;
-
-        $runs = AutomationRun::where('workspace_id', $wsId)
-            ->where('rule_id', $id)
-            ->with('steps')
-            ->latest('id')
-            ->paginate(15);
-
+        $runs = AutomationRun::where('workspace_id', $request->user()->current_workspace_id)
+            ->where('rule_id', $id)->with('steps')->latest('id')->paginate(15);
         return response()->json($runs);
     }
 }

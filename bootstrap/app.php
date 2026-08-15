@@ -1,5 +1,6 @@
 <?php
 
+use App\Console\Commands\AccountingConcurrencyProbeCommand;
 use App\Console\Commands\CreateDemoWorkspaceCommand;
 use App\Console\Commands\InstallBusinessOs;
 use App\Console\Commands\ReconcileFinancialBalancesCommand;
@@ -30,6 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withCommands([
+        AccountingConcurrencyProbeCommand::class,
         CreateDemoWorkspaceCommand::class,
         InstallBusinessOs::class,
         ReconcileFinancialBalancesCommand::class,
