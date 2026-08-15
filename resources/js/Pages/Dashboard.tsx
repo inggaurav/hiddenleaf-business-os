@@ -32,6 +32,8 @@ import {
   Layers3,
 } from 'lucide-react';
 
+import { MrFoxPanel } from '@/Components/MrFox/MrFoxPanel';
+
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -44,6 +46,21 @@ export default function Dashboard() {
   const { auth, tenant, metrics, stats, analytics, recentLogs = [] } = usePage<any>().props;
   const user = auth?.user;
   const workspaceTitle = tenant?.workspace_title || 'Workspace';
+
+  const [insights, setInsights] = React.useState<any[]>([]);
+  const [isFoxOpen, setIsFoxOpen] = React.useState(false);
+  const [foxPrompt, setFoxPrompt] = React.useState('');
+
+  React.useEffect(() => {
+    fetch('/api/v1/mr-fox/insights')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.insights) {
+          setInsights(data.insights);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const userCount = metrics?.members ?? stats?.users ?? 0;
   const workspaceCount = metrics?.workspaces ?? stats?.workspaces ?? 0;
@@ -187,6 +204,84 @@ export default function Dashboard() {
             icon={<Store className="w-4 h-4 text-amber-400" />}
           />
         </div>
+
+        {/* Mr. Fox Executive Intelligence & Risk Signals */}
+        {insights.length > 0 && (
+          <Card level={1} className="border-purple-500/30 bg-purple-950/10 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-purple-500/20">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-purple-900/40 border border-purple-500/30 flex items-center justify-center">
+                  <MrFoxMark size={16} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white tracking-tight flex items-center gap-2">
+                    Mr. Fox Executive Intelligence & Signals
+                    <Badge variant="purple" size="sm">Live Grounded Signals</Badge>
+                  </h3>
+                </div>
+              </div>
+              <Button
+                variant="intelligence"
+                size="sm"
+                onClick={() => {
+                  setFoxPrompt('Review all outstanding business risks and recommendations');
+                  setIsFoxOpen(true);
+                }}
+                icon={<Sparkles className="w-3.5 h-3.5" />}
+              >
+                Ask Mr. Fox
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+              {insights.map((insight: any) => (
+                <div
+                  key={insight.id}
+                  className="p-3 rounded-xl bg-purple-950/20 border border-purple-500/20 space-y-2 flex flex-col justify-between"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-purple-200">{insight.title}</span>
+                      <span
+                        className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${
+                          insight.severity === 'warning'
+                            ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                            : insight.severity === 'positive'
+                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                            : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                        }`}
+                      >
+                        {insight.severity}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-300 leading-relaxed">{insight.summary}</p>
+                  </div>
+
+                  {/* Grounded Evidence Chips */}
+                  {insight.evidence && insight.evidence.length > 0 && (
+                    <div className="pt-2 border-t border-purple-500/10 space-y-1">
+                      <div className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">
+                        Evidence Sources:
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {insight.evidence.slice(0, 3).map((ev: any, idx: number) => (
+                          <Link
+                            key={idx}
+                            href={ev.route || '#'}
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-purple-900/30 hover:bg-purple-900/50 border border-purple-500/20 text-purple-300 transition-colors"
+                          >
+                            <span>{ev.label}</span>
+                            <ArrowUpRight className="w-2.5 h-2.5 text-gray-400" />
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
 
         {/* Financial Trajectory Graph & Pipeline Analytics */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -393,6 +488,14 @@ export default function Dashboard() {
           </Card>
         )}
       </div>
+
+      {/* Persistent Mr. Fox Intelligence Panel */}
+      <MrFoxPanel
+        isOpen={isFoxOpen}
+        onClose={() => setIsFoxOpen(false)}
+        initialPrompt={foxPrompt}
+        contextPage="Executive Dashboard"
+      />
     </AppShell>
   );
 }

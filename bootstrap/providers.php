@@ -8,4 +8,5 @@ return [
     AppServiceProvider::class,
     ModuleLoaderServiceProvider::class,
     SettingsServiceProvider::class,
+    \App\Providers\MrFoxServiceProvider::class,
 ];
