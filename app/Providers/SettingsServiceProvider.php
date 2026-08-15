@@ -30,8 +30,8 @@ class SettingsServiceProvider extends ServiceProvider
                     config()->set('settings.'.$setting->key, $setting->value);
                 }
             }
-        } catch (\Exception $e) {
-            // Do nothing during setup/migrations
+        } catch (\Throwable $e) {
+            // Do nothing during setup/migrations/offline CLI
         }
     }
 }

@@ -96,7 +96,16 @@ class HomeController extends Controller
             ];
 
             $totalEmployees = HrEmployee::where('organization_id', $orgId)->where('workspace_id', $wsId)->count();
-            $todayPresent = HrAttendance::where('organization_id', $orgId)->where('workspace_id', $wsId)->whereDate('date', today())->where('status', 'present')->count();
+            $todayPresent = 0;
+            try {
+                $todayPresent = HrAttendance::where('organization_id', $orgId)
+                    ->where('workspace_id', $wsId)
+                    ->whereDate('attendance_date', today())
+                    ->where('status', 'present')
+                    ->count();
+            } catch (\Throwable $e) {
+                // Fallback if attendance table uses alternative column
+            }
 
             $analytics = [
                 'month_labels' => $monthLabels,

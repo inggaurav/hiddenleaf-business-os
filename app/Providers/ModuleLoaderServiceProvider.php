@@ -23,13 +23,17 @@ class ModuleLoaderServiceProvider extends ServiceProvider
     {
         // Providers boot before tenant middleware/auth. Installed metadata is
         // registered globally; workspace and SaaS-plan access is enforced later.
-        if (Schema::hasTable('addons')) {
-            Addon::query()
-                ->whereIn(DB::raw('LOWER(status)'), ['installed', 'enabled', 'active'])
-                ->orderBy('id')
-                ->each(function (Addon $addon) use ($registry): void {
-                    $registry->register(new ManifestAddonModule($addon));
-                });
+        try {
+            if (Schema::hasTable('addons')) {
+                Addon::query()
+                    ->whereIn(DB::raw('LOWER(status)'), ['installed', 'enabled', 'active'])
+                    ->orderBy('id')
+                    ->each(function (Addon $addon) use ($registry): void {
+                        $registry->register(new ManifestAddonModule($addon));
+                    });
+            }
+        } catch (\Throwable $e) {
+            // Gracefully ignore if database connection is unavailable during early boot
         }
 
         // MrFox/Automation registries are registered by later providers, so wait

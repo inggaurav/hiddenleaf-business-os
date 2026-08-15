@@ -21,7 +21,11 @@ class AddonExtensionRegistrar
 
     public function register(): void
     {
-        if (! Schema::hasTable('addons')) {
+        try {
+            if (! Schema::hasTable('addons')) {
+                return;
+            }
+        } catch (\Throwable $e) {
             return;
         }
 

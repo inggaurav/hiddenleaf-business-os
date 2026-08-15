@@ -7,12 +7,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/crm/{section}', [ModuleSectionController::class, 'crm'])
-        ->where('section', 'leads|deals|pipelines|webforms|activities|notes')
+        ->where('section', 'leads|deals|pipelines|webforms|web-forms|activities|notes')
         ->middleware('module.status:lead')
         ->name('crm.section');
 
     Route::get('/hrm/{section}', [ModuleSectionController::class, 'hrm'])
-        ->where('section', 'employees|branches|departments|designations|shifts|attendance|leave-requests|leave-types|payroll|salary-components|appraisals|documents|holidays')
+        ->where('section', 'employees|branches|departments|designations|shifts|attendance|leave-requests|leaves|leave-types|payroll|salary-components|appraisals|documents|holidays')
         ->middleware('module.status:hrm')
         ->name('hrm.section');
 

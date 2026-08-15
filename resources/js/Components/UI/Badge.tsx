@@ -69,21 +69,24 @@ export const Badge: React.FC<BadgeProps> = ({
   );
 };
 
-export const StatusBadge: React.FC<BadgeProps & { status?: string }> = ({
+export const StatusBadge: React.FC<BadgeProps & { status?: any }> = ({
   status = 'active',
   children,
   variant,
   ...props
 }) => {
-  const norm = String(status).toLowerCase();
+  const str = typeof status === 'boolean'
+    ? (status ? 'active' : 'inactive')
+    : String(status ?? 'unknown');
+  const norm = str.toLowerCase();
   let computedVariant: BadgeVariant = variant || 'neutral';
 
   if (!variant) {
-    if (['active', 'paid', 'approved', 'completed', 'resolved', 'success', 'enabled', 'sent'].includes(norm)) {
+    if (['active', 'paid', 'approved', 'completed', 'resolved', 'success', 'enabled', 'sent', 'true'].includes(norm)) {
       computedVariant = 'success';
     } else if (['pending', 'processing', 'in_review', 'warning', 'trial'].includes(norm)) {
       computedVariant = 'warning';
-    } else if (['danger', 'rejected', 'failed', 'cancelled', 'overdue', 'lost', 'disabled'].includes(norm)) {
+    } else if (['danger', 'rejected', 'failed', 'cancelled', 'overdue', 'lost', 'disabled', 'inactive', 'false'].includes(norm)) {
       computedVariant = 'danger';
     } else if (['info', 'qualified', 'transferred', 'open'].includes(norm)) {
       computedVariant = 'info';
@@ -92,7 +95,7 @@ export const StatusBadge: React.FC<BadgeProps & { status?: string }> = ({
     }
   }
 
-  const displayLabel = children || status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ');
+  const displayLabel = children || (str.charAt(0).toUpperCase() + str.slice(1).replace(/_/g, ' '));
 
   return (
     <Badge variant={computedVariant} dot {...props}>

@@ -139,13 +139,15 @@ class DemoDataSeederService
                 'issue_date' => now()->subDays(20)->toDateString(),
                 'due_date' => now()->subDays(5)->toDateString(),
                 'total_amount' => 18500.00,
-                'status' => 'sent',
+                'status' => 1,
             ]);
 
             SalesInvoiceItem::updateOrCreate([
                 'invoice_id' => $invoice->id,
-                'item_id' => $item1->id,
             ], [
+                'item_id' => $item1->id,
+                'product_id' => $item1->id,
+                'item_name' => $item1->name,
                 'quantity' => 2,
                 'price' => 2500.00,
                 'total' => 5000.00,
@@ -160,7 +162,7 @@ class DemoDataSeederService
                 'purchase_date' => now()->subDays(12)->toDateString(),
                 'due_date' => now()->addDays(10)->toDateString(),
                 'total_amount' => 4200.00,
-                'status' => 'posted',
+                'status' => 1,
                 'created_by' => $user->id,
             ]);
 
@@ -253,7 +255,7 @@ class DemoDataSeederService
             ], [
                 'stage_id' => $taskStage->id,
                 'priority' => 'high',
-                'due_date' => now()->subDays(2)->toDateString(),
+                'due_on' => now()->subDays(2)->toDateString(),
             ]);
 
             return [
@@ -287,9 +289,13 @@ class DemoDataSeederService
             $deleted += TasklyTask::where('workspace_id', $wsId)
                 ->where('title', 'like', '[DEMO]%')
                 ->delete();
-            $deleted += TasklyProject::where('workspace_id', $wsId)
+            $projIds = TasklyProject::where('workspace_id', $wsId)
                 ->where('name', 'like', '[DEMO]%')
-                ->delete();
+                ->pluck('id');
+            if ($projIds->isNotEmpty()) {
+                TasklyStage::whereIn('project_id', $projIds)->delete();
+                $deleted += TasklyProject::whereIn('id', $projIds)->delete();
+            }
 
             $invoiceIds = SalesInvoice::where('workspace_id', $wsId)
                 ->where('invoice_id', 'like', 'INV-DEMO-%')

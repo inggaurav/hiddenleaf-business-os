@@ -26,6 +26,11 @@ class ModuleSectionController extends Controller
 {
     public function crm(Request $request, string $section)
     {
+        $section = match ($section) {
+            'web-forms' => 'webforms',
+            default => $section,
+        };
+
         $workspace = $this->workspace($request, 'crm.view');
         $org = $workspace->organization_id;
         $ws = $workspace->id;
@@ -52,6 +57,11 @@ class ModuleSectionController extends Controller
 
     public function hrm(Request $request, string $section)
     {
+        $section = match ($section) {
+            'leaves' => 'leave-requests',
+            default => $section,
+        };
+
         $workspace = $this->workspace($request, 'hrm.view');
         $org = $workspace->organization_id;
         $ws = $workspace->id;

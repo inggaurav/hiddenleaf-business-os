@@ -1,0 +1,1161 @@
+{
+  "superadmin": [
+    {
+      "role": "superadmin",
+      "module": "core",
+      "parent": null,
+      "label": "Dashboard",
+      "route": "dashboard",
+      "permission": "manage-dashboard",
+      "children": []
+    },
+    {
+      "role": "superadmin",
+      "module": "core",
+      "parent": null,
+      "label": "Users",
+      "route": "users.index",
+      "permission": "manage-users",
+      "children": []
+    },
+    {
+      "role": "superadmin",
+      "module": "landingpage",
+      "parent": null,
+      "label": "Landing Page",
+      "route": "landing-page.index",
+      "permission": "manage-landing-page",
+      "children": []
+    },
+    {
+      "role": "superadmin",
+      "module": "helpdesk",
+      "parent": null,
+      "label": "Helpdesk",
+      "route": null,
+      "permission": "manage-helpdesk-tickets",
+      "children": [
+        {
+          "role": "superadmin",
+          "module": "helpdesk",
+          "parent": "Helpdesk",
+          "label": "Today's Tickets",
+          "route": "helpdesk-tickets.today",
+          "permission": "manage-any-helpdesk-tickets",
+          "children": []
+        },
+        {
+          "role": "superadmin",
+          "module": "helpdesk",
+          "parent": "Helpdesk",
+          "label": "All Tickets",
+          "route": "helpdesk-tickets.index",
+          "permission": "manage-any-helpdesk-tickets",
+          "children": []
+        },
+        {
+          "role": "superadmin",
+          "module": "helpdesk",
+          "parent": "Helpdesk",
+          "label": "Categories",
+          "route": "helpdesk-categories.index",
+          "permission": "manage-helpdesk-categories",
+          "children": []
+        }
+      ]
+    },
+    {
+      "role": "superadmin",
+      "module": "subscription",
+      "parent": null,
+      "label": "Subscription",
+      "route": null,
+      "permission": "manage-plans",
+      "children": [
+        {
+          "role": "superadmin",
+          "module": "subscription",
+          "parent": "Subscription",
+          "label": "Subscription Setting",
+          "route": "plans.index",
+          "permission": "manage-plans",
+          "children": []
+        },
+        {
+          "role": "superadmin",
+          "module": "subscription",
+          "parent": "Subscription",
+          "label": "Coupons",
+          "route": "coupons.index",
+          "permission": "manage-coupons",
+          "children": []
+        },
+        {
+          "role": "superadmin",
+          "module": "subscription",
+          "parent": "Subscription",
+          "label": "Bank Transfer Requests",
+          "route": "bank-transfer.index",
+          "permission": "manage-bank-transfer-requests",
+          "children": []
+        },
+        {
+          "role": "superadmin",
+          "module": "subscription",
+          "parent": "Subscription",
+          "label": "Orders",
+          "route": "orders.index",
+          "permission": "manage-orders",
+          "children": []
+        }
+      ]
+    },
+    {
+      "role": "superadmin",
+      "module": "core",
+      "parent": null,
+      "label": "Email Templates",
+      "route": "email-templates.index",
+      "permission": "manage-email-templates",
+      "children": []
+    },
+    {
+      "role": "superadmin",
+      "module": "core",
+      "parent": null,
+      "label": "Notification Templates",
+      "route": "notification-templates.index",
+      "permission": "manage-notification-templates",
+      "children": []
+    },
+    {
+      "role": "superadmin",
+      "module": "core",
+      "parent": null,
+      "label": "Media Library",
+      "route": "media-library",
+      "permission": "manage-media",
+      "children": []
+    },
+    {
+      "role": "superadmin",
+      "module": "core",
+      "parent": null,
+      "label": "Add-ons Manager",
+      "route": "add-ons.index",
+      "permission": "manage-add-on",
+      "children": []
+    },
+    {
+      "role": "superadmin",
+      "module": "core",
+      "parent": null,
+      "label": "Settings",
+      "route": "settings.index",
+      "permission": "manage-settings",
+      "children": []
+    }
+  ],
+  "company": [
+    {
+      "role": "company",
+      "module": "core",
+      "parent": null,
+      "label": "Dashboard",
+      "name": "dashboard",
+      "route": "dashboard",
+      "permission": "manage-dashboard",
+      "children": [
+        {
+          "role": "company",
+          "module": "taskly",
+          "parent": "dashboard",
+          "label": "Project Dashboard",
+          "route": "project.dashboard.index",
+          "permission": "manage-project-dashboard",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "hrm",
+          "parent": "dashboard",
+          "label": "HRM Dashboard",
+          "route": "hrm.index",
+          "permission": "manage-hrm-dashboard",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "pos",
+          "parent": "dashboard",
+          "label": "POS Dashboard",
+          "route": "pos.index",
+          "permission": "manage-pos-dashboard",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "lead",
+          "parent": "dashboard",
+          "label": "CRM Dashboard",
+          "route": "lead.index",
+          "permission": "manage-crm-dashboard",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "account",
+          "parent": "dashboard",
+          "label": "Accounting Dashboard",
+          "route": "account.index",
+          "permission": "manage-account-dashboard",
+          "children": []
+        }
+      ]
+    },
+    {
+      "role": "company",
+      "module": "core",
+      "parent": null,
+      "label": "User Management",
+      "route": null,
+      "permission": "manage-users",
+      "children": [
+        {
+          "role": "company",
+          "module": "core",
+          "parent": "User Management",
+          "label": "Roles",
+          "route": "roles.index",
+          "permission": "manage-roles",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "core",
+          "parent": "User Management",
+          "label": "Users",
+          "route": "users.index",
+          "permission": "manage-users",
+          "children": []
+        }
+      ]
+    },
+    {
+      "role": "company",
+      "module": "sales",
+      "parent": null,
+      "label": "Proposal",
+      "route": "sales-proposals.index",
+      "permission": "manage-sales-proposals",
+      "children": []
+    },
+    {
+      "role": "company",
+      "module": "sales",
+      "parent": null,
+      "label": "Sales Invoice",
+      "route": null,
+      "permission": "manage-sales-invoices",
+      "children": [
+        {
+          "role": "company",
+          "module": "sales",
+          "parent": "Sales Invoice",
+          "label": "Sales Invoice",
+          "route": "sales-invoices.index",
+          "permission": "manage-sales-invoices",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "sales",
+          "parent": "Sales Invoice",
+          "label": "Sales Invoice Returns",
+          "route": "sales-returns.index",
+          "permission": "manage-sales-return-invoices",
+          "children": []
+        }
+      ]
+    },
+    {
+      "role": "company",
+      "module": "procurement",
+      "parent": null,
+      "label": "Purchase",
+      "route": null,
+      "permission": "manage-purchase-invoices",
+      "children": [
+        {
+          "role": "company",
+          "module": "procurement",
+          "parent": "Purchase",
+          "label": "Purchase Invoice",
+          "route": "purchase-invoices.index",
+          "permission": "manage-purchase-invoices",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "procurement",
+          "parent": "Purchase",
+          "label": "Purchase Returns",
+          "route": "purchase-returns.index",
+          "permission": "manage-purchase-return-invoices",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "procurement",
+          "parent": "Purchase",
+          "label": "Warehouses",
+          "route": "warehouses.index",
+          "permission": "manage-warehouses",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "procurement",
+          "parent": "Purchase",
+          "label": "Transfers",
+          "route": "transfers.index",
+          "permission": "manage-transfers",
+          "children": []
+        }
+      ]
+    },
+    {
+      "role": "company",
+      "module": "account",
+      "parent": null,
+      "label": "Accounting",
+      "route": null,
+      "permission": "manage-account",
+      "children": [
+        {
+          "role": "company",
+          "module": "account",
+          "parent": "Accounting",
+          "label": "Banking",
+          "route": null,
+          "permission": "manage-bank-accounts",
+          "children": [
+            {
+              "role": "company",
+              "module": "account",
+              "parent": "Banking",
+              "label": "Bank Accounts",
+              "route": "account.bank-accounts.index",
+              "permission": "manage-bank-accounts",
+              "children": []
+            },
+            {
+              "role": "company",
+              "module": "account",
+              "parent": "Banking",
+              "label": "Bank Transactions",
+              "route": "account.bank-transactions.index",
+              "permission": "manage-bank-transactions",
+              "children": []
+            },
+            {
+              "role": "company",
+              "module": "account",
+              "parent": "Banking",
+              "label": "Bank Transfers",
+              "route": "account.bank-transfers.index",
+              "permission": "manage-bank-transfers",
+              "children": []
+            }
+          ]
+        },
+        {
+          "role": "company",
+          "module": "account",
+          "parent": "Accounting",
+          "label": "Chart Of Accounts",
+          "route": "account.chart-of-accounts.index",
+          "permission": "manage-chart-of-accounts",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "account",
+          "parent": "Accounting",
+          "label": "Vendor Payments",
+          "route": "account.vendor-payments.index",
+          "permission": "manage-vendor-payments",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "account",
+          "parent": "Accounting",
+          "label": "Customer Payments",
+          "route": "account.customer-payments.index",
+          "permission": "manage-customer-payments",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "account",
+          "parent": "Accounting",
+          "label": "Revenue",
+          "route": "account.revenues.index",
+          "permission": "manage-revenues",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "account",
+          "parent": "Accounting",
+          "label": "Expense",
+          "route": "account.expenses.index",
+          "permission": "manage-expenses",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "account",
+          "parent": "Accounting",
+          "label": "Debit Notes",
+          "route": "account.debit-notes.index",
+          "permission": "manage-debit-notes",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "account",
+          "parent": "Accounting",
+          "label": "Credit Notes",
+          "route": "account.credit-notes.index",
+          "permission": "manage-credit-notes",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "account",
+          "parent": "Accounting",
+          "label": "Reports",
+          "route": "account.reports.index",
+          "permission": "manage-account-reports",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "account",
+          "parent": "Accounting",
+          "label": "System Setup",
+          "route": "account.account-types.index",
+          "permission": "manage-account-types",
+          "children": []
+        }
+      ]
+    },
+    {
+      "role": "company",
+      "module": "taskly",
+      "parent": null,
+      "label": "Project",
+      "route": null,
+      "permission": "manage-project",
+      "children": [
+        {
+          "role": "company",
+          "module": "taskly",
+          "parent": "Project",
+          "label": "Projects",
+          "route": "project.index",
+          "permission": "manage-project",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "taskly",
+          "parent": "Project",
+          "label": "Project Payments",
+          "route": "project-payments.index",
+          "permission": "manage-project-payments",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "taskly",
+          "parent": "Project",
+          "label": "Projects Report",
+          "route": "project.report.index",
+          "permission": "manage-project-report",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "taskly",
+          "parent": "Project",
+          "label": "System Setup",
+          "route": "project.task-stages.index",
+          "permission": "manage-task-stages",
+          "children": []
+        }
+      ]
+    },
+    {
+      "role": "company",
+      "module": "hrm",
+      "parent": null,
+      "label": "HRM",
+      "route": null,
+      "permission": "manage-hrm",
+      "children": [
+        {
+          "role": "company",
+          "module": "hrm",
+          "parent": "HRM",
+          "label": "Employees",
+          "route": "hrm.employees.index",
+          "permission": "manage-employees",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "hrm",
+          "parent": "HRM",
+          "label": "Payslip",
+          "route": null,
+          "permission": "manage-payrolls",
+          "children": [
+            {
+              "role": "company",
+              "module": "hrm",
+              "parent": "Payslip",
+              "label": "Set Salary",
+              "route": "hrm.set-salary.index",
+              "permission": "manage-set-salary",
+              "children": []
+            },
+            {
+              "role": "company",
+              "module": "hrm",
+              "parent": "Payslip",
+              "label": "Payroll",
+              "route": "hrm.payrolls.index",
+              "permission": "manage-payrolls",
+              "children": []
+            }
+          ]
+        },
+        {
+          "role": "company",
+          "module": "hrm",
+          "parent": "HRM",
+          "label": "Attendance",
+          "route": null,
+          "permission": "manage-attendances",
+          "children": [
+            {
+              "role": "company",
+              "module": "hrm",
+              "parent": "Attendance",
+              "label": "Shifts",
+              "route": "hrm.shifts.index",
+              "permission": "manage-shifts",
+              "children": []
+            },
+            {
+              "role": "company",
+              "module": "hrm",
+              "parent": "Attendance",
+              "label": "Attendances",
+              "route": "hrm.attendances.index",
+              "permission": "manage-attendances",
+              "children": []
+            }
+          ]
+        },
+        {
+          "role": "company",
+          "module": "hrm",
+          "parent": "HRM",
+          "label": "Leave Management",
+          "route": null,
+          "permission": "manage-leave-applications",
+          "children": [
+            {
+              "role": "company",
+              "module": "hrm",
+              "parent": "Leave Management",
+              "label": "Leave Types",
+              "route": "hrm.leave-types.index",
+              "permission": "manage-leave-types",
+              "children": []
+            },
+            {
+              "role": "company",
+              "module": "hrm",
+              "parent": "Leave Management",
+              "label": "Leave Applications",
+              "route": "hrm.leave-applications.calendar",
+              "permission": "manage-leave-applications",
+              "children": []
+            },
+            {
+              "role": "company",
+              "module": "hrm",
+              "parent": "Leave Management",
+              "label": "Leave Balance",
+              "route": "hrm.leave-balance.index",
+              "permission": "manage-leave-balance",
+              "children": []
+            }
+          ]
+        },
+        {
+          "role": "company",
+          "module": "hrm",
+          "parent": "HRM",
+          "label": "Holidays",
+          "route": "hrm.holidays.index",
+          "permission": "manage-holidays",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "hrm",
+          "parent": "HRM",
+          "label": "Awards",
+          "route": "hrm.awards.index",
+          "permission": "manage-awards",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "hrm",
+          "parent": "HRM",
+          "label": "Promotions",
+          "route": "hrm.promotions.index",
+          "permission": "manage-promotions",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "hrm",
+          "parent": "HRM",
+          "label": "Resignations",
+          "route": "hrm.resignations.index",
+          "permission": "manage-resignations",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "hrm",
+          "parent": "HRM",
+          "label": "Terminations",
+          "route": "hrm.terminations.index",
+          "permission": "manage-terminations",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "hrm",
+          "parent": "HRM",
+          "label": "Warnings",
+          "route": "hrm.warnings.index",
+          "permission": "manage-warnings",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "hrm",
+          "parent": "HRM",
+          "label": "Complaints",
+          "route": "hrm.complaints.index",
+          "permission": "manage-complaints",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "hrm",
+          "parent": "HRM",
+          "label": "Transfers",
+          "route": "hrm.employee-transfers.index",
+          "permission": "manage-employee-transfers",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "hrm",
+          "parent": "HRM",
+          "label": "Documents",
+          "route": "hrm.documents.index",
+          "permission": "manage-hrm-documents",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "hrm",
+          "parent": "HRM",
+          "label": "Acknowledgments",
+          "route": "hrm.acknowledgments.index",
+          "permission": "manage-acknowledgments",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "hrm",
+          "parent": "HRM",
+          "label": "Announcements",
+          "route": "hrm.announcements.index",
+          "permission": "manage-announcements",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "hrm",
+          "parent": "HRM",
+          "label": "Events",
+          "route": "hrm.events.index",
+          "permission": "manage-events",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "hrm",
+          "parent": "HRM",
+          "label": "Company Policies",
+          "route": "hrm.company-policies.index",
+          "permission": "manage-company-policies",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "hrm",
+          "parent": "HRM",
+          "label": "System Setup",
+          "route": "hrm.branches.index",
+          "permission": "manage-branches",
+          "children": []
+        }
+      ]
+    },
+    {
+      "role": "company",
+      "module": "pos",
+      "parent": null,
+      "label": "POS",
+      "route": null,
+      "permission": "manage-pos",
+      "children": [
+        {
+          "role": "company",
+          "module": "pos",
+          "parent": "POS",
+          "label": "Add POS",
+          "route": "pos.create",
+          "permission": "create-pos",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "pos",
+          "parent": "POS",
+          "label": "POS Orders",
+          "route": "pos.orders",
+          "permission": "manage-pos-orders",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "pos",
+          "parent": "POS",
+          "label": "POS Returns",
+          "route": "pos.returns.index",
+          "permission": "manage-pos-returns",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "pos",
+          "parent": "POS",
+          "label": "Print Barcode",
+          "route": "pos.barcode",
+          "permission": "manage-pos-barcodes",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "pos",
+          "parent": "POS",
+          "label": "Billing Counters",
+          "route": "pos.billing-counters",
+          "permission": "manage-pos-billing-counters",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "pos",
+          "parent": "POS",
+          "label": "Discounts",
+          "route": "pos.discounts.index",
+          "permission": "manage-pos-discounts",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "pos",
+          "parent": "POS",
+          "label": "Reports",
+          "route": null,
+          "permission": "manage-pos-reports",
+          "children": [
+            {
+              "role": "company",
+              "module": "pos",
+              "parent": "Reports",
+              "label": "Sales Report",
+              "route": "pos.reports.sales",
+              "permission": "view-pos-reports",
+              "children": []
+            },
+            {
+              "role": "company",
+              "module": "pos",
+              "parent": "Reports",
+              "label": "Product Report",
+              "route": "pos.reports.products",
+              "permission": "view-pos-reports",
+              "children": []
+            },
+            {
+              "role": "company",
+              "module": "pos",
+              "parent": "Reports",
+              "label": "Customer Report",
+              "route": "pos.reports.customers",
+              "permission": "view-pos-reports",
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "company",
+      "module": "lead",
+      "parent": null,
+      "label": "CRM",
+      "route": null,
+      "permission": "manage-leads",
+      "children": [
+        {
+          "role": "company",
+          "module": "lead",
+          "parent": "CRM",
+          "label": "Leads",
+          "route": "lead.leads.index",
+          "permission": "manage-leads",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "lead",
+          "parent": "CRM",
+          "label": "Deals",
+          "route": "lead.deals.index",
+          "permission": "manage-deals",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "lead",
+          "parent": "CRM",
+          "label": "System Setup",
+          "route": "lead.pipelines.index",
+          "permission": "manage-pipelines",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "lead",
+          "parent": "CRM",
+          "label": "Reports",
+          "route": "lead.reports.index",
+          "permission": "view-reports",
+          "children": [
+            {
+              "role": "company",
+              "module": "lead",
+              "parent": "Reports",
+              "label": "Lead Reports",
+              "route": "lead.reports.leads",
+              "permission": "view-reports",
+              "children": []
+            },
+            {
+              "role": "company",
+              "module": "lead",
+              "parent": "Reports",
+              "label": "Deal Reports",
+              "route": "lead.reports.deals",
+              "permission": "view-reports",
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "company",
+      "module": "core",
+      "parent": null,
+      "label": "Media Library",
+      "route": "media-library",
+      "permission": "manage-media",
+      "children": []
+    },
+    {
+      "role": "company",
+      "module": "core",
+      "parent": null,
+      "label": "Messenger",
+      "route": "messenger.index",
+      "permission": "manage-messenger",
+      "children": []
+    },
+    {
+      "role": "company",
+      "module": "core",
+      "parent": null,
+      "label": "AI Agent",
+      "route": "ai-agent.chat.page",
+      "permission": "manage-ai-agent",
+      "children": []
+    },
+    {
+      "role": "company",
+      "module": "core",
+      "parent": null,
+      "label": "Helpdesk",
+      "route": "helpdesk-tickets.index",
+      "permission": "manage-helpdesk-tickets",
+      "children": []
+    },
+    {
+      "role": "company",
+      "module": "core",
+      "parent": null,
+      "label": "Plan",
+      "route": null,
+      "permission": "manage-plans",
+      "children": [
+        {
+          "role": "company",
+          "module": "core",
+          "parent": "Plan",
+          "label": "Setup Subscription Plan",
+          "route": "plans.index",
+          "permission": "manage-plans",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "core",
+          "parent": "Plan",
+          "label": "Bank Transfer Requests",
+          "route": "bank-transfer.index",
+          "permission": "manage-bank-transfer-requests",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "core",
+          "parent": "Plan",
+          "label": "Orders",
+          "route": "orders.index",
+          "permission": "manage-orders",
+          "children": []
+        }
+      ]
+    },
+    {
+      "role": "company",
+      "module": "core",
+      "parent": null,
+      "label": "Settings",
+      "route": "settings.index",
+      "permission": "manage-settings",
+      "children": [
+        {
+          "role": "company",
+          "module": "productservice",
+          "parent": "Settings",
+          "label": "Product & Service",
+          "route": null,
+          "permission": "manage-product-service-item",
+          "children": [
+            {
+              "role": "company",
+              "module": "productservice",
+              "parent": "Product & Service",
+              "label": "Items",
+              "route": "product-service.items.index",
+              "permission": "manage-product-service-item",
+              "children": []
+            },
+            {
+              "role": "company",
+              "module": "productservice",
+              "parent": "Product & Service",
+              "label": "System Setup",
+              "route": "product-service.item-categories.index",
+              "permission": "manage-product-service-item",
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "team": [
+    {
+      "role": "company",
+      "module": "core",
+      "parent": null,
+      "label": "Dashboard",
+      "name": "dashboard",
+      "route": "dashboard",
+      "permission": "manage-dashboard",
+      "children": [
+        {
+          "role": "company",
+          "module": "taskly",
+          "parent": "dashboard",
+          "label": "Project Dashboard",
+          "route": "project.dashboard.index",
+          "permission": "manage-project-dashboard",
+          "children": []
+        }
+      ]
+    },
+    {
+      "role": "company",
+      "module": "taskly",
+      "parent": null,
+      "label": "Project",
+      "route": null,
+      "permission": "manage-project",
+      "children": [
+        {
+          "role": "company",
+          "module": "taskly",
+          "parent": "Project",
+          "label": "Projects",
+          "route": "project.index",
+          "permission": "manage-project",
+          "children": []
+        }
+      ]
+    },
+    {
+      "role": "company",
+      "module": "hrm",
+      "parent": null,
+      "label": "HRM",
+      "route": null,
+      "permission": "manage-hrm",
+      "children": [
+        {
+          "role": "company",
+          "module": "hrm",
+          "parent": "HRM",
+          "label": "Employees",
+          "route": "hrm.employees.index",
+          "permission": "manage-employees",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "hrm",
+          "parent": "HRM",
+          "label": "Attendance",
+          "route": null,
+          "permission": "manage-attendances",
+          "children": [
+            {
+              "role": "company",
+              "module": "hrm",
+              "parent": "Attendance",
+              "label": "Attendances",
+              "route": "hrm.attendances.index",
+              "permission": "manage-attendances",
+              "children": []
+            }
+          ]
+        },
+        {
+          "role": "company",
+          "module": "hrm",
+          "parent": "HRM",
+          "label": "Leave Management",
+          "route": null,
+          "permission": "manage-leave-applications",
+          "children": [
+            {
+              "role": "company",
+              "module": "hrm",
+              "parent": "Leave Management",
+              "label": "Leave Applications",
+              "route": "hrm.leave-applications.calendar",
+              "permission": "manage-leave-applications",
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "company",
+      "module": "lead",
+      "parent": null,
+      "label": "CRM",
+      "route": null,
+      "permission": "manage-leads",
+      "children": [
+        {
+          "role": "company",
+          "module": "lead",
+          "parent": "CRM",
+          "label": "Leads",
+          "route": "lead.leads.index",
+          "permission": "manage-leads",
+          "children": []
+        },
+        {
+          "role": "company",
+          "module": "lead",
+          "parent": "CRM",
+          "label": "Deals",
+          "route": "lead.deals.index",
+          "permission": "manage-deals",
+          "children": []
+        }
+      ]
+    },
+    {
+      "role": "company",
+      "module": "core",
+      "parent": null,
+      "label": "Media Library",
+      "route": "media-library",
+      "permission": "manage-media",
+      "children": []
+    },
+    {
+      "role": "company",
+      "module": "core",
+      "parent": null,
+      "label": "Messenger",
+      "route": "messenger.index",
+      "permission": "manage-messenger",
+      "children": []
+    }
+  ]
+}

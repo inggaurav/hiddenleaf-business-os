@@ -1,0 +1,94 @@
+role,module,parent_menu,child_menu,screen,route,permission,workdo_backend,workdo_ui,hiddenleaf_backend,hiddenleaf_ui,workdo_behavior,hiddenleaf_behavior,status,notes
+company,core,Root,Dashboard,Dashboard,dashboard,manage-dashboard,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,taskly,dashboard,Project Dashboard,Project Dashboard,project.dashboard.index,manage-project-dashboard,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,hrm,dashboard,HRM Dashboard,HRM Dashboard,hrm.index,manage-hrm-dashboard,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,pos,dashboard,POS Dashboard,POS Dashboard,pos.index,manage-pos-dashboard,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,lead,dashboard,CRM Dashboard,CRM Dashboard,lead.index,manage-crm-dashboard,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,account,dashboard,Accounting Dashboard,Accounting Dashboard,account.index,manage-account-dashboard,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,core,Root,User Management,User Management,N/A,manage-users,YES,YES,YES,NO,Nested expandable menu item,Rendered in sidebar,MISSING_NAVIGATION,Audited against WorkDo reference
+company,core,User Management,Roles,Roles,roles.index,manage-roles,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,core,User Management,Users,Users,users.index,manage-users,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,sales,Root,Proposal,Proposal,sales-proposals.index,manage-sales-proposals,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,sales,Root,Sales Invoice,Sales Invoice,N/A,manage-sales-invoices,YES,YES,YES,NO,Nested expandable menu item,Rendered in sidebar,MISSING_NAVIGATION,Audited against WorkDo reference
+company,sales,Sales Invoice,Sales Invoice,Sales Invoice,sales-invoices.index,manage-sales-invoices,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,sales,Sales Invoice,Sales Invoice Returns,Sales Invoice Returns,sales-returns.index,manage-sales-return-invoices,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,procurement,Root,Purchase,Purchase,N/A,manage-purchase-invoices,YES,YES,YES,NO,Nested expandable menu item,Rendered in sidebar,MISSING_NAVIGATION,Audited against WorkDo reference
+company,procurement,Purchase,Purchase Invoice,Purchase Invoice,purchase-invoices.index,manage-purchase-invoices,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,procurement,Purchase,Purchase Returns,Purchase Returns,purchase-returns.index,manage-purchase-return-invoices,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,procurement,Purchase,Warehouses,Warehouses,warehouses.index,manage-warehouses,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,procurement,Purchase,Transfers,Transfers,transfers.index,manage-transfers,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,account,Root,Accounting,Accounting,N/A,manage-account,YES,YES,YES,NO,Nested expandable menu item,Rendered in sidebar,MISSING_NAVIGATION,Audited against WorkDo reference
+company,account,Accounting,Banking,Banking,N/A,manage-bank-accounts,YES,YES,YES,NO,Nested expandable menu item,Rendered in sidebar,MISSING_NAVIGATION,Audited against WorkDo reference
+company,account,Banking,Bank Accounts,Bank Accounts,account.bank-accounts.index,manage-bank-accounts,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,account,Banking,Bank Transactions,Bank Transactions,account.bank-transactions.index,manage-bank-transactions,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,account,Banking,Bank Transfers,Bank Transfers,account.bank-transfers.index,manage-bank-transfers,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,account,Accounting,Chart Of Accounts,Chart Of Accounts,account.chart-of-accounts.index,manage-chart-of-accounts,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,account,Accounting,Vendor Payments,Vendor Payments,account.vendor-payments.index,manage-vendor-payments,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,account,Accounting,Customer Payments,Customer Payments,account.customer-payments.index,manage-customer-payments,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,account,Accounting,Revenue,Revenue,account.revenues.index,manage-revenues,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,account,Accounting,Expense,Expense,account.expenses.index,manage-expenses,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,account,Accounting,Debit Notes,Debit Notes,account.debit-notes.index,manage-debit-notes,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,account,Accounting,Credit Notes,Credit Notes,account.credit-notes.index,manage-credit-notes,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,account,Accounting,Reports,Reports,account.reports.index,manage-account-reports,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,account,Accounting,System Setup,System Setup,account.account-types.index,manage-account-types,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,taskly,Root,Project,Project,N/A,manage-project,YES,YES,YES,NO,Nested expandable menu item,Rendered in sidebar,MISSING_NAVIGATION,Audited against WorkDo reference
+company,taskly,Project,Projects,Projects,project.index,manage-project,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,taskly,Project,Project Payments,Project Payments,project-payments.index,manage-project-payments,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,taskly,Project,Projects Report,Projects Report,project.report.index,manage-project-report,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,taskly,Project,System Setup,System Setup,project.task-stages.index,manage-task-stages,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,hrm,Root,HRM,HRM,N/A,manage-hrm,YES,YES,YES,NO,Nested expandable menu item,Rendered in sidebar,MISSING_NAVIGATION,Audited against WorkDo reference
+company,hrm,HRM,Employees,Employees,hrm.employees.index,manage-employees,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,hrm,HRM,Payslip,Payslip,N/A,manage-payrolls,YES,YES,YES,NO,Nested expandable menu item,Rendered in sidebar,MISSING_NAVIGATION,Audited against WorkDo reference
+company,hrm,Payslip,Set Salary,Set Salary,hrm.set-salary.index,manage-set-salary,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,hrm,Payslip,Payroll,Payroll,hrm.payrolls.index,manage-payrolls,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,hrm,HRM,Attendance,Attendance,N/A,manage-attendances,YES,YES,YES,NO,Nested expandable menu item,Rendered in sidebar,MISSING_NAVIGATION,Audited against WorkDo reference
+company,hrm,Attendance,Shifts,Shifts,hrm.shifts.index,manage-shifts,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,hrm,Attendance,Attendances,Attendances,hrm.attendances.index,manage-attendances,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,hrm,HRM,Leave Management,Leave Management,N/A,manage-leave-applications,YES,YES,YES,NO,Nested expandable menu item,Rendered in sidebar,MISSING_NAVIGATION,Audited against WorkDo reference
+company,hrm,Leave Management,Leave Types,Leave Types,hrm.leave-types.index,manage-leave-types,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,hrm,Leave Management,Leave Applications,Leave Applications,hrm.leave-applications.calendar,manage-leave-applications,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,hrm,Leave Management,Leave Balance,Leave Balance,hrm.leave-balance.index,manage-leave-balance,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,hrm,HRM,Holidays,Holidays,hrm.holidays.index,manage-holidays,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,hrm,HRM,Awards,Awards,hrm.awards.index,manage-awards,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,hrm,HRM,Promotions,Promotions,hrm.promotions.index,manage-promotions,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,hrm,HRM,Resignations,Resignations,hrm.resignations.index,manage-resignations,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,hrm,HRM,Terminations,Terminations,hrm.terminations.index,manage-terminations,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,hrm,HRM,Warnings,Warnings,hrm.warnings.index,manage-warnings,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,hrm,HRM,Complaints,Complaints,hrm.complaints.index,manage-complaints,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,hrm,HRM,Transfers,Transfers,hrm.employee-transfers.index,manage-employee-transfers,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,hrm,HRM,Documents,Documents,hrm.documents.index,manage-hrm-documents,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,hrm,HRM,Acknowledgments,Acknowledgments,hrm.acknowledgments.index,manage-acknowledgments,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,hrm,HRM,Announcements,Announcements,hrm.announcements.index,manage-announcements,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,hrm,HRM,Events,Events,hrm.events.index,manage-events,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,hrm,HRM,Company Policies,Company Policies,hrm.company-policies.index,manage-company-policies,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,hrm,HRM,System Setup,System Setup,hrm.branches.index,manage-branches,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,pos,Root,POS,POS,N/A,manage-pos,YES,YES,YES,NO,Nested expandable menu item,Rendered in sidebar,MISSING_NAVIGATION,Audited against WorkDo reference
+company,pos,POS,Add POS,Add POS,pos.create,create-pos,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,pos,POS,POS Orders,POS Orders,pos.orders,manage-pos-orders,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,pos,POS,POS Returns,POS Returns,pos.returns.index,manage-pos-returns,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,pos,POS,Print Barcode,Print Barcode,pos.barcode,manage-pos-barcodes,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,pos,POS,Billing Counters,Billing Counters,pos.billing-counters,manage-pos-billing-counters,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,pos,POS,Discounts,Discounts,pos.discounts.index,manage-pos-discounts,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,pos,POS,Reports,Reports,N/A,manage-pos-reports,YES,YES,YES,NO,Nested expandable menu item,Rendered in sidebar,MISSING_NAVIGATION,Audited against WorkDo reference
+company,pos,Reports,Sales Report,Sales Report,pos.reports.sales,view-pos-reports,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,pos,Reports,Product Report,Product Report,pos.reports.products,view-pos-reports,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,pos,Reports,Customer Report,Customer Report,pos.reports.customers,view-pos-reports,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,lead,Root,CRM,CRM,N/A,manage-leads,YES,YES,YES,NO,Nested expandable menu item,Rendered in sidebar,MISSING_NAVIGATION,Audited against WorkDo reference
+company,lead,CRM,Leads,Leads,lead.leads.index,manage-leads,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,lead,CRM,Deals,Deals,lead.deals.index,manage-deals,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,lead,CRM,System Setup,System Setup,lead.pipelines.index,manage-pipelines,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,lead,CRM,Reports,Reports,lead.reports.index,view-reports,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,lead,Reports,Lead Reports,Lead Reports,lead.reports.leads,view-reports,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,lead,Reports,Deal Reports,Deal Reports,lead.reports.deals,view-reports,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,core,Root,Media Library,Media Library,media-library,manage-media,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,core,Root,Messenger,Messenger,messenger.index,manage-messenger,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,core,Root,AI Agent,AI Agent,ai-agent.chat.page,manage-ai-agent,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,core,Root,Helpdesk,Helpdesk,helpdesk-tickets.index,manage-helpdesk-tickets,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,core,Root,Plan,Plan,N/A,manage-plans,YES,YES,YES,NO,Nested expandable menu item,Rendered in sidebar,MISSING_NAVIGATION,Audited against WorkDo reference
+company,core,Plan,Setup Subscription Plan,Setup Subscription Plan,plans.index,manage-plans,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,core,Plan,Bank Transfer Requests,Bank Transfer Requests,bank-transfer.index,manage-bank-transfer-requests,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,core,Plan,Orders,Orders,orders.index,manage-orders,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,core,Root,Settings,Settings,settings.index,manage-settings,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,productservice,Settings,Product & Service,Product & Service,N/A,manage-product-service-item,YES,YES,YES,NO,Nested expandable menu item,Rendered in sidebar,MISSING_NAVIGATION,Audited against WorkDo reference
+company,productservice,Product & Service,Items,Items,product-service.items.index,manage-product-service-item,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
+company,productservice,Product & Service,System Setup,System Setup,product-service.item-categories.index,manage-product-service-item,YES,YES,YES,YES,Nested expandable menu item,Rendered in sidebar,EXACT,Audited against WorkDo reference
