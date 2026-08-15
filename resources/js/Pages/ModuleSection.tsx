@@ -3,6 +3,7 @@ import { Link, usePage } from '@inertiajs/react';
 import AppShell from '@/Layouts/AppShell';
 import { Card } from '@/Components/UI/Card';
 import { Badge } from '@/Components/UI/Badge';
+import { ModuleSectionActions } from '@/Components/ModuleSectionActions';
 import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
 
 function displayValue(value: any): string {
@@ -16,7 +17,7 @@ function displayValue(value: any): string {
 }
 
 export default function ModuleSection() {
-  const { module, title, description, columns = [], records, breadcrumbs = [] } = usePage<any>().props;
+  const { module, section, title, description, columns = [], records, breadcrumbs = [], canManage = false, lookups = {} } = usePage<any>().props;
   const rows = records?.data || records || [];
   const [query, setQuery] = React.useState('');
 
@@ -34,6 +35,7 @@ export default function ModuleSection() {
             <div className="flex items-center gap-2 mb-1">
               <Badge variant="purple" size="sm">{module}</Badge>
               <span className="text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]">Workspace Module</span>
+              <Badge variant={canManage ? 'success' : 'neutral'} size="sm">{canManage ? 'Manage' : 'View only'}</Badge>
             </div>
             <h1 className="text-xl font-bold text-[var(--text-primary)]">{title}</h1>
             <p className="text-xs text-[var(--text-tertiary)] mt-1 max-w-2xl">{description}</p>
@@ -51,6 +53,8 @@ export default function ModuleSection() {
           </div>
         </div>
 
+        <ModuleSectionActions module={module} section={section} canManage={canManage} lookups={lookups} />
+
         <Card level={0} className="overflow-hidden p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
@@ -67,7 +71,7 @@ export default function ModuleSection() {
                 {filtered.length ? filtered.map((row: any, index: number) => (
                   <tr key={row.id || index} className="hover:bg-white/[0.025]">
                     {columns.map((column: string) => (
-                      <td key={column} className="px-4 py-3 text-[var(--text-secondary)] max-w-xs truncate">
+                      <td key={column} className="px-4 py-3 text-[var(--text-secondary)] max-w-xs truncate" title={displayValue(row?.[column])}>
                         {displayValue(row?.[column])}
                       </td>
                     ))}
@@ -89,12 +93,8 @@ export default function ModuleSection() {
                 Page {records.current_page || 1} of {records.last_page || 1} · {records.total || rows.length} records
               </span>
               <div className="flex items-center gap-2">
-                {records.prev_page_url ? (
-                  <Link href={records.prev_page_url} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[var(--border-subtle)] hover:bg-white/5"><ChevronLeft className="w-3.5 h-3.5" /> Previous</Link>
-                ) : null}
-                {records.next_page_url ? (
-                  <Link href={records.next_page_url} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[var(--border-subtle)] hover:bg-white/5">Next <ChevronRight className="w-3.5 h-3.5" /></Link>
-                ) : null}
+                {records.prev_page_url ? <Link href={records.prev_page_url} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[var(--border-subtle)] hover:bg-white/5"><ChevronLeft className="w-3.5 h-3.5" /> Previous</Link> : null}
+                {records.next_page_url ? <Link href={records.next_page_url} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[var(--border-subtle)] hover:bg-white/5">Next <ChevronRight className="w-3.5 h-3.5" /></Link> : null}
               </div>
             </div>
           )}
