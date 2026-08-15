@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Domain\Inventory\InvoicePostingService;
 use App\Domain\ProductService\Services\CatalogLookupService;
 use App\Domain\Sales\SalesDashboardService;
+use App\Domain\Shared\DocumentNumberService;
 use App\Models\ProductServiceItem;
 use App\Models\SalesInvoice;
 use App\Models\SalesInvoiceItem;
@@ -95,7 +96,7 @@ class SalesInvoiceController extends Controller
         }
 
         return DB::transaction(function () use ($validated, $wsId, $orgId, $products) {
-            $invoiceId = strtoupper(substr(uniqid('SI-'), -10));
+            $invoiceId = app(DocumentNumberService::class)->next($wsId, 'sales_invoice', 'SI');
 
             $total = 0;
             foreach ($validated['items'] as $item) {

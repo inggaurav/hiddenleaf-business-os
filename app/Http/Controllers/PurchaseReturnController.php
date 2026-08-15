@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Domain\Inventory\ReturnPostingService;
+use App\Domain\Shared\DocumentNumberService;
 use App\Models\PurchaseInvoice;
 use App\Models\PurchaseReturn;
 use App\Models\PurchaseReturnItem;
@@ -58,7 +59,8 @@ class PurchaseReturnController extends Controller
 
         return DB::transaction(function () use ($data, $workspace, $invoice, $request, $lines) {
             $return = PurchaseReturn::create([
-                'return_id' => strtoupper(substr(uniqid('PR-'), -10)), 'vendor_id' => $invoice->vendor_id,
+                'return_id' => app(DocumentNumberService::class)->next($workspace->id, 'purchase_return', 'PR'),
+                'vendor_id' => $invoice->vendor_id,
                 'purchase_invoice_id' => $invoice->id, 'date' => $data['date'],
                 'total_amount' => collect($data['items'])->sum(fn ($item) => $item['quantity'] * $item['price']),
                 'status' => 0, 'organization_id' => $workspace->organization_id, 'workspace_id' => $workspace->id, 'created_by' => $request->user()->id,

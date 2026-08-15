@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Domain\Inventory\ReturnPostingService;
+use App\Domain\Shared\DocumentNumberService;
 use App\Models\SalesInvoice;
 use App\Models\SalesInvoiceReturn;
 use App\Models\SalesInvoiceReturnItem;
@@ -58,7 +59,8 @@ class SalesReturnController extends Controller
 
         return DB::transaction(function () use ($data, $workspace, $invoice, $request, $lines) {
             $return = SalesInvoiceReturn::create([
-                'return_id' => strtoupper(substr(uniqid('SR-'), -10)), 'customer_id' => $invoice->customer_id,
+                'return_id' => app(DocumentNumberService::class)->next($workspace->id, 'sales_return', 'SR'),
+                'customer_id' => $invoice->customer_id,
                 'sales_invoice_id' => $invoice->id, 'date' => $data['date'],
                 'total_amount' => collect($data['items'])->sum(fn ($item) => $item['quantity'] * $item['price']),
                 'status' => 0, 'organization_id' => $workspace->organization_id, 'workspace_id' => $workspace->id, 'created_by' => $request->user()->id,

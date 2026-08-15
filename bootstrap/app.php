@@ -4,6 +4,7 @@ use App\Console\Commands\AccountingConcurrencyProbeCommand;
 use App\Console\Commands\InstallBusinessOs;
 use App\Console\Commands\ReconcileFinancialBalancesCommand;
 use App\Console\Commands\ReconcileInventoryCommand;
+use App\Console\Commands\SalesProcurementConcurrencyProbeCommand;
 use App\Console\Commands\ValidateParityEvidenceCommand;
 use App\Http\Middleware\CheckModuleStatus;
 use App\Http\Middleware\EnsureAccountPermission;
@@ -34,6 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ReconcileInventoryCommand::class,
         ValidateParityEvidenceCommand::class,
         AccountingConcurrencyProbeCommand::class,
+        SalesProcurementConcurrencyProbeCommand::class,
     ])
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [

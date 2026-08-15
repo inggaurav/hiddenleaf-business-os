@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Domain\Inventory\InvoicePostingService;
 use App\Domain\Procurement\ProcurementDashboardService;
+use App\Domain\Shared\DocumentNumberService;
 use App\Models\ProductServiceItem;
 use App\Models\PurchaseInvoice;
 use App\Models\PurchaseInvoiceItem;
@@ -87,7 +88,7 @@ class PurchaseInvoiceController extends Controller
         }
 
         return DB::transaction(function () use ($validated, $wsId, $orgId, $products) {
-            $invoiceId = strtoupper(substr(uniqid('PI-'), -10));
+            $invoiceId = app(DocumentNumberService::class)->next($wsId, 'purchase_invoice', 'PI');
 
             $total = 0;
             foreach ($validated['items'] as $item) {

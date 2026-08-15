@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Domain\ProductService\Services\CatalogLookupService;
+use App\Domain\Shared\DocumentNumberService;
 use App\Models\ProductServiceItem;
 use App\Models\SalesInvoice;
 use App\Models\SalesInvoiceItem;
@@ -74,7 +75,7 @@ class SalesProposalController extends Controller
         }
 
         return DB::transaction(function () use ($validated, $wsId, $orgId, $products) {
-            $proposalId = strtoupper(substr(uniqid('PROP-'), -10));
+            $proposalId = app(DocumentNumberService::class)->next($wsId, 'sales_proposal', 'PROP');
 
             $total = 0;
             foreach ($validated['items'] as $item) {
@@ -201,7 +202,7 @@ class SalesProposalController extends Controller
         abort_unless((int) $salesProposal->status === 2, 422, 'Only accepted proposals can be converted.');
         $salesProposal->load(['items']);
 
-        $invoiceId = strtoupper(substr(uniqid('SI-'), -10));
+        $invoiceId = app(DocumentNumberService::class)->next($salesProposal->workspace_id, 'sales_invoice', 'SI');
 
         $warehouseId = $request->input('warehouse_id') ?? Warehouse::where('workspace_id', $salesProposal->workspace_id)->value('id');
 
