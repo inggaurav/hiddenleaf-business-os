@@ -14,6 +14,7 @@ use App\Models\ProductServiceItem;
 use App\Models\SalesInvoice;
 use App\Models\SalesInvoiceItem;
 use App\Models\TasklyProject;
+use App\Models\TasklyStage;
 use App\Models\TasklyTask;
 use App\Models\User;
 use App\Models\Workspace;
@@ -21,51 +22,55 @@ use Illuminate\Support\Facades\DB;
 
 class DemoDataSeederService
 {
-    /**
-     * Seeds rich, realistic demonstration data into the workspace.
-     */
     public function seedDemoData(User $user, Workspace $workspace): array
     {
         return DB::transaction(function () use ($user, $workspace) {
             $orgId = $workspace->organization_id;
             $wsId = $workspace->id;
 
-            // 1. Pipeline & Stages
-            $pipeline = CrmPipeline::firstOrCreate([
+            $pipeline = CrmPipeline::updateOrCreate([
                 'organization_id' => $orgId,
                 'workspace_id' => $wsId,
                 'name' => 'Demo Sales Pipeline',
             ], ['is_default' => true]);
 
-            $stageLead = CrmStage::firstOrCreate(['pipeline_id' => $pipeline->id, 'name' => 'Qualified'], ['position' => 1]);
-            $stageNegotiation = CrmStage::firstOrCreate(['pipeline_id' => $pipeline->id, 'name' => 'Negotiation'], ['position' => 2]);
+            $stageLead = CrmStage::updateOrCreate(
+                ['pipeline_id' => $pipeline->id, 'name' => 'Qualified'],
+                ['position' => 1]
+            );
+            $stageNegotiation = CrmStage::updateOrCreate(
+                ['pipeline_id' => $pipeline->id, 'name' => 'Negotiation'],
+                ['position' => 2]
+            );
 
-            // 2. CRM Leads & Deals
-            CrmLead::create([
+            $lead = CrmLead::updateOrCreate([
                 'organization_id' => $orgId,
                 'workspace_id' => $wsId,
+                'email' => 'partnerships@apexcloud.io',
+            ], [
                 'pipeline_id' => $pipeline->id,
                 'stage_id' => $stageLead->id,
-                'name' => 'Apex Cloud Systems',
-                'email' => 'partnerships@apexcloud.io',
+                'name' => '[DEMO] Apex Cloud Systems',
                 'phone' => '+1 (555) 234-5678',
                 'company' => 'Apex Cloud Inc.',
+                'estimated_value' => 18500.00,
                 'status' => 'qualified',
-                'subject' => '[DEMO] Annual Enterprise License',
+                'created_by' => $user->id,
             ]);
 
-            CrmDeal::create([
+            CrmDeal::updateOrCreate([
                 'organization_id' => $orgId,
                 'workspace_id' => $wsId,
+                'name' => '[DEMO] Quantum Robotics Expansion',
+            ], [
+                'lead_id' => $lead->id,
                 'pipeline_id' => $pipeline->id,
                 'stage_id' => $stageNegotiation->id,
-                'name' => '[DEMO] Quantum Robotics Expansion',
-                'price' => 48000.00,
+                'value' => 48000.00,
                 'status' => 'open',
             ]);
 
-            // 3. Inventory Products
-            $category = ProductServiceCategory::firstOrCreate([
+            $category = ProductServiceCategory::updateOrCreate([
                 'organization_id' => $orgId,
                 'workspace_id' => $wsId,
                 'name' => 'Software & Hardware',
@@ -74,51 +79,53 @@ class DemoDataSeederService
                 'color' => '#4f46e5',
             ]);
 
-            $item1 = ProductServiceItem::create([
+            $item1 = ProductServiceItem::updateOrCreate([
                 'organization_id' => $orgId,
                 'workspace_id' => $wsId,
+                'sku' => 'DEMO-GW-100',
+            ], [
                 'category_id' => $category->id,
                 'name' => '[DEMO] Enterprise Edge Gateway',
-                'sku' => 'DEMO-GW-100',
                 'type' => 'product',
-                'quantity' => 4, // Low stock -> triggers signal
+                'quantity' => 4,
                 'sale_price' => 2500.00,
                 'purchase_price' => 1400.00,
             ]);
 
-            $item2 = ProductServiceItem::create([
+            ProductServiceItem::updateOrCreate([
                 'organization_id' => $orgId,
                 'workspace_id' => $wsId,
+                'sku' => 'DEMO-SAAS-01',
+            ], [
                 'category_id' => $category->id,
                 'name' => '[DEMO] Business OS Annual Subscription',
-                'sku' => 'DEMO-SaaS-01',
                 'type' => 'service',
                 'quantity' => 100,
                 'sale_price' => 12000.00,
                 'purchase_price' => 0.00,
             ]);
 
-            // 4. Invoices
-            $invOverdue = SalesInvoice::create([
+            $invoice = SalesInvoice::updateOrCreate([
                 'organization_id' => $orgId,
                 'workspace_id' => $wsId,
                 'invoice_id' => 'INV-DEMO-901',
+            ], [
                 'issue_date' => now()->subDays(20)->toDateString(),
                 'due_date' => now()->subDays(5)->toDateString(),
                 'total_amount' => 18500.00,
                 'status' => 'sent',
             ]);
 
-            SalesInvoiceItem::create([
-                'invoice_id' => $invOverdue->id,
+            SalesInvoiceItem::updateOrCreate([
+                'invoice_id' => $invoice->id,
                 'item_id' => $item1->id,
+            ], [
                 'quantity' => 2,
                 'price' => 2500.00,
                 'total' => 5000.00,
             ]);
 
-            // 5. Communications
-            $commAccount = CommunicationAccount::firstOrCreate([
+            $commAccount = CommunicationAccount::updateOrCreate([
                 'organization_id' => $orgId,
                 'workspace_id' => $wsId,
                 'provider' => 'internal',
@@ -128,12 +135,13 @@ class DemoDataSeederService
                 'status' => 'connected',
             ]);
 
-            $conversation = CommunicationConversation::create([
+            $conversation = CommunicationConversation::updateOrCreate([
                 'organization_id' => $orgId,
                 'workspace_id' => $wsId,
-                'account_id' => $commAccount->id,
                 'provider' => 'internal',
-                'external_thread_id' => 'demo_thread_' . uniqid(),
+                'external_thread_id' => 'demo_internal_urgent_contract',
+            ], [
+                'account_id' => $commAccount->id,
                 'subject' => '[DEMO] URGENT: Contract Clarification for Q3 Delivery',
                 'participant_name' => 'Sarah Connor (Cyberdyne Systems)',
                 'participant_identifier' => 'sconnor@cyberdyne.com',
@@ -144,11 +152,12 @@ class DemoDataSeederService
                 'unread_count' => 1,
             ]);
 
-            CommunicationMessage::create([
+            CommunicationMessage::updateOrCreate([
                 'organization_id' => $orgId,
                 'workspace_id' => $wsId,
                 'conversation_id' => $conversation->id,
-                'provider_message_id' => 'msg_demo_' . uniqid(),
+                'provider_message_id' => 'msg_demo_urgent_contract',
+            ], [
                 'direction' => 'inbound',
                 'sender_name' => 'Sarah Connor',
                 'sender_identifier' => 'sconnor@cyberdyne.com',
@@ -157,56 +166,81 @@ class DemoDataSeederService
                 'sent_at' => now()->subMinutes(15),
             ]);
 
-            // 6. Project & Tasks
-            $project = TasklyProject::create([
+            $project = TasklyProject::updateOrCreate([
                 'organization_id' => $orgId,
                 'workspace_id' => $wsId,
                 'name' => '[DEMO] Client ERP Onboarding',
+            ], [
                 'status' => 'in_progress',
                 'created_by' => $user->id,
             ]);
 
-            $taskStage = \App\Models\TasklyStage::firstOrCreate([
+            $taskStage = TasklyStage::updateOrCreate([
                 'project_id' => $project->id,
                 'name' => 'To Do',
             ], ['position' => 0]);
 
-            TasklyTask::create([
+            TasklyTask::updateOrCreate([
                 'organization_id' => $orgId,
                 'workspace_id' => $wsId,
                 'project_id' => $project->id,
-                'stage_id' => $taskStage->id,
                 'title' => '[DEMO] Finalize API Data Mapping & Cutover',
+            ], [
+                'stage_id' => $taskStage->id,
                 'priority' => 'high',
-                'due_date' => now()->subDays(2)->toDateString(), // Overdue task -> triggers signal
+                'due_date' => now()->subDays(2)->toDateString(),
             ]);
 
             return [
-                'leads_count' => 1,
-                'deals_count' => 1,
-                'products_count' => 2,
-                'invoices_count' => 1,
-                'conversations_count' => 1,
-                'tasks_count' => 1,
+                'leads_count' => CrmLead::where('workspace_id', $wsId)->where('name', 'like', '[DEMO]%')->count(),
+                'deals_count' => CrmDeal::where('workspace_id', $wsId)->where('name', 'like', '[DEMO]%')->count(),
+                'products_count' => ProductServiceItem::where('workspace_id', $wsId)->where('sku', 'like', 'DEMO-%')->count(),
+                'invoices_count' => SalesInvoice::where('workspace_id', $wsId)->where('invoice_id', 'like', 'INV-DEMO-%')->count(),
+                'conversations_count' => CommunicationConversation::where('workspace_id', $wsId)->where('subject', 'like', '[DEMO]%')->count(),
+                'tasks_count' => TasklyTask::where('workspace_id', $wsId)->where('title', 'like', '[DEMO]%')->count(),
             ];
         });
     }
 
-    /**
-     * Safely clears all demonstration records from the workspace.
-     */
     public function resetDemoData(Workspace $workspace): int
     {
         $wsId = $workspace->id;
 
         return DB::transaction(function () use ($wsId) {
             $deleted = 0;
-            $deleted += CrmLead::where('workspace_id', $wsId)->where('subject', 'like', '[DEMO]%')->delete();
-            $deleted += CrmDeal::where('workspace_id', $wsId)->where('name', 'like', '[DEMO]%')->delete();
-            $deleted += ProductServiceItem::where('workspace_id', $wsId)->where('name', 'like', '[DEMO]%')->delete();
-            $deleted += SalesInvoice::where('workspace_id', $wsId)->where('invoice_id', 'like', 'INV-DEMO-%')->delete();
-            $deleted += CommunicationConversation::where('workspace_id', $wsId)->where('subject', 'like', '[DEMO]%')->delete();
-            $deleted += TasklyProject::where('workspace_id', $wsId)->where('name', 'like', '[DEMO]%')->delete();
+
+            $deleted += CommunicationMessage::where('workspace_id', $wsId)
+                ->where('provider_message_id', 'like', 'msg_demo_%')
+                ->delete();
+            $deleted += CommunicationConversation::where('workspace_id', $wsId)
+                ->where('subject', 'like', '[DEMO]%')
+                ->delete();
+
+            $deleted += TasklyTask::where('workspace_id', $wsId)
+                ->where('title', 'like', '[DEMO]%')
+                ->delete();
+            $deleted += TasklyProject::where('workspace_id', $wsId)
+                ->where('name', 'like', '[DEMO]%')
+                ->delete();
+
+            $invoiceIds = SalesInvoice::where('workspace_id', $wsId)
+                ->where('invoice_id', 'like', 'INV-DEMO-%')
+                ->pluck('id');
+            if ($invoiceIds->isNotEmpty()) {
+                $deleted += SalesInvoiceItem::whereIn('invoice_id', $invoiceIds)->delete();
+                $deleted += SalesInvoice::whereIn('id', $invoiceIds)->delete();
+            }
+
+            $deleted += CrmDeal::where('workspace_id', $wsId)
+                ->where('name', 'like', '[DEMO]%')
+                ->delete();
+            $deleted += CrmLead::where('workspace_id', $wsId)
+                ->where('name', 'like', '[DEMO]%')
+                ->delete();
+
+            $deleted += ProductServiceItem::where('workspace_id', $wsId)
+                ->where('sku', 'like', 'DEMO-%')
+                ->delete();
 
             return $deleted;
         });
