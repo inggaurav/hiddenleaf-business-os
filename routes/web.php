@@ -70,6 +70,10 @@ Route::post('/install/license/validate', [InstallController::class, 'validateLic
 Route::get('/site/{slug}', [LandingPageController::class, 'publicSite'])->name('landing.public');
 Route::get('/site/{slug}/{page}', [LandingPageController::class, 'publicPage'])->name('landing.page');
 
+// Public Diagnostics & Health Endpoints
+Route::get('/health/live', [\App\Http\Controllers\Diagnostics\HealthCheckController::class, 'live'])->name('health.live');
+Route::get('/health/ready', [\App\Http\Controllers\Diagnostics\HealthCheckController::class, 'ready'])->name('health.ready');
+
 // Public Communications Webhook Endpoint
 Route::match(['get', 'post'], 'api/v1/webhooks/communications/{provider}', [\App\Http\Controllers\Communications\CommunicationWebhookController::class, 'handle'])
     ->name('webhooks.communications')
@@ -474,6 +478,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('command-center/approvals', [\App\Http\Controllers\CommandCenter\ApprovalCenterController::class, 'index'])->name('command-center.approvals.index');
     Route::post('command-center/approvals/{id}/approve', [\App\Http\Controllers\CommandCenter\ApprovalCenterController::class, 'approve'])->name('command-center.approvals.approve');
     Route::post('command-center/approvals/{id}/reject', [\App\Http\Controllers\CommandCenter\ApprovalCenterController::class, 'reject'])->name('command-center.approvals.reject');
+
+    // Customer Onboarding Wizard & Demo Data
+    Route::get('onboarding', [\App\Http\Controllers\Onboarding\OnboardingController::class, 'show'])->name('onboarding.show');
+    Route::post('onboarding/step', [\App\Http\Controllers\Onboarding\OnboardingController::class, 'updateStep'])->name('onboarding.step');
+    Route::post('onboarding/complete', [\App\Http\Controllers\Onboarding\OnboardingController::class, 'complete'])->name('onboarding.complete');
+    Route::post('onboarding/demo-data/load', [\App\Http\Controllers\Onboarding\OnboardingController::class, 'loadDemoData'])->name('onboarding.demo.load');
+    Route::post('onboarding/demo-data/reset', [\App\Http\Controllers\Onboarding\OnboardingController::class, 'resetDemoData'])->name('onboarding.demo.reset');
 
     // General & System Settings
     Route::get('settings', [App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
