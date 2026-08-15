@@ -156,7 +156,7 @@ class SignalDetector
 
             // Failed Outbound Messages
             $failedMessages = CommunicationMessage::where('workspace_id', $wsId)
-                ->where('status', 'failed')
+                ->where('delivery_status', 'failed')
                 ->where('created_at', '>=', now()->subHours(48))
                 ->get();
 
@@ -183,13 +183,15 @@ class SignalDetector
 
         // 4. Inventory Signals (Permission Gated)
         if ($isSuperAdmin || $this->permissionService->allows($user, $workspace, 'productservice.manage')) {
+            // Low Stock Items
             $lowStockItems = ProductServiceItem::where('workspace_id', $wsId)
                 ->where('type', 'product')
-                ->where('quantity', '<=', 5)
+                ->whereHas('stocks', fn ($q) => $q->where('quantity', '<=', 5))
+                ->with('stocks')
                 ->get();
 
             if ($lowStockItems->count() > 0) {
-                $outOfStock = $lowStockItems->where('quantity', '<=', 0)->count();
+                $outOfStock = $lowStockItems->filter(fn ($p) => $p->stocks->sum('quantity') <= 0)->count();
                 $signals[] = new BusinessSignalDTO(
                     id: 'inventory.low_stock',
                     category: 'inventory',

@@ -49,7 +49,7 @@ class CrmPipelineSummaryTool implements MrFoxToolContract
         $wsId = $context->getWorkspaceId();
 
         $openDeals = CrmDeal::where('workspace_id', $wsId)->where('status', 'open')->get();
-        $totalPipelineValue = (float) $openDeals->sum('value');
+        $totalPipelineValue = (float) $openDeals->sum(fn ($d) => $d->value ?? $d->price ?? 0);
         $totalLeads = CrmLead::where('workspace_id', $wsId)->count();
         $convertedLeads = CrmLead::where('workspace_id', $wsId)->whereNotNull('converted_at')->count();
 

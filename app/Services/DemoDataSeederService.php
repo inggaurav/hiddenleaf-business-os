@@ -46,12 +46,12 @@ class DemoDataSeederService
                 'workspace_id' => $wsId,
                 'pipeline_id' => $pipeline->id,
                 'stage_id' => $stageLead->id,
-                'name' => 'Apex Cloud Systems',
+                'name' => '[DEMO] Apex Cloud Systems',
                 'email' => 'partnerships@apexcloud.io',
                 'phone' => '+1 (555) 234-5678',
                 'company' => 'Apex Cloud Inc.',
                 'status' => 'qualified',
-                'subject' => '[DEMO] Annual Enterprise License',
+                'estimated_value' => 25000.00,
             ]);
 
             CrmDeal::create([
@@ -74,6 +74,15 @@ class DemoDataSeederService
                 'color' => '#4f46e5',
             ]);
 
+            $warehouse = \App\Models\Warehouse::firstOrCreate([
+                'workspace_id' => $wsId,
+                'name' => 'Main Distribution Center',
+            ], [
+                'organization_id' => $orgId,
+                'address' => '742 Evergreen Terrace, Sector 4',
+                'created_by' => $user->id,
+            ]);
+
             $item1 = ProductServiceItem::create([
                 'organization_id' => $orgId,
                 'workspace_id' => $wsId,
@@ -81,10 +90,15 @@ class DemoDataSeederService
                 'name' => '[DEMO] Enterprise Edge Gateway',
                 'sku' => 'DEMO-GW-100',
                 'type' => 'product',
-                'quantity' => 4, // Low stock -> triggers signal
                 'sale_price' => 2500.00,
                 'purchase_price' => 1400.00,
+                'reorder_level' => 10,
             ]);
+
+            \App\Models\WarehouseStock::updateOrCreate(
+                ['product_id' => $item1->id, 'warehouse_id' => $warehouse->id],
+                ['quantity' => 4]
+            );
 
             $item2 = ProductServiceItem::create([
                 'organization_id' => $orgId,
@@ -93,10 +107,14 @@ class DemoDataSeederService
                 'name' => '[DEMO] Business OS Annual Subscription',
                 'sku' => 'DEMO-SaaS-01',
                 'type' => 'service',
-                'quantity' => 100,
                 'sale_price' => 12000.00,
                 'purchase_price' => 0.00,
             ]);
+
+            \App\Models\WarehouseStock::updateOrCreate(
+                ['product_id' => $item2->id, 'warehouse_id' => $warehouse->id],
+                ['quantity' => 100]
+            );
 
             // 4. Invoices
             $invOverdue = SalesInvoice::create([
@@ -106,12 +124,13 @@ class DemoDataSeederService
                 'issue_date' => now()->subDays(20)->toDateString(),
                 'due_date' => now()->subDays(5)->toDateString(),
                 'total_amount' => 18500.00,
-                'status' => 'sent',
+                'status' => 1,
             ]);
 
             SalesInvoiceItem::create([
                 'invoice_id' => $invOverdue->id,
-                'item_id' => $item1->id,
+                'product_id' => $item1->id,
+                'item_name' => $item1->name,
                 'quantity' => 2,
                 'price' => 2500.00,
                 'total' => 5000.00,
@@ -162,7 +181,7 @@ class DemoDataSeederService
                 'organization_id' => $orgId,
                 'workspace_id' => $wsId,
                 'name' => '[DEMO] Client ERP Onboarding',
-                'status' => 'in_progress',
+                'status' => 'active',
                 'created_by' => $user->id,
             ]);
 
@@ -178,7 +197,7 @@ class DemoDataSeederService
                 'stage_id' => $taskStage->id,
                 'title' => '[DEMO] Finalize API Data Mapping & Cutover',
                 'priority' => 'high',
-                'due_date' => now()->subDays(2)->toDateString(), // Overdue task -> triggers signal
+                'due_on' => now()->subDays(2)->toDateString(), // Overdue task -> triggers signal
             ]);
 
             return [
@@ -201,11 +220,28 @@ class DemoDataSeederService
 
         return DB::transaction(function () use ($wsId) {
             $deleted = 0;
-            $deleted += CrmLead::where('workspace_id', $wsId)->where('subject', 'like', '[DEMO]%')->delete();
             $deleted += CrmDeal::where('workspace_id', $wsId)->where('name', 'like', '[DEMO]%')->delete();
-            $deleted += ProductServiceItem::where('workspace_id', $wsId)->where('name', 'like', '[DEMO]%')->delete();
+            $deleted += CrmLead::where('workspace_id', $wsId)->where('name', 'like', '[DEMO]%')->delete();
+
+            // Delete invoice items before invoices
+            $invIds = SalesInvoice::where('workspace_id', $wsId)->where('invoice_id', 'like', 'INV-DEMO-%')->pluck('id');
+            SalesInvoiceItem::whereIn('invoice_id', $invIds)->delete();
             $deleted += SalesInvoice::where('workspace_id', $wsId)->where('invoice_id', 'like', 'INV-DEMO-%')->delete();
+
+            // Delete stocks before items
+            $itemIds = ProductServiceItem::where('workspace_id', $wsId)->where('name', 'like', '[DEMO]%')->pluck('id');
+            \App\Models\WarehouseStock::whereIn('product_id', $itemIds)->delete();
+            $deleted += ProductServiceItem::where('workspace_id', $wsId)->where('name', 'like', '[DEMO]%')->delete();
+
+            // Delete comm messages before conversations
+            $convIds = CommunicationConversation::where('workspace_id', $wsId)->where('subject', 'like', '[DEMO]%')->pluck('id');
+            CommunicationMessage::whereIn('conversation_id', $convIds)->delete();
             $deleted += CommunicationConversation::where('workspace_id', $wsId)->where('subject', 'like', '[DEMO]%')->delete();
+
+            // Delete tasks and stages before projects
+            $projIds = TasklyProject::where('workspace_id', $wsId)->where('name', 'like', '[DEMO]%')->pluck('id');
+            TasklyTask::whereIn('project_id', $projIds)->delete();
+            \App\Models\TasklyStage::whereIn('project_id', $projIds)->delete();
             $deleted += TasklyProject::where('workspace_id', $wsId)->where('name', 'like', '[DEMO]%')->delete();
 
             return $deleted;

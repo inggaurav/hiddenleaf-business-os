@@ -123,7 +123,7 @@ class BusinessHealthService
         // 5. Communications Health (Permission Gated)
         if ($isSuperAdmin || $this->permissionService->allows($user, $workspace, 'communications.view')) {
             $urgentCount = CommunicationConversation::where('workspace_id', $wsId)->where('priority_score', '>=', 75)->whereIn('status', ['open', 'in_progress'])->count();
-            $failedSends = CommunicationMessage::where('workspace_id', $wsId)->where('status', 'failed')->where('created_at', '>=', now()->subHours(48))->count();
+            $failedSends = CommunicationMessage::where('workspace_id', $wsId)->where('delivery_status', 'failed')->where('created_at', '>=', now()->subHours(48))->count();
 
             $commsScore = max(15, 100 - ($urgentCount * 25) - ($failedSends * 15));
             $dimensions['communications'] = new HealthDimensionDTO(
@@ -139,8 +139,8 @@ class BusinessHealthService
 
         // 6. Inventory Health (Permission Gated)
         if ($isSuperAdmin || $this->permissionService->allows($user, $workspace, 'productservice.manage')) {
-            $lowStock = ProductServiceItem::where('workspace_id', $wsId)->where('type', 'product')->where('quantity', '<=', 5)->count();
-            $outOfStock = ProductServiceItem::where('workspace_id', $wsId)->where('type', 'product')->where('quantity', '<=', 0)->count();
+            $lowStock = ProductServiceItem::where('workspace_id', $wsId)->where('type', 'product')->whereHas('stocks', fn ($q) => $q->where('quantity', '<=', 5))->count();
+            $outOfStock = ProductServiceItem::where('workspace_id', $wsId)->where('type', 'product')->whereHas('stocks', fn ($q) => $q->where('quantity', '<=', 0))->count();
 
             $invScore = max(15, 100 - ($outOfStock * 25) - ($lowStock * 5));
             $dimensions['inventory'] = new HealthDimensionDTO(

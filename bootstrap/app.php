@@ -1,6 +1,6 @@
 <?php
 
-use App\Console\Commands\AccountingConcurrencyProbeCommand;
+use App\Console\Commands\CreateDemoWorkspaceCommand;
 use App\Console\Commands\InstallBusinessOs;
 use App\Console\Commands\ReconcileFinancialBalancesCommand;
 use App\Console\Commands\ReconcileInventoryCommand;
@@ -30,11 +30,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withCommands([
+        CreateDemoWorkspaceCommand::class,
         InstallBusinessOs::class,
         ReconcileFinancialBalancesCommand::class,
         ReconcileInventoryCommand::class,
         ValidateParityEvidenceCommand::class,
-        AccountingConcurrencyProbeCommand::class,
         SalesProcurementConcurrencyProbeCommand::class,
     ])
     ->withMiddleware(function (Middleware $middleware) {
