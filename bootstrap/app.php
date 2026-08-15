@@ -9,6 +9,7 @@ use App\Console\Commands\SalesProcurementConcurrencyProbeCommand;
 use App\Console\Commands\ValidateParityEvidenceCommand;
 use App\Http\Middleware\CheckModuleStatus;
 use App\Http\Middleware\EnsureAccountPermission;
+use App\Http\Middleware\EnsureApiModuleAccess;
 use App\Http\Middleware\EnsureApiWorkspace;
 use App\Http\Middleware\EnsureFinancialIdempotency;
 use App\Http\Middleware\EnsurePosPermission;
@@ -62,6 +63,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'module.status' => CheckModuleStatus::class,
             'api.workspace' => EnsureApiWorkspace::class,
+            'api.module' => EnsureApiModuleAccess::class,
             'account.permission' => EnsureAccountPermission::class,
             'product_service.permission' => EnsureProductServicePermission::class,
             'pos.permission' => EnsurePosPermission::class,
