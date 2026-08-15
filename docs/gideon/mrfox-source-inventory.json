@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "generated_at": "2026-08-15T07:30:00Z",
+  "product": "HiddenLeaf Business OS - Mr. Fox Executive Intelligence Layer",
+  "branch": "develop/hiddenleaf-v2",
+  "components": {
+    "agent": {
+      "class": "App\\Domain\\MrFox\\Agent\\MrFoxAgent",
+      "features": ["context_compilation", "tool_resolution", "tool_limit_guards", "server_rbac_checks", "approval_routing", "sanitized_error_handling"]
+    },
+    "tools": {
+      "registry": "App\\Domain\\MrFox\\Tools\\MrFoxToolRegistry",
+      "count": 21,
+      "domains": ["accounting", "inventory", "sales", "purchases", "crm", "taskly", "hrm", "executive_dashboard"],
+      "grounding": ["AccountReportService", "FinancialBalanceService", "LedgerService", "InventoryBalanceService"]
+    },
+    "validation": {
+      "class": "App\\Domain\\MrFox\\Validation\\ToolInputValidator",
+      "features": ["json_schema_validation", "forbidden_authority_stripping", "type_enforcement", "bounds_and_limits"]
+    },
+    "approvals": {
+      "class": "App\\Domain\\MrFox\\Approvals\\ActionApprovalService",
+      "features": ["pessimistic_row_locking", "sha256_payload_integrity_hash", "expiration_checks", "execution_time_rbac", "atomic_state_transitions"]
+    },
+    "observability": {
+      "audit": "App\\Domain\\MrFox\\Observability\\MrFoxAuditService",
+      "usage": "App\\Domain\\MrFox\\Observability\\MrFoxUsageService",
+      "features": ["regex_secret_redaction", "trace_ids", "non_negative_tokens", "monthly_token_quota_enforcement"]
+    },
+    "persistence": {
+      "conversations": "App\\Models\\MrFoxConversation",
+      "messages": "App\\Models\\MrFoxMessage",
+      "proposals": "App\\Models\\MrFoxActionProposal",
+      "features": ["strict_tenant_foreign_keys", "composite_indexes", "idor_protection"]
+    },
+    "frontend": {
+      "panel": "resources/js/Components/MrFox/MrFoxPanel.tsx",
+      "widget": "resources/js/Pages/Dashboard.tsx",
+      "features": ["grounded_evidence_chips", "tool_execution_indicators", "immutable_action_approval_cards", "quick_prompts"]
+    },
+    "tests": {
+      "total_suites": 15,
+      "total_tests": 26,
+      "assertions": 143,
+      "full_suite_tests": 308
+    }
+  }
+}

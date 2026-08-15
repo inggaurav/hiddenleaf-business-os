@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "generated_at": "2026-08-15T07:30:00Z",
+  "codebases": [
+    {
+      "name": "gideon-runtime",
+      "path": "C:\\Users\\manag\\Pictures\\RISE-Ultimate-Project-Manager-and-CRM\\services\\gideon-runtime",
+      "runtime": "TypeScript / Node.js 20+",
+      "status": "active",
+      "packages": [
+        {
+          "name": "@parnika/gideon-core",
+          "capabilities": ["orchestration", "provider_registry", "error_domains", "secret_redaction", "telemetry"]
+        },
+        {
+          "name": "@parnika/gideon-ai",
+          "capabilities": ["multi_provider_routing", "openai", "anthropic_claude", "gemini", "groq", "ollama", "openrouter", "streaming_sse", "structured_tools"]
+        },
+        {
+          "name": "@parnika/gideon-knowledge",
+          "capabilities": [
+            "pdf_parsing", "docx_parsing", "markdown_parsing", "text_parsing", "html_parsing", "csv_parsing", "json_parsing",
+            "token_chunking", "lexical_indexing", "vector_indexing", "hybrid_reranking", "citations", "document_versioning",
+            "rollback", "audit_logging", "multi_tenant_authorization_acl"
+          ]
+        },
+        {
+          "name": "@parnika/gideon-skills",
+          "capabilities": ["skill_manifest_schema", "skill_registry", "dynamic_skill_execution", "content_skills", "seo_skills"]
+        },
+        {
+          "name": "@parnika/gideon-prompt-intelligence",
+          "capabilities": ["prompt_studio", "prompt_templating", "variable_injection", "prompt_optimizer", "version_comparison"]
+        },
+        {
+          "name": "@parnika/gideon-memory",
+          "capabilities": ["conversation_memory", "episodic_memory", "entity_extraction", "memory_retention_policy"]
+        }
+      ]
+    },
+    {
+      "name": "gideon-voice-agent",
+      "path": "C:\\Users\\manag\\Pictures\\New folder (2)\\stackposts_ai_app\\services\\gideon-voice-agent",
+      "runtime": "Python 3.11+ / LiveKit WebRTC",
+      "status": "active",
+      "capabilities": [
+        "realtime_webrtc_audio", "livekit_worker", "voice_activity_detection", "deepgram_stt", "elevenlabs_tts",
+        "gemini_live_streaming", "barge_in_interruption", "orb_state_synchronization"
+      ]
+    },
+    {
+      "name": "mr-fox-os-and-stackposts-gideon",
+      "path": "C:\\Users\\manag\\Pictures\\New folder (2)\\Mr. Fox OS",
+      "runtime": "PHP 8.2+ / Laravel 11",
+      "status": "active",
+      "capabilities": [
+        "brand_profiles_domain", "brand_voice_scoring", "brand_safety_compliance", "marketing_studio",
+        "social_post_generator", "meta_google_ads_generator", "seo_blog_generator", "email_campaign_generator",
+        "content_repurpose_engine", "review_engine_0_100", "social_inbox_ingestion", "sentiment_classification",
+        "reply_drafting", "missions_orchestration", "multi_step_automation", "multi_stage_approval_topology"
+      ]
+    },
+    {
+      "name": "parnika-gideon-rise-bridge",
+      "path": "C:\\Users\\manag\\Pictures\\RISE-Ultimate-Project-Manager-and-CRM\\plugins\\Parnika_Gideon",
+      "runtime": "PHP 8.x / CodeIgniter 3",
+      "status": "deprecated",
+      "capabilities": ["legacy_hmac_bridge", "legacy_crm_context_bridge"]
+    }
+  ]
+}
