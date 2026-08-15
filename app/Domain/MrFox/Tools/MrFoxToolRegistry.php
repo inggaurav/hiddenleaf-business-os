@@ -28,6 +28,11 @@ class MrFoxToolRegistry
         return $this->tools[$name] ?? null;
     }
 
+    public function has(string $name): bool
+    {
+        return isset($this->tools[$name]);
+    }
+
     /**
      * @return array<string, MrFoxToolContract>
      */

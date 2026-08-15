@@ -452,6 +452,18 @@ Route::middleware(['auth'])->group(function () {
         Route::post('conversations/{id}/link-crm', [\App\Http\Controllers\Communications\UnifiedInboxController::class, 'linkCrm'])->name('link-crm');
     });
 
+    // Automations & Missions
+    Route::get('automations', [\App\Http\Controllers\Automation\AutomationRuleController::class, 'index'])->name('automations.index');
+    Route::post('automations', [\App\Http\Controllers\Automation\AutomationRuleController::class, 'store'])->name('automations.store');
+    Route::patch('automations/{id}/toggle', [\App\Http\Controllers\Automation\AutomationRuleController::class, 'toggle'])->name('automations.toggle');
+    Route::get('automations/{id}/runs', [\App\Http\Controllers\Automation\AutomationRuleController::class, 'getRuns'])->name('automations.runs');
+
+    Route::get('missions', [\App\Http\Controllers\Automation\MrFoxMissionController::class, 'index'])->name('missions.index');
+    Route::post('missions', [\App\Http\Controllers\Automation\MrFoxMissionController::class, 'create'])->name('missions.store');
+    Route::get('missions/{id}', [\App\Http\Controllers\Automation\MrFoxMissionController::class, 'show'])->name('missions.show');
+    Route::post('missions/{id}/step', [\App\Http\Controllers\Automation\MrFoxMissionController::class, 'executeStep'])->name('missions.step');
+    Route::post('missions/{id}/control', [\App\Http\Controllers\Automation\MrFoxMissionController::class, 'control'])->name('missions.control');
+
     // General & System Settings
     Route::get('settings', [App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
     Route::post('settings', [App\Http\Controllers\SettingController::class, 'store'])->name('settings.store');

@@ -2,6 +2,13 @@
 
 namespace App\Providers;
 
+use App\Domain\Automation\Actions\ActionRegistry;
+use App\Domain\Automation\Conditions\ConditionEvaluator;
+use App\Domain\Automation\Execution\AutomationEngine;
+use App\Domain\Automation\Missions\MissionExecutor;
+use App\Domain\Automation\Missions\MissionPlanner;
+use App\Domain\Automation\Missions\MissionStateMachine;
+use App\Domain\Automation\Triggers\TriggerRegistry;
 use App\Domain\Communications\Actions\CommunicationReplyGenerator;
 use App\Domain\Communications\Actions\CommunicationSendService;
 use App\Domain\Communications\Matching\AttentionPriorityCalculator;
@@ -45,6 +52,10 @@ use App\Domain\MrFox\Tools\InventoryStockSummaryTool;
 use App\Domain\MrFox\Tools\KnowledgeAskTool;
 use App\Domain\MrFox\Tools\KnowledgeGetDocumentTool;
 use App\Domain\MrFox\Tools\KnowledgeSearchTool;
+use App\Domain\MrFox\Tools\MissionsControlTool;
+use App\Domain\MrFox\Tools\MissionsCreateTool;
+use App\Domain\MrFox\Tools\MissionsGetTool;
+use App\Domain\MrFox\Tools\MissionsListTool;
 use App\Domain\MrFox\Tools\MrFoxToolRegistry;
 use App\Domain\MrFox\Tools\PurchaseBillSearchTool;
 use App\Domain\MrFox\Tools\PurchasePayablesSummaryTool;
@@ -76,6 +87,15 @@ class MrFoxServiceProvider extends ServiceProvider
         $this->app->singleton(CommunicationWebhookService::class);
         $this->app->singleton(CommunicationSendService::class);
         $this->app->singleton(CommunicationReplyGenerator::class);
+
+        // Automation & Missions Domain Singletons
+        $this->app->singleton(TriggerRegistry::class);
+        $this->app->singleton(ConditionEvaluator::class);
+        $this->app->singleton(ActionRegistry::class);
+        $this->app->singleton(AutomationEngine::class);
+        $this->app->singleton(MissionStateMachine::class);
+        $this->app->singleton(MissionPlanner::class);
+        $this->app->singleton(MissionExecutor::class);
 
         $this->app->singleton(MrFoxToolRegistry::class, function ($app) {
             $registry = new MrFoxToolRegistry();
@@ -133,6 +153,12 @@ class MrFoxServiceProvider extends ServiceProvider
             $registry->register(new CommunicationsSummarizeTool($app->make(ProviderRouter::class)));
             $registry->register(new CommunicationsDraftReplyTool($app->make(CommunicationReplyGenerator::class)));
             $registry->register(new CommunicationsSendReplyTool($app->make(CommunicationSendService::class)));
+
+            // Missions Tools
+            $registry->register(new MissionsListTool());
+            $registry->register(new MissionsGetTool());
+            $registry->register(new MissionsCreateTool($app->make(MissionPlanner::class)));
+            $registry->register(new MissionsControlTool($app->make(MissionStateMachine::class)));
 
             return $registry;
         });
