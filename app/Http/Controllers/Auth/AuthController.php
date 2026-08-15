@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Models\User;
-use App\Models\Workspace;
 use App\Services\TenantProvisioningService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -43,25 +42,22 @@ class AuthController
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             RateLimiter::clear($throttleKey);
             $request->session()->regenerate();
-            $request->session()->forget('enabled_modules');
+            $request->session()->forget(['enabled_modules', 'active_organization_id', 'active_workspace_id', 'active_workspace_title']);
 
-            $workspace = null;
             if ($user->isSuperAdmin()) {
-                $workspace = Workspace::query()->where('is_active', true)->oldest('id')->first();
-            } else {
-                $workspace = $user->workspaces()
-                    ->where('workspaces.is_active', true)
-                    ->whereHas('organization', fn ($query) => $query->where('is_active', true))
-                    ->oldest('workspaces.id')
-                    ->first();
+                return redirect()->intended('/super-admin/dashboard');
             }
+
+            $workspace = $user->workspaces()
+                ->where('workspaces.is_active', true)
+                ->whereHas('organization', fn ($query) => $query->where('is_active', true))
+                ->oldest('workspaces.id')
+                ->first();
 
             if ($workspace) {
                 $request->session()->put('active_organization_id', $workspace->organization_id);
                 $request->session()->put('active_workspace_id', $workspace->id);
                 $request->session()->put('active_workspace_title', $workspace->name);
-            } else {
-                $request->session()->forget(['active_organization_id', 'active_workspace_id', 'active_workspace_title']);
             }
 
             return redirect()->intended('/dashboard');
