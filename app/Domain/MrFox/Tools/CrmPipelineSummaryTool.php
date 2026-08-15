@@ -18,7 +18,7 @@ class CrmPipelineSummaryTool implements MrFoxToolContract
 
     public function description(): string
     {
-        return 'Summarize the active CRM sales pipeline, open deals by stage, conversion rates, and pipeline total value.';
+        return 'Get total deal pipeline value, deal count by stage, and conversion performance.';
     }
 
     public function inputSchema(): array
@@ -48,28 +48,30 @@ class CrmPipelineSummaryTool implements MrFoxToolContract
     {
         $wsId = $context->getWorkspaceId();
 
-        $openLeads = CrmLead::where('workspace_id', $wsId)->whereNull('converted_at')->count();
-        $totalDeals = CrmDeal::where('workspace_id', $wsId)->count();
-        $dealsValue = (float) CrmDeal::where('workspace_id', $wsId)->sum('price');
-        $wonDeals = CrmDeal::where('workspace_id', $wsId)->where('status', 'Won')->count();
+        $openDeals = CrmDeal::where('workspace_id', $wsId)->where('status', 'open')->get();
+        $totalPipelineValue = (float) $openDeals->sum('value');
+        $totalLeads = CrmLead::where('workspace_id', $wsId)->count();
+        $convertedLeads = CrmLead::where('workspace_id', $wsId)->whereNotNull('converted_at')->count();
 
         $data = [
-            'open_leads_count' => $openLeads,
-            'total_deals_count' => $totalDeals,
-            'total_pipeline_value' => $dealsValue,
-            'won_deals_count' => $wonDeals,
+            'open_deals_count' => $openDeals->count(),
+            'pipeline_value' => $totalPipelineValue,
+            'total_leads' => $totalLeads,
+            'converted_leads' => $convertedLeads,
+            'conversion_rate_percent' => $totalLeads > 0 ? round(($convertedLeads / $totalLeads) * 100, 1) : 0,
         ];
 
         $summary = sprintf(
-            'CRM Pipeline: %d active leads | %d total deals | Pipeline Value: $%s | Closed Won: %d',
-            $openLeads,
-            $totalDeals,
-            number_format($dealsValue, 2),
-            $wonDeals
+            'CRM Pipeline Summary: %d open deals totaling $%s in active pipeline. %d/%d leads converted (%s%%).',
+            $openDeals->count(),
+            number_format($totalPipelineValue, 2),
+            $convertedLeads,
+            $totalLeads,
+            $data['conversion_rate_percent']
         );
 
         return ToolResult::success($data, $summary, [
-            ['type' => 'crm', 'label' => 'CRM Pipeline', 'route' => '/crm/leads'],
+            ['type' => 'crm', 'label' => 'CRM Deals Pipeline', 'route' => '/crm/deals'],
         ]);
     }
 }

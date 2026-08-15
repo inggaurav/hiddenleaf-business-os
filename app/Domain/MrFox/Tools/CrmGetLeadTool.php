@@ -64,15 +64,27 @@ class CrmGetLeadTool implements MrFoxToolContract
             return ToolResult::error("CRM Lead with ID #{$leadId} not found in this workspace.");
         }
 
+        $safeData = [
+            'id' => $lead->id,
+            'name' => $lead->name,
+            'company' => $lead->company,
+            'email' => $lead->email,
+            'phone' => $lead->phone,
+            'estimated_value' => (float) $lead->estimated_value,
+            'stage' => $lead->stage?->name,
+            'pipeline' => $lead->pipeline?->name,
+            'status' => $lead->status,
+        ];
+
         $summary = sprintf(
             'CRM Lead: %s | Company: %s | Stage: %s | Estimated Value: $%s',
             $lead->name,
             $lead->company ?? 'N/A',
             $lead->stage?->name ?? 'Default',
-            number_format($lead->estimated_value ?? 0, 2)
+            number_format((float) $lead->estimated_value, 2)
         );
 
-        return ToolResult::success($lead->toArray(), $summary, [
+        return ToolResult::success($safeData, $summary, [
             ['type' => 'lead', 'id' => $lead->id, 'label' => "Lead: {$lead->name}", 'route' => "/crm/leads/{$lead->id}"],
         ]);
     }

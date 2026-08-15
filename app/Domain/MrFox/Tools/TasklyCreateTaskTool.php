@@ -9,6 +9,7 @@ use App\Domain\MrFox\RiskLevel;
 use App\Models\TasklyProject;
 use App\Models\TasklyStage;
 use App\Models\TasklyTask;
+use Illuminate\Support\Facades\DB;
 
 class TasklyCreateTaskTool implements MrFoxToolContract
 {
@@ -78,32 +79,42 @@ class TasklyCreateTaskTool implements MrFoxToolContract
             return ToolResult::error("Project #{$projectId} not found in this workspace.");
         }
 
-        $stage = TasklyStage::where('project_id', $project->id)->first();
-        if (! $stage) {
-            $stage = TasklyStage::create([
+        $task = DB::transaction(function () use ($orgId, $wsId, $project, $context, $input) {
+            $stage = TasklyStage::where('project_id', $project->id)->first();
+            if (! $stage) {
+                $stage = TasklyStage::create([
+                    'organization_id' => $orgId,
+                    'workspace_id' => $wsId,
+                    'project_id' => $project->id,
+                    'name' => 'To Do',
+                    'order' => 0,
+                ]);
+            }
+
+            return TasklyTask::create([
                 'organization_id' => $orgId,
                 'workspace_id' => $wsId,
                 'project_id' => $project->id,
-                'name' => 'To Do',
-                'order' => 0,
+                'stage_id' => $stage->id,
+                'created_by' => $context->user->id,
+                'title' => $input['title'],
+                'description' => $input['description'] ?? null,
+                'priority' => $input['priority'] ?? 'medium',
+                'due_on' => ! empty($input['due_date']) ? $input['due_date'] : null,
             ]);
-        }
-
-        $task = TasklyTask::create([
-            'organization_id' => $orgId,
-            'workspace_id' => $wsId,
-            'project_id' => $project->id,
-            'stage_id' => $stage->id,
-            'created_by' => $context->user->id,
-            'title' => $input['title'],
-            'description' => $input['description'] ?? null,
-            'priority' => $input['priority'] ?? 'medium',
-            'due_on' => ! empty($input['due_date']) ? $input['due_date'] : null,
-        ]);
+        });
 
         $summary = "Created new task '{$task->title}' in project '{$project->name}'.";
 
-        return ToolResult::success($task->toArray(), $summary, [
+        $safeData = [
+            'id' => $task->id,
+            'project_id' => $project->id,
+            'title' => $task->title,
+            'priority' => $task->priority,
+            'due_on' => optional($task->due_on)->toDateString(),
+        ];
+
+        return ToolResult::success($safeData, $summary, [
             ['type' => 'task', 'id' => $task->id, 'label' => "Task: {$task->title}", 'route' => "/tasks/{$task->id}"],
         ]);
     }

@@ -6,12 +6,13 @@ use App\Domain\MrFox\Agent\MrFoxAgent;
 use App\Domain\MrFox\Approvals\ActionApprovalService;
 use App\Domain\MrFox\Context\BusinessContextService;
 use App\Domain\MrFox\Insights\BusinessInsightService;
+use App\Domain\MrFox\Observability\MrFoxUsageService;
 use App\Http\Controllers\Controller;
-use App\Models\AssistantMessage;
-use App\Models\AssistantSession;
+use App\Models\MrFoxConversation;
+use App\Models\MrFoxMessage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class MrFoxChatController extends Controller
 {
@@ -19,74 +20,121 @@ class MrFoxChatController extends Controller
         private MrFoxAgent $agent,
         private BusinessInsightService $insightService,
         private ActionApprovalService $approvalService,
-        private BusinessContextService $contextService
+        private BusinessContextService $contextService,
+        private MrFoxUsageService $usageService
     ) {}
 
     public function chat(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'message' => 'required|string',
-            'session_id' => 'nullable|integer',
-            'conversation_id' => 'nullable|string',
-            'active_page' => 'nullable|string',
+            'message' => ['required', 'string', 'max:5000'],
+            'conversation_id' => ['nullable'],
+            'active_page' => ['nullable', 'string', 'max:100'],
         ]);
 
         $user = $request->user();
         $workspace = $request->attributes->get('workspace') ?? $user->workspaces()->first();
         $activePage = $validated['active_page'] ?? 'Dashboard';
 
-        // Find or create session
-        $session = null;
-        if (! empty($validated['session_id'])) {
-            $session = AssistantSession::where('id', $validated['session_id'])
-                ->where('user_id', $user->id)
-                ->where('workspace_id', $workspace?->id)
-                ->first();
+        if (! $workspace) {
+            return response()->json([
+                'success' => false,
+                'error' => 'No active workspace found for this user context.',
+            ], 422);
         }
 
-        if (! $session) {
-            $session = AssistantSession::create([
-                'title' => substr($validated['message'], 0, 40) . '...',
+        // Quota check guardrail
+        if ($this->usageService->hasExceededMonthlyQuota($workspace->id)) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Monthly AI token quota has been exceeded for this workspace.',
+            ], 429);
+        }
+
+        // Resolve or create persistent conversation
+        $conversationId = $validated['conversation_id'] ?? null;
+        $conversation = null;
+
+        if (! empty($conversationId)) {
+            $conversation = MrFoxConversation::where('workspace_id', $workspace->id)
+                ->where('user_id', $user->id)
+                ->where('id', $conversationId)
+                ->first();
+
+            if (! $conversation) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Conversation not found in this workspace.',
+                ], 404);
+            }
+        }
+
+        if (! $conversation) {
+            $conversation = MrFoxConversation::create([
+                'organization_id' => $workspace->organization_id,
+                'workspace_id' => $workspace->id,
                 'user_id' => $user->id,
-                'workspace_id' => $workspace?->id,
-                'provider' => 'mrfox',
+                'title' => Str::limit($validated['message'], 40, '...'),
+                'active_page' => $activePage,
             ]);
         }
 
-        // Save user message
-        $userMsg = $session->messages()->create([
+        // Persist inbound user message
+        $userMessage = MrFoxMessage::create([
+            'conversation_id' => $conversation->id,
+            'organization_id' => $workspace->organization_id,
+            'workspace_id' => $workspace->id,
+            'user_id' => $user->id,
             'role' => 'user',
-            'message' => $validated['message'],
-            'provider' => 'user',
+            'content' => $validated['message'],
         ]);
 
-        // Load conversation history
-        $history = $session->messages()->oldest()->get()->map(fn (AssistantMessage $m) => [
-            'role' => $m->role,
-            'content' => $m->message,
-        ])->all();
+        // Load recent messages for context window management (max 10 past messages)
+        $pastMessages = MrFoxMessage::where('conversation_id', $conversation->id)
+            ->where('id', '!=', $userMessage->id)
+            ->latest('id')
+            ->take(10)
+            ->get()
+            ->reverse()
+            ->map(fn ($m) => [
+                'role' => $m->role,
+                'content' => $m->content,
+            ])
+            ->values()
+            ->all();
 
-        // Run Mr. Fox Agent
+        $messagesPayload = array_merge($pastMessages, [
+            ['role' => 'user', 'content' => $validated['message']],
+        ]);
+
+        // Execute agent orchestrator
         $result = $this->agent->handle(
-            user: $user,
-            workspace: $workspace,
-            messages: $history,
-            conversationId: (string) $session->id,
-            activePage: $activePage
+            $user,
+            $workspace,
+            $messagesPayload,
+            (string) $conversation->id,
+            $activePage
         );
 
-        // Save assistant response message
-        $assistantMsg = $session->messages()->create([
+        // Persist assistant reply
+        $assistantMsg = MrFoxMessage::create([
+            'conversation_id' => $conversation->id,
+            'organization_id' => $workspace->organization_id,
+            'workspace_id' => $workspace->id,
+            'user_id' => null,
             'role' => 'assistant',
-            'message' => $result['reply'] ?: 'Executed requested actions.',
-            'provider' => $result['provider'],
+            'content' => $result['reply'] ?? '',
+            'tool_calls' => ! empty($result['tools_executed']) ? $result['tools_executed'] : null,
+            'tool_results' => ! empty($result['action_proposals']) ? $result['action_proposals'] : null,
+            'evidence' => ! empty($result['evidence']) ? $result['evidence'] : null,
+            'provider' => $result['provider'] ?? null,
+            'model' => $result['model'] ?? null,
         ]);
 
         return response()->json([
             'success' => true,
-            'session_id' => $session->id,
-            'user_message' => $userMsg,
-            'assistant_message' => $assistantMsg,
+            'conversation_id' => $conversation->id,
+            'session_id' => $conversation->id,
             'reply' => $result['reply'],
             'provider' => $result['provider'],
             'model' => $result['model'],
@@ -101,8 +149,12 @@ class MrFoxChatController extends Controller
     {
         $user = $request->user();
         $workspace = $request->attributes->get('workspace') ?? $user->workspaces()->first();
-        $context = $this->contextService->createToolContext($user, $workspace);
 
+        if (! $workspace) {
+            return response()->json(['success' => false, 'error' => 'No active workspace.'], 422);
+        }
+
+        $context = $this->contextService->createToolContext($user, $workspace);
         $insights = $this->insightService->generateInsights($context);
 
         return response()->json([
@@ -116,17 +168,20 @@ class MrFoxChatController extends Controller
         $user = $request->user();
         $workspace = $request->attributes->get('workspace') ?? $user->workspaces()->first();
 
-        $sessions = AssistantSession::query()
+        if (! $workspace) {
+            return response()->json(['success' => false, 'conversations' => []]);
+        }
+
+        $conversations = MrFoxConversation::where('workspace_id', $workspace->id)
             ->where('user_id', $user->id)
-            ->where('workspace_id', $workspace?->id)
-            ->whereNull('archived_at')
-            ->latest()
-            ->take(20)
+            ->where('is_archived', false)
+            ->latest('updated_at')
+            ->take(30)
             ->get();
 
         return response()->json([
             'success' => true,
-            'conversations' => $sessions,
+            'conversations' => $conversations,
         ]);
     }
 
@@ -135,17 +190,27 @@ class MrFoxChatController extends Controller
         $user = $request->user();
         $workspace = $request->attributes->get('workspace') ?? $user->workspaces()->first();
 
-        $session = AssistantSession::query()
-            ->where('id', $id)
+        if (! $workspace) {
+            return response()->json(['success' => false, 'error' => 'No active workspace.'], 422);
+        }
+
+        $conversation = MrFoxConversation::where('id', $id)
+            ->where('workspace_id', $workspace->id)
             ->where('user_id', $user->id)
-            ->where('workspace_id', $workspace?->id)
-            ->with(['messages' => fn ($q) => $q->oldest()])
-            ->firstOrFail();
+            ->first();
+
+        if (! $conversation) {
+            return response()->json(['success' => false, 'error' => 'Conversation not found in workspace.'], 404);
+        }
+
+        $messages = MrFoxMessage::where('conversation_id', $conversation->id)
+            ->orderBy('created_at', 'asc')
+            ->get();
 
         return response()->json([
             'success' => true,
-            'conversation' => $session,
-            'messages' => $session->messages,
+            'conversation' => $conversation,
+            'messages' => $messages,
         ]);
     }
 
@@ -153,8 +218,12 @@ class MrFoxChatController extends Controller
     {
         $user = $request->user();
         $workspace = $request->attributes->get('workspace') ?? $user->workspaces()->first();
-        $context = $this->contextService->createToolContext($user, $workspace);
 
+        if (! $workspace) {
+            return response()->json(['success' => false, 'error' => 'No active workspace.'], 422);
+        }
+
+        $context = $this->contextService->createToolContext($user, $workspace);
         $result = $this->approvalService->approveAndExecute($id, $user, $context);
 
         return response()->json([
@@ -171,7 +240,11 @@ class MrFoxChatController extends Controller
         $user = $request->user();
         $workspace = $request->attributes->get('workspace') ?? $user->workspaces()->first();
 
-        $rejected = $this->approvalService->reject($id, $user, $workspace?->id);
+        if (! $workspace) {
+            return response()->json(['success' => false, 'error' => 'No active workspace.'], 422);
+        }
+
+        $rejected = $this->approvalService->reject($id, $user, $workspace->id);
 
         return response()->json([
             'success' => $rejected,

@@ -400,16 +400,19 @@ export const MrFoxPanel: React.FC<MrFoxPanelProps> = ({
                         Grounded ERP Evidence
                       </div>
                       <div className="flex flex-wrap gap-1.5">
-                        {msg.evidence.map((ev, idx) => (
-                          <a
-                            key={idx}
-                            href={ev.route || '#'}
-                            className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-[var(--surface-3)] hover:bg-purple-900/40 border border-[var(--border-subtle)] text-[11px] text-purple-300 transition-colors"
-                          >
-                            <span>{ev.label}</span>
-                            <ExternalLink className="w-2.5 h-2.5 text-gray-400" />
-                          </a>
-                        ))}
+                        {msg.evidence.map((ev, idx) => {
+                          const safeRoute = ev.route && ev.route.startsWith('/') ? ev.route : '#';
+                          return (
+                            <a
+                              key={idx}
+                              href={safeRoute}
+                              className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-[var(--surface-3)] hover:bg-purple-900/40 border border-[var(--border-subtle)] text-[11px] text-purple-300 transition-colors"
+                            >
+                              <span>{ev.label}</span>
+                              <ExternalLink className="w-2.5 h-2.5 text-gray-400" />
+                            </a>
+                          );
+                        })}
                       </div>
                     </div>
                   )}

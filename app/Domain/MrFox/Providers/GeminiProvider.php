@@ -44,42 +44,62 @@ class GeminiProvider implements AiProviderContract
             ];
         }
 
+        $payload = [
+            'contents' => $contents,
+            'generationConfig' => [
+                'temperature' => $request->temperature,
+                'maxOutputTokens' => $request->maxTokens,
+            ],
+        ];
+
+        if ($request->systemPrompt) {
+            $payload['systemInstruction'] = [
+                'parts' => [['text' => $request->systemPrompt]],
+            ];
+        }
+
         $url = "https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent?key={$this->apiKey}";
 
         try {
-            $response = Http::timeout(30)->post($url, [
-                'contents' => $contents,
-                'generationConfig' => [
-                    'temperature' => $request->temperature,
-                    'maxOutputTokens' => $request->maxTokens,
-                ],
-            ]);
+            $response = Http::connectTimeout(5)
+                ->timeout(30)
+                ->retry(2, 500, throw: false)
+                ->post($url, $payload);
 
             if ($response->failed()) {
-                Log::warning('Gemini provider request failed', ['status' => $response->status(), 'body' => $response->body()]);
+                $status = $response->status();
+                Log::warning('Gemini provider request failed', ['status' => $status, 'model' => $this->model]);
 
                 return new AiResponse(
-                    content: "Gemini error: {$response->status()}",
+                    content: "Gemini AI service error ({$status}).",
                     provider: 'gemini',
                     model: $this->model
                 );
             }
 
             $json = $response->json();
+            if (! is_array($json)) {
+                return new AiResponse(
+                    content: 'Received malformed response payload from Gemini service.',
+                    provider: 'gemini',
+                    model: $this->model
+                );
+            }
+
             $text = $json['candidates'][0]['content']['parts'][0]['text'] ?? '';
 
             return new AiResponse(
                 content: $text,
                 provider: 'gemini',
                 model: $this->model,
-                inputTokens: $json['usageMetadata']['promptTokenCount'] ?? 0,
-                outputTokens: $json['usageMetadata']['candidatesTokenCount'] ?? 0
+                inputTokens: (int) ($json['usageMetadata']['promptTokenCount'] ?? 0),
+                outputTokens: (int) ($json['usageMetadata']['candidatesTokenCount'] ?? 0)
             );
         } catch (\Throwable $e) {
             Log::error('Gemini exception during chat completion', ['error' => $e->getMessage()]);
 
             return new AiResponse(
-                content: "Error communicating with Gemini service: {$e->getMessage()}",
+                content: 'Error communicating with Gemini service. Please try again later.',
                 provider: 'gemini',
                 model: $this->model
             );

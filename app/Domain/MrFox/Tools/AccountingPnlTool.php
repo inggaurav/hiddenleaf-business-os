@@ -2,6 +2,7 @@
 
 namespace App\Domain\MrFox\Tools;
 
+use App\Domain\Accounting\AccountDashboardService;
 use App\Domain\MrFox\Contracts\MrFoxToolContract;
 use App\Domain\MrFox\DTO\ToolContext;
 use App\Domain\MrFox\DTO\ToolResult;
@@ -46,10 +47,17 @@ class AccountingPnlTool implements MrFoxToolContract
 
     public function execute(ToolContext $context, array $input): ToolResult
     {
+        $orgId = $context->getOrganizationId();
         $wsId = $context->getWorkspaceId();
 
-        $grossRevenue = (float) SalesInvoice::where('workspace_id', $wsId)->where('status', 'posted')->sum('total_amount');
-        $costAndExpenses = (float) PurchaseInvoice::where('workspace_id', $wsId)->where('status', 'posted')->sum('total_amount');
+        $grossRevenue = (float) SalesInvoice::where('workspace_id', $wsId)
+            ->whereIn('status', ['posted', 'sent', 'partial', 'paid'])
+            ->sum('total_amount');
+
+        $costAndExpenses = (float) PurchaseInvoice::where('workspace_id', $wsId)
+            ->whereIn('status', ['posted', 'sent', 'partial', 'paid'])
+            ->sum('total_amount');
+
         $netIncome = $grossRevenue - $costAndExpenses;
         $marginPercent = $grossRevenue > 0 ? round(($netIncome / $grossRevenue) * 100, 2) : 0;
 

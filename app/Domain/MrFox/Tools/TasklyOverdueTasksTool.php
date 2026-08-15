@@ -52,7 +52,16 @@ class TasklyOverdueTasksTool implements MrFoxToolContract
             ->whereNull('completed_at')
             ->where('due_on', '<', now())
             ->with(['project'])
+            ->take(50)
             ->get();
+
+        $safeData = $overdue->map(fn ($t) => [
+            'id' => $t->id,
+            'title' => $t->title,
+            'project' => $t->project?->name,
+            'priority' => $t->priority,
+            'due_on' => optional($t->due_on)->toDateString(),
+        ]);
 
         $evidence = $overdue->map(fn ($t) => [
             'type' => 'task',
@@ -63,6 +72,6 @@ class TasklyOverdueTasksTool implements MrFoxToolContract
 
         $summary = sprintf('Identified %d overdue sprint task(s).', $overdue->count());
 
-        return ToolResult::success($overdue->toArray(), $summary, $evidence);
+        return ToolResult::success($safeData->toArray(), $summary, $evidence);
     }
 }

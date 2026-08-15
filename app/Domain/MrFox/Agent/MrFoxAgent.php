@@ -11,18 +11,26 @@ use App\Domain\MrFox\Observability\MrFoxAuditService;
 use App\Domain\MrFox\Observability\MrFoxUsageService;
 use App\Domain\MrFox\Providers\ProviderRouter;
 use App\Domain\MrFox\Tools\MrFoxToolRegistry;
+use App\Domain\MrFox\Validation\ToolInputValidator;
 use App\Models\User;
 use App\Models\Workspace;
+use App\Services\PermissionService;
+use Illuminate\Support\Facades\Log;
 
 class MrFoxAgent
 {
+    /** Maximum number of tool calls permitted in a single agent turn */
+    public const MAX_TOOL_CALLS = 5;
+
     public function __construct(
         private ProviderRouter $providerRouter,
         private MrFoxToolRegistry $toolRegistry,
         private BusinessContextService $contextService,
         private ActionApprovalService $approvalService,
         private MrFoxAuditService $auditService,
-        private MrFoxUsageService $usageService
+        private MrFoxUsageService $usageService,
+        private ToolInputValidator $validator,
+        private PermissionService $permissionService
     ) {}
 
     public function handle(
@@ -32,6 +40,7 @@ class MrFoxAgent
         string $conversationId = '',
         string $activePage = 'Dashboard'
     ): array {
+        // Enforce server-side context authority
         $toolContext = $this->contextService->createToolContext($user, $workspace, $conversationId);
         $businessContext = $this->contextService->build($user, $workspace, $activePage);
         $provider = $this->providerRouter->resolve($workspace);
@@ -66,45 +75,88 @@ class MrFoxAgent
         $actionProposals = [];
 
         if ($aiResponse->hasToolCalls()) {
+            $callCount = 0;
+
             foreach ($aiResponse->toolCalls as $call) {
+                if (++$callCount > self::MAX_TOOL_CALLS) {
+                    $toolResults[] = [
+                        'tool' => $call['name'] ?? 'unknown',
+                        'success' => false,
+                        'summary' => 'Tool execution limit reached for this interaction turn.',
+                    ];
+                    break;
+                }
+
                 $toolName = $call['name'] ?? '';
-                $toolInput = $call['arguments'] ?? [];
+                $rawInput = $call['arguments'] ?? [];
                 $tool = $this->toolRegistry->get($toolName);
 
                 if (! $tool) {
                     $toolResults[] = [
                         'tool' => $toolName,
                         'success' => false,
-                        'summary' => "Tool '{$toolName}' is not recognized.",
+                        'summary' => "Tool '{$toolName}' is not recognized in registry.",
                     ];
                     continue;
                 }
 
+                // 1. Server-side RBAC Permission Verification
+                $reqPermission = $tool->requiredPermission();
+                $isSuperAdmin = method_exists($user, 'isSuperAdmin') ? $user->isSuperAdmin() : ($user->role === 'super_admin');
+
+                if (! $isSuperAdmin && $reqPermission !== null && $workspace !== null) {
+                    if (! $this->permissionService->allows($user, $workspace, $reqPermission)) {
+                        $toolResults[] = [
+                            'tool' => $toolName,
+                            'success' => false,
+                            'summary' => "Access denied: Missing required permission '{$reqPermission}'.",
+                        ];
+                        continue;
+                    }
+                }
+
+                // 2. Server-side Schema & Security Validation
+                $validation = $this->validator->validate($tool, $rawInput);
+                if (! $validation['valid']) {
+                    $toolResults[] = [
+                        'tool' => $toolName,
+                        'success' => false,
+                        'summary' => 'Invalid parameters: ' . json_encode($validation['errors']),
+                    ];
+                    continue;
+                }
+                $toolInput = $validation['sanitized'];
+
                 $risk = $tool->riskLevel();
                 $toolStartTime = microtime(true);
 
-                // High / Critical risk requires approval proposal
-                if ($risk->requiresApproval()) {
-                    $humanSummary = "Proposed execution of {$toolName} with input: " . json_encode($toolInput);
-                    $proposal = $this->approvalService->createProposal(
-                        $toolContext,
-                        $toolName,
-                        $toolInput,
-                        $humanSummary,
-                        $risk
-                    );
+                try {
+                    // High / Critical risk requires approval proposal
+                    if ($risk->requiresApproval()) {
+                        $humanSummary = "Proposed execution of {$toolName} with input: " . json_encode($toolInput);
+                        $proposal = $this->approvalService->createProposal(
+                            $toolContext,
+                            $toolName,
+                            $toolInput,
+                            $humanSummary,
+                            $risk
+                        );
 
-                    $actionProposals[] = [
-                        'proposal_id' => $proposal->id,
-                        'tool_name' => $toolName,
-                        'human_summary' => $humanSummary,
-                        'risk_level' => $risk->value,
-                        'status' => 'pending',
-                    ];
+                        $actionProposals[] = [
+                            'proposal_id' => $proposal->id,
+                            'tool_name' => $toolName,
+                            'human_summary' => $humanSummary,
+                            'risk_level' => $risk->value,
+                            'status' => 'pending',
+                        ];
 
-                    $result = ToolResult::proposed($proposal->id, $humanSummary);
-                } else {
-                    $result = $tool->execute($toolContext, $toolInput);
+                        $result = ToolResult::proposed($proposal->id, $humanSummary);
+                    } else {
+                        $result = $tool->execute($toolContext, $toolInput);
+                    }
+                } catch (\Throwable $e) {
+                    Log::error("MrFox tool execution failed: {$toolName}", ['error' => $e->getMessage()]);
+                    $result = ToolResult::error("Execution error encountered while running {$toolName}.");
                 }
 
                 $toolDuration = (int) round((microtime(true) - $toolStartTime) * 1000);

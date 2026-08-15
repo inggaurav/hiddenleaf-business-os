@@ -9,6 +9,7 @@ use App\Domain\MrFox\RiskLevel;
 use App\Models\CrmLead;
 use App\Models\CrmPipeline;
 use App\Models\CrmStage;
+use Illuminate\Support\Facades\DB;
 
 class CrmCreateLeadTool implements MrFoxToolContract
 {
@@ -72,43 +73,54 @@ class CrmCreateLeadTool implements MrFoxToolContract
         $orgId = $context->getOrganizationId();
         $wsId = $context->getWorkspaceId();
 
-        $pipeline = CrmPipeline::where('workspace_id', $wsId)->first();
-        if (! $pipeline && $orgId) {
-            $pipeline = CrmPipeline::create([
+        $lead = DB::transaction(function () use ($orgId, $wsId, $context, $input) {
+            $pipeline = CrmPipeline::where('workspace_id', $wsId)->first();
+            if (! $pipeline && $orgId) {
+                $pipeline = CrmPipeline::create([
+                    'organization_id' => $orgId,
+                    'workspace_id' => $wsId,
+                    'name' => 'Default Pipeline',
+                    'is_default' => true,
+                ]);
+            }
+
+            $stage = $pipeline ? CrmStage::where('pipeline_id', $pipeline->id)->first() : null;
+            if (! $stage && $pipeline) {
+                $stage = CrmStage::create([
+                    'pipeline_id' => $pipeline->id,
+                    'name' => 'Inbound Lead',
+                    'position' => 0,
+                    'probability' => 20,
+                ]);
+            }
+
+            return CrmLead::create([
                 'organization_id' => $orgId,
                 'workspace_id' => $wsId,
-                'name' => 'Default Pipeline',
-                'is_default' => true,
+                'pipeline_id' => $pipeline?->id ?? 1,
+                'stage_id' => $stage?->id ?? 1,
+                'created_by' => $context->user->id,
+                'name' => $input['name'],
+                'email' => $input['email'] ?? null,
+                'phone' => $input['phone'] ?? null,
+                'company' => $input['company_name'] ?? null,
+                'estimated_value' => $input['value'] ?? 0,
+                'status' => 'active',
             ]);
-        }
-
-        $stage = $pipeline ? CrmStage::where('pipeline_id', $pipeline->id)->first() : null;
-        if (! $stage && $pipeline) {
-            $stage = CrmStage::create([
-                'pipeline_id' => $pipeline->id,
-                'name' => 'Inbound Lead',
-                'position' => 0,
-                'probability' => 20,
-            ]);
-        }
-
-        $lead = CrmLead::create([
-            'organization_id' => $orgId,
-            'workspace_id' => $wsId,
-            'pipeline_id' => $pipeline?->id ?? 1,
-            'stage_id' => $stage?->id ?? 1,
-            'created_by' => $context->user->id,
-            'name' => $input['name'],
-            'email' => $input['email'] ?? null,
-            'phone' => $input['phone'] ?? null,
-            'company' => $input['company_name'] ?? null,
-            'estimated_value' => $input['value'] ?? 0,
-            'status' => 'active',
-        ]);
+        });
 
         $summary = "Successfully created new CRM Lead '{$lead->name}' (#{$lead->id}).";
 
-        return ToolResult::success($lead->toArray(), $summary, [
+        $safeData = [
+            'id' => $lead->id,
+            'name' => $lead->name,
+            'company' => $lead->company,
+            'email' => $lead->email,
+            'estimated_value' => (float) $lead->estimated_value,
+            'status' => $lead->status,
+        ];
+
+        return ToolResult::success($safeData, $summary, [
             ['type' => 'lead', 'id' => $lead->id, 'label' => "Lead: {$lead->name}", 'route' => "/crm/leads/{$lead->id}"],
         ]);
     }

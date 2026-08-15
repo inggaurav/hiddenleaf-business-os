@@ -428,7 +428,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('ai-agent/chat', [AIAgentChatController::class, 'chat'])->name('ai-agent.chat.send');
 
     // Mr. Fox Intelligence & Action Agent API
-    Route::prefix('api/v1/mr-fox')->name('mr-fox.')->group(function () {
+    Route::prefix('api/v1/mr-fox')->name('mr-fox.')->middleware('throttle:60,1')->group(function () {
         Route::post('chat', [\App\Http\Controllers\MrFox\MrFoxChatController::class, 'chat'])->name('chat');
         Route::get('insights', [\App\Http\Controllers\MrFox\MrFoxChatController::class, 'getInsights'])->name('insights');
         Route::get('conversations', [\App\Http\Controllers\MrFox\MrFoxChatController::class, 'getConversations'])->name('conversations');

@@ -45,13 +45,23 @@ class InventoryLowStockTool implements MrFoxToolContract
 
     public function execute(ToolContext $context, array $input): ToolResult
     {
+        $orgId = $context->getOrganizationId();
         $wsId = $context->getWorkspaceId();
 
-        $lowStock = ProductServiceItem::query()
-            ->where('workspace_id', $wsId)
+        $lowStock = ProductServiceItem::forTenant($orgId, $wsId)
             ->where('type', 'product')
             ->where('reorder_level', '>', 0)
+            ->take(50)
             ->get();
+
+        $safeData = $lowStock->map(fn ($p) => [
+            'id' => $p->id,
+            'name' => $p->name,
+            'sku' => $p->sku,
+            'sale_price' => (float) $p->sale_price,
+            'purchase_price' => (float) $p->purchase_price,
+            'reorder_level' => (float) $p->reorder_level,
+        ]);
 
         $evidence = $lowStock->map(fn ($p) => [
             'type' => 'product',
@@ -62,6 +72,6 @@ class InventoryLowStockTool implements MrFoxToolContract
 
         $summary = sprintf('Identified %d product(s) with configured reorder thresholds.', $lowStock->count());
 
-        return ToolResult::success($lowStock->toArray(), $summary, $evidence);
+        return ToolResult::success($safeData->toArray(), $summary, $evidence);
     }
 }

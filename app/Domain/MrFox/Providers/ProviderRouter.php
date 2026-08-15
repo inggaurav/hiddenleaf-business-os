@@ -33,20 +33,29 @@ class ProviderRouter
         $openaiModel = $this->settingsManager->get('openai_model', 'gpt-4o', $workspace) ?: 'gpt-4o';
         $geminiKey = $this->settingsManager->get('gemini_api_key', null, $workspace);
         $preferred = $this->settingsManager->get('ai_provider', 'openai', $workspace);
+        $allowFallback = (bool) $this->settingsManager->get('allow_provider_fallback', false, $workspace);
 
-        if ($preferred === 'gemini' && ! empty($geminiKey)) {
-            return new GeminiProvider($geminiKey, 'gemini-1.5-pro');
+        if ($preferred === 'gemini') {
+            if (! empty($geminiKey)) {
+                return new GeminiProvider($geminiKey, 'gemini-1.5-pro');
+            }
+            if ($allowFallback && ! empty($openaiKey)) {
+                return new OpenAiProvider($openaiKey, $openaiModel);
+            }
+
+            return new GeminiProvider(null, 'gemini-1.5-pro');
         }
 
+        // Preferred is OpenAI or default
         if (! empty($openaiKey)) {
             return new OpenAiProvider($openaiKey, $openaiModel);
         }
 
-        if (! empty($geminiKey)) {
+        if ($allowFallback && ! empty($geminiKey)) {
             return new GeminiProvider($geminiKey, 'gemini-1.5-pro');
         }
 
-        // Fallback default
-        return new OpenAiProvider(null, 'gpt-4o');
+        // Fallback default without credentials
+        return new OpenAiProvider(null, $openaiModel);
     }
 }

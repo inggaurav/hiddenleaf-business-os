@@ -16,6 +16,7 @@ class MrFoxActionProposal extends Model
         'conversation_id',
         'tool_name',
         'payload',
+        'payload_hash',
         'human_summary',
         'risk_level',
         'status',
@@ -25,6 +26,7 @@ class MrFoxActionProposal extends Model
         'executed_at',
         'result',
         'error',
+        'error_trace',
         'expires_at',
     ];
 

@@ -26,6 +26,11 @@ class FakeAiProvider implements AiProviderContract
         $this->cannedResponses[] = $response;
     }
 
+    public function addCannedResponse(AiResponse $response): void
+    {
+        $this->queueResponse($response);
+    }
+
     public function setResponseGenerator(\Closure $callback): void
     {
         $this->responseGenerator = $callback;
@@ -61,27 +66,10 @@ class FakeAiProvider implements AiProviderContract
             );
         }
 
-        if (str_contains(strtolower($userText), 'stock') && ! empty($request->tools)) {
-            return new AiResponse(
-                content: 'Checking inventory stock levels...',
-                toolCalls: [
-                    [
-                        'id' => 'call_2',
-                        'name' => 'inventory.low_stock',
-                        'arguments' => [],
-                    ],
-                ],
-                provider: 'fake',
-                model: 'fake-agent-v1'
-            );
-        }
-
         return new AiResponse(
-            content: "Mr. Fox Intelligence received: \"{$userText}\". Operating with enterprise tenant isolation.",
+            content: 'I have analyzed your business operations and everything is running smoothly.',
             provider: 'fake',
-            model: 'fake-agent-v1',
-            inputTokens: 15,
-            outputTokens: 20
+            model: 'fake-agent-v1'
         );
     }
 }

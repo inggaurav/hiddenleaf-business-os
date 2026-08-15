@@ -33,6 +33,10 @@ class TasklySearchProjectsTool implements MrFoxToolContract
                     'type' => 'string',
                     'description' => 'Filter by status: ongoing, completed, on_hold',
                 ],
+                'limit' => [
+                    'type' => 'integer',
+                    'description' => 'Maximum projects to return (default 10, max 50)',
+                ],
             ],
         ];
     }
@@ -57,6 +61,7 @@ class TasklySearchProjectsTool implements MrFoxToolContract
         $wsId = $context->getWorkspaceId();
         $query = $input['query'] ?? null;
         $status = $input['status'] ?? null;
+        $limit = min(max((int) ($input['limit'] ?? 10), 1), 50);
 
         $builder = TasklyProject::query()
             ->where('workspace_id', $wsId);
@@ -69,7 +74,14 @@ class TasklySearchProjectsTool implements MrFoxToolContract
             $builder->where('status', $status);
         }
 
-        $projects = $builder->latest()->get();
+        $projects = $builder->latest()->take($limit)->get();
+
+        $safeData = $projects->map(fn ($p) => [
+            'id' => $p->id,
+            'name' => $p->name,
+            'status' => $p->status,
+            'budget' => (float) ($p->budget ?? 0),
+        ]);
 
         $evidence = $projects->map(fn ($p) => [
             'type' => 'project',
@@ -80,6 +92,6 @@ class TasklySearchProjectsTool implements MrFoxToolContract
 
         $summary = sprintf('Found %d active project(s).', $projects->count());
 
-        return ToolResult::success($projects->toArray(), $summary, $evidence);
+        return ToolResult::success($safeData->toArray(), $summary, $evidence);
     }
 }

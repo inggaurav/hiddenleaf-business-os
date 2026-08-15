@@ -7,7 +7,7 @@ use App\Domain\MrFox\DTO\ToolContext;
 use App\Domain\MrFox\DTO\ToolResult;
 use App\Domain\MrFox\RiskLevel;
 use App\Models\CrmLead;
-use App\Models\PosSale;
+use App\Models\POS\PosSale;
 use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
 
@@ -54,7 +54,7 @@ class BusinessDashboardSummaryTool implements MrFoxToolContract
         $totalExpenses = (float) PurchaseInvoice::where('workspace_id', $wsId)->where('status', 'posted')->sum('total_amount');
         $netMargin = $totalSales - $totalExpenses;
         $openLeads = CrmLead::where('workspace_id', $wsId)->whereNull('converted_at')->count();
-        $todayPos = (float) PosSale::where('workspace_id', $wsId)->whereDate('created_at', today())->sum('grand_total');
+        $todayPos = (float) PosSale::where('workspace_id', $wsId)->whereDate('created_at', today())->sum('total');
 
         $data = [
             'total_sales' => $totalSales,

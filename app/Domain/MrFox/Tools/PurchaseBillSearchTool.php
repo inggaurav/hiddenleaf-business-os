@@ -35,7 +35,7 @@ class PurchaseBillSearchTool implements MrFoxToolContract
                 ],
                 'limit' => [
                     'type' => 'integer',
-                    'description' => 'Maximum bills to return',
+                    'description' => 'Maximum bills to return (default 10, max 50)',
                 ],
             ],
         ];
@@ -61,7 +61,7 @@ class PurchaseBillSearchTool implements MrFoxToolContract
         $wsId = $context->getWorkspaceId();
         $query = $input['query'] ?? null;
         $status = $input['status'] ?? null;
-        $limit = min((int) ($input['limit'] ?? 10), 50);
+        $limit = min(max((int) ($input['limit'] ?? 10), 1), 50);
 
         $builder = PurchaseInvoice::query()
             ->where('workspace_id', $wsId);
@@ -76,6 +76,16 @@ class PurchaseBillSearchTool implements MrFoxToolContract
 
         $bills = $builder->latest()->take($limit)->get();
 
+        $safeBills = $bills->map(fn ($bill) => [
+            'id' => $bill->id,
+            'invoice_id' => $bill->invoice_id,
+            'vendor_id' => $bill->vendor_id,
+            'purchase_date' => optional($bill->purchase_date)->toDateString(),
+            'due_date' => optional($bill->due_date)->toDateString(),
+            'total_amount' => (float) $bill->total_amount,
+            'status' => $bill->status,
+        ]);
+
         $evidence = $bills->map(fn ($bill) => [
             'type' => 'bill',
             'id' => $bill->id,
@@ -85,6 +95,6 @@ class PurchaseBillSearchTool implements MrFoxToolContract
 
         $summary = sprintf('Found %d vendor bill(s).', $bills->count());
 
-        return ToolResult::success($bills->toArray(), $summary, $evidence);
+        return ToolResult::success($safeBills->toArray(), $summary, $evidence);
     }
 }

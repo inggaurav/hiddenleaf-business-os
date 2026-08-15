@@ -47,9 +47,10 @@ class InventoryStockSummaryTool implements MrFoxToolContract
 
     public function execute(ToolContext $context, array $input): ToolResult
     {
+        $orgId = $context->getOrganizationId();
         $wsId = $context->getWorkspaceId();
 
-        $products = ProductServiceItem::where('workspace_id', $wsId)->where('type', 'product')->get();
+        $products = ProductServiceItem::forTenant($orgId, $wsId)->where('type', 'product')->get();
         $warehouses = Warehouse::where('workspace_id', $wsId)->count();
         $stocks = WarehouseStock::whereIn('warehouse_id', Warehouse::where('workspace_id', $wsId)->pluck('id'))->get();
         $totalUnits = (float) $stocks->sum('quantity');

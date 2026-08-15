@@ -31,7 +31,7 @@ class CrmSearchLeadsTool implements MrFoxToolContract
                 ],
                 'limit' => [
                     'type' => 'integer',
-                    'description' => 'Maximum number of results (default: 10)',
+                    'description' => 'Maximum number of results (default 10, max 50)',
                 ],
             ],
         ];
@@ -56,7 +56,7 @@ class CrmSearchLeadsTool implements MrFoxToolContract
     {
         $wsId = $context->getWorkspaceId();
         $query = $input['query'] ?? null;
-        $limit = min((int) ($input['limit'] ?? 10), 50);
+        $limit = min(max((int) ($input['limit'] ?? 10), 1), 50);
 
         $builder = CrmLead::query()
             ->where('workspace_id', $wsId)
@@ -72,6 +72,18 @@ class CrmSearchLeadsTool implements MrFoxToolContract
 
         $leads = $builder->latest()->take($limit)->get();
 
+        $safeLeads = $leads->map(fn ($lead) => [
+            'id' => $lead->id,
+            'name' => $lead->name,
+            'company' => $lead->company,
+            'email' => $lead->email,
+            'phone' => $lead->phone,
+            'estimated_value' => (float) $lead->estimated_value,
+            'stage' => $lead->stage?->name,
+            'pipeline' => $lead->pipeline?->name,
+            'status' => $lead->status,
+        ]);
+
         $evidence = $leads->map(fn ($lead) => [
             'type' => 'lead',
             'id' => $lead->id,
@@ -81,6 +93,6 @@ class CrmSearchLeadsTool implements MrFoxToolContract
 
         $summary = sprintf('Found %d CRM lead(s) matching criteria.', $leads->count());
 
-        return ToolResult::success($leads->toArray(), $summary, $evidence);
+        return ToolResult::success($safeLeads->toArray(), $summary, $evidence);
     }
 }

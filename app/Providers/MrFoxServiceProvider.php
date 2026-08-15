@@ -71,6 +71,7 @@ class MrFoxServiceProvider extends ServiceProvider
             return new ProviderRouter($app->make(SettingsManager::class));
         });
 
+        $this->app->singleton(\App\Domain\MrFox\Validation\ToolInputValidator::class);
         $this->app->singleton(BusinessContextService::class);
         $this->app->singleton(BusinessInsightService::class);
         $this->app->singleton(ActionApprovalService::class);

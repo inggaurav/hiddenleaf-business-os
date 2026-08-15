@@ -2,18 +2,22 @@
 
 namespace App\Domain\MrFox\Approvals;
 
-use App\Domain\MrFox\Contracts\MrFoxToolContract;
 use App\Domain\MrFox\DTO\ToolContext;
 use App\Domain\MrFox\DTO\ToolResult;
 use App\Domain\MrFox\RiskLevel;
 use App\Domain\MrFox\Tools\MrFoxToolRegistry;
 use App\Models\MrFoxActionProposal;
 use App\Models\User;
+use App\Services\PermissionService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ActionApprovalService
 {
-    public function __construct(private MrFoxToolRegistry $registry) {}
+    public function __construct(
+        private MrFoxToolRegistry $registry,
+        private PermissionService $permissionService
+    ) {}
 
     public function createProposal(
         ToolContext $context,
@@ -22,13 +26,18 @@ class ActionApprovalService
         string $humanSummary,
         RiskLevel $riskLevel
     ): MrFoxActionProposal {
+        $canonicalPayload = $payload;
+        ksort($canonicalPayload);
+        $payloadHash = hash('sha256', json_encode($canonicalPayload));
+
         return MrFoxActionProposal::create([
             'organization_id' => $context->getOrganizationId(),
             'workspace_id' => $context->getWorkspaceId(),
             'user_id' => $context->user->id,
             'conversation_id' => $context->conversationId,
             'tool_name' => $toolName,
-            'payload' => $payload,
+            'payload' => $canonicalPayload,
+            'payload_hash' => $payloadHash,
             'human_summary' => $humanSummary,
             'risk_level' => $riskLevel->value,
             'status' => 'pending',
@@ -39,75 +48,127 @@ class ActionApprovalService
 
     public function approveAndExecute(int $proposalId, User $approver, ToolContext $context): ToolResult
     {
-        $proposal = MrFoxActionProposal::where('id', $proposalId)
-            ->where('workspace_id', $context->getWorkspaceId())
-            ->where('status', 'pending')
-            ->first();
+        return DB::transaction(function () use ($proposalId, $approver, $context) {
+            /** @var MrFoxActionProposal|null $proposal */
+            $proposal = MrFoxActionProposal::where('id', $proposalId)
+                ->where('workspace_id', $context->getWorkspaceId())
+                ->lockForUpdate()
+                ->first();
 
-        if (! $proposal) {
-            return ToolResult::error('Proposal not found, already processed, or expired.');
-        }
+            if (! $proposal) {
+                return ToolResult::error('Proposal not found in this workspace.');
+            }
 
-        if ($proposal->expires_at && $proposal->expires_at->isPast()) {
-            $proposal->update(['status' => 'expired']);
+            if ($proposal->status !== 'pending') {
+                return ToolResult::error("Proposal cannot be executed. Current status: {$proposal->status}.");
+            }
 
-            return ToolResult::error('Action proposal has expired.');
-        }
+            // Expiration check
+            if ($proposal->expires_at && $proposal->expires_at->isPast()) {
+                $proposal->update(['status' => 'expired']);
 
-        $tool = $this->registry->get($proposal->tool_name);
-        if (! $tool) {
-            $proposal->update([
-                'status' => 'failed',
-                'error' => "Registered tool '{$proposal->tool_name}' no longer available.",
-            ]);
+                return ToolResult::error('Action proposal has expired.');
+            }
 
-            return ToolResult::error("Tool '{$proposal->tool_name}' not available.");
-        }
+            // Payload integrity check
+            $canonicalPayload = $proposal->payload ?? [];
+            ksort($canonicalPayload);
+            $currentHash = hash('sha256', json_encode($canonicalPayload));
 
-        return DB::transaction(function () use ($proposal, $tool, $context, $approver) {
+            if ($proposal->payload_hash && $proposal->payload_hash !== $currentHash) {
+                $proposal->update([
+                    'status' => 'failed',
+                    'error' => 'Security violation: Proposal payload hash mismatch.',
+                ]);
+
+                return ToolResult::error('Proposal integrity check failed.');
+            }
+
+            $tool = $this->registry->get($proposal->tool_name);
+            if (! $tool) {
+                $proposal->update([
+                    'status' => 'failed',
+                    'error' => "Registered tool '{$proposal->tool_name}' is no longer available.",
+                ]);
+
+                return ToolResult::error("Tool '{$proposal->tool_name}' not available.");
+            }
+
+            // Execution-time RBAC re-verification
+            $reqPermission = $tool->requiredPermission();
+            $workspace = $context->workspace;
+            $isSuperAdmin = method_exists($approver, 'isSuperAdmin') ? $approver->isSuperAdmin() : ($approver->role === 'super_admin');
+
+            if (! $isSuperAdmin && $reqPermission !== null && $workspace !== null) {
+                if (! $this->permissionService->allows($approver, $workspace, $reqPermission)) {
+                    $proposal->update([
+                        'status' => 'failed',
+                        'error' => "Approver lacks required execution permission '{$reqPermission}'.",
+                    ]);
+
+                    return ToolResult::error("Approver lacks required permission '{$reqPermission}'.");
+                }
+            }
+
+            // Mark approved immediately before executing
             $proposal->update([
                 'status' => 'approved',
                 'approved_at' => now(),
                 'approved_by' => $approver->id,
             ]);
 
-            // Execute using the exact immutable stored payload
-            $result = $tool->execute($context, $proposal->payload);
+            try {
+                // Execute using the exact immutable stored payload
+                $result = $tool->execute($context, $proposal->payload);
 
-            if ($result->success) {
-                $proposal->update([
-                    'status' => 'executed',
-                    'executed_at' => now(),
-                    'result' => $result->toArray(),
-                ]);
-            } else {
+                if ($result->success) {
+                    $proposal->update([
+                        'status' => 'executed',
+                        'executed_at' => now(),
+                        'result' => $result->toArray(),
+                    ]);
+                } else {
+                    $proposal->update([
+                        'status' => 'failed',
+                        'error' => $result->error,
+                    ]);
+                }
+
+                return $result;
+            } catch (\Throwable $e) {
+                Log::error("MrFox action proposal execution failed for #{$proposalId}", ['error' => $e->getMessage()]);
+
                 $proposal->update([
                     'status' => 'failed',
-                    'error' => $result->error,
+                    'error' => 'Execution failed due to server error.',
+                    'error_trace' => $e->getMessage(),
                 ]);
-            }
 
-            return $result;
+                return ToolResult::error('Execution failed: ' . $e->getMessage());
+            }
         });
     }
 
     public function reject(int $proposalId, User $rejector, ?int $workspaceId): bool
     {
-        $proposal = MrFoxActionProposal::where('id', $proposalId)
-            ->where('workspace_id', $workspaceId)
-            ->where('status', 'pending')
-            ->first();
+        return DB::transaction(function () use ($proposalId, $rejector, $workspaceId) {
+            /** @var MrFoxActionProposal|null $proposal */
+            $proposal = MrFoxActionProposal::where('id', $proposalId)
+                ->where('workspace_id', $workspaceId)
+                ->lockForUpdate()
+                ->first();
 
-        if (! $proposal) {
-            return false;
-        }
+            if (! $proposal || $proposal->status !== 'pending') {
+                return false;
+            }
 
-        $proposal->update([
-            'status' => 'rejected',
-            'approved_at' => now(),
-            'approved_by' => $rejector->id,
-        ]);
+            $proposal->update([
+                'status' => 'rejected',
+                'approved_at' => now(),
+                'approved_by' => $rejector->id,
+            ]);
 
-        return true;
+            return true;
+        });
     }
 }

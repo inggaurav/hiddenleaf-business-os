@@ -35,7 +35,7 @@ class SalesInvoiceSearchTool implements MrFoxToolContract
                 ],
                 'limit' => [
                     'type' => 'integer',
-                    'description' => 'Maximum invoices to return (default 10)',
+                    'description' => 'Maximum invoices to return (default 10, max 50)',
                 ],
             ],
         ];
@@ -61,7 +61,7 @@ class SalesInvoiceSearchTool implements MrFoxToolContract
         $wsId = $context->getWorkspaceId();
         $query = $input['query'] ?? null;
         $status = $input['status'] ?? null;
-        $limit = min((int) ($input['limit'] ?? 10), 50);
+        $limit = min(max((int) ($input['limit'] ?? 10), 1), 50);
 
         $builder = SalesInvoice::query()
             ->where('workspace_id', $wsId);
@@ -76,6 +76,16 @@ class SalesInvoiceSearchTool implements MrFoxToolContract
 
         $invoices = $builder->latest()->take($limit)->get();
 
+        $safeInvoices = $invoices->map(fn ($inv) => [
+            'id' => $inv->id,
+            'invoice_id' => $inv->invoice_id,
+            'customer_id' => $inv->customer_id,
+            'issue_date' => optional($inv->issue_date)->toDateString(),
+            'due_date' => optional($inv->due_date)->toDateString(),
+            'total_amount' => (float) $inv->total_amount,
+            'status' => $inv->status,
+        ]);
+
         $evidence = $invoices->map(fn ($inv) => [
             'type' => 'invoice',
             'id' => $inv->id,
@@ -85,6 +95,6 @@ class SalesInvoiceSearchTool implements MrFoxToolContract
 
         $summary = sprintf('Found %d sales invoice(s).', $invoices->count());
 
-        return ToolResult::success($invoices->toArray(), $summary, $evidence);
+        return ToolResult::success($safeInvoices->toArray(), $summary, $evidence);
     }
 }

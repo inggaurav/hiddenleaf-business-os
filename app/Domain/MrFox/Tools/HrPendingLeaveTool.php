@@ -51,7 +51,18 @@ class HrPendingLeaveTool implements MrFoxToolContract
             ->where('workspace_id', $wsId)
             ->where('status', 'pending')
             ->with(['employee', 'type'])
+            ->take(50)
             ->get();
+
+        $safeData = $leaves->map(fn ($l) => [
+            'id' => $l->id,
+            'employee_name' => $l->employee?->name,
+            'leave_type' => $l->type?->name,
+            'starts_on' => optional($l->starts_on)->toDateString(),
+            'ends_on' => optional($l->ends_on)->toDateString(),
+            'days' => (float) $l->days,
+            'status' => $l->status,
+        ]);
 
         $evidence = $leaves->map(fn ($l) => [
             'type' => 'leave',
@@ -62,6 +73,6 @@ class HrPendingLeaveTool implements MrFoxToolContract
 
         $summary = sprintf('Identified %d pending leave application(s).', $leaves->count());
 
-        return ToolResult::success($leaves->toArray(), $summary, $evidence);
+        return ToolResult::success($safeData->toArray(), $summary, $evidence);
     }
 }
