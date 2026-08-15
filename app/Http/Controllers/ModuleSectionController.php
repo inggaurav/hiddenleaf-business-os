@@ -40,14 +40,12 @@ class ModuleSectionController extends Controller
             default => abort(404),
         };
 
-        $pipelines = CrmPipeline::where('organization_id', $org)->where('workspace_id', $ws)->with('stages:id,pipeline_id,name,position')->orderBy('name')->get(['id', 'name', 'is_default']);
-        $leads = CrmLead::forWorkspace($org, $ws)->latest()->limit(200)->get(['id', 'name', 'status']);
-        $deals = CrmDeal::forWorkspace($org, $ws)->latest()->limit(200)->get(['id', 'name', 'status']);
+        $pipelines = CrmPipeline::where('organization_id', $org)->where('workspace_id', $ws)->with('stages:id,pipeline_id,name,position,is_closed,outcome')->orderBy('name')->get(['id', 'name', 'is_default']);
 
         return $this->render($request, 'CRM', $section, $title, $description, $columns, $records, '/crm/dashboard', 'crm.manage', [
             'pipelines' => $pipelines,
-            'leads' => $leads,
-            'deals' => $deals,
+            'leads' => CrmLead::forWorkspace($org, $ws)->latest()->limit(200)->get(['id', 'name', 'status', 'pipeline_id', 'stage_id']),
+            'deals' => CrmDeal::forWorkspace($org, $ws)->latest()->limit(200)->get(['id', 'name', 'status', 'pipeline_id', 'stage_id']),
             'members' => $this->members($workspace),
         ]);
     }
@@ -78,6 +76,8 @@ class ModuleSectionController extends Controller
         return $this->render($request, 'HRM', $section, $title, $description, $columns, $records, '/hrm/dashboard', 'hrm.manage', [
             'employees' => HrEmployee::forWorkspace($org, $ws)->orderBy('name')->get(['id', 'name', 'employee_number']),
             'leaveTypes' => HrLeaveType::where('organization_id', $org)->where('workspace_id', $ws)->orderBy('name')->get(['id', 'name']),
+            'pendingLeaves' => HrLeaveRequest::where('organization_id', $org)->where('workspace_id', $ws)->where('status', 'pending')->latest()->get(['id', 'employee_id', 'starts_on', 'ends_on']),
+            'unpaidPayslips' => HrPayslip::where('organization_id', $org)->where('workspace_id', $ws)->where('status', '!=', 'paid')->latest()->get(['id', 'employee_id', 'period_start', 'period_end', 'net_pay', 'status']),
             'branches' => DB::table('hr_branches')->where('organization_id', $org)->where('workspace_id', $ws)->orderBy('name')->get(['id', 'name']),
             'departments' => DB::table('hr_departments')->where('organization_id', $org)->where('workspace_id', $ws)->orderBy('name')->get(['id', 'name']),
             'designations' => DB::table('hr_designations')->where('organization_id', $org)->where('workspace_id', $ws)->orderBy('name')->get(['id', 'name']),
@@ -100,19 +100,22 @@ class ModuleSectionController extends Controller
             default => abort(404),
         };
 
-        $projects = TasklyProject::forWorkspace($org, $ws)->with('stages:id,project_id,name,is_complete,position')->orderBy('name')->get(['id', 'name', 'manager_id']);
+        $projects = TasklyProject::forWorkspace($org, $ws)
+            ->with(['stages:id,project_id,name,is_complete,position', 'members:id,name'])
+            ->orderBy('name')
+            ->get(['id', 'name', 'manager_id']);
 
         return $this->render($request, 'Projects & Tasks', $section, $title, $description, $columns, $records, '/taskly/dashboard', 'taskly.manage', [
             'projects' => $projects,
-            'tasks' => TasklyTask::forWorkspace($org, $ws)->orderBy('title')->limit(300)->get(['id', 'project_id', 'title']),
+            'tasks' => TasklyTask::forWorkspace($org, $ws)->orderBy('title')->limit(300)->get(['id', 'project_id', 'stage_id', 'title']),
             'members' => $this->members($workspace),
+            'submittedTimesheets' => TasklyTimesheet::where('organization_id', $org)->where('workspace_id', $ws)->where('status', 'submitted')->latest('work_date')->get(['id', 'project_id', 'user_id', 'work_date', 'hours']),
         ]);
     }
 
     private function render(Request $request, string $module, string $section, string $title, string $description, array $columns, $records, string $moduleHref, string $managePermission, array $lookups = [])
     {
         $workspace = Workspace::with('organization')->findOrFail($request->session()->get('active_workspace_id'));
-
         return Inertia::render('ModuleSection', [
             'module' => $module,
             'section' => $section,
@@ -122,10 +125,7 @@ class ModuleSectionController extends Controller
             'records' => $records,
             'canManage' => $request->user()->canInWorkspace($managePermission, $workspace),
             'lookups' => $lookups,
-            'breadcrumbs' => [
-                ['label' => $module, 'href' => $moduleHref],
-                ['label' => $title],
-            ],
+            'breadcrumbs' => [['label' => $module, 'href' => $moduleHref], ['label' => $title]],
         ]);
     }
 
