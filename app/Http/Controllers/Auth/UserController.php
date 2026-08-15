@@ -12,95 +12,97 @@ use HiddenLeaf\Kernel\Services\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class UserController extends Controller
 {
-    protected AuditLogger $auditLogger;
-
-    public function __construct(AuditLogger $auditLogger)
-    {
-        $this->auditLogger = $auditLogger;
-    }
+    public function __construct(private readonly AuditLogger $auditLogger) {}
 
     public function index(Request $request)
     {
         $actor = Auth::user();
-        $wsId = session('active_workspace_id');
-        $orgId = session('active_organization_id');
+        $wsId = $request->session()->get('active_workspace_id');
+        $orgId = $request->session()->get('active_organization_id');
+        $roles = $this->rolesForOrganization($orgId);
+        $roleNames = $roles->pluck('display_name', 'id');
 
         $users = User::query()
-            ->when(! $actor->isSuperAdmin(), function ($q) use ($orgId) {
-                $q->whereHas('organizations', fn ($query) => $query->where('organizations.id', $orgId));
-            })
+            ->when(! $actor->isSuperAdmin(), fn ($q) => $q->whereHas('organizations', fn ($query) => $query->where('organizations.id', $orgId)))
             ->when($request->search, function ($q, $search) {
-                $q->where(function ($query) use ($search) {
-                    $query->where('name', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%");
-                });
+                $q->where(fn ($query) => $query->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%"));
             })
-            ->when($request->role, fn ($q) => $q->where('role', $request->role))
             ->latest()
-            ->paginate($request->input('per_page', 10))
-            ->withQueryString();
-
-        $roles = Role::all();
-        $plans = Plan::where('status', true)->get();
+            ->paginate($request->integer('per_page', 20))
+            ->withQueryString()
+            ->through(function (User $user) use ($wsId, $roleNames) {
+                $roleId = $wsId ? $user->workspaces()->where('workspaces.id', $wsId)->first()?->pivot?->role_id : null;
+                $row = $user->toArray();
+                $row['workspace_role_id'] = $roleId;
+                $row['workspace_role'] = $roleId ? ($roleNames[$roleId] ?? 'Custom Role') : null;
+                return $row;
+            });
 
         return Inertia::render('Users/Index', [
             'users' => $users,
             'roles' => $roles,
-            'plans' => $plans,
+            'plans' => Plan::where('status', true)->orderBy('name')->get(),
             'isSuperAdmin' => $actor->isSuperAdmin(),
         ]);
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        $roles = Role::all();
+        $actor = Auth::user();
+        $orgId = $request->session()->get('active_organization_id');
 
-        return Inertia::render('Users/Create', ['roles' => $roles]);
+        return Inertia::render('Users/Create', [
+            'roles' => $this->rolesForOrganization($orgId),
+            'plans' => $actor->isSuperAdmin() ? Plan::where('status', true)->orderBy('name')->get() : [],
+            'isSuperAdmin' => $actor->isSuperAdmin(),
+        ]);
     }
 
     public function store(Request $request)
     {
         $actor = Auth::user();
-        $wsId = session('active_workspace_id');
-        $orgId = session('active_organization_id');
+        $wsId = $request->session()->get('active_workspace_id');
+        $orgId = $request->session()->get('active_organization_id');
+        $workspace = $wsId ? Workspace::where('id', $wsId)->where('organization_id', $orgId)->firstOrFail() : null;
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-            'role' => 'required|string',
-            'plan_id' => 'nullable|exists:plans,id',
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'role_id' => ['required', 'integer', 'exists:roles,id'],
+            'plan_id' => ['nullable', 'integer', 'exists:plans,id'],
         ]);
+
+        $role = $this->roleForOrganization((int) $validated['role_id'], $orgId);
+        $globalRole = in_array($role->name, ['company', 'company_admin'], true) ? $role->name : 'user';
 
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'role' => $validated['role'],
+            'role' => $globalRole,
             'is_active' => true,
-            'email_verified_at' => now(),
         ]);
+        $user->forceFill(['email_verified_at' => now()])->save();
 
         if ($orgId) {
-            $user->organizations()->attach($orgId, ['role' => $validated['role']]);
+            $user->organizations()->syncWithoutDetaching([$orgId => ['role' => $role->name]]);
+        }
+        if ($workspace) {
+            $user->workspaces()->syncWithoutDetaching([$workspace->id => ['role_id' => $role->id]]);
         }
 
-        if ($wsId) {
-            $user->workspaces()->attach($wsId);
+        if ($actor->isSuperAdmin() && ! empty($validated['plan_id'])) {
+            $plan = Plan::findOrFail($validated['plan_id']);
+            assignPlan($plan->id, 'Month', $plan->modules ?? [], [], $user->id);
         }
 
-        if (! empty($validated['plan_id'])) {
-            $plan = Plan::find($validated['plan_id']);
-            if ($plan) {
-                assignPlan($plan->id, 'Month', $plan->modules ?? [], [], $user->id);
-            }
-        }
-
-        return redirect()->route('users.index')->with('success', 'User created successfully.');
+        return redirect()->route('users.index')->with('success', 'User created and workspace role assigned.');
     }
 
     public function show(User $user)
@@ -108,52 +110,52 @@ class UserController extends Controller
         return redirect()->route('users.edit', $user);
     }
 
-    public function edit(User $user)
+    public function edit(Request $request, User $user)
     {
-        $roles = Role::all();
+        $this->assertUserVisibleToActor($request, $user);
+        $orgId = $request->session()->get('active_organization_id');
+        $wsId = $request->session()->get('active_workspace_id');
+        $membership = $wsId ? $user->workspaces()->where('workspaces.id', $wsId)->first() : null;
+        $data = $user->toArray();
+        $data['role_id'] = $membership?->pivot?->role_id;
 
-        return Inertia::render('Users/Edit', ['user' => $user, 'roles' => $roles]);
+        return Inertia::render('Users/Edit', [
+            'user' => $data,
+            'roles' => $this->rolesForOrganization($orgId),
+        ]);
     }
 
     public function update(Request $request, User $user)
     {
-        $actor = Auth::user();
-        $orgId = session('active_organization_id');
-
-        if (! $actor->isSuperAdmin()) {
-            $sharesOrg = $user->organizations()->where('organizations.id', $orgId)->exists();
-            if (! $sharesOrg) {
-                abort(403, 'Unauthorized.');
-            }
-        }
+        $this->assertUserVisibleToActor($request, $user);
+        $orgId = $request->session()->get('active_organization_id');
+        $wsId = $request->session()->get('active_workspace_id');
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,'.$user->id,
-            'role' => 'nullable|string',
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'role_id' => ['required', 'integer', 'exists:roles,id'],
         ]);
 
-        $user->update(array_filter($validated));
+        $role = $this->roleForOrganization((int) $validated['role_id'], $orgId);
+        $user->update([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'role' => in_array($role->name, ['company', 'company_admin'], true) ? $role->name : 'user',
+        ]);
 
-        return redirect()->route('users.index')->with('success', 'User updated successfully.');
+        if ($orgId) $user->organizations()->syncWithoutDetaching([$orgId => ['role' => $role->name]]);
+        if ($wsId) $user->workspaces()->syncWithoutDetaching([$wsId => ['role_id' => $role->id]]);
+
+        return redirect()->route('users.index')->with('success', 'User and workspace role updated.');
     }
 
-    public function destroy(User $user)
+    public function destroy(Request $request, User $user)
     {
-        $actor = Auth::user();
-        $orgId = session('active_organization_id');
-
-        if (! $actor->isSuperAdmin()) {
-            $sharesOrg = $user->organizations()->where('organizations.id', $orgId)->exists();
-            if (! $sharesOrg) {
-                abort(403, 'Unauthorized.');
-            }
-        }
-
-        if ($user->id === $actor->id) {
-            return back()->with('error', 'Cannot delete your own account.');
-        }
-
+        $actor = $request->user();
+        $this->assertUserVisibleToActor($request, $user);
+        if ($user->id === $actor->id) return back()->with('error', 'Cannot delete your own account.');
+        if ($user->isSuperAdmin()) return back()->with('error', 'Super Admin accounts cannot be deleted.');
         $user->delete();
 
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');
@@ -161,39 +163,24 @@ class UserController extends Controller
 
     public function assignPlan(Request $request, User $user)
     {
-        $actor = Auth::user();
-        if (! $actor->isSuperAdmin()) {
-            abort(403, 'Unauthorized.');
-        }
-
-        $validated = $request->validate([
-            'plan_id' => 'required|exists:plans,id',
-            'duration' => 'nullable|in:Month,Year,Lifetime',
-        ]);
-
+        abort_unless($request->user()->isSuperAdmin(), 403);
+        $validated = $request->validate(['plan_id' => 'required|exists:plans,id', 'duration' => 'nullable|in:Month,Year,Lifetime']);
         $plan = Plan::findOrFail($validated['plan_id']);
-        $duration = $validated['duration'] ?? 'Month';
-
-        assignPlan($plan->id, $duration, $plan->modules ?? [], [], $user->id);
+        assignPlan($plan->id, $validated['duration'] ?? 'Month', $plan->modules ?? [], [], $user->id);
 
         return back()->with('success', "Plan {$plan->name} assigned to {$user->name}.");
     }
 
     public function loginHistory(Request $request)
     {
-        $actor = Auth::user();
-
+        $actor = $request->user();
         $logs = LoginDetail::with('user')
-            ->when(! $actor->isSuperAdmin(), function ($q) use ($actor) {
-                $q->where('user_id', $actor->id);
-            })
+            ->when(! $actor->isSuperAdmin(), fn ($q) => $q->where('user_id', $actor->id))
             ->latest()
-            ->paginate($request->input('per_page', 15))
+            ->paginate($request->integer('per_page', 15))
             ->withQueryString();
 
-        return Inertia::render('Users/LoginHistory', [
-            'logs' => $logs,
-        ]);
+        return Inertia::render('Users/LoginHistory', ['logs' => $logs]);
     }
 
     public function changePassword(Request $request, User $user)
@@ -202,18 +189,10 @@ class UserController extends Controller
         $wsId = $request->session()->get('active_workspace_id');
         $orgId = $request->session()->get('active_organization_id');
 
-        if ((int) $actor->id !== (int) $user->id) {
-            if (! $actor->isSuperAdmin()) {
-                $sharesOrg = $user->organizations()->where('organizations.id', $orgId)->exists();
-                if (! $sharesOrg) {
-                    abort(403, 'Unauthorized cross-organization user password mutation.');
-                }
-
-                $workspace = Workspace::where('id', $wsId)->where('organization_id', $orgId)->firstOrFail();
-                if (! $actor->canInWorkspace('users.change_password', $workspace)) {
-                    abort(403, 'Unauthorized to change user passwords.');
-                }
-            }
+        if ((int) $actor->id !== (int) $user->id && ! $actor->isSuperAdmin()) {
+            $this->assertUserVisibleToActor($request, $user);
+            $workspace = Workspace::where('id', $wsId)->where('organization_id', $orgId)->firstOrFail();
+            abort_unless($actor->canInWorkspace('users.change_password', $workspace), 403);
         }
 
         $request->validate(['password' => 'required|min:8|confirmed']);
@@ -229,60 +208,26 @@ class UserController extends Controller
         $orgId = $request->session()->get('active_organization_id');
 
         if (! $actor->isSuperAdmin()) {
-            $sharesOrg = $user->organizations()->where('organizations.id', $orgId)->exists();
-            if (! $sharesOrg) {
-                abort(403, 'Unauthorized cross-organization user status mutation.');
-            }
-
+            $this->assertUserVisibleToActor($request, $user);
             $workspace = Workspace::where('id', $wsId)->where('organization_id', $orgId)->firstOrFail();
-            if (! $actor->canInWorkspace('users.toggle_status', $workspace)) {
-                abort(403, 'Unauthorized to toggle user account status.');
-            }
+            abort_unless($actor->canInWorkspace('users.toggle_status', $workspace), 403);
         }
-
-        if ((int) $actor->id === (int) $user->id) {
-            return back()->with('error', 'You cannot deactivate your own account.');
-        }
-
-        if ($user->isSuperAdmin()) {
-            return back()->with('error', 'Super Admin accounts cannot be deactivated.');
-        }
+        if ((int) $actor->id === (int) $user->id) return back()->with('error', 'You cannot deactivate your own account.');
+        if ($user->isSuperAdmin()) return back()->with('error', 'Super Admin accounts cannot be deactivated.');
 
         $user->update(['is_active' => ! $user->is_active]);
-
         return back()->with('success', 'User account status updated.');
     }
 
     public function impersonate(Request $request, User $user)
     {
         $actor = $request->user();
-        $wsId = $request->session()->get('active_workspace_id');
-        $orgId = $request->session()->get('active_organization_id');
-
-        if (! $actor->isSuperAdmin()) {
-            abort(403, 'Impersonation requires Super Administrator privileges.');
-        }
-
-        if ($request->session()->has('impersonator_id')) {
-            return back()->with('error', 'Nested impersonation is prohibited.');
-        }
+        abort_unless($actor->isSuperAdmin(), 403);
+        if ($request->session()->has('impersonator_id')) return back()->with('error', 'Nested impersonation is prohibited.');
+        if ($user->isSuperAdmin()) return back()->with('error', 'Another Super Admin cannot be impersonated.');
 
         $request->session()->put('impersonator_id', $actor->id);
-
-        // Audit Log Impersonation Start
-        $this->auditLogger->log(
-            $actor->id,
-            $orgId,
-            $wsId,
-            'impersonation.start',
-            'user',
-            (string) $user->id,
-            ['target_email' => $user->email],
-            $request->ip(),
-            $request->userAgent(),
-            true,
-        );
-
+        $this->auditLogger->log($actor->id, $request->session()->get('active_organization_id'), $request->session()->get('active_workspace_id'), 'impersonation.start', 'user', (string) $user->id, ['target_email' => $user->email], $request->ip(), $request->userAgent(), true);
         auth()->login($user);
 
         return redirect('/dashboard')->with('success', 'Now impersonating '.$user->name);
@@ -291,34 +236,41 @@ class UserController extends Controller
     public function leaveImpersonation(Request $request)
     {
         $impersonatorId = $request->session()->get('impersonator_id');
-        $wsId = $request->session()->get('active_workspace_id');
+        if (! $impersonatorId) return redirect('/dashboard');
+
+        $impersonator = User::findOrFail($impersonatorId);
+        $targetUser = $request->user();
+        $request->session()->forget('impersonator_id');
+        $this->auditLogger->log($impersonator->id, $request->session()->get('active_organization_id'), $request->session()->get('active_workspace_id'), 'impersonation.end', 'user', (string) $targetUser->id, ['target_email' => $targetUser->email], $request->ip(), $request->userAgent(), true);
+        auth()->login($impersonator);
+
+        return redirect('/dashboard')->with('success', 'Returned to super admin account.');
+    }
+
+    private function rolesForOrganization(?int $organizationId)
+    {
+        return Role::query()
+            ->where(function ($query) use ($organizationId) {
+                $query->whereNull('organization_id');
+                if ($organizationId) $query->orWhere('organization_id', $organizationId);
+            })
+            ->orderBy('display_name')
+            ->get();
+    }
+
+    private function roleForOrganization(int $roleId, ?int $organizationId): Role
+    {
+        return Role::query()
+            ->whereKey($roleId)
+            ->where(fn ($query) => $query->whereNull('organization_id')->orWhere('organization_id', $organizationId))
+            ->firstOrFail();
+    }
+
+    private function assertUserVisibleToActor(Request $request, User $user): void
+    {
+        $actor = $request->user();
+        if ($actor->isSuperAdmin()) return;
         $orgId = $request->session()->get('active_organization_id');
-
-        if ($impersonatorId) {
-            $impersonator = User::findOrFail($impersonatorId);
-            $targetUser = $request->user();
-
-            $request->session()->forget('impersonator_id');
-
-            // Audit Log Impersonation Ended
-            $this->auditLogger->log(
-                $impersonator->id,
-                $orgId,
-                $wsId,
-                'impersonation.end',
-                'user',
-                (string) $targetUser->id,
-                ['target_email' => $targetUser->email],
-                $request->ip(),
-                $request->userAgent(),
-                true,
-            );
-
-            auth()->login($impersonator);
-
-            return redirect('/dashboard')->with('success', 'Returned to super admin account.');
-        }
-
-        return redirect('/dashboard');
+        abort_unless($orgId && $user->organizations()->where('organizations.id', $orgId)->exists(), 403, 'Unauthorized cross-organization user access.');
     }
 }
