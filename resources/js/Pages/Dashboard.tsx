@@ -324,7 +324,7 @@ export default function Dashboard() {
         <div className="space-y-3">
           <h2 className="text-sm font-bold uppercase tracking-wider text-gray-400 flex items-center gap-2">
             <Layers3 className="w-4 h-4 text-purple-400" />
-            WorkDo ERP Operational Modules
+            HiddenLeaf Enterprise Modules
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

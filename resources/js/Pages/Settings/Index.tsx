@@ -35,7 +35,7 @@ export default function SettingsIndex() {
   const [testMailStatus, setTestMailStatus] = useState<string | null>(null);
   const [testMailLoading, setTestMailLoading] = useState(false);
 
-  // Settings Form matching WorkDo 1:1 settings dictionary
+  // Settings Form parameters
   const { data, setData, post, processing, errors } = useForm({
     // Brand & General
     app_name: cfg.app_name || 'HiddenLeaf BusinessOS',
@@ -184,8 +184,8 @@ export default function SettingsIndex() {
       <div className="max-w-6xl mx-auto space-y-6">
         <SectionHeader
           title="Master Settings & Enterprise Preferences"
-          description="Manage 100% of WorkDo-compatible workspace parameters, payment providers, sequences, channels, and brand assets."
-          badge={<Badge variant="purple" size="sm">Canonical Configuration</Badge>}
+          description="Manage workspace parameters, payment providers, document sequences, communication channels, and brand assets."
+          badge={<Badge variant="purple" size="sm">System Configuration</Badge>}
           actions={
             <Button
               variant="outline"

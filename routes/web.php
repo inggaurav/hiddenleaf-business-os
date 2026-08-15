@@ -252,7 +252,7 @@ Route::middleware(['auth'])->group(function () {
     });
     Route::get('projects/dashboard', [TasklyController::class, 'dashboard'])->middleware('module.status:taskly');
 
-    // POS WorkDo Parity Routes (31 routes + aliases)
+    // POS Module Routes (31 routes + aliases)
     Route::middleware(['module.status:pos', 'pos.permission'])->group(function () {
         Route::get('/pos', [PosDashboardController::class, 'index'])->name('pos');
         Route::get('/pos/dashboard', [PosDashboardController::class, 'index'])->name('pos.index');
