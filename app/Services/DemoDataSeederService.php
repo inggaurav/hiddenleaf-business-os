@@ -9,8 +9,11 @@ use App\Models\CrmDeal;
 use App\Models\CrmLead;
 use App\Models\CrmPipeline;
 use App\Models\CrmStage;
+use App\Models\HelpdeskTicket;
+use App\Models\HrEmployee;
 use App\Models\ProductServiceCategory;
 use App\Models\ProductServiceItem;
+use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
 use App\Models\SalesInvoiceItem;
 use App\Models\TasklyProject;
@@ -148,6 +151,45 @@ class DemoDataSeederService
                 'total' => 5000.00,
             ]);
 
+            PurchaseInvoice::updateOrCreate([
+                'organization_id' => $orgId,
+                'workspace_id' => $wsId,
+                'invoice_id' => 'PINV-DEMO-301',
+            ], [
+                'warehouse_id' => $warehouse->id,
+                'purchase_date' => now()->subDays(12)->toDateString(),
+                'due_date' => now()->addDays(10)->toDateString(),
+                'total_amount' => 4200.00,
+                'status' => 'posted',
+                'created_by' => $user->id,
+            ]);
+
+            HrEmployee::updateOrCreate([
+                'organization_id' => $orgId,
+                'workspace_id' => $wsId,
+                'employee_number' => 'DEMO-EMP-001',
+            ], [
+                'name' => '[DEMO] Priya Sharma',
+                'email' => 'priya.demo@hiddenleaf.local',
+                'joined_at' => now()->subMonths(8)->toDateString(),
+                'basic_salary' => 65000.00,
+                'status' => 'active',
+            ]);
+
+            HelpdeskTicket::updateOrCreate([
+                'organization_id' => $orgId,
+                'workspace_id' => $wsId,
+                'ticket_id' => 'TKT-DEMO-101',
+            ], [
+                'name' => 'Apex Cloud Systems',
+                'email' => 'support@apexcloud.io',
+                'subject' => '[DEMO] API sync delay during onboarding',
+                'status' => 'open',
+                'priority' => 'high',
+                'description' => 'Customer reports delayed synchronization during the onboarding cutover. Review logs and provide an ETA.',
+                'created_by' => $user->id,
+            ]);
+
             $commAccount = CommunicationAccount::updateOrCreate([
                 'organization_id' => $orgId,
                 'workspace_id' => $wsId,
@@ -219,6 +261,9 @@ class DemoDataSeederService
                 'deals_count' => CrmDeal::where('workspace_id', $wsId)->where('name', 'like', '[DEMO]%')->count(),
                 'products_count' => ProductServiceItem::where('workspace_id', $wsId)->where('sku', 'like', 'DEMO-%')->count(),
                 'invoices_count' => SalesInvoice::where('workspace_id', $wsId)->where('invoice_id', 'like', 'INV-DEMO-%')->count(),
+                'purchase_invoices_count' => PurchaseInvoice::where('workspace_id', $wsId)->where('invoice_id', 'like', 'PINV-DEMO-%')->count(),
+                'employees_count' => HrEmployee::where('workspace_id', $wsId)->where('employee_number', 'like', 'DEMO-%')->count(),
+                'tickets_count' => HelpdeskTicket::where('workspace_id', $wsId)->where('ticket_id', 'like', 'TKT-DEMO-%')->count(),
                 'conversations_count' => CommunicationConversation::where('workspace_id', $wsId)->where('subject', 'like', '[DEMO]%')->count(),
                 'tasks_count' => TasklyTask::where('workspace_id', $wsId)->where('title', 'like', '[DEMO]%')->count(),
             ];
@@ -253,6 +298,18 @@ class DemoDataSeederService
                 $deleted += SalesInvoiceItem::whereIn('invoice_id', $invoiceIds)->delete();
                 $deleted += SalesInvoice::whereIn('id', $invoiceIds)->delete();
             }
+
+            $deleted += PurchaseInvoice::where('workspace_id', $wsId)
+                ->where('invoice_id', 'like', 'PINV-DEMO-%')
+                ->delete();
+
+            $deleted += HelpdeskTicket::where('workspace_id', $wsId)
+                ->where('ticket_id', 'like', 'TKT-DEMO-%')
+                ->delete();
+
+            $deleted += HrEmployee::where('workspace_id', $wsId)
+                ->where('employee_number', 'like', 'DEMO-%')
+                ->delete();
 
             $deleted += CrmDeal::where('workspace_id', $wsId)
                 ->where('name', 'like', '[DEMO]%')
