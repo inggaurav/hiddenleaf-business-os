@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Models\Organization;
 use App\Models\User;
 use App\Models\Workspace;
+use App\Services\TenantProvisioningService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -29,49 +29,46 @@ class AuthController
         ]);
 
         $throttleKey = Str::transliterate(Str::lower($request->input('email')).'|'.$request->ip());
-
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             $seconds = RateLimiter::availableIn($throttleKey);
-
-            return back()->withErrors([
-                'email' => "Too many login attempts. Please try again in {$seconds} seconds.",
-            ]);
+            return back()->withErrors(['email' => "Too many login attempts. Please try again in {$seconds} seconds."]);
         }
 
-        // Verify account exists & is active
         $user = User::where('email', $credentials['email'])->first();
         if ($user && ! $user->is_active) {
             RateLimiter::hit($throttleKey);
-
-            return back()->withErrors([
-                'email' => 'Your account has been deactivated. Please contact support.',
-            ]);
+            return back()->withErrors(['email' => 'Your account has been deactivated. Please contact support.']);
         }
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             RateLimiter::clear($throttleKey);
             $request->session()->regenerate();
+            $request->session()->forget('enabled_modules');
 
-            if (! $request->session()->has('active_workspace_id')) {
-                $workspace = $user->isSuperAdmin()
-                    ? Workspace::query()->oldest('id')->first()
-                    : $user->workspaces()->oldest('workspaces.id')->first();
+            $workspace = null;
+            if ($user->isSuperAdmin()) {
+                $workspace = Workspace::query()->where('is_active', true)->oldest('id')->first();
+            } else {
+                $workspace = $user->workspaces()
+                    ->where('workspaces.is_active', true)
+                    ->whereHas('organization', fn ($query) => $query->where('is_active', true))
+                    ->oldest('workspaces.id')
+                    ->first();
+            }
 
-                if ($workspace) {
-                    $request->session()->put('active_organization_id', $workspace->organization_id);
-                    $request->session()->put('active_workspace_id', $workspace->id);
-                    $request->session()->put('active_workspace_title', $workspace->name);
-                }
+            if ($workspace) {
+                $request->session()->put('active_organization_id', $workspace->organization_id);
+                $request->session()->put('active_workspace_id', $workspace->id);
+                $request->session()->put('active_workspace_title', $workspace->name);
+            } else {
+                $request->session()->forget(['active_organization_id', 'active_workspace_id', 'active_workspace_title']);
             }
 
             return redirect()->intended('/dashboard');
         }
 
         RateLimiter::hit($throttleKey);
-
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ]);
+        return back()->withErrors(['email' => 'The provided credentials do not match our records.']);
     }
 
     public function registerView()
@@ -79,64 +76,46 @@ class AuthController
         return Inertia::render('Auth/Register');
     }
 
-    public function register(Request $request)
+    public function register(Request $request, TenantProvisioningService $provisioner)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        // Wrap full registration & provisioning in DB transaction (Section J)
-        $user = DB::transaction(function () use ($request) {
+        [$user, $workspace] = DB::transaction(function () use ($validated, $provisioner) {
             $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
                 'role' => 'company_admin',
                 'is_active' => true,
             ]);
 
-            $org = Organization::create([
-                'name' => $user->name."'s Org",
-                'slug' => 'org-'.bin2hex(random_bytes(4)),
-                'owner_id' => $user->id,
-                'is_active' => true,
+            $provisioned = $provisioner->provision($user, [
+                'company_name' => $validated['name']."'s Organization",
+                'timezone' => config('app.timezone', 'UTC'),
             ]);
 
-            $ws = Workspace::create([
-                'organization_id' => $org->id,
-                'name' => 'Main Operations',
-                'slug' => 'main-operations',
-                'created_by' => $user->id,
-                'is_active' => true,
-            ]);
-
-            $user->organizations()->attach($org->id, ['role' => 'owner']);
-            $user->workspaces()->attach($ws->id);
-
-            return $user;
+            return [$user, $provisioned['workspace']];
         });
 
         Auth::login($user);
+        $request->session()->regenerate();
+        $request->session()->forget('enabled_modules');
+        $request->session()->put('active_organization_id', $workspace->organization_id);
+        $request->session()->put('active_workspace_id', $workspace->id);
+        $request->session()->put('active_workspace_title', $workspace->name);
 
-        $firstOrg = $user->organizations()->first();
-        $firstWs = $user->workspaces()->first();
-
-        $request->session()->put('active_organization_id', $firstOrg->id);
-        $request->session()->put('active_workspace_id', $firstWs->id);
-        $request->session()->put('active_workspace_title', $firstWs->name);
-
-        return redirect('/dashboard')->with('success', 'Welcome to HiddenLeaf BusinessOS!');
+        return redirect('/onboarding')->with('success', 'Welcome to HiddenLeaf Business OS. Complete your business setup to get started.');
     }
 
     public function logout(Request $request)
     {
         Auth::guard('web')->logout();
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
         return redirect('/login');
     }
 }
