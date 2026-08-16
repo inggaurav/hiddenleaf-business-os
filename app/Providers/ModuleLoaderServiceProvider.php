@@ -15,7 +15,7 @@ class ModuleLoaderServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->singleton(ModuleRegistry::class, fn (): ModuleRegistry => new ModuleRegistry());
+        $this->app->singleton(ModuleRegistry::class, fn (): ModuleRegistry => new ModuleRegistry);
         $this->app->singleton(AddonManager::class);
     }
 

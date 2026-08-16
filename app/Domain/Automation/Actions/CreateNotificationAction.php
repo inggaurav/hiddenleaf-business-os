@@ -7,6 +7,7 @@ use App\Domain\MrFox\RiskLevel;
 use App\Models\AutomationRun;
 use App\Models\User;
 use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Support\Str;
 
 class CreateNotificationAction implements AutomationActionContract
 {
@@ -52,7 +53,7 @@ class CreateNotificationAction implements AutomationActionContract
         $userId = ! empty($input['user_id']) ? (int) $input['user_id'] : User::where('current_workspace_id', $wsId)->value('id');
 
         $notif = DatabaseNotification::create([
-            'id' => (string) \Illuminate\Support\Str::uuid(),
+            'id' => (string) Str::uuid(),
             'type' => 'App\Notifications\AutomationTriggeredNotification',
             'notifiable_type' => User::class,
             'notifiable_id' => $userId ?: 1,

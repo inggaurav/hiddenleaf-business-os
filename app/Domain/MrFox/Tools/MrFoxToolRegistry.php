@@ -16,15 +16,27 @@ class MrFoxToolRegistry
     public function register(MrFoxToolContract $tool): void
     {
         $name = $tool->name();
-        if (isset($this->tools[$name])) { throw new InvalidArgumentException("Tool '{$name}' is already registered in MrFoxToolRegistry."); }
+        if (isset($this->tools[$name])) {
+            throw new InvalidArgumentException("Tool '{$name}' is already registered in MrFoxToolRegistry.");
+        }
         $this->tools[$name] = $tool;
     }
 
-    public function get(string $name): ?MrFoxToolContract { return $this->tools[$name] ?? null; }
-    public function has(string $name): bool { return isset($this->tools[$name]); }
+    public function get(string $name): ?MrFoxToolContract
+    {
+        return $this->tools[$name] ?? null;
+    }
+
+    public function has(string $name): bool
+    {
+        return isset($this->tools[$name]);
+    }
 
     /** @return array<string, MrFoxToolContract> */
-    public function all(): array { return $this->tools; }
+    public function all(): array
+    {
+        return $this->tools;
+    }
 
     /** @return array<string, MrFoxToolContract> */
     public function availableFor(ToolContext $context): array
@@ -45,6 +57,7 @@ class MrFoxToolRegistry
             if (! $isSuperAdmin && $requiredPermission !== null && $workspace !== null && ! $permissionService->allows($user, $workspace, $requiredPermission)) {
                 return false;
             }
+
             return true;
         });
     }
@@ -59,6 +72,7 @@ class MrFoxToolRegistry
                 'parameters' => $tool->inputSchema(),
             ];
         }
+
         return $definitions;
     }
 }

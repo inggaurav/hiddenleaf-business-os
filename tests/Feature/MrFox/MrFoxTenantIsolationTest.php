@@ -7,12 +7,13 @@ use App\Domain\MrFox\Tools\CrmSearchLeadsTool;
 use App\Domain\MrFox\Tools\InventoryLowStockTool;
 use App\Domain\MrFox\Tools\SalesOutstandingSummaryTool;
 use App\Models\CrmLead;
+use App\Models\CrmPipeline;
+use App\Models\CrmStage;
 use App\Models\Organization;
 use App\Models\Plan;
-use App\Models\Product;
+use App\Models\ProductServiceItem;
 use App\Models\SalesInvoice;
 use App\Models\User;
-use App\Models\UserActiveModule;
 use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -41,8 +42,8 @@ class MrFoxTenantIsolationTest extends TestCase
         $orgB->members()->attach($userB, ['role' => 'owner']);
         $wsB->members()->attach($userB);
 
-        $pipeA = \App\Models\CrmPipeline::create(['organization_id' => $orgA->id, 'workspace_id' => $wsA->id, 'name' => 'Pipeline A']);
-        $stageA = \App\Models\CrmStage::create(['pipeline_id' => $pipeA->id, 'name' => 'Stage A', 'position' => 0]);
+        $pipeA = CrmPipeline::create(['organization_id' => $orgA->id, 'workspace_id' => $wsA->id, 'name' => 'Pipeline A']);
+        $stageA = CrmStage::create(['pipeline_id' => $pipeA->id, 'name' => 'Stage A', 'position' => 0]);
 
         // Create confidential records for Tenant A
         CrmLead::create([
@@ -66,7 +67,7 @@ class MrFoxTenantIsolationTest extends TestCase
             'total_amount' => 50000,
         ]);
 
-        \App\Models\ProductServiceItem::create([
+        ProductServiceItem::create([
             'organization_id' => $orgA->id,
             'workspace_id' => $wsA->id,
             'name' => 'Proprietary Widget A',
@@ -80,19 +81,19 @@ class MrFoxTenantIsolationTest extends TestCase
         $contextB = $contextService->createToolContext($userB, $wsB);
 
         // 1. CRM Leads Tool executed in Context B
-        $crmTool = new CrmSearchLeadsTool();
+        $crmTool = new CrmSearchLeadsTool;
         $crmResult = $crmTool->execute($contextB, ['query' => 'Secret']);
         $this->assertEquals(0, count($crmResult->data));
         $this->assertStringNotContainsString('Secret Lead A', $crmResult->summary);
 
         // 2. Sales Outstanding Tool executed in Context B
-        $salesTool = new SalesOutstandingSummaryTool();
+        $salesTool = new SalesOutstandingSummaryTool;
         $salesResult = $salesTool->execute($contextB, []);
         $this->assertEquals(0, $salesResult->data['total_open_invoices']);
         $this->assertEquals(0, $salesResult->data['total_receivables']);
 
         // 3. Inventory Low Stock Tool executed in Context B
-        $inventoryTool = new InventoryLowStockTool();
+        $inventoryTool = new InventoryLowStockTool;
         $inventoryResult = $inventoryTool->execute($contextB, []);
         $this->assertEquals(0, count($inventoryResult->data));
     }

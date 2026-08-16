@@ -6,8 +6,8 @@ use App\Domain\MrFox\Approvals\ActionApprovalService;
 use App\Domain\MrFox\Context\BusinessContextService;
 use App\Domain\MrFox\RiskLevel;
 use App\Domain\MrFox\Tools\CrmCreateLeadTool;
-use App\Models\CrmLead;
-use App\Models\MrFoxActionProposal;
+use App\Models\CrmPipeline;
+use App\Models\CrmStage;
 use App\Models\Organization;
 use App\Models\Plan;
 use App\Models\User;
@@ -21,7 +21,9 @@ class MrFoxActionApprovalTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private Organization $org;
+
     private Workspace $workspace;
 
     protected function setUp(): void
@@ -38,13 +40,13 @@ class MrFoxActionApprovalTest extends TestCase
         $this->workspace->members()->attach($this->user);
         UserActiveModule::create(['workspace_id' => $this->workspace->id, 'module_name' => 'crm']);
 
-        $pipeline = \App\Models\CrmPipeline::create([
+        $pipeline = CrmPipeline::create([
             'organization_id' => $this->org->id,
             'workspace_id' => $this->workspace->id,
             'name' => 'Apex Pipeline',
             'is_default' => true,
         ]);
-        \App\Models\CrmStage::create([
+        CrmStage::create([
             'pipeline_id' => $pipeline->id,
             'name' => 'Inbound',
             'position' => 0,
@@ -57,7 +59,7 @@ class MrFoxActionApprovalTest extends TestCase
         $contextService = app(BusinessContextService::class);
         $context = $contextService->createToolContext($this->user, $this->workspace);
 
-        $tool = new CrmCreateLeadTool();
+        $tool = new CrmCreateLeadTool;
         $result = $tool->execute($context, [
             'name' => 'Prospective Client Beta',
             'email' => 'beta@example.com',

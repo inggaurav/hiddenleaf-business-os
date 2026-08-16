@@ -4,13 +4,10 @@ namespace App\Domain\CommandCenter\Signals;
 
 use App\Domain\CommandCenter\DTO\BusinessSignalDTO;
 use App\Models\AutomationRun;
-use App\Models\BankAccount;
 use App\Models\CommunicationConversation;
 use App\Models\CommunicationMessage;
-use App\Models\CrmDeal;
 use App\Models\CrmLead;
 use App\Models\HelpdeskTicket;
-use App\Models\MrFoxActionProposal;
 use App\Models\MrFoxMission;
 use App\Models\ProductServiceItem;
 use App\Models\PurchaseInvoice;
@@ -63,7 +60,7 @@ class SignalDetector
                     evidence: $overdueInvoices->take(5)->map(fn ($inv) => [
                         'type' => 'sales_invoice',
                         'id' => $inv->id,
-                        'label' => "Invoice #{$inv->invoice_id} ({$inv->customer?->name}): $" . number_format((float) $inv->total_amount, 2),
+                        'label' => "Invoice #{$inv->invoice_id} ({$inv->customer?->name}): $".number_format((float) $inv->total_amount, 2),
                         'route' => "/sales/invoices/{$inv->id}",
                     ])->all()
                 );
@@ -90,7 +87,7 @@ class SignalDetector
                     evidence: $overdueBills->take(5)->map(fn ($bill) => [
                         'type' => 'purchase_invoice',
                         'id' => $bill->id,
-                        'label' => "Bill #{$bill->invoice_id} ({$bill->vendor?->name}): $" . number_format((float) $bill->total_amount, 2),
+                        'label' => "Bill #{$bill->invoice_id} ({$bill->vendor?->name}): $".number_format((float) $bill->total_amount, 2),
                         'route' => "/purchases/invoices/{$bill->id}",
                     ])->all()
                 );

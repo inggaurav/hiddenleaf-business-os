@@ -5,6 +5,7 @@ namespace Tests\Feature\UserAdmin;
 use App\Models\LoginDetail;
 use App\Models\Organization;
 use App\Models\Plan;
+use App\Models\Role;
 use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -60,12 +61,14 @@ class UserAdministrationTest extends TestCase
             'storage_limit' => 1024 * 1024 * 1024,
             'status' => true,
         ]);
+        $role = Role::where('name', 'workspace-admin')->firstOrFail();
 
         $response = $this->actingAs($this->superAdmin)->post('/users', [
             'name' => 'New Tenant Owner',
             'email' => 'newowner@test.com',
             'password' => 'secret12345',
-            'role' => 'company_admin',
+            'password_confirmation' => 'secret12345',
+            'role_id' => $role->id,
             'plan_id' => $plan->id,
         ]);
 

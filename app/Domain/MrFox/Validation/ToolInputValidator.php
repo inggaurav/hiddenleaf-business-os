@@ -4,7 +4,6 @@ namespace App\Domain\MrFox\Validation;
 
 use App\Domain\MrFox\Contracts\MrFoxToolContract;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 class ToolInputValidator
 {

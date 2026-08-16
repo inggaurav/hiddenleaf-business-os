@@ -3,7 +3,6 @@
 namespace App\Domain\Automation\Contracts;
 
 use App\Domain\MrFox\RiskLevel;
-use App\Models\AutomationRule;
 use App\Models\AutomationRun;
 
 interface AutomationActionContract

@@ -72,7 +72,7 @@ class CompleteSaaSEngineTest extends TestCase
         // Non-superadmin is blocked
         $response = $this->actingAs($this->companyAdmin)
             ->post('/plans', $planData);
-        $response->assertRedirect('/plans');
+        $response->assertForbidden();
         $this->assertDatabaseMissing('plans', ['name' => 'Enterprise Cloud']);
 
         // Superadmin succeeds

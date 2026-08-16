@@ -8,7 +8,6 @@ use App\Domain\MrFox\RiskLevel;
 use App\Models\CrmLead;
 use App\Models\CrmPipeline;
 use App\Models\CrmStage;
-use App\Models\MrFoxActionProposal;
 use App\Models\Organization;
 use App\Models\Plan;
 use App\Models\User;
@@ -22,7 +21,9 @@ class MrFoxApprovalSecurityTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private Organization $org;
+
     private Workspace $workspace;
 
     protected function setUp(): void

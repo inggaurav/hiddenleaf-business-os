@@ -71,7 +71,7 @@ class MrFoxAuditService
         } catch (\Throwable $e) {
             Log::error('Failed to write MrFox audit log', ['error' => $e->getMessage()]);
 
-            return new MrFoxAuditLog();
+            return new MrFoxAuditLog;
         }
     }
 

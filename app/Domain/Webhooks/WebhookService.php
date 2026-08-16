@@ -28,7 +28,10 @@ class WebhookService
 
     public function dispatch(int $organizationId, int $workspaceId, string $event, array $payload, string $idempotencyKey): int
     {
-        $hooks = Webhook::where('organization_id', $organizationId)->where('workspace_id', $workspaceId)->where('event', $event)->where('is_active', true)->get();
+        $hooks = Webhook::where('organization_id', $organizationId)->where('workspace_id', $workspaceId)
+            ->where('is_active', true)
+            ->where(fn ($query) => $query->where('event', $event)->orWhereJsonContains('events', $event))
+            ->get();
         foreach ($hooks as $hook) {
             $delivery = WebhookDelivery::firstOrCreate(['idempotency_key' => $hook->id.':'.$idempotencyKey], ['id' => (string) Str::uuid(), 'webhook_id' => $hook->id, 'event' => $event, 'payload' => $payload, 'status' => 'pending']);
             if ($delivery->wasRecentlyCreated) {

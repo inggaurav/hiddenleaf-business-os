@@ -8,6 +8,7 @@ use App\Models\Organization;
 use App\Models\Plan;
 use App\Models\User;
 use App\Models\UserActiveModule;
+use App\Models\Workspace;
 use App\Services\AddonManager;
 use App\Services\ModuleManager;
 use Illuminate\Http\Request;
@@ -24,6 +25,7 @@ class PlanController extends Controller
     public function index()
     {
         $user = Auth::user();
+        $this->authorizeBillingAccess(request());
         $plans = Plan::query()
             ->when(! $user->isSuperAdmin(), function ($query) use ($user) {
                 $query->where(function ($q) use ($user) {
@@ -124,7 +126,9 @@ class PlanController extends Controller
     public function startTrial(Plan $plan)
     {
         $user = Auth::user();
-        if (($user->is_trial_done ?? 0) >= 1) return back()->with('error', 'Trial has already been utilized for this account.');
+        if (($user->is_trial_done ?? 0) >= 1) {
+            return back()->with('error', 'Trial has already been utilized for this account.');
+        }
 
         $counter = ['user_counter' => $plan->number_of_users, 'storage_limit' => $plan->storage_limit / (1024 * 1024)];
         $result = assignPlan($plan->id, 'Trial', $plan->modules ?? [], $counter, $user->id);
@@ -135,7 +139,9 @@ class PlanController extends Controller
     public function assignFreePlan(Request $request, Plan $plan)
     {
         $user = Auth::user();
-        if (! $plan->free_plan) return back()->with('error', 'This plan is not a free plan.');
+        if (! $plan->free_plan) {
+            return back()->with('error', 'This plan is not a free plan.');
+        }
 
         $duration = $request->input('duration') === 'Year' ? 'Year' : 'Month';
         $counter = ['user_counter' => $plan->number_of_users, 'storage_limit' => $plan->storage_limit / (1024 * 1024)];
@@ -155,6 +161,7 @@ class PlanController extends Controller
                 'user_id' => $user->id,
                 'created_by' => $user->id,
             ]);
+
             return back()->with('success', 'Free plan assigned successfully.');
         }
 
@@ -165,7 +172,9 @@ class PlanController extends Controller
     {
         $validated = $request->validate(['coupon_code' => 'required|string', 'total_amount' => 'required|numeric|min:0']);
         $result = applyCouponDiscount($validated['coupon_code'], (float) $validated['total_amount'], Auth::id());
-        if (! $result['valid']) return response()->json(['success' => false, 'message' => $result['message']], 422);
+        if (! $result['valid']) {
+            return response()->json(['success' => false, 'message' => $result['message']], 422);
+        }
 
         return response()->json([
             'success' => true,
@@ -183,6 +192,7 @@ class PlanController extends Controller
     private function validatePlan(Request $request, bool $updating): array
     {
         $required = $updating ? 'required' : 'nullable';
+
         return $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -202,6 +212,17 @@ class PlanController extends Controller
             'free_plan' => 'nullable|boolean',
             'status' => 'nullable|boolean',
         ]);
+    }
+
+    private function authorizeBillingAccess(Request $request): void
+    {
+        $user = $request->user();
+        if ($user->isSuperAdmin()) {
+            return;
+        }
+        $organization = Organization::find($request->session()->get('active_organization_id'));
+        $workspace = Workspace::find($request->session()->get('active_workspace_id'));
+        abort_unless($organization && $workspace && ((int) $organization->owner_id === (int) $user->id || $user->canInWorkspace('settings.billing.manage', $workspace)), 403);
     }
 
     private function fillPlan(Plan $plan, array $validated, Request $request): void

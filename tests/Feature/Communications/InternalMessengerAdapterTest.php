@@ -44,7 +44,7 @@ class InternalMessengerAdapterTest extends TestCase
             'display_name' => $user1->name,
         ]);
 
-        $provider = new InternalMessengerProvider();
+        $provider = new InternalMessengerProvider;
 
         // Test sync mapping
         $sync = $provider->sync($account);

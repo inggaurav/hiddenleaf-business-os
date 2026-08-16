@@ -74,7 +74,7 @@ class PurchasePayablesSummaryTool implements MrFoxToolContract
         $evidence = $overdueBills->take(5)->map(fn ($b) => [
             'type' => 'bill',
             'id' => $b->id,
-            'label' => "{$b->invoice_id} - $" . number_format((float) $b->total_amount, 2) . ' (DUE)',
+            'label' => "{$b->invoice_id} - $".number_format((float) $b->total_amount, 2).' (DUE)',
             'route' => "/purchases/invoices/{$b->id}",
         ])->values()->all();
 

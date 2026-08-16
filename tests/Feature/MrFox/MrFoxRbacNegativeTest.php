@@ -43,7 +43,7 @@ class MrFoxRbacNegativeTest extends TestCase
         UserActiveModule::create(['workspace_id' => $workspace->id, 'module_name' => 'account']);
 
         // Set up mock provider returning an accounting tool call
-        $fakeProvider = new FakeAiProvider();
+        $fakeProvider = new FakeAiProvider;
         $fakeProvider->queueResponse(new AiResponse(
             content: 'Checking accounting figures',
             toolCalls: [

@@ -5,8 +5,6 @@ namespace App\Domain\CommandCenter\Briefings;
 use App\Models\AutomationRun;
 use App\Models\CommunicationConversation;
 use App\Models\CrmLead;
-use App\Models\ProductServiceItem;
-use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
 use App\Models\Workspace;
 use Carbon\Carbon;

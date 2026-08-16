@@ -53,7 +53,7 @@ class InternalMessengerProvider implements CommunicationProviderContract
         $messages = [];
         foreach ($legacyMessages as $msg) {
             $sender = User::find($msg->from_id);
-            $threadId = min($msg->from_id, $msg->to_id) . '_' . max($msg->from_id, $msg->to_id);
+            $threadId = min($msg->from_id, $msg->to_id).'_'.max($msg->from_id, $msg->to_id);
 
             $messages[] = [
                 'thread_id' => "internal_{$threadId}",

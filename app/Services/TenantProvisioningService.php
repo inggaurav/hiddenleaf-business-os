@@ -183,10 +183,17 @@ class TenantProvisioningService
                 ? $allPermissions->pluck('id')->all()
                 : $allPermissions->filter(function ($permission) use ($patterns) {
                     foreach ($patterns as $pattern) {
-                        if ($pattern === $permission->name) return true;
-                        if (str_ends_with($pattern, '.') && str_starts_with($permission->name, $pattern)) return true;
-                        if (str_starts_with($pattern, '.') && str_ends_with($permission->name, $pattern)) return true;
+                        if ($pattern === $permission->name) {
+                            return true;
+                        }
+                        if (str_ends_with($pattern, '.') && str_starts_with($permission->name, $pattern)) {
+                            return true;
+                        }
+                        if (str_starts_with($pattern, '.') && str_ends_with($permission->name, $pattern)) {
+                            return true;
+                        }
                     }
+
                     return false;
                 })->pluck('id')->all();
 

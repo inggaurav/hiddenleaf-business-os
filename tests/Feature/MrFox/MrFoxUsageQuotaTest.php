@@ -4,7 +4,6 @@ namespace Tests\Feature\MrFox;
 
 use App\Domain\MrFox\Context\BusinessContextService;
 use App\Domain\MrFox\Observability\MrFoxUsageService;
-use App\Models\MrFoxUsageRecord;
 use App\Models\Organization;
 use App\Models\Plan;
 use App\Models\User;

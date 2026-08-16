@@ -2,7 +2,6 @@
 
 namespace App\Domain\CommandCenter\Recommendations;
 
-use App\Domain\CommandCenter\DTO\BusinessSignalDTO;
 use App\Domain\CommandCenter\DTO\ExecutiveRecommendationDTO;
 use App\Domain\CommandCenter\Signals\SignalDetector;
 use App\Models\User;
@@ -25,13 +24,13 @@ class ExecutiveRecommendationService
         $recommendations = [];
 
         foreach ($signals as $sig) {
-            $fingerprint = hash('sha256', $sig->id . '_' . (string) $sig->value . '_' . count($sig->evidence));
+            $fingerprint = hash('sha256', $sig->id.'_'.(string) $sig->value.'_'.count($sig->evidence));
 
             $rec = match ($sig->id) {
                 'finance.overdue_receivables' => new ExecutiveRecommendationDTO(
                     id: "rec_{$sig->id}",
                     title: "Issue Payment Reminders for {$sig->value} Overdue Receivables",
-                    rationale: "Prompt invoice follow-ups improve cash collection cycles and reduce bad debt risk.",
+                    rationale: 'Prompt invoice follow-ups improve cash collection cycles and reduce bad debt risk.',
                     category: 'finance',
                     severity: $sig->severity,
                     fingerprint: $fingerprint,
@@ -44,7 +43,7 @@ class ExecutiveRecommendationService
                 'communications.urgent' => new ExecutiveRecommendationDTO(
                     id: "rec_{$sig->id}",
                     title: "Respond to {$sig->value} High-Urgency Customer Inquiries",
-                    rationale: "Rapid response time to high-intent conversations directly drives deal closing rates.",
+                    rationale: 'Rapid response time to high-intent conversations directly drives deal closing rates.',
                     category: 'communications',
                     severity: 'critical',
                     fingerprint: $fingerprint,
@@ -56,7 +55,7 @@ class ExecutiveRecommendationService
                 'inventory.low_stock' => new ExecutiveRecommendationDTO(
                     id: "rec_{$sig->id}",
                     title: "Generate Restock Orders for {$sig->value} Low/Depleted Products",
-                    rationale: "Replenishing critical stock items prevents fulfillment disruptions and lost sales.",
+                    rationale: 'Replenishing critical stock items prevents fulfillment disruptions and lost sales.',
                     category: 'inventory',
                     severity: $sig->severity,
                     fingerprint: $fingerprint,
@@ -69,7 +68,7 @@ class ExecutiveRecommendationService
                 'crm.inactive_warm_leads' => new ExecutiveRecommendationDTO(
                     id: "rec_{$sig->id}",
                     title: "Re-engage {$sig->value} Qualified Leads Inactive > 5 Days",
-                    rationale: "Reactivating warm prospective deals before they grow cold maximizes marketing ROI.",
+                    rationale: 'Reactivating warm prospective deals before they grow cold maximizes marketing ROI.',
                     category: 'crm',
                     severity: 'attention',
                     fingerprint: $fingerprint,
@@ -82,7 +81,7 @@ class ExecutiveRecommendationService
                 'automation.failed_runs' => new ExecutiveRecommendationDTO(
                     id: "rec_{$sig->id}",
                     title: "Inspect and Resolve {$sig->value} Automation Rule Failures",
-                    rationale: "Fixing broken automations ensures seamless cross-module workflows.",
+                    rationale: 'Fixing broken automations ensures seamless cross-module workflows.',
                     category: 'operations',
                     severity: 'warning',
                     fingerprint: $fingerprint,
@@ -94,7 +93,7 @@ class ExecutiveRecommendationService
                 'mission.waiting_approval' => new ExecutiveRecommendationDTO(
                     id: "rec_{$sig->id}",
                     title: "Review and Approve {$sig->value} Pending Mission Action(s)",
-                    rationale: "Mr. Fox requires operator authorization before proceeding with governed actions.",
+                    rationale: 'Mr. Fox requires operator authorization before proceeding with governed actions.',
                     category: 'operations',
                     severity: 'attention',
                     fingerprint: $fingerprint,

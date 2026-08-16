@@ -78,7 +78,7 @@ class CommunicationsGetTool implements MrFoxToolContract
             'messages' => $messages,
         ];
 
-        $summary = "Conversation with {$conv->participant_name} ({$conv->provider}) — {$conv->status} with " . count($messages) . ' recent messages.';
+        $summary = "Conversation with {$conv->participant_name} ({$conv->provider}) — {$conv->status} with ".count($messages).' recent messages.';
 
         return ToolResult::success($data, $summary, [
             ['type' => 'communication_message', 'id' => $conv->id, 'label' => "{$conv->provider}: {$conv->participant_name}", 'route' => '/inbox'],

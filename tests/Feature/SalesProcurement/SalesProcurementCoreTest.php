@@ -40,6 +40,7 @@ class SalesProcurementCoreTest extends TestCase
 
         $this->user->organizations()->attach($this->org->id, ['role' => 'owner']);
         $this->user->workspaces()->attach($this->ws->id);
+        $this->entitleWorkspaceModules($this->org, $this->ws, $this->user, ['sales', 'procurement']);
     }
 
     public function test_warehouse_crud_and_transfer(): void

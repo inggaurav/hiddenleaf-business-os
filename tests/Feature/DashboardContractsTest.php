@@ -44,7 +44,7 @@ class DashboardContractsTest extends TestCase
     public function test_workspace_and_module_metrics_are_real_and_tenant_scoped(): void
     {
         $owner = User::factory()->create();
-        $plan = Plan::create(['name' => 'Modules', 'status' => true, 'modules' => ['account', 'hrm', 'lead', 'taskly', 'pos', 'productservice'], 'created_by' => $owner->id]);
+        $plan = Plan::create(['name' => 'Modules', 'status' => true, 'modules' => ['account', 'hrm', 'lead', 'taskly', 'pos', 'productservice', 'sales'], 'created_by' => $owner->id]);
         $organization = Organization::factory()->create(['owner_id' => $owner->id, 'plan_id' => $plan->id]);
         $workspace = Workspace::factory()->create(['organization_id' => $organization->id, 'created_by' => $owner->id]);
         $organization->members()->attach($owner, ['role' => 'owner']);

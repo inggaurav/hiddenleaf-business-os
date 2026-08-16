@@ -4,9 +4,12 @@ namespace Tests\Feature\MrFox;
 
 use App\Domain\MrFox\Tools\MrFoxToolRegistry;
 use App\Models\CrmLead;
+use App\Models\CrmPipeline;
+use App\Models\CrmStage;
 use App\Models\Organization;
 use App\Models\Plan;
 use App\Models\Product;
+use App\Models\ProductServiceItem;
 use App\Models\SalesInvoice;
 use App\Models\User;
 use App\Models\UserActiveModule;
@@ -19,7 +22,9 @@ class MrFoxArchitectureTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private Organization $org;
+
     private Workspace $workspace;
 
     protected function setUp(): void
@@ -38,13 +43,13 @@ class MrFoxArchitectureTest extends TestCase
         UserActiveModule::create(['workspace_id' => $this->workspace->id, 'module_name' => 'crm']);
         UserActiveModule::create(['workspace_id' => $this->workspace->id, 'module_name' => 'productservice']);
 
-        $pipeline = \App\Models\CrmPipeline::create([
+        $pipeline = CrmPipeline::create([
             'organization_id' => $this->org->id,
             'workspace_id' => $this->workspace->id,
             'name' => 'Acme Pipeline',
             'is_default' => true,
         ]);
-        \App\Models\CrmStage::create([
+        CrmStage::create([
             'pipeline_id' => $pipeline->id,
             'name' => 'Inbound',
             'position' => 0,
@@ -67,8 +72,8 @@ class MrFoxArchitectureTest extends TestCase
 
     public function test_mr_fox_chat_endpoint_processes_messages_and_tools(): void
     {
-        $pipeline = \App\Models\CrmPipeline::where('workspace_id', $this->workspace->id)->first();
-        $stage = \App\Models\CrmStage::where('pipeline_id', $pipeline->id)->first();
+        $pipeline = CrmPipeline::where('workspace_id', $this->workspace->id)->first();
+        $stage = CrmStage::where('pipeline_id', $pipeline->id)->first();
 
         CrmLead::create([
             'organization_id' => $this->org->id,
@@ -115,7 +120,7 @@ class MrFoxArchitectureTest extends TestCase
         ]);
 
         // Create low stock product
-        \App\Models\ProductServiceItem::create([
+        ProductServiceItem::create([
             'organization_id' => $this->org->id,
             'workspace_id' => $this->workspace->id,
             'name' => 'Server Hardware Chassis',

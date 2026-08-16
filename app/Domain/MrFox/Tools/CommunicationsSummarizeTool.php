@@ -74,11 +74,11 @@ class CommunicationsSummarizeTool implements MrFoxToolContract
             $transcript = "Contact: {$conv->last_message_preview}";
         }
 
-        $prompt = "Summarize this customer communication thread concisely.\n" .
-            "Format with:\n" .
-            "1. Key Summary (2 sentences)\n" .
-            "2. Open Questions / Customer Pain Points\n" .
-            "3. Action Items for the Team\n\n" .
+        $prompt = "Summarize this customer communication thread concisely.\n".
+            "Format with:\n".
+            "1. Key Summary (2 sentences)\n".
+            "2. Open Questions / Customer Pain Points\n".
+            "3. Action Items for the Team\n\n".
             "Transcript:\n{$transcript}";
 
         $provider = $this->providerRouter->resolve($context->workspace);

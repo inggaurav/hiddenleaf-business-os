@@ -43,6 +43,11 @@ class ApiV1SuiteTest extends TestCase
 
         $this->user->organizations()->attach($this->org->id, ['role' => 'owner']);
         $this->user->workspaces()->attach($this->ws->id);
+        $this->entitleWorkspaceModules($this->org, $this->ws, $this->user, [
+            'productservice',
+            'helpdesk',
+            'media',
+        ]);
     }
 
     public function test_api_login_returns_sanctum_token(): void

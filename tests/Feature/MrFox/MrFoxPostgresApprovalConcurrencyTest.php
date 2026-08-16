@@ -8,14 +8,12 @@ use App\Domain\MrFox\RiskLevel;
 use App\Models\CrmLead;
 use App\Models\CrmPipeline;
 use App\Models\CrmStage;
-use App\Models\MrFoxActionProposal;
 use App\Models\Organization;
 use App\Models\Plan;
 use App\Models\User;
 use App\Models\UserActiveModule;
 use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class MrFoxPostgresApprovalConcurrencyTest extends TestCase

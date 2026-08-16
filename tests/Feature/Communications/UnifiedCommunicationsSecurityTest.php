@@ -3,10 +3,8 @@
 namespace Tests\Feature\Communications;
 
 use App\Domain\Communications\Actions\CommunicationSendService;
-use App\Domain\Communications\Providers\GmailProvider;
 use App\Domain\Communications\Providers\SlackProvider;
 use App\Domain\Communications\Providers\WhatsAppCloudProvider;
-use App\Domain\Communications\Webhooks\CommunicationWebhookService;
 use App\Models\CommunicationAccount;
 use App\Models\CommunicationConversation;
 use App\Models\CommunicationMessage;
@@ -15,7 +13,6 @@ use App\Models\Plan;
 use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class UnifiedCommunicationsSecurityTest extends TestCase
@@ -113,10 +110,10 @@ class UnifiedCommunicationsSecurityTest extends TestCase
 
     public function test_whatsapp_webhook_signature_verification_and_challenge(): void
     {
-        $provider = new WhatsAppCloudProvider();
+        $provider = new WhatsAppCloudProvider;
         $secret = 'super_secret_whatsapp_key';
         $payload = json_encode(['entry' => []]);
-        $signature = 'sha256=' . hash_hmac('sha256', $payload, $secret);
+        $signature = 'sha256='.hash_hmac('sha256', $payload, $secret);
 
         // Valid signature
         $this->assertTrue($provider->verifyWebhook(['x-hub-signature-256' => $signature], $payload, $secret));
@@ -127,13 +124,13 @@ class UnifiedCommunicationsSecurityTest extends TestCase
 
     public function test_slack_webhook_signing_secret_and_replay_protection(): void
     {
-        $provider = new SlackProvider();
+        $provider = new SlackProvider;
         $secret = 'slack_secret_123';
         $payload = 'command=/help';
 
         // Valid timestamp
         $timestamp = (string) time();
-        $sig = 'v0=' . hash_hmac('sha256', "v0:{$timestamp}:{$payload}", $secret);
+        $sig = 'v0='.hash_hmac('sha256', "v0:{$timestamp}:{$payload}", $secret);
         $headers = [
             'x-slack-request-timestamp' => $timestamp,
             'x-slack-signature' => $sig,
@@ -142,7 +139,7 @@ class UnifiedCommunicationsSecurityTest extends TestCase
 
         // Replay attack: expired timestamp (600s old)
         $oldTimestamp = (string) (time() - 600);
-        $oldSig = 'v0=' . hash_hmac('sha256', "v0:{$oldTimestamp}:{$payload}", $secret);
+        $oldSig = 'v0='.hash_hmac('sha256', "v0:{$oldTimestamp}:{$payload}", $secret);
         $oldHeaders = [
             'x-slack-request-timestamp' => $oldTimestamp,
             'x-slack-signature' => $oldSig,

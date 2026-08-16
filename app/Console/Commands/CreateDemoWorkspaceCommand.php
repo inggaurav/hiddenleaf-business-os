@@ -39,6 +39,7 @@ class CreateDemoWorkspaceCommand extends Command
 
         if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $this->error('A valid --email is required.');
+
             return self::FAILURE;
         }
 
@@ -61,13 +62,17 @@ class CreateDemoWorkspaceCommand extends Command
                     $user->forceFill(['email_verified_at' => now()])->save();
                     $created = true;
                 } else {
-                    if (method_exists($user, 'trashed') && $user->trashed()) $user->restore();
+                    if (method_exists($user, 'trashed') && $user->trashed()) {
+                        $user->restore();
+                    }
                     $user->forceFill([
                         'is_active' => true,
                         'email_verified_at' => $user->email_verified_at ?: now(),
                         'role' => 'company',
                     ]);
-                    if (is_string($requestedPassword) && $requestedPassword !== '') $user->password = Hash::make($requestedPassword);
+                    if (is_string($requestedPassword) && $requestedPassword !== '') {
+                        $user->password = Hash::make($requestedPassword);
+                    }
                     $user->save();
                 }
 
@@ -167,16 +172,22 @@ class CreateDemoWorkspaceCommand extends Command
                 ['Tasks', (string) ($counts['tasks_count'] ?? 0)],
             ]);
 
-            if ($created && $generatedPassword !== null) $this->warn('Generated demo password (shown once): '.$generatedPassword);
-            elseif (is_string($requestedPassword) && $requestedPassword !== '') $this->line('Demo password was set from --password.');
-            else $this->line('Existing demo password was preserved.');
+            if ($created && $generatedPassword !== null) {
+                $this->warn('Generated demo password (shown once): '.$generatedPassword);
+            } elseif (is_string($requestedPassword) && $requestedPassword !== '') {
+                $this->line('Demo password was set from --password.');
+            } else {
+                $this->line('Existing demo password was preserved.');
+            }
 
             $this->newLine();
             $this->line('Re-run with --reset to refresh business demo records without deleting the workspace.');
+
             return self::SUCCESS;
         } catch (\Throwable $exception) {
             report($exception);
             $this->error('Unable to create demo workspace: '.$exception->getMessage());
+
             return self::FAILURE;
         }
     }

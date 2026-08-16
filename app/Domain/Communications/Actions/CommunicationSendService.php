@@ -9,7 +9,6 @@ use App\Models\CommunicationAccount;
 use App\Models\CommunicationConversation;
 use App\Models\CommunicationMessage;
 use Illuminate\Support\Facades\DB;
-use InvalidArgumentException;
 
 class CommunicationSendService
 {

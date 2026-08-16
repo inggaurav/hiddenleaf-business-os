@@ -39,7 +39,7 @@ class MrFoxSkillsIntegrationTest extends TestCase
         $this->assertGreaterThanOrEqual(5, count($listRes->data));
 
         // 2. Test SkillExecuteTool with Mock Provider
-        $fakeProvider = new FakeAiProvider();
+        $fakeProvider = new FakeAiProvider;
         $fakeProvider->queueResponse(new AiResponse(
             content: '🚀 Boost your agency revenue with automated client workflows! #AgencyGrowth #Automation',
             provider: 'fake',

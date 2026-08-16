@@ -89,7 +89,7 @@ class SalesInvoiceSearchTool implements MrFoxToolContract
         $evidence = $invoices->map(fn ($inv) => [
             'type' => 'invoice',
             'id' => $inv->id,
-            'label' => "{$inv->invoice_id} ({$inv->status}) - $" . number_format((float) $inv->total_amount, 2),
+            'label' => "{$inv->invoice_id} ({$inv->status}) - $".number_format((float) $inv->total_amount, 2),
             'route' => "/sales/invoices/{$inv->id}",
         ])->all();
 

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Domain\Modules\SecureModuleInstaller;
 use App\Models\Addon;
 use App\Models\Plan;
+use App\Models\Workspace;
 use App\Modules\AccountModule;
 use App\Modules\HRMModule;
 use App\Modules\LandingPageModule;
@@ -32,24 +33,39 @@ class ModuleManager
         }
     }
 
-    public function getAllModules(): array { return $this->registry->all(); }
-    public function getModule(string $alias): ?ModuleContract { return $this->registry->get(strtolower($alias)); }
+    public function getAllModules(): array
+    {
+        return $this->registry->all();
+    }
+
+    public function getModule(string $alias): ?ModuleContract
+    {
+        return $this->registry->get(strtolower($alias));
+    }
 
     public function isModuleEnabledForWorkspace(string $moduleAlias, ?int $workspaceId = null): bool
     {
         $module = $this->getModule($moduleAlias);
-        if (! $module) { return false; }
-        if (! $workspaceId) { return $module->isEnabled(); }
+        if (! $module) {
+            return false;
+        }
+        if (! $workspaceId) {
+            return $module->isEnabled();
+        }
 
-        $workspace = \App\Models\Workspace::query()->with('organization')->find($workspaceId);
+        $workspace = Workspace::query()->with('organization')->find($workspaceId);
+
         return $workspace ? $this->addons->isActiveForWorkspace($workspace, $moduleAlias) : false;
     }
 
     public function isModuleIncludedInPlan(string $moduleAlias, int $planId): bool
     {
         $plan = Plan::find($planId);
-        if (! $plan || empty($plan->modules)) { return false; }
+        if (! $plan || empty($plan->modules)) {
+            return false;
+        }
         $modules = array_map(static fn (mixed $module): string => strtolower((string) $module), $plan->modules ?? []);
+
         return in_array(strtolower($moduleAlias), $modules, true);
     }
 

@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\MrFox;
 
-use App\Domain\Accounting\AccountReportService;
 use App\Domain\MrFox\Context\BusinessContextService;
 use App\Domain\MrFox\Tools\AccountingCashPositionTool;
 use App\Domain\MrFox\Tools\AccountingPnlTool;
@@ -83,7 +82,7 @@ class MrFoxFinancialParityTest extends TestCase
         $context = $contextService->createToolContext($user, $workspace);
 
         // 1. P&L Test
-        $pnlTool = new AccountingPnlTool();
+        $pnlTool = new AccountingPnlTool;
         $pnlResult = $pnlTool->execute($context, []);
         $this->assertEquals(15000, $pnlResult->data['gross_revenue']);
         $this->assertEquals(6000, $pnlResult->data['total_expenses']);
@@ -91,12 +90,12 @@ class MrFoxFinancialParityTest extends TestCase
         $this->assertEquals(60.0, $pnlResult->data['operating_margin_percent']);
 
         // 2. Cash Position Test
-        $cashTool = new AccountingCashPositionTool();
+        $cashTool = new AccountingCashPositionTool;
         $cashResult = $cashTool->execute($context, []);
         $this->assertEquals(45000, $cashResult->data[0]['balance']);
 
         // 3. Receivables Outstanding Test
-        $salesTool = new SalesOutstandingSummaryTool();
+        $salesTool = new SalesOutstandingSummaryTool;
         $salesResult = $salesTool->execute($context, []);
         $this->assertEquals(15000, $salesResult->data['total_receivables']);
         $this->assertEquals(15000, $salesResult->data['total_overdue_amount']);

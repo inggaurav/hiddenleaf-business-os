@@ -38,7 +38,9 @@ class AddonExtensionRegistrar
             $alias = $module->getAlias();
 
             $this->registerClasses($module->mrFoxTools(), MrFoxToolContract::class, function (object $tool) use ($toolRegistry): void {
-                if (! $toolRegistry->has($tool->name())) { $toolRegistry->register($tool); }
+                if (! $toolRegistry->has($tool->name())) {
+                    $toolRegistry->register($tool);
+                }
             }, $alias);
 
             $this->registerClasses($module->automationTriggers(), AutomationTriggerContract::class, fn (object $trigger) => $triggerRegistry->register($trigger, $alias), $alias);
@@ -47,8 +49,8 @@ class AddonExtensionRegistrar
     }
 
     /**
-     * @param array<int, class-string> $classes
-     * @param class-string $contract
+     * @param  array<int, class-string>  $classes
+     * @param  class-string  $contract
      */
     private function registerClasses(array $classes, string $contract, callable $register, string $alias): void
     {
@@ -59,6 +61,7 @@ class AddonExtensionRegistrar
                     'class' => $class,
                     'contract' => $contract,
                 ]);
+
                 continue;
             }
             $register($this->container->make($class));

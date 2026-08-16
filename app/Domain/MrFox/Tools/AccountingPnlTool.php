@@ -2,7 +2,6 @@
 
 namespace App\Domain\MrFox\Tools;
 
-use App\Domain\Accounting\AccountDashboardService;
 use App\Domain\MrFox\Contracts\MrFoxToolContract;
 use App\Domain\MrFox\DTO\ToolContext;
 use App\Domain\MrFox\DTO\ToolResult;

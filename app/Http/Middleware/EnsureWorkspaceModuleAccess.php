@@ -62,6 +62,7 @@ class EnsureWorkspaceModuleAccess
     private function moduleForPath(string $path): ?string
     {
         $first = explode('/', trim($path, '/'))[0] ?? '';
+
         return self::PREFIX_MODULES[$first] ?? null;
     }
 }

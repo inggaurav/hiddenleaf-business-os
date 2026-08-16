@@ -18,10 +18,14 @@ class CheckModuleStatus
     public function handle(Request $request, Closure $next, string $moduleName): Response
     {
         $workspaceId = $request->session()->get('active_workspace_id');
-        if (! $workspaceId) { abort(403, 'No active workspace'); }
+        if (! $workspaceId) {
+            abort(403, 'No active workspace');
+        }
 
         $workspace = Workspace::query()->with('organization')->find($workspaceId);
-        if (! $workspace) { abort(403, 'Invalid active workspace.'); }
+        if (! $workspace) {
+            abort(403, 'Invalid active workspace.');
+        }
 
         $user = $request->user();
         $isSuperAdmin = $user && method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin();

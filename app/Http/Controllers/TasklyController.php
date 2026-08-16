@@ -246,6 +246,7 @@ class TasklyController extends Controller
     {
         $workspace = Workspace::with('organization')->find($request->session()->get('active_workspace_id'));
         abort_unless($workspace && $request->user()->canInWorkspace($permission, $workspace), 403);
+
         return $workspace;
     }
 

@@ -124,10 +124,10 @@ class MrFoxServiceProvider extends ServiceProvider
         $this->app->singleton(ExecutiveActivityTimelineService::class);
 
         $this->app->singleton(MrFoxToolRegistry::class, function ($app) {
-            $registry = new MrFoxToolRegistry();
+            $registry = new MrFoxToolRegistry;
 
             // Core Dashboard & Alerts
-            $registry->register(new BusinessDashboardSummaryTool());
+            $registry->register(new BusinessDashboardSummaryTool);
             $registry->register(new BusinessAlertsTool($app->make(BusinessInsightService::class)));
 
             // Executive Command Center Tools
@@ -139,39 +139,39 @@ class MrFoxServiceProvider extends ServiceProvider
             $registry->register(new BusinessSearchTool($app->make(BusinessSearchService::class)));
 
             // CRM
-            $registry->register(new CrmSearchLeadsTool());
-            $registry->register(new CrmGetLeadTool());
-            $registry->register(new CrmPipelineSummaryTool());
-            $registry->register(new CrmCreateLeadTool());
-            $registry->register(new CrmAddNoteTool());
+            $registry->register(new CrmSearchLeadsTool);
+            $registry->register(new CrmGetLeadTool);
+            $registry->register(new CrmPipelineSummaryTool);
+            $registry->register(new CrmCreateLeadTool);
+            $registry->register(new CrmAddNoteTool);
 
             // Sales & Procurement
-            $registry->register(new SalesInvoiceSearchTool());
-            $registry->register(new SalesOutstandingSummaryTool());
-            $registry->register(new PurchaseBillSearchTool());
-            $registry->register(new PurchasePayablesSummaryTool());
+            $registry->register(new SalesInvoiceSearchTool);
+            $registry->register(new SalesOutstandingSummaryTool);
+            $registry->register(new PurchaseBillSearchTool);
+            $registry->register(new PurchasePayablesSummaryTool);
 
             // Accounting & Inventory
-            $registry->register(new AccountingPnlTool());
-            $registry->register(new AccountingCashPositionTool());
-            $registry->register(new InventoryStockSummaryTool());
-            $registry->register(new InventoryLowStockTool());
+            $registry->register(new AccountingPnlTool);
+            $registry->register(new AccountingCashPositionTool);
+            $registry->register(new InventoryStockSummaryTool);
+            $registry->register(new InventoryLowStockTool);
 
             // Taskly & HRM
-            $registry->register(new TasklySearchProjectsTool());
-            $registry->register(new TasklyOverdueTasksTool());
-            $registry->register(new TasklyCreateTaskTool());
-            $registry->register(new HrEmployeeSummaryTool());
-            $registry->register(new HrAttendanceSummaryTool());
-            $registry->register(new HrPendingLeaveTool());
+            $registry->register(new TasklySearchProjectsTool);
+            $registry->register(new TasklyOverdueTasksTool);
+            $registry->register(new TasklyCreateTaskTool);
+            $registry->register(new HrEmployeeSummaryTool);
+            $registry->register(new HrAttendanceSummaryTool);
+            $registry->register(new HrPendingLeaveTool);
 
             // Governed Knowledge & RAG
             $registry->register(new KnowledgeSearchTool($app->make(KnowledgeSearchService::class)));
-            $registry->register(new KnowledgeGetDocumentTool());
+            $registry->register(new KnowledgeGetDocumentTool);
             $registry->register(new KnowledgeAskTool($app->make(KnowledgeSearchService::class)));
 
             // Brand Profiles & Skills
-            $registry->register(new BrandProfileGetTool());
+            $registry->register(new BrandProfileGetTool);
             $registry->register(new SkillListTool($app->make(SkillRegistry::class)));
             $registry->register(new SkillExecuteTool(
                 $app->make(SkillRegistry::class),
@@ -180,17 +180,17 @@ class MrFoxServiceProvider extends ServiceProvider
             ));
 
             // Unified Communications Tools
-            $registry->register(new CommunicationsSearchTool());
-            $registry->register(new CommunicationsGetTool());
-            $registry->register(new CommunicationsUnreadSummaryTool());
-            $registry->register(new CommunicationsUrgentSummaryTool());
+            $registry->register(new CommunicationsSearchTool);
+            $registry->register(new CommunicationsGetTool);
+            $registry->register(new CommunicationsUnreadSummaryTool);
+            $registry->register(new CommunicationsUrgentSummaryTool);
             $registry->register(new CommunicationsSummarizeTool($app->make(ProviderRouter::class)));
             $registry->register(new CommunicationsDraftReplyTool($app->make(CommunicationReplyGenerator::class)));
             $registry->register(new CommunicationsSendReplyTool($app->make(CommunicationSendService::class)));
 
             // Missions Tools
-            $registry->register(new MissionsListTool());
-            $registry->register(new MissionsGetTool());
+            $registry->register(new MissionsListTool);
+            $registry->register(new MissionsGetTool);
             $registry->register(new MissionsCreateTool($app->make(MissionPlanner::class)));
             $registry->register(new MissionsControlTool($app->make(MissionStateMachine::class)));
 

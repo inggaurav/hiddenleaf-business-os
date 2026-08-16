@@ -48,7 +48,7 @@ class MrFoxPromptInjectionBoundaryTest extends TestCase
         ]);
 
         // Mock LLM returning tool call for un-registered malicious tool
-        $fakeProvider = new FakeAiProvider();
+        $fakeProvider = new FakeAiProvider;
         $fakeProvider->addCannedResponse(new AiResponse(
             content: 'Executing command',
             toolCalls: [

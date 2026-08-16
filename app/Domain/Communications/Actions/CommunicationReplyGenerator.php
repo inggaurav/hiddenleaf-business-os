@@ -44,12 +44,12 @@ class CommunicationReplyGenerator
             $threadHistory = "Customer: {$conversation->last_message_preview}";
         }
 
-        $prompt = "You are drafting a professional customer service reply for '{$brandName}'.\n" .
-            "Brand Persona / Tone: {$tone}\n" .
-            "Channel: {$conversation->provider}\n" .
-            "Customer Name: {$conversation->participant_name}\n\n" .
-            "Conversation History:\n{$threadHistory}\n\n" .
-            "Write a concise, helpful, and empathetic reply directly addressing their inquiry or concern. Do not include placeholders.";
+        $prompt = "You are drafting a professional customer service reply for '{$brandName}'.\n".
+            "Brand Persona / Tone: {$tone}\n".
+            "Channel: {$conversation->provider}\n".
+            "Customer Name: {$conversation->participant_name}\n\n".
+            "Conversation History:\n{$threadHistory}\n\n".
+            'Write a concise, helpful, and empathetic reply directly addressing their inquiry or concern. Do not include placeholders.';
 
         $provider = $this->providerRouter->resolve($context->workspace);
         $aiRes = $provider->chat(new AiRequest(messages: [

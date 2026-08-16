@@ -5,7 +5,6 @@ namespace App\Domain\CommandCenter\Anomalies;
 use App\Domain\CommandCenter\DTO\AnomalyDTO;
 use App\Models\AutomationRun;
 use App\Models\CommunicationMessage;
-use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
 use App\Models\User;
 use App\Models\Workspace;
@@ -55,7 +54,7 @@ class AnomalyDetectionEngine
                     evidence: $overdueInvoices->take(3)->map(fn ($i) => [
                         'type' => 'invoice',
                         'id' => $i->id,
-                        'label' => "Invoice #{$i->invoice_id}: $" . number_format((float) $i->total_amount, 2),
+                        'label' => "Invoice #{$i->invoice_id}: $".number_format((float) $i->total_amount, 2),
                     ])->all()
                 );
             }

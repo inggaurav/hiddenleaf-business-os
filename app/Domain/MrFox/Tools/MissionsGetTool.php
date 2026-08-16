@@ -75,7 +75,7 @@ class MissionsGetTool implements MrFoxToolContract
             'steps' => $steps,
         ];
 
-        $summary = "Mission #{$mission->id} ({$mission->name}) — {$mission->status}, on step {$mission->current_step}/" . count($steps) . '.';
+        $summary = "Mission #{$mission->id} ({$mission->name}) — {$mission->status}, on step {$mission->current_step}/".count($steps).'.';
 
         return ToolResult::success($data, $summary, [
             ['type' => 'missions', 'id' => $mission->id, 'label' => "Mission: {$mission->name}", 'route' => '/missions'],

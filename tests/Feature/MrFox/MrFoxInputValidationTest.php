@@ -11,8 +11,8 @@ class MrFoxInputValidationTest extends TestCase
 {
     public function test_missing_required_fields_fails_validation(): void
     {
-        $validator = new ToolInputValidator();
-        $tool = new CrmCreateLeadTool();
+        $validator = new ToolInputValidator;
+        $tool = new CrmCreateLeadTool;
 
         $result = $validator->validate($tool, [
             'email' => 'test@example.com',
@@ -25,8 +25,8 @@ class MrFoxInputValidationTest extends TestCase
 
     public function test_forbidden_authority_keys_are_stripped_and_ignored(): void
     {
-        $validator = new ToolInputValidator();
-        $tool = new CrmCreateLeadTool();
+        $validator = new ToolInputValidator;
+        $tool = new CrmCreateLeadTool;
 
         $result = $validator->validate($tool, [
             'name' => 'Valid Lead',
@@ -44,8 +44,8 @@ class MrFoxInputValidationTest extends TestCase
 
     public function test_oversized_limit_is_bounded(): void
     {
-        $validator = new ToolInputValidator();
-        $tool = new SalesInvoiceSearchTool();
+        $validator = new ToolInputValidator;
+        $tool = new SalesInvoiceSearchTool;
 
         $result = $validator->validate($tool, [
             'limit' => 5000, // exceeds max: 100

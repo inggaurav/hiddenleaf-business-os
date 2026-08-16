@@ -9,7 +9,6 @@ use App\Domain\MrFox\Context\BusinessContextService;
 use App\Http\Controllers\Controller;
 use App\Models\CommunicationAccount;
 use App\Models\CommunicationConversation;
-use App\Models\CommunicationMessage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;

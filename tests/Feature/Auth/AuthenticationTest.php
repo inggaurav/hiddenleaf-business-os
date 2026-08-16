@@ -43,7 +43,7 @@ class AuthenticationTest extends TestCase
 
         $this->assertAuthenticated();
         $this->assertDatabaseHas('users', ['email' => 'gaurav@hiddenleaf.io']);
-        $this->assertDatabaseHas('organizations', ['name' => "Gaurav User's Org"]);
-        $this->assertDatabaseHas('workspaces', ['name' => 'Main Operations']);
+        $this->assertDatabaseHas('organizations', ['name' => "Gaurav User's Organization"]);
+        $this->assertDatabaseHas('workspaces', ['name' => 'Primary Workspace']);
     }
 }

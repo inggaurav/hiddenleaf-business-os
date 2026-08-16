@@ -6,7 +6,6 @@ use App\Domain\MrFox\DTO\ToolContext;
 use App\Models\CrmLead;
 use App\Models\HrLeaveRequest;
 use App\Models\ProductServiceItem;
-use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
 use App\Models\TasklyTask;
 

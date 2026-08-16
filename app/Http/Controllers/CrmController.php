@@ -67,9 +67,10 @@ class CrmController extends Controller
         return back()->with('success', 'Lead created.');
     }
 
-    public function moveLead(Request $request, CrmLead $lead)
+    public function moveLead(Request $request, int $leadId)
     {
         $workspace = $this->workspace($request, 'crm.manage');
+        $lead = CrmLead::findOrFail($leadId);
         $this->tenant($lead, $workspace);
         $data = $request->validate(['stage_id' => ['required', 'integer']]);
         $this->pipelineStage($workspace, $lead->pipeline_id, $data['stage_id']);
@@ -78,9 +79,10 @@ class CrmController extends Controller
         return back()->with('success', 'Lead stage updated.');
     }
 
-    public function convertLead(Request $request, CrmLead $lead, AuditLogger $audit)
+    public function convertLead(Request $request, int $leadId, AuditLogger $audit)
     {
         $workspace = $this->workspace($request, 'crm.manage');
+        $lead = CrmLead::findOrFail($leadId);
         $this->tenant($lead, $workspace);
         abort_unless($lead->status === 'open', 422, 'Lead already converted or closed.');
         $data = $request->validate([
@@ -214,9 +216,10 @@ class CrmController extends Controller
         return response()->json(['status' => 'success', 'message' => 'Thank you for your submission. Our team will contact you soon.']);
     }
 
-    public function moveDeal(Request $request, CrmDeal $deal, AuditLogger $audit)
+    public function moveDeal(Request $request, int $dealId, AuditLogger $audit)
     {
         $workspace = $this->workspace($request, 'crm.manage');
+        $deal = CrmDeal::findOrFail($dealId);
         $this->tenant($deal, $workspace);
         abort_unless($deal->status === 'open', 422, 'Closed deals cannot move.');
         $data = $request->validate(['stage_id' => ['required', 'integer'], 'loss_reason' => ['nullable', 'string']]);

@@ -21,6 +21,8 @@ class ModuleActivationTest extends TestCase
         $workspace = Workspace::factory()->create(['organization_id' => $org->id]);
         $user->organizations()->attach($org);
         $user->workspaces()->attach($workspace);
+        $this->entitleWorkspaceModules($org, $workspace, $user, []);
+        $org->plan->update(['modules' => ['hrm']]);
 
         $this->actingAs($user)->withSession([
             'active_workspace_id' => $workspace->id,
@@ -29,7 +31,7 @@ class ModuleActivationTest extends TestCase
 
         // Enable
         $response = $this->post(route('modules.toggle'), [
-            'module_name' => 'HR',
+            'module_name' => 'hrm',
             'active' => true,
         ]);
         $response->assertSessionHasNoErrors();
@@ -37,12 +39,12 @@ class ModuleActivationTest extends TestCase
 
         $this->assertDatabaseHas('user_active_modules', [
             'workspace_id' => $workspace->id,
-            'module_name' => 'HR',
+            'module_name' => 'hrm',
         ]);
 
         // Disable
         $response = $this->post(route('modules.toggle'), [
-            'module_name' => 'HR',
+            'module_name' => 'hrm',
             'active' => false,
         ]);
         $response->assertStatus(302);
@@ -99,6 +101,8 @@ class ModuleActivationTest extends TestCase
         $role->permissions()->attach($permission);
         $member->organizations()->attach($org, ['role' => 'member']);
         $member->workspaces()->attach($workspace, ['role_id' => $role->id]);
+        $this->entitleWorkspaceModules($org, $workspace, $owner, []);
+        $org->plan->update(['modules' => ['account']]);
 
         $this->assertTrue($member->fresh()->canInWorkspace('modules.manage', $workspace->fresh()));
 

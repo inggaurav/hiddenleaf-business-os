@@ -47,6 +47,8 @@ class ModuleEngineSuiteTest extends TestCase
 
         $this->companyAdmin->organizations()->attach($this->org->id, ['role' => 'owner']);
         $this->companyAdmin->workspaces()->attach($this->ws->id);
+        $this->entitleWorkspaceModules($this->org, $this->ws, $this->companyAdmin, []);
+        $this->org->plan->update(['modules' => ['account']]);
 
         $this->moduleManager = app(ModuleManager::class);
     }

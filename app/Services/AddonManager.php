@@ -13,8 +13,6 @@ use RuntimeException;
 
 class AddonManager
 {
-    private const DEFAULT_CORE_MODULES = ['account', 'hrm', 'crm', 'lead', 'pos', 'taskly', 'productservice', 'landingpage'];
-
     /** @return Collection<int, Addon> */
     public function installed(): Collection
     {
@@ -33,10 +31,13 @@ class AddonManager
     {
         $planId = $workspace->organization?->plan_id;
         $plan = $planId ? Plan::find($planId) : null;
-        if (! $plan) { return false; }
+        if (! $plan) {
+            return false;
+        }
 
         $needle = strtolower($alias);
         $modules = array_map(static fn (mixed $module): string => strtolower((string) $module), $plan->modules ?? []);
+
         return in_array($needle, $modules, true);
     }
 
@@ -53,12 +54,10 @@ class AddonManager
                 ->exists();
         }
 
-        $activeQuery = UserActiveModule::query()->where('workspace_id', $workspace->id);
-        if (! (clone $activeQuery)->exists()) {
-            return in_array($alias, self::DEFAULT_CORE_MODULES, true);
-        }
-
-        return $activeQuery->whereRaw('LOWER(module_name) = ?', [$alias])->exists();
+        return UserActiveModule::query()
+            ->where('workspace_id', $workspace->id)
+            ->whereRaw('LOWER(module_name) = ?', [$alias])
+            ->exists();
     }
 
     public function canUse(Workspace $workspace, string $alias, bool $superAdmin = false): bool
@@ -69,7 +68,9 @@ class AddonManager
         if ($addon && ! in_array(strtolower((string) $addon->status), ['installed', 'enabled', 'active'], true)) {
             return false;
         }
-        if (! $this->isActiveForWorkspace($workspace, $alias)) { return false; }
+        if (! $this->isActiveForWorkspace($workspace, $alias)) {
+            return false;
+        }
 
         return $superAdmin || $this->isPlanEntitled($workspace, $alias);
     }
@@ -100,10 +101,15 @@ class AddonManager
     public function deactivate(Workspace $workspace, string $alias): void
     {
         $addon = $this->find($alias);
-        if (! $addon) { throw new RuntimeException("Add-on {$alias} is not installed."); }
+        if (! $addon) {
+            throw new RuntimeException("Add-on {$alias} is not installed.");
+        }
 
         $activeDependents = $this->installed()->filter(function (Addon $candidate) use ($workspace, $addon): bool {
-            if ($candidate->id === $addon->id) { return false; }
+            if ($candidate->id === $addon->id) {
+                return false;
+            }
+
             return in_array(strtolower($addon->alias), (new ManifestAddonModule($candidate))->dependencies(), true)
                 && $this->isActiveForWorkspace($workspace, $candidate->alias);
         })->pluck('name')->all();
@@ -123,7 +129,9 @@ class AddonManager
     {
         $result = [];
         foreach ($this->installed() as $addon) {
-            if (! $this->canUse($workspace, $addon->alias, $superAdmin)) { continue; }
+            if (! $this->canUse($workspace, $addon->alias, $superAdmin)) {
+                continue;
+            }
             $module = new ManifestAddonModule($addon);
             $classes = match ($capability) {
                 'mrfox.tools' => $module->mrFoxTools(),
@@ -133,8 +141,11 @@ class AddonManager
                 'command_center.signals' => $module->commandCenterSignals(),
                 default => [],
             };
-            if ($classes !== []) { $result[$module->getAlias()] = $classes; }
+            if ($classes !== []) {
+                $result[$module->getAlias()] = $classes;
+            }
         }
+
         return $result;
     }
 }

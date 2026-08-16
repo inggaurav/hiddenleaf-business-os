@@ -4,8 +4,6 @@ namespace Tests\Feature\MrFox;
 
 use App\Domain\MrFox\Context\BusinessContextService;
 use App\Domain\MrFox\Tools\BusinessDashboardSummaryTool;
-use App\Domain\MrFox\Tools\CrmCreateLeadTool;
-use App\Domain\MrFox\Tools\CrmSearchLeadsTool;
 use App\Domain\MrFox\Tools\MrFoxToolRegistry;
 use App\Models\Organization;
 use App\Models\Plan;
@@ -22,13 +20,13 @@ class MrFoxToolRegistryTest extends TestCase
 
     public function test_duplicate_tool_registration_is_rejected(): void
     {
-        $registry = new MrFoxToolRegistry();
-        $registry->register(new BusinessDashboardSummaryTool());
+        $registry = new MrFoxToolRegistry;
+        $registry->register(new BusinessDashboardSummaryTool);
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage("Tool 'business.dashboard.summary' is already registered");
 
-        $registry->register(new BusinessDashboardSummaryTool());
+        $registry->register(new BusinessDashboardSummaryTool);
     }
 
     public function test_disabled_module_tools_are_filtered_out(): void

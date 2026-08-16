@@ -5,7 +5,6 @@ namespace App\Domain\MrFox\Tools;
 use App\Domain\MrFox\Contracts\MrFoxToolContract;
 use App\Domain\MrFox\DTO\ToolContext;
 use App\Domain\MrFox\DTO\ToolResult;
-use App\Domain\MrFox\Evidence\UnifiedEvidenceItem;
 use App\Domain\MrFox\RiskLevel;
 use App\Models\MrFoxKnowledgeDocument;
 

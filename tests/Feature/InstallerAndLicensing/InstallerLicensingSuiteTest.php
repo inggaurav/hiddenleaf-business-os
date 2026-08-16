@@ -183,11 +183,10 @@ class InstallerLicensingSuiteTest extends TestCase
         $this->post('/login', [
             'email' => $setupData['admin_email'],
             'password' => $setupData['admin_password'],
-        ])->assertRedirect('/dashboard');
-        $this->assertEquals($workspace->id, session('active_workspace_id'));
-        $this->assertEquals($workspace->organization_id, session('active_organization_id'));
-        $this->get('/accounting/accounts')->assertOk();
-        $this->get('/product-service')->assertOk();
+        ])->assertRedirect('/super-admin/dashboard');
+        $this->assertNull(session('active_workspace_id'));
+        $this->assertNull(session('active_organization_id'));
+        $this->get('/super-admin/dashboard')->assertOk();
 
         $this->post('/install', $setupData)->assertNotFound();
     }

@@ -25,6 +25,7 @@ class CumulativeReturnTest extends TestCase
         $ws = Workspace::factory()->create(['organization_id' => $org->id, 'created_by' => $user->id]);
         $org->members()->attach($user, ['role' => 'owner']);
         $ws->members()->attach($user);
+        $this->entitleWorkspaceModules($org, $ws, $user, ['sales', 'procurement']);
 
         $warehouse = Warehouse::create(['name' => 'Wh', 'organization_id' => $org->id, 'workspace_id' => $ws->id, 'created_by' => $user->id]);
         $product = ProductServiceItem::create(['name' => 'Prod', 'sku' => 'P1', 'type' => 'product', 'sale_price' => 10, 'purchase_price' => 5, 'organization_id' => $org->id, 'workspace_id' => $ws->id, 'created_by' => $user->id]);

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\AccountController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\HelpdeskApiController;
+use App\Http\Controllers\Api\V1\HrmApiController;
 use App\Http\Controllers\Api\V1\MediaApiController;
 use App\Http\Controllers\Api\V1\PlanApiController;
 use App\Http\Controllers\Api\V1\ProductServiceApiController;
@@ -50,6 +51,10 @@ Route::prefix('v1')->group(function () {
                 Route::get('/products-services', [ProductServiceApiController::class, 'index']);
                 Route::get('/products-services/{item}', [ProductServiceApiController::class, 'show'])->whereNumber('item');
                 Route::get('/warehouses', [SalesProcurementApiController::class, 'warehouses']);
+            });
+
+            Route::middleware('api.module:hrm')->group(function () {
+                Route::get('/hrm/employees', [HrmApiController::class, 'employees']);
             });
 
             Route::middleware('api.module:procurement')->group(function () {

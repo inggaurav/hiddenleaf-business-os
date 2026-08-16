@@ -91,7 +91,7 @@ class SalesOutstandingSummaryTool implements MrFoxToolContract
         $evidence = array_map(fn ($item) => [
             'type' => 'invoice',
             'id' => $item['invoice']->id,
-            'label' => "{$item['invoice']->invoice_id} - $" . number_format($item['outstanding'], 2) . ' (OVERDUE)',
+            'label' => "{$item['invoice']->invoice_id} - $".number_format($item['outstanding'], 2).' (OVERDUE)',
             'route' => "/sales/invoices/{$item['invoice']->id}",
         ], array_slice($overdueInvoices, 0, 5));
 

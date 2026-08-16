@@ -5,11 +5,11 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 
 class HiddenLeafCheckCommand extends Command
 {
     protected $signature = 'hiddenleaf:check';
+
     protected $description = 'Perform production deployment diagnostics and verify all core runtime requirements.';
 
     public function handle(): int
@@ -32,7 +32,7 @@ class HiddenLeafCheckCommand extends Command
         try {
             DB::connection()->getPdo();
             $dbName = DB::connection()->getDatabaseName();
-            $checks[] = ['Database Connectivity', 'PASS', 'Connected to ' . $dbName];
+            $checks[] = ['Database Connectivity', 'PASS', 'Connected to '.$dbName];
         } catch (\Throwable $e) {
             $checks[] = ['Database Connectivity', 'FAIL', $e->getMessage()];
             $hasFailure = true;
@@ -64,7 +64,7 @@ class HiddenLeafCheckCommand extends Command
         try {
             Cache::put('hl_diag_check', '1', 5);
             if (Cache::get('hl_diag_check') === '1') {
-                $checks[] = ['Cache Subsystem', 'PASS', 'Driver: ' . config('cache.default')];
+                $checks[] = ['Cache Subsystem', 'PASS', 'Driver: '.config('cache.default')];
             } else {
                 $checks[] = ['Cache Subsystem', 'WARN', 'Failed to retrieve written cache key'];
             }
@@ -89,10 +89,12 @@ class HiddenLeafCheckCommand extends Command
 
         if ($hasFailure) {
             $this->error('Production diagnostics detected CRITICAL FAILURES. Resolve above issues before launching.');
+
             return 1;
         }
 
         $this->info('All critical production diagnostics PASSED! HiddenLeaf Business OS is ready to serve traffic.');
+
         return 0;
     }
 }

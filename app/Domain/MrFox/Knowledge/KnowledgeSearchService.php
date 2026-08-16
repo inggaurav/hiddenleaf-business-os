@@ -54,7 +54,7 @@ class KnowledgeSearchService
         foreach ($chunks as $chunk) {
             $doc = $chunk->document;
             $title = $doc?->title ?? 'Untitled Document';
-            $snippet = substr($chunk->content, 0, 300) . '...';
+            $snippet = substr($chunk->content, 0, 300).'...';
 
             $results[] = [
                 'chunk_id' => $chunk->id,

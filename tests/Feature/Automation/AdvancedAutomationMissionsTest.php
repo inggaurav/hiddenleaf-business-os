@@ -10,15 +10,10 @@ use App\Domain\MrFox\DTO\AiResponse;
 use App\Domain\MrFox\Providers\FakeAiProvider;
 use App\Domain\MrFox\Providers\ProviderRouter;
 use App\Models\AutomationRule;
-use App\Models\CommunicationAccount;
-use App\Models\CommunicationConversation;
 use App\Models\MrFoxBrandProfile;
 use App\Models\MrFoxMission;
 use App\Models\Organization;
 use App\Models\Plan;
-use App\Models\ProductService;
-use App\Models\SalesInvoice;
-use App\Models\TasklyTask;
 use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -117,7 +112,7 @@ class AdvancedAutomationMissionsTest extends TestCase
             'is_default' => true,
         ]);
 
-        $fake = new FakeAiProvider();
+        $fake = new FakeAiProvider;
         $fake->queueResponse(new AiResponse(
             content: json_encode([
                 ['tool' => 'brand_profile.get', 'params' => ['profile_id' => $brand->id], 'description' => 'Fetch brand persona'],

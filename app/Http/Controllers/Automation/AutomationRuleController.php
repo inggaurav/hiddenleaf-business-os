@@ -92,6 +92,7 @@ class AutomationRuleController extends Controller
         $user = $request->user();
         $rule = AutomationRule::where('workspace_id', $user->current_workspace_id)->where('id', $id)->firstOrFail();
         $rule->update(['enabled' => ! $rule->enabled]);
+
         return response()->json(['success' => true, 'rule' => $rule]);
     }
 
@@ -99,6 +100,7 @@ class AutomationRuleController extends Controller
     {
         $runs = AutomationRun::where('workspace_id', $request->user()->current_workspace_id)
             ->where('rule_id', $id)->with('steps')->latest('id')->paginate(15);
+
         return response()->json($runs);
     }
 }

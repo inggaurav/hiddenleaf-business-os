@@ -53,7 +53,7 @@ class MrFoxMissionsEngineTest extends TestCase
         ]);
 
         // Queue mock AI plan
-        $fake = new FakeAiProvider();
+        $fake = new FakeAiProvider;
         $fake->queueResponse(new AiResponse(
             content: json_encode([
                 ['tool' => 'crm.search.leads', 'params' => ['query' => 'warm'], 'description' => 'Search warm leads'],

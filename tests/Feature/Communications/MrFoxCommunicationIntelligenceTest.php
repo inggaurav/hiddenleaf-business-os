@@ -113,7 +113,7 @@ class MrFoxCommunicationIntelligenceTest extends TestCase
         $this->assertCount(1, $urgentRes->data);
 
         // 5. Mock AI Provider for Summarize and Draft
-        $fake = new FakeAiProvider();
+        $fake = new FakeAiProvider;
         $fake->queueResponse(new AiResponse(
             content: 'Summary: Alice is inquiring about invoice item #42.',
             provider: 'fake'

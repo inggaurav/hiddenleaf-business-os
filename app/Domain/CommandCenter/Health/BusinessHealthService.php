@@ -5,14 +5,9 @@ namespace App\Domain\CommandCenter\Health;
 use App\Domain\CommandCenter\DTO\HealthDimensionDTO;
 use App\Domain\CommandCenter\Signals\SignalDetector;
 use App\Models\AutomationRun;
-use App\Models\BankAccount;
 use App\Models\CommunicationConversation;
 use App\Models\CommunicationMessage;
-use App\Models\CrmDeal;
 use App\Models\CrmLead;
-use App\Models\HelpdeskTicket;
-use App\Models\HrAttendance;
-use App\Models\HrEmployee;
 use App\Models\HrLeaveRequest;
 use App\Models\MrFoxMission;
 use App\Models\ProductServiceItem;
@@ -65,8 +60,8 @@ class BusinessHealthService
                 score: $score,
                 status: $status,
                 trend: $overdueCount > 0 ? 'down' : 'stable',
-                signals: $overdueCount > 0 ? ["{$overdueCount} overdue invoice(s) totalling $" . number_format($overdueSum, 2)] : ['All invoices are current.'],
-                evidence: $overdueInvoices->take(3)->map(fn ($i) => ['type' => 'invoice', 'id' => $i->id, 'label' => "Invoice #{$i->invoice_id}: $" . number_format((float) $i->total_amount, 2), 'route' => "/sales/invoices/{$i->id}"])->all()
+                signals: $overdueCount > 0 ? ["{$overdueCount} overdue invoice(s) totalling $".number_format($overdueSum, 2)] : ['All invoices are current.'],
+                evidence: $overdueInvoices->take(3)->map(fn ($i) => ['type' => 'invoice', 'id' => $i->id, 'label' => "Invoice #{$i->invoice_id}: $".number_format((float) $i->total_amount, 2), 'route' => "/sales/invoices/{$i->id}"])->all()
             );
 
             // 2. Payables Health
@@ -88,7 +83,7 @@ class BusinessHealthService
                 status: $this->resolveStatus($scorePay),
                 trend: 'stable',
                 signals: $overdueBills->count() > 0 ? ["{$overdueBills->count()} vendor bill(s) past due."] : ['No overdue vendor liabilities.'],
-                evidence: $overdueBills->take(3)->map(fn ($b) => ['type' => 'bill', 'id' => $b->id, 'label' => "Bill #{$b->invoice_id}: $" . number_format((float) $b->total_amount, 2), 'route' => "/purchases/invoices/{$b->id}"])->all()
+                evidence: $overdueBills->take(3)->map(fn ($b) => ['type' => 'bill', 'id' => $b->id, 'label' => "Bill #{$b->invoice_id}: $".number_format((float) $b->total_amount, 2), 'route' => "/purchases/invoices/{$b->id}"])->all()
             );
 
             // 3. Cash Position
@@ -212,7 +207,7 @@ class BusinessHealthService
             score: $overallScore,
             status: $overallStatus,
             trend: $overallScore < 70 ? 'down' : 'stable',
-            signals: ["Evaluated across " . count($dimensions) . " active authorized dimension(s)."],
+            signals: ['Evaluated across '.count($dimensions).' active authorized dimension(s).'],
             evidence: []
         );
 

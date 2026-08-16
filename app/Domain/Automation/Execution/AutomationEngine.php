@@ -27,14 +27,19 @@ class AutomationEngine
     {
         if ($depth > 5) {
             Log::warning("Automation loop detected and suppressed at depth {$depth} for event {$triggerEvent}");
+
             return [];
         }
 
         $workspace = Workspace::query()->with('organization')->find($workspaceId);
-        if (! $workspace) { return []; }
+        if (! $workspace) {
+            return [];
+        }
 
         $triggerOwner = $this->triggerRegistry->addonOwner($triggerEvent);
-        if ($triggerOwner !== null && ! $this->addons->canUse($workspace, $triggerOwner)) { return []; }
+        if ($triggerOwner !== null && ! $this->addons->canUse($workspace, $triggerOwner)) {
+            return [];
+        }
 
         $traceId = $traceId ?: uniqid('trace_auto_');
         $rules = AutomationRule::where('workspace_id', $workspaceId)
@@ -44,7 +49,9 @@ class AutomationEngine
 
         $runs = [];
         foreach ($rules as $rule) {
-            if (! $this->conditionEvaluator->evaluate($rule->condition_config, $payload)) { continue; }
+            if (! $this->conditionEvaluator->evaluate($rule->condition_config, $payload)) {
+                continue;
+            }
 
             $entityId = $payload['id'] ?? $payload['lead_id'] ?? $payload['invoice_id'] ?? $payload['conversation_id'] ?? 'none';
             $payloadHash = substr(md5(json_encode($payload)), 0, 8);
@@ -52,7 +59,9 @@ class AutomationEngine
 
             $run = DB::transaction(function () use ($rule, $triggerEvent, $payload, $idempotencyKey, $traceId, $depth, $workspace) {
                 $existing = AutomationRun::where('idempotency_key', $idempotencyKey)->first();
-                if ($existing) { return $existing; }
+                if ($existing) {
+                    return $existing;
+                }
 
                 $run = AutomationRun::create([
                     'organization_id' => $rule->organization_id,
@@ -77,7 +86,9 @@ class AutomationEngine
                     foreach ($actionInput as $k => $v) {
                         if (is_string($v) && str_contains($v, '{{')) {
                             foreach ($payload as $pk => $pv) {
-                                if (is_scalar($pv)) { $v = str_replace("{{{$pk}}}", (string) $pv, $v); }
+                                if (is_scalar($pv)) {
+                                    $v = str_replace("{{{$pk}}}", (string) $pv, $v);
+                                }
                             }
                             $actionInput[$k] = $v;
                         }
@@ -135,7 +146,10 @@ class AutomationEngine
                 $run->update(['status' => $hasApproval ? 'waiting_for_approval' : ($allCompleted ? 'completed' : 'failed'), 'completed_at' => now()]);
                 $rule->increment('run_count');
                 $rule->update(['last_run_at' => now()]);
-                if (! $allCompleted) { $rule->increment('failure_count'); }
+                if (! $allCompleted) {
+                    $rule->increment('failure_count');
+                }
+
                 return $run;
             });
 

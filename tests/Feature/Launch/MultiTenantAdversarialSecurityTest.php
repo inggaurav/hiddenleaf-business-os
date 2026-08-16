@@ -6,8 +6,6 @@ use App\Domain\CommandCenter\Search\BusinessSearchService;
 use App\Models\CrmLead;
 use App\Models\CrmPipeline;
 use App\Models\CrmStage;
-use App\Models\Organization;
-use App\Models\Plan;
 use App\Models\SalesInvoice;
 use App\Models\User;
 use App\Models\Workspace;

@@ -30,12 +30,14 @@ class AuthController
         $throttleKey = Str::transliterate(Str::lower($request->input('email')).'|'.$request->ip());
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             $seconds = RateLimiter::availableIn($throttleKey);
+
             return back()->withErrors(['email' => "Too many login attempts. Please try again in {$seconds} seconds."]);
         }
 
         $user = User::where('email', $credentials['email'])->first();
         if ($user && ! $user->is_active) {
             RateLimiter::hit($throttleKey);
+
             return back()->withErrors(['email' => 'Your account has been deactivated. Please contact support.']);
         }
 
@@ -64,6 +66,7 @@ class AuthController
         }
 
         RateLimiter::hit($throttleKey);
+
         return back()->withErrors(['email' => 'The provided credentials do not match our records.']);
     }
 
@@ -112,6 +115,7 @@ class AuthController
         Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
         return redirect('/login');
     }
 }

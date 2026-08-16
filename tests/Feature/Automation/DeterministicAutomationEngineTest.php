@@ -4,9 +4,6 @@ namespace Tests\Feature\Automation;
 
 use App\Domain\Automation\Execution\AutomationEngine;
 use App\Models\AutomationRule;
-use App\Models\AutomationRun;
-use App\Models\CrmLead;
-use App\Models\DatabaseNotification;
 use App\Models\Organization;
 use App\Models\Plan;
 use App\Models\TasklyTask;

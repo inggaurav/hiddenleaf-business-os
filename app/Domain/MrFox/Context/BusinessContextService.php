@@ -3,21 +3,25 @@
 namespace App\Domain\MrFox\Context;
 
 use App\Domain\MrFox\DTO\ToolContext;
-use App\Domain\Settings\SettingsManager;
+use App\Services\AddonManager;
+use App\Services\HierarchicalSettingService;
 use App\Models\User;
 use App\Models\Workspace;
 
 class BusinessContextService
 {
-    public function __construct(private SettingsManager $settings) {}
+    public function __construct(private HierarchicalSettingService $settings, private AddonManager $addons) {}
 
     public function build(User $user, ?Workspace $workspace, string $activePage = 'Dashboard'): array
     {
         $org = $workspace?->organization;
-        $modules = $workspace?->enabled_modules ?? ['account', 'hrm', 'crm', 'pos', 'taskly', 'productservice'];
-        $currency = $this->settings->get('default_currency', 'USD', $workspace);
-        $currencySymbol = $this->settings->get('default_currency_symbol', '$', $workspace);
-        $appName = $this->settings->get('app_name', 'HiddenLeaf BusinessOS', $workspace);
+        $isSuperAdmin = $user->isSuperAdmin();
+        $entitled = (array) ($workspace?->organization?->plan?->modules ?? []);
+        $modules = $workspace ? array_values(array_filter($entitled, fn ($module) => $this->addons->canUse($workspace, (string) $module, $isSuperAdmin))) : [];
+        $resolved = $this->settings->resolved($user, $org, $workspace, false);
+        $currency = $resolved['site_currency'] ?? $resolved['defaultCurrency'] ?? 'USD';
+        $currencySymbol = $resolved['site_currency_symbol'] ?? $resolved['currencySymbol'] ?? '$';
+        $appName = $resolved['titleText'] ?? 'HiddenLeaf BusinessOS';
 
         return [
             'app_name' => $appName,

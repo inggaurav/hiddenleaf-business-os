@@ -9,6 +9,7 @@ use App\Domain\MrFox\DTO\AiResponse;
 class FakeAiProvider implements AiProviderContract
 {
     private array $cannedResponses = [];
+
     private ?\Closure $responseGenerator = null;
 
     public function name(): string

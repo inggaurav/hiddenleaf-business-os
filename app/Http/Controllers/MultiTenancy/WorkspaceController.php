@@ -68,6 +68,7 @@ class WorkspaceController
     {
         $workspace = Workspace::findOrFail($id);
         $this->authorizeWorkspaceAction($request, $workspace, 'workspace.update');
+
         return Inertia::render('Workspaces/Edit', ['workspace' => $workspace]);
     }
 
@@ -90,7 +91,9 @@ class WorkspaceController
         $workspace = Workspace::findOrFail($id);
         $this->authorizeWorkspaceAction($request, $workspace, 'workspace.delete');
         $org = $workspace->organization;
-        if ($org->workspaces()->count() <= 1) return back()->with('error', 'Cannot delete the only workspace in an organization.');
+        if ($org->workspaces()->count() <= 1) {
+            return back()->with('error', 'Cannot delete the only workspace in an organization.');
+        }
 
         $wasActive = (int) $request->session()->get('active_workspace_id') === (int) $workspace->id;
         $workspace->delete();
@@ -130,7 +133,9 @@ class WorkspaceController
         abort_unless((int) $workspace->organization_id === (int) $orgId, 403, 'Unauthorized cross-organization workspace access.');
 
         $organization = $workspace->organization;
-        if ((int) $organization->owner_id === (int) $request->user()->id || $request->user()->isSuperAdmin()) return;
+        if ((int) $organization->owner_id === (int) $request->user()->id || $request->user()->isSuperAdmin()) {
+            return;
+        }
         abort_unless($request->user()->canInWorkspace($permission, $workspace), 403, "Unauthorized workspace action: {$permission} required.");
     }
 }

@@ -50,11 +50,15 @@ class MrFoxFullTenantIsolationTest extends TestCase
     use RefreshDatabase;
 
     private User $userA;
+
     private Organization $orgA;
+
     private Workspace $wsA;
 
     private User $userB;
+
     private Organization $orgB;
+
     private Workspace $wsB;
 
     protected function setUp(): void
@@ -117,83 +121,83 @@ class MrFoxFullTenantIsolationTest extends TestCase
         $contextB = $contextService->createToolContext($this->userB, $this->wsB);
 
         // 1. Executive Dashboard
-        $dashTool = new BusinessDashboardSummaryTool();
+        $dashTool = new BusinessDashboardSummaryTool;
         $dashRes = $dashTool->execute($contextB, []);
         $this->assertEquals(0, $dashRes->data['total_sales']);
         $this->assertEquals(0, $dashRes->data['total_expenses']);
         $this->assertEquals(0, $dashRes->data['open_leads']);
 
         // 2. CRM Leads & Deals
-        $crmSearch = new CrmSearchLeadsTool();
+        $crmSearch = new CrmSearchLeadsTool;
         $crmRes = $crmSearch->execute($contextB, ['query' => 'Alpha']);
         $this->assertEmpty($crmRes->data);
 
-        $crmGet = new CrmGetLeadTool();
+        $crmGet = new CrmGetLeadTool;
         $crmGetRes = $crmGet->execute($contextB, ['lead_id' => 1]);
         $this->assertFalse($crmGetRes->success);
 
-        $crmPipe = new CrmPipelineSummaryTool();
+        $crmPipe = new CrmPipelineSummaryTool;
         $crmPipeRes = $crmPipe->execute($contextB, []);
         $this->assertEquals(0, $crmPipeRes->data['open_deals_count']);
         $this->assertEquals(0, $crmPipeRes->data['pipeline_value']);
 
         // 3. Sales & Receivables
-        $salesSearch = new SalesInvoiceSearchTool();
+        $salesSearch = new SalesInvoiceSearchTool;
         $salesRes = $salesSearch->execute($contextB, ['query' => 'ALPHA']);
         $this->assertEmpty($salesRes->data);
 
-        $salesOut = new SalesOutstandingSummaryTool();
+        $salesOut = new SalesOutstandingSummaryTool;
         $salesOutRes = $salesOut->execute($contextB, []);
         $this->assertEquals(0, $salesOutRes->data['total_receivables']);
 
         // 4. Purchases & Payables
-        $purchSearch = new PurchaseBillSearchTool();
+        $purchSearch = new PurchaseBillSearchTool;
         $purchRes = $purchSearch->execute($contextB, ['query' => 'ALPHA']);
         $this->assertEmpty($purchRes->data);
 
-        $purchPay = new PurchasePayablesSummaryTool();
+        $purchPay = new PurchasePayablesSummaryTool;
         $purchPayRes = $purchPay->execute($contextB, []);
         $this->assertEquals(0, $purchPayRes->data['total_payables']);
 
         // 5. Accounting PnL & Cash Position
-        $pnlTool = new AccountingPnlTool();
+        $pnlTool = new AccountingPnlTool;
         $pnlRes = $pnlTool->execute($contextB, []);
         $this->assertEquals(0, $pnlRes->data['gross_revenue']);
         $this->assertEquals(0, $pnlRes->data['total_expenses']);
 
-        $cashTool = new AccountingCashPositionTool();
+        $cashTool = new AccountingCashPositionTool;
         $cashRes = $cashTool->execute($contextB, []);
         $this->assertEmpty($cashRes->data);
 
         // 6. Inventory
-        $invStock = new InventoryStockSummaryTool();
+        $invStock = new InventoryStockSummaryTool;
         $invStockRes = $invStock->execute($contextB, []);
         $this->assertEquals(0, $invStockRes->data['total_sku_count']);
         $this->assertEquals(0, $invStockRes->data['total_units_on_hand']);
 
-        $invLow = new InventoryLowStockTool();
+        $invLow = new InventoryLowStockTool;
         $invLowRes = $invLow->execute($contextB, []);
         $this->assertEmpty($invLowRes->data);
 
         // 7. Taskly Projects & Tasks
-        $tasklyProj = new TasklySearchProjectsTool();
+        $tasklyProj = new TasklySearchProjectsTool;
         $tasklyProjRes = $tasklyProj->execute($contextB, ['query' => 'Alpha']);
         $this->assertEmpty($tasklyProjRes->data);
 
-        $tasklyOverdue = new TasklyOverdueTasksTool();
+        $tasklyOverdue = new TasklyOverdueTasksTool;
         $tasklyOverdueRes = $tasklyOverdue->execute($contextB, []);
         $this->assertEmpty($tasklyOverdueRes->data);
 
         // 8. HRM
-        $hrEmp = new HrEmployeeSummaryTool();
+        $hrEmp = new HrEmployeeSummaryTool;
         $hrEmpRes = $hrEmp->execute($contextB, []);
         $this->assertEquals(0, $hrEmpRes->data['total_headcount']);
 
-        $hrAtt = new HrAttendanceSummaryTool();
+        $hrAtt = new HrAttendanceSummaryTool;
         $hrAttRes = $hrAtt->execute($contextB, []);
         $this->assertEquals(0, $hrAttRes->data['total_employees']);
 
-        $hrLeave = new HrPendingLeaveTool();
+        $hrLeave = new HrPendingLeaveTool;
         $hrLeaveRes = $hrLeave->execute($contextB, []);
         $this->assertEmpty($hrLeaveRes->data);
     }

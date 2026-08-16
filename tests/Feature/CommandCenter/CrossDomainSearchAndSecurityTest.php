@@ -9,7 +9,6 @@ use App\Models\CrmStage;
 use App\Models\HrEmployee;
 use App\Models\Organization;
 use App\Models\Plan;
-use App\Models\SalesInvoice;
 use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;

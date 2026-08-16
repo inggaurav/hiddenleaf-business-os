@@ -40,6 +40,7 @@ class UserController extends Controller
                 $row = $user->toArray();
                 $row['workspace_role_id'] = $roleId;
                 $row['workspace_role'] = $roleId ? ($roleNames[$roleId] ?? 'Custom Role') : null;
+
                 return $row;
             });
 
@@ -144,8 +145,12 @@ class UserController extends Controller
             'role' => in_array($role->name, ['company', 'company_admin'], true) ? $role->name : 'user',
         ]);
 
-        if ($orgId) $user->organizations()->syncWithoutDetaching([$orgId => ['role' => $role->name]]);
-        if ($wsId) $user->workspaces()->syncWithoutDetaching([$wsId => ['role_id' => $role->id]]);
+        if ($orgId) {
+            $user->organizations()->syncWithoutDetaching([$orgId => ['role' => $role->name]]);
+        }
+        if ($wsId) {
+            $user->workspaces()->syncWithoutDetaching([$wsId => ['role_id' => $role->id]]);
+        }
 
         return redirect()->route('users.index')->with('success', 'User and workspace role updated.');
     }
@@ -154,8 +159,12 @@ class UserController extends Controller
     {
         $actor = $request->user();
         $this->assertUserVisibleToActor($request, $user);
-        if ($user->id === $actor->id) return back()->with('error', 'Cannot delete your own account.');
-        if ($user->isSuperAdmin()) return back()->with('error', 'Super Admin accounts cannot be deleted.');
+        if ($user->id === $actor->id) {
+            return back()->with('error', 'Cannot delete your own account.');
+        }
+        if ($user->isSuperAdmin()) {
+            return back()->with('error', 'Super Admin accounts cannot be deleted.');
+        }
         $user->delete();
 
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');
@@ -212,10 +221,15 @@ class UserController extends Controller
             $workspace = Workspace::where('id', $wsId)->where('organization_id', $orgId)->firstOrFail();
             abort_unless($actor->canInWorkspace('users.toggle_status', $workspace), 403);
         }
-        if ((int) $actor->id === (int) $user->id) return back()->with('error', 'You cannot deactivate your own account.');
-        if ($user->isSuperAdmin()) return back()->with('error', 'Super Admin accounts cannot be deactivated.');
+        if ((int) $actor->id === (int) $user->id) {
+            return back()->with('error', 'You cannot deactivate your own account.');
+        }
+        if ($user->isSuperAdmin()) {
+            return back()->with('error', 'Super Admin accounts cannot be deactivated.');
+        }
 
         $user->update(['is_active' => ! $user->is_active]);
+
         return back()->with('success', 'User account status updated.');
     }
 
@@ -223,8 +237,12 @@ class UserController extends Controller
     {
         $actor = $request->user();
         abort_unless($actor->isSuperAdmin(), 403);
-        if ($request->session()->has('impersonator_id')) return back()->with('error', 'Nested impersonation is prohibited.');
-        if ($user->isSuperAdmin()) return back()->with('error', 'Another Super Admin cannot be impersonated.');
+        if ($request->session()->has('impersonator_id')) {
+            return back()->with('error', 'Nested impersonation is prohibited.');
+        }
+        if ($user->isSuperAdmin()) {
+            return back()->with('error', 'Another Super Admin cannot be impersonated.');
+        }
 
         $request->session()->put('impersonator_id', $actor->id);
         $this->auditLogger->log($actor->id, $request->session()->get('active_organization_id'), $request->session()->get('active_workspace_id'), 'impersonation.start', 'user', (string) $user->id, ['target_email' => $user->email], $request->ip(), $request->userAgent(), true);
@@ -236,7 +254,9 @@ class UserController extends Controller
     public function leaveImpersonation(Request $request)
     {
         $impersonatorId = $request->session()->get('impersonator_id');
-        if (! $impersonatorId) return redirect('/dashboard');
+        if (! $impersonatorId) {
+            return redirect('/dashboard');
+        }
 
         $impersonator = User::findOrFail($impersonatorId);
         $targetUser = $request->user();
@@ -252,7 +272,9 @@ class UserController extends Controller
         return Role::query()
             ->where(function ($query) use ($organizationId) {
                 $query->whereNull('organization_id');
-                if ($organizationId) $query->orWhere('organization_id', $organizationId);
+                if ($organizationId) {
+                    $query->orWhere('organization_id', $organizationId);
+                }
             })
             ->orderBy('display_name')
             ->get();
@@ -269,7 +291,9 @@ class UserController extends Controller
     private function assertUserVisibleToActor(Request $request, User $user): void
     {
         $actor = $request->user();
-        if ($actor->isSuperAdmin()) return;
+        if ($actor->isSuperAdmin()) {
+            return;
+        }
         $orgId = $request->session()->get('active_organization_id');
         abort_unless($orgId && $user->organizations()->where('organizations.id', $orgId)->exists(), 403, 'Unauthorized cross-organization user access.');
     }

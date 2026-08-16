@@ -89,7 +89,7 @@ class PurchaseBillSearchTool implements MrFoxToolContract
         $evidence = $bills->map(fn ($bill) => [
             'type' => 'bill',
             'id' => $bill->id,
-            'label' => "{$bill->invoice_id} ({$bill->status}) - $" . number_format((float) $bill->total_amount, 2),
+            'label' => "{$bill->invoice_id} ({$bill->status}) - $".number_format((float) $bill->total_amount, 2),
             'route' => "/purchases/invoices/{$bill->id}",
         ])->all();
 

@@ -25,7 +25,7 @@ class ProviderRouter
         }
 
         if (app()->environment('testing')) {
-            return new FakeAiProvider();
+            return new FakeAiProvider;
         }
 
         $preferred = $this->settingsManager->get('ai_provider', 'openai', $workspace);

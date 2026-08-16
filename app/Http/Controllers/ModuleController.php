@@ -39,6 +39,7 @@ class ModuleController extends Controller
         $workspaceId = $request->session()->get('active_workspace_id');
         $user = Auth::user();
         $workspace = $workspaceId ? Workspace::with('organization')->find($workspaceId) : null;
+        abort_unless($user->isSuperAdmin() || ($workspace && $user->canInWorkspace('modules.manage', $workspace)), 403, 'You are not authorized to view module administration.');
         $activeModules = $workspaceId
             ? UserActiveModule::where('workspace_id', $workspaceId)->pluck('module_name')->map(fn ($value) => strtolower((string) $value))->toArray()
             : [];
@@ -61,7 +62,9 @@ class ModuleController extends Controller
         }
 
         foreach (self::FIRST_PARTY_CAPABILITIES as $alias => $meta) {
-            if (collect($formattedModules)->contains(fn ($row) => $row['alias'] === $alias)) continue;
+            if (collect($formattedModules)->contains(fn ($row) => $row['alias'] === $alias)) {
+                continue;
+            }
             $formattedModules[] = $this->moduleRow(
                 $workspace,
                 $user,
@@ -77,7 +80,9 @@ class ModuleController extends Controller
         }
 
         foreach ($this->addonManager->installed() as $addon) {
-            if (collect($formattedModules)->contains(fn ($row) => $row['alias'] === strtolower($addon->alias))) continue;
+            if (collect($formattedModules)->contains(fn ($row) => $row['alias'] === strtolower($addon->alias))) {
+                continue;
+            }
             $module = new ManifestAddonModule($addon);
             $formattedModules[] = $this->moduleRow(
                 $workspace,
@@ -166,13 +171,17 @@ class ModuleController extends Controller
         abort_unless($user->isSuperAdmin(), 403, 'Only super administrators can install modules.');
         $request->validate(['file' => 'required|file|mimes:zip|max:51200']);
         $result = $this->moduleManager->installFromZip($request->file('file')->getRealPath());
-        if (! $result['success']) return back()->with('error', $result['message']);
+        if (! $result['success']) {
+            return back()->with('error', $result['message']);
+        }
+
         return back()->with('success', $result['message']);
     }
 
     private function moduleRow(?Workspace $workspace, $user, string $alias, string $name, string $version, string $description, array $permissions, array $navigation, array $dependencies, bool $fallbackActive): array
     {
         $alias = strtolower($alias);
+
         return [
             'name' => $name,
             'alias' => $alias,

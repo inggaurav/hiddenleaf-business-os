@@ -6,8 +6,6 @@ use Illuminate\Console\Command;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route as RouteFacade;
-use ReflectionClass;
-use ReflectionMethod;
 
 class DeepParityVerificationCommand extends Command
 {
@@ -165,8 +163,10 @@ class DeepParityVerificationCommand extends Command
             $action = $route->getActionName();
             if (str_contains($action, '@')) {
                 [$c, $m] = explode('@', $action, 2);
+
                 return class_basename($c) === $refController && strtolower($m) === strtolower($refMethod);
             }
+
             return false;
         });
 

@@ -126,6 +126,7 @@ class ModuleSectionController extends Controller
     private function render(Request $request, string $module, string $section, string $title, string $description, array $columns, $records, string $moduleHref, string $managePermission, array $lookups = [])
     {
         $workspace = Workspace::with('organization')->findOrFail($request->session()->get('active_workspace_id'));
+
         return Inertia::render('ModuleSection', [
             'module' => $module,
             'section' => $section,
@@ -143,6 +144,7 @@ class ModuleSectionController extends Controller
     {
         $workspace = Workspace::with('organization')->find($request->session()->get('active_workspace_id'));
         abort_unless($workspace && $request->user()->canInWorkspace($permission, $workspace), 403);
+
         return $workspace;
     }
 
@@ -153,6 +155,7 @@ class ModuleSectionController extends Controller
         if ($owner && ! collect($members)->contains(fn ($member) => (int) $member['id'] === (int) $owner->id)) {
             array_unshift($members, ['id' => $owner->id, 'name' => $owner->name]);
         }
+
         return $members;
     }
 

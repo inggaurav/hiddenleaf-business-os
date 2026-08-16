@@ -88,7 +88,7 @@ class MissionsCreateTool implements MrFoxToolContract
             'summary' => $planResult['plan_summary'],
         ];
 
-        return ToolResult::success($data, "Created mission '{$name}' with " . count($planResult['steps']) . ' planned step(s).', [
+        return ToolResult::success($data, "Created mission '{$name}' with ".count($planResult['steps']).' planned step(s).', [
             ['type' => 'missions', 'id' => $mission->id, 'label' => "Mission: {$mission->name}", 'route' => '/missions'],
         ]);
     }

@@ -51,24 +51,43 @@ class TriggerRegistry
     public function register(AutomationTriggerContract $trigger, ?string $addonAlias = null): void
     {
         $this->triggers[$trigger->name()] = $trigger;
-        if ($addonAlias !== null) { $this->addonOwners[$trigger->name()] = strtolower($addonAlias); }
+        if ($addonAlias !== null) {
+            $this->addonOwners[$trigger->name()] = strtolower($addonAlias);
+        }
     }
 
     public function get(string $name): AutomationTriggerContract
     {
-        if (! isset($this->triggers[$name])) { throw new InvalidArgumentException("Trigger '{$name}' is not registered."); }
+        if (! isset($this->triggers[$name])) {
+            throw new InvalidArgumentException("Trigger '{$name}' is not registered.");
+        }
+
         return $this->triggers[$name];
     }
 
-    public function has(string $name): bool { return isset($this->triggers[$name]); }
-    public function addonOwner(string $name): ?string { return $this->addonOwners[$name] ?? null; }
-    public function all(): array { return $this->triggers; }
+    public function has(string $name): bool
+    {
+        return isset($this->triggers[$name]);
+    }
+
+    public function addonOwner(string $name): ?string
+    {
+        return $this->addonOwners[$name] ?? null;
+    }
+
+    public function all(): array
+    {
+        return $this->triggers;
+    }
 
     public function availableFor(Workspace $workspace, bool $superAdmin = false): array
     {
         $addons = app(AddonManager::class);
-        return array_filter($this->triggers, fn (AutomationTriggerContract $trigger): bool =>
-            ($owner = $this->addonOwner($trigger->name())) === null || $addons->canUse($workspace, $owner, $superAdmin)
-        );
+
+        return array_filter($this->triggers, function (AutomationTriggerContract $trigger) use ($workspace, $superAdmin, $addons): bool {
+            $module = $this->addonOwner($trigger->name()) ?? $trigger->module();
+
+            return $module === 'core' || $addons->canUse($workspace, $module, $superAdmin);
+        });
     }
 }
