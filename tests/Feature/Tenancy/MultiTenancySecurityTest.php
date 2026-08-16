@@ -29,4 +29,18 @@ class MultiTenancySecurityTest extends TestCase
 
         $response->assertStatus(403);
     }
+
+    public function test_super_admin_can_activate_a_workspace_without_existing_tenant_context(): void
+    {
+        $organization = Organization::factory()->create(['name' => 'Managed Company', 'is_active' => true]);
+        $workspace = Workspace::factory()->create(['organization_id' => $organization->id, 'name' => 'Operations', 'is_active' => true]);
+        $superAdmin = User::factory()->create(['role' => 'super_admin', 'is_active' => true]);
+
+        $this->actingAs($superAdmin)
+            ->post('/workspaces/switch', ['workspace_id' => $workspace->id])
+            ->assertRedirect()
+            ->assertSessionHas('active_organization_id', $organization->id)
+            ->assertSessionHas('active_workspace_id', $workspace->id)
+            ->assertSessionHas('active_workspace_title', 'Operations');
+    }
 }

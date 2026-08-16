@@ -115,11 +115,14 @@ class WorkspaceController
         $request->validate(['workspace_id' => 'required|exists:workspaces,id']);
         $workspace = Workspace::findOrFail($request->workspace_id);
         $user = $request->user();
-        $orgId = $request->session()->get('active_organization_id');
+        $orgId = $user->isSuperAdmin()
+            ? $workspace->organization_id
+            : $request->session()->get('active_organization_id');
 
         abort_unless((int) $workspace->organization_id === (int) $orgId, 403, 'Unauthorized workspace switch: Organization mismatch.');
         abort_unless($user->canInWorkspace('workspace.switch', $workspace) || $user->canInWorkspace('workspace.view', $workspace), 403, 'Unauthorized workspace switch: Permission denied.');
 
+        $request->session()->put('active_organization_id', $workspace->organization_id);
         $request->session()->put('active_workspace_id', $workspace->id);
         $request->session()->put('active_workspace_title', $workspace->name);
         $request->session()->forget('enabled_modules');
