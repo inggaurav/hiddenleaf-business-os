@@ -23,7 +23,7 @@ class CrmController extends Controller
     {
         $workspace = $this->workspace($request, 'crm.view');
         $pipelineId = $request->has('pipeline_id') ? (int) $request->get('pipeline_id') : null;
-        $data = $dashboardService->getMetrics($workspace, $pipelineId);
+        $data = $dashboardService->getMetrics($workspace, $pipelineId, $this->isWorkspaceManager($request, $workspace) ? null : $request->user()->id);
 
         return Inertia::render('CRM/Dashboard', ['metrics' => $data['stats']] + $data);
     }
@@ -33,6 +33,10 @@ class CrmController extends Controller
         $workspace = $this->workspace($request, 'crm.view');
         $leads = CrmLead::forWorkspace($workspace->organization_id, $workspace->id);
         $deals = CrmDeal::forWorkspace($workspace->organization_id, $workspace->id);
+        if (! $this->isWorkspaceManager($request, $workspace)) {
+            $leads->where('assigned_to', $request->user()->id);
+            $deals->where('assigned_to', $request->user()->id);
+        }
 
         $leadCount = (clone $leads)->count();
         $converted = (clone $leads)->whereNotNull('converted_at')->count();
@@ -72,6 +76,7 @@ class CrmController extends Controller
         $workspace = $this->workspace($request, 'crm.manage');
         $lead = CrmLead::findOrFail($leadId);
         $this->tenant($lead, $workspace);
+        $this->assertAssignedRecord($request, $workspace, $lead);
         $data = $request->validate(['stage_id' => ['required', 'integer']]);
         $this->pipelineStage($workspace, $lead->pipeline_id, $data['stage_id']);
         $lead->update($data);
@@ -84,6 +89,7 @@ class CrmController extends Controller
         $workspace = $this->workspace($request, 'crm.manage');
         $lead = CrmLead::findOrFail($leadId);
         $this->tenant($lead, $workspace);
+        $this->assertAssignedRecord($request, $workspace, $lead);
         abort_unless($lead->status === 'open', 422, 'Lead already converted or closed.');
         $data = $request->validate([
             'name' => ['nullable', 'string'],
@@ -221,6 +227,7 @@ class CrmController extends Controller
         $workspace = $this->workspace($request, 'crm.manage');
         $deal = CrmDeal::findOrFail($dealId);
         $this->tenant($deal, $workspace);
+        $this->assertAssignedRecord($request, $workspace, $deal);
         abort_unless($deal->status === 'open', 422, 'Closed deals cannot move.');
         $data = $request->validate(['stage_id' => ['required', 'integer'], 'loss_reason' => ['nullable', 'string']]);
         $stage = $this->pipelineStage($workspace, $deal->pipeline_id, $data['stage_id']);
@@ -239,6 +246,7 @@ class CrmController extends Controller
     {
         $workspace = $this->workspace($request, 'crm.manage');
         $subject = $this->subject($type, $id, $workspace);
+        $this->assertAssignedRecord($request, $workspace, $subject);
         $data = $request->validate(['body' => ['required', 'string']]);
         DB::table('crm_notes')->insert(['organization_id' => $workspace->organization_id, 'workspace_id' => $workspace->id, 'subject_type' => $subject->getMorphClass(), 'subject_id' => $subject->id, 'body' => $data['body'], 'created_by' => $request->user()->id, 'created_at' => now(), 'updated_at' => now()]);
 
@@ -249,6 +257,7 @@ class CrmController extends Controller
     {
         $workspace = $this->workspace($request, 'crm.manage');
         $subject = $this->subject($type, $id, $workspace);
+        $this->assertAssignedRecord($request, $workspace, $subject);
         $data = $request->validate(['type' => ['required', Rule::in(['call', 'meeting', 'email', 'task'])], 'title' => ['required', 'string'], 'due_at' => ['nullable', 'date'], 'assigned_to' => ['nullable', 'integer']]);
         $this->assignee($workspace, $data['assigned_to'] ?? null);
         DB::table('crm_activities')->insert($data + ['organization_id' => $workspace->organization_id, 'workspace_id' => $workspace->id, 'subject_type' => $subject->getMorphClass(), 'subject_id' => $subject->id, 'created_by' => $request->user()->id, 'created_at' => now(), 'updated_at' => now()]);
@@ -262,6 +271,20 @@ class CrmController extends Controller
         abort_unless($workspace && $request->user()->canInWorkspace($permission, $workspace), 403);
 
         return $workspace;
+    }
+
+    private function isWorkspaceManager(Request $request, Workspace $workspace): bool
+    {
+        return $request->user()->isSuperAdmin()
+            || in_array($request->user()->role, ['company', 'company_admin'], true)
+            || (int) $workspace->organization->owner_id === (int) $request->user()->id;
+    }
+
+    private function assertAssignedRecord(Request $request, Workspace $workspace, $record): void
+    {
+        if (! $this->isWorkspaceManager($request, $workspace)) {
+            abort_unless((int) $record->assigned_to === (int) $request->user()->id, 403);
+        }
     }
 
     private function pipelineStage(Workspace $workspace, int $pipelineId, int $stageId): CrmStage

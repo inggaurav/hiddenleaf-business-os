@@ -20,6 +20,7 @@ use App\Http\Middleware\EnsureWorkspacePermission;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\Installed;
 use App\Http\Middleware\RequestId;
+use App\Http\Middleware\RestrictPortalUsers;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -53,6 +54,7 @@ return Application::configure(basePath: dirname(__DIR__))
             RequestId::class,
             Installed::class,
             EnsureTenantContext::class,
+            RestrictPortalUsers::class,
             EnsureWorkspaceModuleAccess::class,
             EnsureAccountPermission::class,
             EnsureProductServicePermission::class,

@@ -7,6 +7,7 @@ use App\Models\TasklyProject;
 use App\Models\TasklyStage;
 use App\Models\TasklyTask;
 use App\Models\TasklyTimesheet;
+use App\Models\AccountCustomer;
 use App\Models\Workspace;
 use HiddenLeaf\Kernel\Services\AuditLogger;
 use Illuminate\Http\Request;
@@ -19,7 +20,7 @@ class TasklyController extends Controller
     public function dashboard(Request $request, TasklyDashboardService $dashboardService)
     {
         $workspace = $this->workspace($request, 'taskly.view');
-        $data = $dashboardService->getMetrics($workspace);
+        $data = $dashboardService->getMetrics($workspace, $this->isWorkspaceManager($request, $workspace) ? null : $request->user()->id);
 
         $metrics = [
             'projects' => $data['stats']['total_projects'],
@@ -38,6 +39,9 @@ class TasklyController extends Controller
     {
         $workspace = $this->workspace($request, 'taskly.view');
         $projects = TasklyProject::forWorkspace($workspace->organization_id, $workspace->id)->with(['stages', 'members'])->get();
+        if (! $this->isWorkspaceManager($request, $workspace)) {
+            $projects = $projects->filter(fn (TasklyProject $project) => (int) $project->manager_id === (int) $request->user()->id || $project->members->contains('id', $request->user()->id))->values();
+        }
         $costs = DB::table('taskly_timesheets as time')
             ->join('taskly_project_members as member', fn ($j) => $j->on('member.project_id', '=', 'time.project_id')->on('member.user_id', '=', 'time.user_id'))
             ->where('time.workspace_id', $workspace->id)
@@ -48,6 +52,9 @@ class TasklyController extends Controller
             ->map(fn ($cost) => (float) $cost);
 
         $tasks = TasklyTask::forWorkspace($workspace->organization_id, $workspace->id);
+        if (! $this->isWorkspaceManager($request, $workspace)) {
+            $tasks->whereIn('project_id', $projects->pluck('id'));
+        }
 
         return Inertia::render('Taskly/Index', [
             'projects' => $projects,
@@ -242,6 +249,90 @@ class TasklyController extends Controller
         return back()->with('success', 'Issue reported.');
     }
 
+    public function payments(Request $request)
+    {
+        $workspace = $this->workspace($request, 'taskly.view');
+        $payments = DB::table('taskly_project_payments as payment')->join('taskly_projects as project', 'project.id', '=', 'payment.project_id')->leftJoin('account_customers as customer', 'customer.id', '=', 'payment.customer_id')->where('payment.workspace_id', $workspace->id)->select('payment.*', 'project.name as project_name', 'customer.name as customer_name')->latest('payment.payment_date')->paginate(30);
+
+        return Inertia::render('Taskly/Payments', [
+            'payments' => $payments,
+            'projects' => TasklyProject::forWorkspace($workspace->organization_id, $workspace->id)->orderBy('name')->get(['id', 'name']),
+            'customers' => AccountCustomer::forWorkspace($workspace->organization_id, $workspace->id)->orderBy('name')->get(['id', 'name']),
+        ]);
+    }
+
+    public function storePayment(Request $request)
+    {
+        $workspace = $this->workspace($request, 'taskly.manage');
+        $data = $request->validate([
+            'project_id' => ['required', 'integer'], 'customer_id' => ['nullable', 'integer'],
+            'reference' => ['nullable', 'string', 'max:255'], 'payment_date' => ['required', 'date'],
+            'amount' => ['required', 'numeric', 'gt:0'], 'payment_method' => ['required', Rule::in(['cash', 'bank', 'card', 'online', 'other'])],
+            'notes' => ['nullable', 'string', 'max:2000'],
+        ]);
+        $this->project($workspace, $data['project_id']);
+        if ($data['customer_id'] ?? null) {
+            AccountCustomer::forWorkspace($workspace->organization_id, $workspace->id)->findOrFail($data['customer_id']);
+        }
+        DB::table('taskly_project_payments')->insert($data + ['organization_id' => $workspace->organization_id, 'workspace_id' => $workspace->id, 'status' => 'draft', 'created_by' => $request->user()->id, 'created_at' => now(), 'updated_at' => now()]);
+
+        return back()->with('success', 'Project payment created.');
+    }
+
+    public function reviewPayment(Request $request, int $payment)
+    {
+        $workspace = $this->workspace($request, 'taskly.manage');
+        $data = $request->validate(['status' => ['required', Rule::in(['draft', 'submitted', 'approved', 'rejected', 'paid'])]]);
+        $values = $data + ['updated_at' => now()];
+        if (in_array($data['status'], ['approved', 'paid'], true)) {
+            $values += ['approved_by' => $request->user()->id, 'approved_at' => now()];
+        }
+        abort_unless(DB::table('taskly_project_payments')->where('organization_id', $workspace->organization_id)->where('workspace_id', $workspace->id)->where('id', $payment)->update($values), 404);
+
+        return back()->with('success', 'Project payment updated.');
+    }
+
+    public function reports(Request $request)
+    {
+        $workspace = $this->workspace($request, 'taskly.view');
+        $projects = TasklyProject::forWorkspace($workspace->organization_id, $workspace->id)->withCount(['members', 'stages'])->get()->map(function (TasklyProject $project) use ($workspace) {
+            $tasks = DB::table('taskly_tasks')->where('workspace_id', $workspace->id)->where('project_id', $project->id);
+            $hours = (float) DB::table('taskly_timesheets')->where('workspace_id', $workspace->id)->where('project_id', $project->id)->where('status', 'approved')->sum('hours');
+            $payments = (float) DB::table('taskly_project_payments')->where('workspace_id', $workspace->id)->where('project_id', $project->id)->whereIn('status', ['approved', 'paid'])->sum('amount');
+
+            return array_merge($project->toArray(), ['tasks' => (clone $tasks)->count(), 'completed_tasks' => (clone $tasks)->whereNotNull('completed_at')->count(), 'approved_hours' => $hours, 'payments' => $payments]);
+        });
+
+        return Inertia::render('Taskly/Reports', ['projects' => $projects]);
+    }
+
+    public function setup(Request $request)
+    {
+        $workspace = $this->workspace($request, 'taskly.view');
+
+        return Inertia::render('Taskly/Setup', [
+            'statuses' => DB::table('taskly_project_statuses')->where('workspace_id', $workspace->id)->orderBy('position')->get(),
+            'stageTemplates' => DB::table('taskly_stage_templates')->where('workspace_id', $workspace->id)->orderBy('position')->get(),
+        ]);
+    }
+
+    public function storeSetup(Request $request, string $resource)
+    {
+        $workspace = $this->workspace($request, 'taskly.manage');
+        abort_unless(in_array($resource, ['project-statuses', 'stage-templates'], true), 404);
+        $table = $resource === 'project-statuses' ? 'taskly_project_statuses' : 'taskly_stage_templates';
+        $rules = ['name' => ['required', 'string', 'max:255'], 'position' => ['nullable', 'integer', 'min:0']];
+        if ($resource === 'project-statuses') {
+            $rules += ['color' => ['nullable', 'string', 'max:20'], 'is_closed' => ['boolean']];
+        } else {
+            $rules += ['is_complete' => ['boolean']];
+        }
+        $data = $request->validate($rules);
+        DB::table($table)->updateOrInsert(['workspace_id' => $workspace->id, 'name' => $data['name']], $data + ['organization_id' => $workspace->organization_id, 'created_at' => now(), 'updated_at' => now()]);
+
+        return back()->with('success', 'Taskly setup saved.');
+    }
+
     private function workspace(Request $request, string $permission): Workspace
     {
         $workspace = Workspace::with('organization')->find($request->session()->get('active_workspace_id'));
@@ -259,7 +350,20 @@ class TasklyController extends Controller
 
     private function project(Workspace $workspace, int $id): TasklyProject
     {
-        return TasklyProject::forWorkspace($workspace->organization_id, $workspace->id)->findOrFail($id);
+        $query = TasklyProject::forWorkspace($workspace->organization_id, $workspace->id);
+        $user = auth()->user();
+        if ($user && ! ($user->isSuperAdmin() || in_array($user->role, ['company', 'company_admin'], true) || (int) $workspace->organization->owner_id === (int) $user->id)) {
+            $query->where(fn ($project) => $project->where('manager_id', $user->id)->orWhereHas('members', fn ($members) => $members->where('users.id', $user->id)));
+        }
+
+        return $query->findOrFail($id);
+    }
+
+    private function isWorkspaceManager(Request $request, Workspace $workspace): bool
+    {
+        return $request->user()->isSuperAdmin()
+            || in_array($request->user()->role, ['company', 'company_admin'], true)
+            || (int) $workspace->organization->owner_id === (int) $request->user()->id;
     }
 
     private function tenant($model, Workspace $workspace): void

@@ -62,6 +62,10 @@ class AuthController
                 $request->session()->put('active_workspace_title', $workspace->name);
             }
 
+            if (in_array($user->role, ['client', 'customer', 'vendor'], true)) {
+                return redirect()->intended('/portal/dashboard');
+            }
+
             return redirect()->intended('/dashboard');
         }
 

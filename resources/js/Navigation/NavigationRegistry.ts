@@ -95,6 +95,17 @@ const moduleChild = (
 
 export const ALL_NAVIGATION_GROUPS: NavigationGroup[] = [
   {
+    id: 'portal',
+    title: 'Customer & Vendor Portal',
+    items: [
+      child('nav-portal-dashboard', 'Portal Dashboard', '/portal/dashboard', LayoutDashboard, {
+        roles: ['client', 'customer', 'vendor'],
+        category: 'Portal',
+        description: 'Own invoices, proposals, payments, returns and assigned projects',
+      }),
+    ],
+  },
+  {
     id: 'overview',
     title: 'Overview',
     items: [
@@ -135,18 +146,30 @@ export const ALL_NAVIGATION_GROUPS: NavigationGroup[] = [
         children: [
           moduleChild('nav-hrm-dashboard', 'Dashboard', '/hrm/dashboard', LayoutDashboard, 'hrm', 'hrm.view', 'HRM'),
           moduleChild('nav-hrm-employees', 'Employees', '/hrm/employees', Users, 'hrm', 'hrm.view', 'HRM'),
-          moduleChild('nav-hrm-branches', 'Branches', '/hrm/branches', Building2, 'hrm', 'hrm.view', 'HRM'),
-          moduleChild('nav-hrm-departments', 'Departments', '/hrm/departments', Layers, 'hrm', 'hrm.view', 'HRM'),
-          moduleChild('nav-hrm-designations', 'Designations', '/hrm/designations', UserRoundCog, 'hrm', 'hrm.view', 'HRM'),
-          moduleChild('nav-hrm-shifts', 'Shifts', '/hrm/shifts', Clock3, 'hrm', 'hrm.view', 'HRM'),
+          moduleChild('nav-hrm-branches', 'Branches', '/hrm/branches', Building2, 'hrm', 'hrm.manage', 'HRM'),
+          moduleChild('nav-hrm-departments', 'Departments', '/hrm/departments', Layers, 'hrm', 'hrm.manage', 'HRM'),
+          moduleChild('nav-hrm-designations', 'Designations', '/hrm/designations', UserRoundCog, 'hrm', 'hrm.manage', 'HRM'),
+          moduleChild('nav-hrm-shifts', 'Shifts', '/hrm/shifts', Clock3, 'hrm', 'hrm.manage', 'HRM'),
           moduleChild('nav-hrm-attendance', 'Attendance', '/hrm/attendance', CalendarDays, 'hrm', 'hrm.view', 'HRM'),
           moduleChild('nav-hrm-leave', 'Leave Requests', '/hrm/leave-requests', ClipboardList, 'hrm', 'hrm.view', 'HRM'),
           moduleChild('nav-hrm-leave-types', 'Leave Types', '/hrm/leave-types', ListChecks, 'hrm', 'hrm.view', 'HRM'),
-          moduleChild('nav-hrm-payroll', 'Payroll & Payslips', '/hrm/payroll', WalletCards, 'hrm', 'hrm.view', 'HRM'),
-          moduleChild('nav-hrm-salary-components', 'Salary Components', '/hrm/salary-components', DollarSign, 'hrm', 'hrm.view', 'HRM'),
-          moduleChild('nav-hrm-appraisals', 'Appraisals', '/hrm/appraisals', BarChart3, 'hrm', 'hrm.view', 'HRM'),
-          moduleChild('nav-hrm-documents', 'Employee Documents', '/hrm/documents', FolderOpen, 'hrm', 'hrm.view', 'HRM'),
+          moduleChild('nav-hrm-payroll', 'Payroll & Payslips', '/hrm/payroll', WalletCards, 'hrm', 'hrm.manage', 'HRM'),
+          moduleChild('nav-hrm-set-salary', 'Set Salary', '/hrm/set-salary', DollarSign, 'hrm', 'hrm.manage', 'HRM'),
+          moduleChild('nav-hrm-salary-components', 'Salary Components', '/hrm/salary-components', DollarSign, 'hrm', 'hrm.manage', 'HRM'),
+          moduleChild('nav-hrm-leave-balances', 'Leave Balance', '/hrm/leave-balances', ListChecks, 'hrm', 'hrm.view', 'HRM'),
+          moduleChild('nav-hrm-appraisals', 'Appraisals', '/hrm/appraisals', BarChart3, 'hrm', 'hrm.manage', 'HRM'),
+          moduleChild('nav-hrm-documents', 'Employee Documents', '/hrm/documents', FolderOpen, 'hrm', 'hrm.manage', 'HRM'),
           moduleChild('nav-hrm-holidays', 'Holidays', '/hrm/holidays', CalendarDays, 'hrm', 'hrm.view', 'HRM'),
+          moduleChild('nav-hrm-awards', 'Awards', '/hrm/lifecycle/award', Sparkles, 'hrm', 'hrm.view', 'HRM'),
+          moduleChild('nav-hrm-promotions', 'Promotions', '/hrm/lifecycle/promotion', UserCheck, 'hrm', 'hrm.view', 'HRM'),
+          moduleChild('nav-hrm-resignations', 'Resignations', '/hrm/lifecycle/resignation', FileText, 'hrm', 'hrm.view', 'HRM'),
+          moduleChild('nav-hrm-terminations', 'Terminations', '/hrm/lifecycle/termination', UserRoundCog, 'hrm', 'hrm.view', 'HRM'),
+          moduleChild('nav-hrm-warnings', 'Warnings', '/hrm/lifecycle/warning', Bell, 'hrm', 'hrm.view', 'HRM'),
+          moduleChild('nav-hrm-complaints', 'Complaints', '/hrm/lifecycle/complaint', MessageSquare, 'hrm', 'hrm.view', 'HRM'),
+          moduleChild('nav-hrm-transfers', 'Employee Transfers', '/hrm/lifecycle/transfer', ArrowLeftRight, 'hrm', 'hrm.view', 'HRM'),
+          moduleChild('nav-hrm-acknowledgements', 'Acknowledgements', '/hrm/lifecycle/acknowledgement', CheckSquare, 'hrm', 'hrm.view', 'HRM'),
+          moduleChild('nav-hrm-events', 'Events', '/hrm/lifecycle/event', CalendarDays, 'hrm', 'hrm.view', 'HRM'),
+          moduleChild('nav-hrm-communications', 'Announcements & Policies', '/hrm/communications', Inbox, 'hrm', 'hrm.view', 'HRM'),
         ],
       },
       {
@@ -204,6 +227,9 @@ export const ALL_NAVIGATION_GROUPS: NavigationGroup[] = [
         category: 'Finance',
         children: [
           moduleChild('nav-accounting-dashboard', 'Dashboard', '/accounting/dashboard', LayoutDashboard, 'account', 'account.view', 'Finance'),
+          moduleChild('nav-accounting-bank-accounts', 'Bank Accounts', '/accounting/bank-accounts', Landmark, 'account', 'account.view', 'Finance'),
+          moduleChild('nav-accounting-bank-transactions', 'Bank Transactions', '/accounting/bank-transactions', ArrowLeftRight, 'account', 'account.view', 'Finance'),
+          moduleChild('nav-accounting-bank-transfers', 'Bank Transfers', '/accounting/bank-transfers', Repeat, 'account', 'account.view', 'Finance'),
           moduleChild('nav-accounting-accounts', 'Chart of Accounts', '/accounting/accounts', BookOpen, 'account', 'account.view', 'Finance'),
           moduleChild('nav-accounting-journals', 'Journals', '/accounting/journals', FileText, 'account', 'account.view', 'Finance'),
           moduleChild('nav-accounting-customers', 'Customers', '/accounting/customers', Contact, 'account', 'account.view', 'Finance'),
@@ -215,6 +241,7 @@ export const ALL_NAVIGATION_GROUPS: NavigationGroup[] = [
           moduleChild('nav-accounting-credit-notes', 'Credit Notes', '/accounting/credit-notes', FileText, 'account', 'account.view', 'Finance'),
           moduleChild('nav-accounting-debit-notes', 'Debit Notes', '/accounting/debit-notes', FileText, 'account', 'account.view', 'Finance'),
           moduleChild('nav-accounting-reports', 'Reports', '/accounting/reports', BarChart3, 'account', 'account.view', 'Finance'),
+          moduleChild('nav-accounting-types', 'System Setup', '/accounting/account-types', Settings, 'account', 'account.view', 'Finance'),
         ],
       },
       {
@@ -231,6 +258,9 @@ export const ALL_NAVIGATION_GROUPS: NavigationGroup[] = [
           moduleChild('nav-taskly-milestones', 'Milestones', '/taskly/milestones', Gauge, 'taskly', 'taskly.view', 'Projects'),
           moduleChild('nav-taskly-timesheets', 'Timesheets', '/taskly/timesheets', Clock3, 'taskly', 'taskly.view', 'Projects'),
           moduleChild('nav-taskly-issues', 'Issues', '/taskly/issues', ClipboardList, 'taskly', 'taskly.view', 'Projects'),
+          moduleChild('nav-taskly-payments', 'Project Payments', '/taskly/project-payments', WalletCards, 'taskly', 'taskly.view', 'Projects'),
+          moduleChild('nav-taskly-reports', 'Projects Report', '/taskly/reports', BarChart3, 'taskly', 'taskly.view', 'Projects'),
+          moduleChild('nav-taskly-setup', 'System Setup', '/taskly/setup', Settings, 'taskly', 'taskly.view', 'Projects'),
         ],
       },
       {
@@ -243,6 +273,7 @@ export const ALL_NAVIGATION_GROUPS: NavigationGroup[] = [
         children: [
           moduleChild('nav-pos-dashboard', 'Dashboard', '/pos/dashboard', LayoutDashboard, 'pos', 'pos.manage', 'POS'),
           moduleChild('nav-pos-terminal', 'Terminal', '/pos/terminal', Store, 'pos', 'pos.manage', 'POS'),
+          moduleChild('nav-pos-barcode', 'Print Barcode', '/pos/barcode', Tag, 'pos', 'pos.manage', 'POS'),
           moduleChild('nav-pos-orders', 'Orders', '/pos/orders', ShoppingCart, 'pos', 'pos.manage', 'POS'),
           moduleChild('nav-pos-counters', 'Billing Counters', '/pos/billing-counters', Layers, 'pos', 'pos.manage', 'POS'),
           moduleChild('nav-pos-discounts', 'Discounts', '/pos/discounts', Tag, 'pos', 'pos.manage', 'POS'),
@@ -295,6 +326,7 @@ export const ALL_NAVIGATION_GROUPS: NavigationGroup[] = [
         ],
       },
       child('nav-media', 'Media Library', '/media/page', FolderOpen, { permission: 'workspace.view', category: 'Storage' }),
+      child('nav-cms', 'Landing Page CMS', '/landing', Globe2, { permission: 'landing.manage', module: 'landingpage', category: 'CMS' }),
     ],
   },
   {
@@ -422,6 +454,11 @@ export function filterNavigation(
   userPermissions: string[],
   enabledModules: string[] = []
 ): NavigationGroup[] {
+  if (['client', 'customer', 'vendor'].includes(user?.role)) {
+    groups = groups.filter((group) => group.id === 'portal');
+  } else {
+    groups = groups.filter((group) => group.id !== 'portal');
+  }
   return groups
     .map((group) => ({
       ...group,

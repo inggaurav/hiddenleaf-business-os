@@ -66,8 +66,10 @@ class GenerateParityAuditCommand extends Command
         File::put("{$parityDir}/workdo-permissions.json", json_encode($permissions, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
         $this->info('Generating Phase 10: Settings Inventory...');
-        $settings = $this->generateSettingsInventory();
-        File::put("{$parityDir}/workdo-settings-inventory.json", json_encode($settings, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+        if ($this->call('hiddenleaf:export-workdo-settings') !== self::SUCCESS) {
+            return self::FAILURE;
+        }
+        $settings = json_decode(File::get("{$parityDir}/workdo-settings-inventory.json"), true, 512, JSON_THROW_ON_ERROR);
 
         $this->info('Generating Phase 23: Schedule Inventory...');
         $schedules = $this->generateScheduleInventory();
@@ -768,7 +770,7 @@ class GenerateParityAuditCommand extends Command
                 'routes_total' => $routes['total_routes'],
                 'controller_actions_total' => $actions['total_actions'],
                 'permissions_total' => $permissions['total_permissions'],
-                'settings_total' => $settings['total_settings'],
+                'settings_total' => $settings['summary']['expected'] ?? $settings['total_settings'],
                 'exceptions_count' => 0,
             ],
             'checklist' => [

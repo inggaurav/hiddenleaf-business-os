@@ -75,11 +75,25 @@ class DatabaseSeeder extends Seeder
             ['name' => 'workspace-member', 'organization_id' => null],
             ['display_name' => 'Workspace Member', 'is_system' => true]
         );
+        $clientRole = Role::firstOrCreate(
+            ['name' => 'client', 'organization_id' => null],
+            ['display_name' => 'Client / Customer', 'is_system' => true]
+        );
+        $vendorRole = Role::firstOrCreate(
+            ['name' => 'vendor', 'organization_id' => null],
+            ['display_name' => 'Vendor', 'is_system' => true]
+        );
 
         $adminRole->permissions()->sync(Permission::pluck('id')->toArray());
         $memberRole->permissions()->sync(
             Permission::whereIn('name', ['workspace.view', 'workspace.switch', 'workspace.members.view'])->pluck('id')->toArray()
         );
+        $clientRole->permissions()->sync(Permission::whereIn('name', [
+            'workspace.view', 'workspace.switch',
+        ])->pluck('id')->toArray());
+        $vendorRole->permissions()->sync(Permission::whereIn('name', [
+            'workspace.view', 'workspace.switch',
+        ])->pluck('id')->toArray());
     }
 
     private function accountPermissions(): array

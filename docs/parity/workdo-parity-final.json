@@ -4,10 +4,10 @@
         "first_party_files_scanned": 3114,
         "packages_total": 9,
         "packages_complete": 9,
-        "routes_total": 485,
-        "controller_actions_total": 481,
+        "routes_total": 559,
+        "controller_actions_total": 555,
         "permissions_total": 50,
-        "settings_total": 56,
+        "settings_total": 86,
         "exceptions_count": 0
     },
     "checklist": {

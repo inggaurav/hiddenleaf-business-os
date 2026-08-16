@@ -1,22 +1,6 @@
 {
-    "total_actions": 481,
+    "total_actions": 555,
     "actions": [
-        {
-            "controller": "Inertia\\DevTools\\Http\\EntriesController",
-            "method": "index",
-            "route": "GET /_inertia/devtools/entries",
-            "status": "VERIFIED",
-            "concurrency_safe": true,
-            "tenant_isolated": true
-        },
-        {
-            "controller": "Inertia\\DevTools\\Http\\EntriesController",
-            "method": "show",
-            "route": "GET /_inertia/devtools/entries/{id}",
-            "status": "VERIFIED",
-            "concurrency_safe": true,
-            "tenant_isolated": true
-        },
         {
             "controller": "Laravel\\Sanctum\\Http\\Controllers\\CsrfCookieController",
             "method": "show",
@@ -738,6 +722,14 @@
             "tenant_isolated": true
         },
         {
+            "controller": "App\\Http\\Controllers\\Api\\V1\\HrmApiController",
+            "method": "employees",
+            "route": "GET /api/v1/hrm/employees",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
             "controller": "App\\Http\\Controllers\\Api\\V1\\SalesProcurementApiController",
             "method": "purchaseInvoices",
             "route": "GET /api/v1/purchase-invoices",
@@ -845,6 +837,30 @@
             "controller": "App\\Http\\Controllers\\LandingPageController",
             "method": "publicPage",
             "route": "GET /site/{slug}/{page}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Diagnostics\\HealthCheckController",
+            "method": "live",
+            "route": "GET /health/live",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Diagnostics\\HealthCheckController",
+            "method": "ready",
+            "route": "GET /health/ready",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Communications\\CommunicationWebhookController",
+            "method": "handle",
+            "route": "GET|POST /api/v1/webhooks/communications/{provider}",
             "status": "VERIFIED",
             "concurrency_safe": true,
             "tenant_isolated": true
@@ -971,6 +987,30 @@
         },
         {
             "controller": "App\\Http\\Controllers\\WebhookController",
+            "method": "update",
+            "route": "PUT /webhooks/{webhook}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\WebhookController",
+            "method": "toggle",
+            "route": "PATCH /webhooks/{webhook}/toggle",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\WebhookController",
+            "method": "rotate",
+            "route": "POST /webhooks/{webhook}/rotate-secret",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\WebhookController",
             "method": "test",
             "route": "POST /webhooks/{webhook}/test",
             "status": "VERIFIED",
@@ -1013,6 +1053,30 @@
             "controller": "App\\Http\\Controllers\\HomeController",
             "method": "Dashboard",
             "route": "GET /dashboard",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\PortalController",
+            "method": "dashboard",
+            "route": "GET /portal/dashboard",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\PortalController",
+            "method": "decideProposal",
+            "route": "POST /portal/proposals/{proposal}/decision",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\PortalController",
+            "method": "storeProjectPayment",
+            "route": "POST /portal/project-payments",
             "status": "VERIFIED",
             "concurrency_safe": true,
             "tenant_isolated": true
@@ -1842,6 +1906,94 @@
             "tenant_isolated": true
         },
         {
+            "controller": "App\\Http\\Controllers\\HrmController",
+            "method": "leaveBalances",
+            "route": "GET /hrm/leave-balances",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HrmController",
+            "method": "salaries",
+            "route": "GET /hrm/set-salary",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HrmController",
+            "method": "setSalary",
+            "route": "PUT /hrm/employees/{employee}/salary",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HrmController",
+            "method": "communications",
+            "route": "GET /hrm/communications",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HrmController",
+            "method": "storeAnnouncement",
+            "route": "POST /hrm/announcements",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HrmController",
+            "method": "storePolicy",
+            "route": "POST /hrm/policies",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HrmController",
+            "method": "acknowledgePolicy",
+            "route": "POST /hrm/policies/{policy}/acknowledge",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HrmController",
+            "method": "lifecycle",
+            "route": "GET /hrm/lifecycle/{kind}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HrmController",
+            "method": "storeEventType",
+            "route": "POST /hrm/lifecycle/{kind}/types",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HrmController",
+            "method": "storeEvent",
+            "route": "POST /hrm/lifecycle/{kind}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\HrmController",
+            "method": "reviewEvent",
+            "route": "POST /hrm/lifecycle/events/{event}/review",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
             "controller": "App\\Http\\Controllers\\CrmController",
             "method": "index",
             "route": "GET /crm",
@@ -1884,7 +2036,7 @@
         {
             "controller": "App\\Http\\Controllers\\CrmController",
             "method": "moveLead",
-            "route": "POST /crm/leads/{lead}/move",
+            "route": "POST /crm/leads/{leadId}/move",
             "status": "VERIFIED",
             "concurrency_safe": true,
             "tenant_isolated": true
@@ -1892,7 +2044,7 @@
         {
             "controller": "App\\Http\\Controllers\\CrmController",
             "method": "convertLead",
-            "route": "POST /crm/leads/{lead}/convert",
+            "route": "POST /crm/leads/{leadId}/convert",
             "status": "VERIFIED",
             "concurrency_safe": true,
             "tenant_isolated": true
@@ -1900,7 +2052,7 @@
         {
             "controller": "App\\Http\\Controllers\\CrmController",
             "method": "moveDeal",
-            "route": "POST /crm/deals/{deal}/move",
+            "route": "POST /crm/deals/{dealId}/move",
             "status": "VERIFIED",
             "concurrency_safe": true,
             "tenant_isolated": true
@@ -1957,6 +2109,30 @@
             "controller": "App\\Http\\Controllers\\TasklyController",
             "method": "index",
             "route": "GET /taskly/projects/list",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\TasklyController",
+            "method": "payments",
+            "route": "GET /taskly/project-payments",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\TasklyController",
+            "method": "reports",
+            "route": "GET /taskly/reports",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\TasklyController",
+            "method": "setup",
+            "route": "GET /taskly/setup",
             "status": "VERIFIED",
             "concurrency_safe": true,
             "tenant_isolated": true
@@ -2021,6 +2197,30 @@
             "controller": "App\\Http\\Controllers\\TasklyController",
             "method": "issue",
             "route": "POST /taskly/issues",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\TasklyController",
+            "method": "storePayment",
+            "route": "POST /taskly/project-payments",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\TasklyController",
+            "method": "reviewPayment",
+            "route": "POST /taskly/project-payments/{payment}/review",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\TasklyController",
+            "method": "storeSetup",
+            "route": "POST /taskly/setup/{resource}",
             "status": "VERIFIED",
             "concurrency_safe": true,
             "tenant_isolated": true
@@ -2333,6 +2533,62 @@
             "controller": "App\\Http\\Controllers\\LandingPageController",
             "method": "publish",
             "route": "POST /landing/sites/{site}/publish",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\LandingPageController",
+            "method": "destroySite",
+            "route": "DELETE /landing/sites/{site}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\LandingPageController",
+            "method": "destroySection",
+            "route": "DELETE /landing/sites/{site}/sections/{section}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\LandingPageController",
+            "method": "destroyPage",
+            "route": "DELETE /landing/sites/{site}/pages/{page}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\LandingPageController",
+            "method": "storeMarketplaceItem",
+            "route": "POST /landing/marketplace",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\LandingPageController",
+            "method": "destroyMarketplaceItem",
+            "route": "DELETE /landing/marketplace/{item}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\LandingPageController",
+            "method": "storeSubscriber",
+            "route": "POST /landing/subscribers",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\LandingPageController",
+            "method": "unsubscribe",
+            "route": "POST /landing/subscribers/{subscriber}/unsubscribe",
             "status": "VERIFIED",
             "concurrency_safe": true,
             "tenant_isolated": true
@@ -3450,6 +3706,286 @@
             "tenant_isolated": true
         },
         {
+            "controller": "App\\Http\\Controllers\\MrFox\\MrFoxChatController",
+            "method": "chat",
+            "route": "POST /api/v1/mr-fox/chat",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MrFox\\MrFoxChatController",
+            "method": "getInsights",
+            "route": "GET /api/v1/mr-fox/insights",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MrFox\\MrFoxChatController",
+            "method": "getConversations",
+            "route": "GET /api/v1/mr-fox/conversations",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MrFox\\MrFoxChatController",
+            "method": "getConversationMessages",
+            "route": "GET /api/v1/mr-fox/conversations/{id}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MrFox\\MrFoxChatController",
+            "method": "approveAction",
+            "route": "POST /api/v1/mr-fox/actions/{id}/approve",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\MrFox\\MrFoxChatController",
+            "method": "rejectAction",
+            "route": "POST /api/v1/mr-fox/actions/{id}/reject",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Communications\\UnifiedInboxController",
+            "method": "index",
+            "route": "GET /inbox",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Communications\\UnifiedInboxController",
+            "method": "getConversations",
+            "route": "GET /api/v1/communications/conversations",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Communications\\UnifiedInboxController",
+            "method": "getThread",
+            "route": "GET /api/v1/communications/conversations/{id}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Communications\\UnifiedInboxController",
+            "method": "reply",
+            "route": "POST /api/v1/communications/conversations/{id}/reply",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Communications\\UnifiedInboxController",
+            "method": "draftReply",
+            "route": "POST /api/v1/communications/conversations/{id}/draft",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Communications\\UnifiedInboxController",
+            "method": "linkCrm",
+            "route": "POST /api/v1/communications/conversations/{id}/link-crm",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Automation\\AutomationRuleController",
+            "method": "index",
+            "route": "GET /automations",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Automation\\AutomationRuleController",
+            "method": "store",
+            "route": "POST /automations",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Automation\\AutomationRuleController",
+            "method": "toggle",
+            "route": "PATCH /automations/{id}/toggle",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Automation\\AutomationRuleController",
+            "method": "getRuns",
+            "route": "GET /automations/{id}/runs",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Automation\\MrFoxMissionController",
+            "method": "index",
+            "route": "GET /missions",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Automation\\MrFoxMissionController",
+            "method": "create",
+            "route": "POST /missions",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Automation\\MrFoxMissionController",
+            "method": "show",
+            "route": "GET /missions/{id}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Automation\\MrFoxMissionController",
+            "method": "executeStep",
+            "route": "POST /missions/{id}/step",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Automation\\MrFoxMissionController",
+            "method": "control",
+            "route": "POST /missions/{id}/control",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\CommandCenter\\CommandCenterController",
+            "method": "index",
+            "route": "GET /command-center",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\CommandCenter\\CommandCenterController",
+            "method": "health",
+            "route": "GET /command-center/health",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\CommandCenter\\CommandCenterController",
+            "method": "priorities",
+            "route": "GET /command-center/priorities",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\CommandCenter\\CommandCenterController",
+            "method": "briefing",
+            "route": "GET /command-center/briefing",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\CommandCenter\\CommandCenterController",
+            "method": "activity",
+            "route": "GET /command-center/activity",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\CommandCenter\\CommandCenterController",
+            "method": "search",
+            "route": "GET /command-center/search",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\CommandCenter\\ApprovalCenterController",
+            "method": "index",
+            "route": "GET /command-center/approvals",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\CommandCenter\\ApprovalCenterController",
+            "method": "approve",
+            "route": "POST /command-center/approvals/{id}/approve",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\CommandCenter\\ApprovalCenterController",
+            "method": "reject",
+            "route": "POST /command-center/approvals/{id}/reject",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Onboarding\\OnboardingController",
+            "method": "show",
+            "route": "GET /onboarding",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Onboarding\\OnboardingController",
+            "method": "updateStep",
+            "route": "POST /onboarding/step",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Onboarding\\OnboardingController",
+            "method": "complete",
+            "route": "POST /onboarding/complete",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Onboarding\\OnboardingController",
+            "method": "loadDemoData",
+            "route": "POST /onboarding/demo-data/load",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\Onboarding\\OnboardingController",
+            "method": "resetDemoData",
+            "route": "POST /onboarding/demo-data/reset",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
             "controller": "App\\Http\\Controllers\\SettingController",
             "method": "index",
             "route": "GET /settings",
@@ -3643,6 +4179,14 @@
         },
         {
             "controller": "App\\Http\\Controllers\\EmailTemplateController",
+            "method": "reset",
+            "route": "POST /email-templates/{emailTemplate}/reset",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\EmailTemplateController",
             "method": "index",
             "route": "GET /settings/email-templates",
             "status": "VERIFIED",
@@ -3685,6 +4229,14 @@
             "controller": "App\\Http\\Controllers\\NotificationTemplateController",
             "method": "preview",
             "route": "POST /notification-templates/{notificationTemplate}/preview",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\NotificationTemplateController",
+            "method": "reset",
+            "route": "POST /notification-templates/{notificationTemplate}/reset",
             "status": "VERIFIED",
             "concurrency_safe": true,
             "tenant_isolated": true
@@ -3845,6 +4397,46 @@
             "controller": "App\\Http\\Controllers\\Settings\\ApiTokenController",
             "method": "destroy",
             "route": "DELETE /settings/api-tokens/{id}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ModuleSectionController",
+            "method": "crm",
+            "route": "GET /crm/{section}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ModuleSectionController",
+            "method": "hrm",
+            "route": "GET /hrm/{section}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\ModuleSectionController",
+            "method": "taskly",
+            "route": "GET /taskly/{section}",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SuperAdmin\\CompanyController",
+            "method": "index",
+            "route": "GET /super-admin/companies",
+            "status": "VERIFIED",
+            "concurrency_safe": true,
+            "tenant_isolated": true
+        },
+        {
+            "controller": "App\\Http\\Controllers\\SuperAdmin\\CompanyController",
+            "method": "update",
+            "route": "PATCH /super-admin/companies/{organization}",
             "status": "VERIFIED",
             "concurrency_safe": true,
             "tenant_isolated": true

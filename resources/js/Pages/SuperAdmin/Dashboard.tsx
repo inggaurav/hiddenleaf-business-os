@@ -17,7 +17,7 @@ const shortcuts = [
 ];
 
 export default function SuperAdminDashboard() {
-  const { metrics = {} } = usePage<any>().props;
+  const { metrics = {}, monthlyOrders = [], ticketStatus = {}, weeklyPendingTickets = [], recentTickets = [] } = usePage<any>().props;
 
   return (
     <AppShell title="Super Admin Control Center" breadcrumbs={[{ label: 'Platform Administration' }, { label: 'Dashboard' }]}>
@@ -44,6 +44,13 @@ export default function SuperAdminDashboard() {
           <MetricCard title="Pending Bank Transfers" value={metrics.pending_bank_transfers ?? 0} icon={<DollarSign className="w-5 h-5 text-amber-400" />} subtitle="Awaiting review" />
           <MetricCard title="Open Helpdesk Tickets" value={metrics.open_helpdesk_tickets ?? 0} icon={<Sliders className="w-5 h-5 text-rose-400" />} subtitle="Support workload" />
         </div>
+
+        <div className="grid xl:grid-cols-2 gap-5">
+          <Card level={0} className="p-5"><h3 className="text-sm font-bold mb-4">Recent Orders (Monthly)</h3><div className="space-y-3">{monthlyOrders.map((row: any) => { const max = Math.max(1, ...monthlyOrders.map((item: any) => Number(item.orders))); return <div key={row.month} className="grid grid-cols-[36px_1fr_auto] gap-3 items-center text-xs"><span>{row.month}</span><div className="h-2 rounded-full bg-white/5 overflow-hidden"><div className="h-full bg-purple-500" style={{ width: `${(Number(row.orders) / max) * 100}%` }} /></div><span>{row.orders} orders • ${Number(row.revenue).toFixed(2)}</span></div>; })}</div></Card>
+          <Card level={0} className="p-5"><h3 className="text-sm font-bold mb-4">Helpdesk Ticket Status</h3><div className="grid sm:grid-cols-2 gap-3">{Object.entries(ticketStatus).map(([status, total]: any) => <div key={status} className="flex items-center justify-between p-3 rounded-xl border border-[var(--border-subtle)]"><span className="capitalize text-xs">{status}</span><Badge variant="neutral" size="sm">{total}</Badge></div>)}</div><h4 className="text-xs font-bold mt-5 mb-3">Weekly Pending Tickets</h4><div className="flex items-end gap-2 h-24">{weeklyPendingTickets.map((row: any) => { const max = Math.max(1, ...weeklyPendingTickets.map((item: any) => Number(item.tickets))); return <div key={row.day} className="flex-1 flex flex-col items-center justify-end gap-1 h-full"><span className="text-[10px]">{row.tickets}</span><div className="w-full bg-amber-500/70 rounded-t" style={{ height: `${Math.max(4, (Number(row.tickets) / max) * 70)}px` }} /><span className="text-[10px] text-[var(--text-tertiary)]">{row.day}</span></div>; })}</div></Card>
+        </div>
+
+        <Card level={0} className="overflow-x-auto"><div className="p-4 border-b border-[var(--border-subtle)]"><h3 className="text-sm font-bold">Recent Helpdesk Tickets</h3></div><table className="w-full text-xs"><thead><tr className="text-left border-b border-[var(--border-subtle)]"><th className="p-3">Ticket</th><th>Subject</th><th>Requester</th><th>Category</th><th>Status</th><th>Created</th></tr></thead><tbody>{recentTickets.map((ticket: any) => <tr key={ticket.id} className="border-b border-[var(--border-subtle)]"><td className="p-3">#{ticket.id}</td><td>{ticket.subject || ticket.title}</td><td>{ticket.creator?.name || ticket.name || '—'}</td><td>{ticket.category?.name || '—'}</td><td><Badge variant="neutral" size="sm">{ticket.status}</Badge></td><td>{ticket.created_at}</td></tr>)}</tbody></table></Card>
 
         <div className="space-y-3">
           <h2 className="text-sm font-bold uppercase tracking-wider text-[var(--text-tertiary)]">Platform Management</h2>

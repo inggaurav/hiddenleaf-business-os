@@ -11,13 +11,17 @@ use Illuminate\Support\Facades\DB;
 
 class CrmDashboardService
 {
-    public function getMetrics(Workspace $workspace, ?int $pipelineId = null): array
+    public function getMetrics(Workspace $workspace, ?int $pipelineId = null, ?int $userId = null): array
     {
         $orgId = $workspace->organization_id;
         $wsId = $workspace->id;
 
         $leadsQuery = CrmLead::where('organization_id', $orgId)->where('workspace_id', $wsId);
         $dealsQuery = CrmDeal::where('organization_id', $orgId)->where('workspace_id', $wsId);
+        if ($userId) {
+            $leadsQuery->where('assigned_to', $userId);
+            $dealsQuery->where('assigned_to', $userId);
+        }
 
         if ($pipelineId) {
             $leadsQuery->where('pipeline_id', $pipelineId);
@@ -55,11 +59,13 @@ class CrmDashboardService
                 $dealsInStage = CrmDeal::where('organization_id', $orgId)
                     ->where('workspace_id', $wsId)
                     ->where('stage_id', $stage->id)
+                    ->when($userId, fn ($query) => $query->where('assigned_to', $userId))
                     ->count();
 
                 $valueInStage = (float) CrmDeal::where('organization_id', $orgId)
                     ->where('workspace_id', $wsId)
                     ->where('stage_id', $stage->id)
+                    ->when($userId, fn ($query) => $query->where('assigned_to', $userId))
                     ->sum('value');
 
                 $stageDistribution[] = [
@@ -99,6 +105,7 @@ class CrmDashboardService
         $recentActivities = DB::table('crm_activities')
             ->where('organization_id', $orgId)
             ->where('workspace_id', $wsId)
+            ->when($userId, fn ($query) => $query->where('assigned_to', $userId))
             ->latest('created_at')
             ->limit(5)
             ->get()

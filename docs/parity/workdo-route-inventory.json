@@ -1,36 +1,6 @@
 {
-    "total_routes": 485,
+    "total_routes": 559,
     "routes": [
-        {
-            "methods": [
-                "GET"
-            ],
-            "uri": "/_inertia/devtools/entries/{id}",
-            "name": null,
-            "controller": "Inertia\\DevTools\\Http\\EntriesController@show",
-            "middleware": [
-                "Inertia\\DevTools\\Http\\PreventPreviousUrlTracking",
-                "web",
-                "Inertia\\DevTools\\Http\\PreserveFlashData",
-                "Inertia\\DevTools\\Http\\Authorize"
-            ],
-            "parity_status": "EXACT"
-        },
-        {
-            "methods": [
-                "GET"
-            ],
-            "uri": "/_inertia/devtools/entries",
-            "name": null,
-            "controller": "Inertia\\DevTools\\Http\\EntriesController@index",
-            "middleware": [
-                "Inertia\\DevTools\\Http\\PreventPreviousUrlTracking",
-                "web",
-                "Inertia\\DevTools\\Http\\PreserveFlashData",
-                "Inertia\\DevTools\\Http\\Authorize"
-            ],
-            "parity_status": "EXACT"
-        },
         {
             "methods": [
                 "GET"
@@ -1672,6 +1642,71 @@
         },
         {
             "methods": [
+                "POST"
+            ],
+            "uri": "/api/v1/communications/conversations/{id}/draft",
+            "name": "communications.draft",
+            "controller": "App\\Http\\Controllers\\Communications\\UnifiedInboxController@draftReply",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
+            "uri": "/api/v1/communications/conversations/{id}/link-crm",
+            "name": "communications.link-crm",
+            "controller": "App\\Http\\Controllers\\Communications\\UnifiedInboxController@linkCrm",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
+            "uri": "/api/v1/communications/conversations/{id}/reply",
+            "name": "communications.reply",
+            "controller": "App\\Http\\Controllers\\Communications\\UnifiedInboxController@reply",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/api/v1/communications/conversations/{id}",
+            "name": "communications.thread",
+            "controller": "App\\Http\\Controllers\\Communications\\UnifiedInboxController@getThread",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/api/v1/communications/conversations",
+            "name": "communications.conversations",
+            "controller": "App\\Http\\Controllers\\Communications\\UnifiedInboxController@getConversations",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
                 "GET"
             ],
             "uri": "/api/v1/helpdesk/tickets/{ticket}",
@@ -1680,7 +1715,8 @@
             "middleware": [
                 "api",
                 "auth:sanctum",
-                "api.workspace"
+                "api.workspace",
+                "api.module:helpdesk"
             ],
             "parity_status": "EXACT"
         },
@@ -1694,7 +1730,8 @@
             "middleware": [
                 "api",
                 "auth:sanctum",
-                "api.workspace"
+                "api.workspace",
+                "api.module:helpdesk"
             ],
             "parity_status": "EXACT"
         },
@@ -1708,7 +1745,23 @@
             "middleware": [
                 "api",
                 "auth:sanctum",
-                "api.workspace"
+                "api.workspace",
+                "api.module:helpdesk"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/api/v1/hrm/employees",
+            "name": null,
+            "controller": "App\\Http\\Controllers\\Api\\V1\\HrmApiController@employees",
+            "middleware": [
+                "api",
+                "auth:sanctum",
+                "api.workspace",
+                "api.module:hrm"
             ],
             "parity_status": "EXACT"
         },
@@ -1722,7 +1775,8 @@
             "middleware": [
                 "api",
                 "auth:sanctum",
-                "api.workspace"
+                "api.workspace",
+                "api.module:media"
             ],
             "parity_status": "EXACT"
         },
@@ -1736,7 +1790,92 @@
             "middleware": [
                 "api",
                 "auth:sanctum",
-                "api.workspace"
+                "api.workspace",
+                "api.module:media"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
+            "uri": "/api/v1/mr-fox/actions/{id}/approve",
+            "name": "mr-fox.actions.approve",
+            "controller": "App\\Http\\Controllers\\MrFox\\MrFoxChatController@approveAction",
+            "middleware": [
+                "web",
+                "auth",
+                "throttle:60,1"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
+            "uri": "/api/v1/mr-fox/actions/{id}/reject",
+            "name": "mr-fox.actions.reject",
+            "controller": "App\\Http\\Controllers\\MrFox\\MrFoxChatController@rejectAction",
+            "middleware": [
+                "web",
+                "auth",
+                "throttle:60,1"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
+            "uri": "/api/v1/mr-fox/chat",
+            "name": "mr-fox.chat",
+            "controller": "App\\Http\\Controllers\\MrFox\\MrFoxChatController@chat",
+            "middleware": [
+                "web",
+                "auth",
+                "throttle:60,1"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/api/v1/mr-fox/conversations/{id}",
+            "name": "mr-fox.conversations.show",
+            "controller": "App\\Http\\Controllers\\MrFox\\MrFoxChatController@getConversationMessages",
+            "middleware": [
+                "web",
+                "auth",
+                "throttle:60,1"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/api/v1/mr-fox/conversations",
+            "name": "mr-fox.conversations",
+            "controller": "App\\Http\\Controllers\\MrFox\\MrFoxChatController@getConversations",
+            "middleware": [
+                "web",
+                "auth",
+                "throttle:60,1"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/api/v1/mr-fox/insights",
+            "name": "mr-fox.insights",
+            "controller": "App\\Http\\Controllers\\MrFox\\MrFoxChatController@getInsights",
+            "middleware": [
+                "web",
+                "auth",
+                "throttle:60,1"
             ],
             "parity_status": "EXACT"
         },
@@ -1787,7 +1926,8 @@
             "middleware": [
                 "api",
                 "auth:sanctum",
-                "api.workspace"
+                "api.workspace",
+                "api.module:productservice"
             ],
             "parity_status": "EXACT"
         },
@@ -1801,7 +1941,8 @@
             "middleware": [
                 "api",
                 "auth:sanctum",
-                "api.workspace"
+                "api.workspace",
+                "api.module:productservice"
             ],
             "parity_status": "EXACT"
         },
@@ -1828,7 +1969,8 @@
             "middleware": [
                 "api",
                 "auth:sanctum",
-                "api.workspace"
+                "api.workspace",
+                "api.module:procurement"
             ],
             "parity_status": "EXACT"
         },
@@ -1842,7 +1984,8 @@
             "middleware": [
                 "api",
                 "auth:sanctum",
-                "api.workspace"
+                "api.workspace",
+                "api.module:sales"
             ],
             "parity_status": "EXACT"
         },
@@ -1856,7 +1999,8 @@
             "middleware": [
                 "api",
                 "auth:sanctum",
-                "api.workspace"
+                "api.workspace",
+                "api.module:sales"
             ],
             "parity_status": "EXACT"
         },
@@ -1978,7 +2122,21 @@
             "middleware": [
                 "api",
                 "auth:sanctum",
-                "api.workspace"
+                "api.workspace",
+                "api.module:productservice"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET",
+                "POST"
+            ],
+            "uri": "/api/v1/webhooks/communications/{provider}",
+            "name": "webhooks.communications",
+            "controller": "App\\Http\\Controllers\\Communications\\CommunicationWebhookController@handle",
+            "middleware": [
+                "web"
             ],
             "parity_status": "EXACT"
         },
@@ -2005,6 +2163,58 @@
             "middleware": [
                 "api",
                 "auth:sanctum"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/automations/{id}/runs",
+            "name": "automations.runs",
+            "controller": "App\\Http\\Controllers\\Automation\\AutomationRuleController@getRuns",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "PATCH"
+            ],
+            "uri": "/automations/{id}/toggle",
+            "name": "automations.toggle",
+            "controller": "App\\Http\\Controllers\\Automation\\AutomationRuleController@toggle",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/automations",
+            "name": "automations.index",
+            "controller": "App\\Http\\Controllers\\Automation\\AutomationRuleController@index",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
+            "uri": "/automations",
+            "name": "automations.store",
+            "controller": "App\\Http\\Controllers\\Automation\\AutomationRuleController@store",
+            "middleware": [
+                "web",
+                "auth"
             ],
             "parity_status": "EXACT"
         },
@@ -2272,6 +2482,123 @@
             "methods": [
                 "GET"
             ],
+            "uri": "/command-center/activity",
+            "name": "command-center.activity",
+            "controller": "App\\Http\\Controllers\\CommandCenter\\CommandCenterController@activity",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
+            "uri": "/command-center/approvals/{id}/approve",
+            "name": "command-center.approvals.approve",
+            "controller": "App\\Http\\Controllers\\CommandCenter\\ApprovalCenterController@approve",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
+            "uri": "/command-center/approvals/{id}/reject",
+            "name": "command-center.approvals.reject",
+            "controller": "App\\Http\\Controllers\\CommandCenter\\ApprovalCenterController@reject",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/command-center/approvals",
+            "name": "command-center.approvals.index",
+            "controller": "App\\Http\\Controllers\\CommandCenter\\ApprovalCenterController@index",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/command-center/briefing",
+            "name": "command-center.briefing",
+            "controller": "App\\Http\\Controllers\\CommandCenter\\CommandCenterController@briefing",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/command-center/health",
+            "name": "command-center.health",
+            "controller": "App\\Http\\Controllers\\CommandCenter\\CommandCenterController@health",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/command-center/priorities",
+            "name": "command-center.priorities",
+            "controller": "App\\Http\\Controllers\\CommandCenter\\CommandCenterController@priorities",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/command-center/search",
+            "name": "command-center.search",
+            "controller": "App\\Http\\Controllers\\CommandCenter\\CommandCenterController@search",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/command-center",
+            "name": "command-center.index",
+            "controller": "App\\Http\\Controllers\\CommandCenter\\CommandCenterController@index",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
             "uri": "/coupons/create",
             "name": "coupons.create",
             "controller": "App\\Http\\Controllers\\Domain\\SaaS\\CouponController@create",
@@ -2378,13 +2705,14 @@
             "methods": [
                 "POST"
             ],
-            "uri": "/crm/deals/{deal}/move",
+            "uri": "/crm/deals/{dealId}/move",
             "name": "crm.deals.move",
             "controller": "App\\Http\\Controllers\\CrmController@moveDeal",
             "middleware": [
                 "web",
                 "auth",
-                "module.status:lead"
+                "module.status:lead",
+                "workspace.permission:crm.manage"
             ],
             "parity_status": "EXACT"
         },
@@ -2419,13 +2747,14 @@
             "methods": [
                 "POST"
             ],
-            "uri": "/crm/leads/{lead}/convert",
+            "uri": "/crm/leads/{leadId}/convert",
             "name": "crm.leads.convert",
             "controller": "App\\Http\\Controllers\\CrmController@convertLead",
             "middleware": [
                 "web",
                 "auth",
-                "module.status:lead"
+                "module.status:lead",
+                "workspace.permission:crm.manage"
             ],
             "parity_status": "EXACT"
         },
@@ -2433,13 +2762,14 @@
             "methods": [
                 "POST"
             ],
-            "uri": "/crm/leads/{lead}/move",
+            "uri": "/crm/leads/{leadId}/move",
             "name": "crm.leads.move",
             "controller": "App\\Http\\Controllers\\CrmController@moveLead",
             "middleware": [
                 "web",
                 "auth",
-                "module.status:lead"
+                "module.status:lead",
+                "workspace.permission:crm.manage"
             ],
             "parity_status": "EXACT"
         },
@@ -2453,7 +2783,8 @@
             "middleware": [
                 "web",
                 "auth",
-                "module.status:lead"
+                "module.status:lead",
+                "workspace.permission:crm.manage"
             ],
             "parity_status": "EXACT"
         },
@@ -2467,7 +2798,8 @@
             "middleware": [
                 "web",
                 "auth",
-                "module.status:lead"
+                "module.status:lead",
+                "workspace.permission:crm.manage"
             ],
             "parity_status": "EXACT"
         },
@@ -2478,6 +2810,21 @@
             "uri": "/crm/webforms",
             "name": "crm.webforms.store",
             "controller": "App\\Http\\Controllers\\CrmController@storeWebform",
+            "middleware": [
+                "web",
+                "auth",
+                "module.status:lead",
+                "workspace.permission:crm.manage"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/crm/{section}",
+            "name": "crm.section",
+            "controller": "App\\Http\\Controllers\\ModuleSectionController@crm",
             "middleware": [
                 "web",
                 "auth",
@@ -2495,7 +2842,8 @@
             "middleware": [
                 "web",
                 "auth",
-                "module.status:lead"
+                "module.status:lead",
+                "workspace.permission:crm.manage"
             ],
             "parity_status": "EXACT"
         },
@@ -2509,7 +2857,8 @@
             "middleware": [
                 "web",
                 "auth",
-                "module.status:lead"
+                "module.status:lead",
+                "workspace.permission:crm.manage"
             ],
             "parity_status": "EXACT"
         },
@@ -2547,6 +2896,19 @@
             "uri": "/email-templates/{emailTemplate}/preview",
             "name": "email-templates.preview",
             "controller": "App\\Http\\Controllers\\EmailTemplateController@preview",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
+            "uri": "/email-templates/{emailTemplate}/reset",
+            "name": "email-templates.reset",
+            "controller": "App\\Http\\Controllers\\EmailTemplateController@reset",
             "middleware": [
                 "web",
                 "auth"
@@ -2643,6 +3005,30 @@
             "middleware": [
                 "web",
                 "guest"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/health/live",
+            "name": "health.live",
+            "controller": "App\\Http\\Controllers\\Diagnostics\\HealthCheckController@live",
+            "middleware": [
+                "web"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/health/ready",
+            "name": "health.ready",
+            "controller": "App\\Http\\Controllers\\Diagnostics\\HealthCheckController@ready",
+            "middleware": [
+                "web"
             ],
             "parity_status": "EXACT"
         },
@@ -2873,6 +3259,20 @@
             "methods": [
                 "POST"
             ],
+            "uri": "/hrm/announcements",
+            "name": "hrm.announcements.store",
+            "controller": "App\\Http\\Controllers\\HrmController@storeAnnouncement",
+            "middleware": [
+                "web",
+                "auth",
+                "module.status:hrm"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
             "uri": "/hrm/appraisals",
             "name": "hrm.appraisals.store",
             "controller": "App\\Http\\Controllers\\HrmController@appraisal",
@@ -2890,6 +3290,20 @@
             "uri": "/hrm/attendance",
             "name": "hrm.attendance.store",
             "controller": "App\\Http\\Controllers\\HrmController@attendance",
+            "middleware": [
+                "web",
+                "auth",
+                "module.status:hrm"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/hrm/communications",
+            "name": "hrm.communications.index",
+            "controller": "App\\Http\\Controllers\\HrmController@communications",
             "middleware": [
                 "web",
                 "auth",
@@ -2955,11 +3369,39 @@
         },
         {
             "methods": [
+                "PUT"
+            ],
+            "uri": "/hrm/employees/{employee}/salary",
+            "name": "hrm.employees.salary",
+            "controller": "App\\Http\\Controllers\\HrmController@setSalary",
+            "middleware": [
+                "web",
+                "auth",
+                "module.status:hrm"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
                 "POST"
             ],
             "uri": "/hrm/employees",
             "name": "hrm.employees.store",
             "controller": "App\\Http\\Controllers\\HrmController@storeEmployee",
+            "middleware": [
+                "web",
+                "auth",
+                "module.status:hrm"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/hrm/leave-balances",
+            "name": "hrm.leave-balances.index",
+            "controller": "App\\Http\\Controllers\\HrmController@leaveBalances",
             "middleware": [
                 "web",
                 "auth",
@@ -3013,6 +3455,62 @@
             "methods": [
                 "POST"
             ],
+            "uri": "/hrm/lifecycle/events/{event}/review",
+            "name": "hrm.lifecycle.review",
+            "controller": "App\\Http\\Controllers\\HrmController@reviewEvent",
+            "middleware": [
+                "web",
+                "auth",
+                "module.status:hrm"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
+            "uri": "/hrm/lifecycle/{kind}/types",
+            "name": "hrm.lifecycle.types.store",
+            "controller": "App\\Http\\Controllers\\HrmController@storeEventType",
+            "middleware": [
+                "web",
+                "auth",
+                "module.status:hrm"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/hrm/lifecycle/{kind}",
+            "name": "hrm.lifecycle.index",
+            "controller": "App\\Http\\Controllers\\HrmController@lifecycle",
+            "middleware": [
+                "web",
+                "auth",
+                "module.status:hrm"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
+            "uri": "/hrm/lifecycle/{kind}",
+            "name": "hrm.lifecycle.store",
+            "controller": "App\\Http\\Controllers\\HrmController@storeEvent",
+            "middleware": [
+                "web",
+                "auth",
+                "module.status:hrm"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
             "uri": "/hrm/payslips/{payslip}/pay",
             "name": "hrm.payslips.pay",
             "controller": "App\\Http\\Controllers\\HrmController@payPayslip",
@@ -3030,6 +3528,34 @@
             "uri": "/hrm/payslips",
             "name": "hrm.payslips.store",
             "controller": "App\\Http\\Controllers\\HrmController@generatePayslip",
+            "middleware": [
+                "web",
+                "auth",
+                "module.status:hrm"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
+            "uri": "/hrm/policies/{policy}/acknowledge",
+            "name": "hrm.policies.acknowledge",
+            "controller": "App\\Http\\Controllers\\HrmController@acknowledgePolicy",
+            "middleware": [
+                "web",
+                "auth",
+                "module.status:hrm"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
+            "uri": "/hrm/policies",
+            "name": "hrm.policies.store",
+            "controller": "App\\Http\\Controllers\\HrmController@storePolicy",
             "middleware": [
                 "web",
                 "auth",
@@ -3067,11 +3593,39 @@
         },
         {
             "methods": [
+                "GET"
+            ],
+            "uri": "/hrm/set-salary",
+            "name": "hrm.salaries.index",
+            "controller": "App\\Http\\Controllers\\HrmController@salaries",
+            "middleware": [
+                "web",
+                "auth",
+                "module.status:hrm"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
                 "POST"
             ],
             "uri": "/hrm/structure/{resource}",
             "name": "hrm.structure.store",
             "controller": "App\\Http\\Controllers\\HrmController@storeStructure",
+            "middleware": [
+                "web",
+                "auth",
+                "module.status:hrm"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/hrm/{section}",
+            "name": "hrm.section",
+            "controller": "App\\Http\\Controllers\\ModuleSectionController@hrm",
             "middleware": [
                 "web",
                 "auth",
@@ -3090,6 +3644,19 @@
                 "web",
                 "auth",
                 "module.status:hrm"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/inbox",
+            "name": "inbox.index",
+            "controller": "App\\Http\\Controllers\\Communications\\UnifiedInboxController@index",
+            "middleware": [
+                "web",
+                "auth"
             ],
             "parity_status": "EXACT"
         },
@@ -3172,6 +3739,48 @@
         },
         {
             "methods": [
+                "DELETE"
+            ],
+            "uri": "/landing/marketplace/{item}",
+            "name": "landing.marketplace.destroy",
+            "controller": "App\\Http\\Controllers\\LandingPageController@destroyMarketplaceItem",
+            "middleware": [
+                "web",
+                "auth",
+                "module.status:landingpage"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
+            "uri": "/landing/marketplace",
+            "name": "landing.marketplace.store",
+            "controller": "App\\Http\\Controllers\\LandingPageController@storeMarketplaceItem",
+            "middleware": [
+                "web",
+                "auth",
+                "module.status:landingpage"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "DELETE"
+            ],
+            "uri": "/landing/sites/{site}/pages/{page}",
+            "name": "landing.pages.destroy",
+            "controller": "App\\Http\\Controllers\\LandingPageController@destroyPage",
+            "middleware": [
+                "web",
+                "auth",
+                "module.status:landingpage"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
                 "POST"
             ],
             "uri": "/landing/sites/{site}/pages",
@@ -3200,6 +3809,20 @@
         },
         {
             "methods": [
+                "DELETE"
+            ],
+            "uri": "/landing/sites/{site}/sections/{section}",
+            "name": "landing.sections.destroy",
+            "controller": "App\\Http\\Controllers\\LandingPageController@destroySection",
+            "middleware": [
+                "web",
+                "auth",
+                "module.status:landingpage"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
                 "POST"
             ],
             "uri": "/landing/sites/{site}/sections",
@@ -3214,11 +3837,53 @@
         },
         {
             "methods": [
+                "DELETE"
+            ],
+            "uri": "/landing/sites/{site}",
+            "name": "landing.sites.destroy",
+            "controller": "App\\Http\\Controllers\\LandingPageController@destroySite",
+            "middleware": [
+                "web",
+                "auth",
+                "module.status:landingpage"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
                 "POST"
             ],
             "uri": "/landing/sites",
             "name": "landing.sites.store",
             "controller": "App\\Http\\Controllers\\LandingPageController@storeSite",
+            "middleware": [
+                "web",
+                "auth",
+                "module.status:landingpage"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
+            "uri": "/landing/subscribers/{subscriber}/unsubscribe",
+            "name": "landing.subscribers.unsubscribe",
+            "controller": "App\\Http\\Controllers\\LandingPageController@unsubscribe",
+            "middleware": [
+                "web",
+                "auth",
+                "module.status:landingpage"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
+            "uri": "/landing/subscribers",
+            "name": "landing.subscribers.store",
+            "controller": "App\\Http\\Controllers\\LandingPageController@storeSubscriber",
             "middleware": [
                 "web",
                 "auth",
@@ -3570,6 +4235,71 @@
             "methods": [
                 "POST"
             ],
+            "uri": "/missions/{id}/control",
+            "name": "missions.control",
+            "controller": "App\\Http\\Controllers\\Automation\\MrFoxMissionController@control",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
+            "uri": "/missions/{id}/step",
+            "name": "missions.step",
+            "controller": "App\\Http\\Controllers\\Automation\\MrFoxMissionController@executeStep",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/missions/{id}",
+            "name": "missions.show",
+            "controller": "App\\Http\\Controllers\\Automation\\MrFoxMissionController@show",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/missions",
+            "name": "missions.index",
+            "controller": "App\\Http\\Controllers\\Automation\\MrFoxMissionController@index",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
+            "uri": "/missions",
+            "name": "missions.store",
+            "controller": "App\\Http\\Controllers\\Automation\\MrFoxMissionController@create",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
             "uri": "/modules/install",
             "name": "modules.install",
             "controller": "App\\Http\\Controllers\\ModuleController@install",
@@ -3612,6 +4342,19 @@
             "uri": "/notification-templates/{notificationTemplate}/preview",
             "name": "notification-templates.preview",
             "controller": "App\\Http\\Controllers\\NotificationTemplateController@preview",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
+            "uri": "/notification-templates/{notificationTemplate}/reset",
+            "name": "notification-templates.reset",
+            "controller": "App\\Http\\Controllers\\NotificationTemplateController@reset",
             "middleware": [
                 "web",
                 "auth"
@@ -3693,6 +4436,71 @@
             "uri": "/notifications",
             "name": "notifications.index",
             "controller": "App\\Http\\Controllers\\DatabaseNotificationController@index",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
+            "uri": "/onboarding/complete",
+            "name": "onboarding.complete",
+            "controller": "App\\Http\\Controllers\\Onboarding\\OnboardingController@complete",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
+            "uri": "/onboarding/demo-data/load",
+            "name": "onboarding.demo.load",
+            "controller": "App\\Http\\Controllers\\Onboarding\\OnboardingController@loadDemoData",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
+            "uri": "/onboarding/demo-data/reset",
+            "name": "onboarding.demo.reset",
+            "controller": "App\\Http\\Controllers\\Onboarding\\OnboardingController@resetDemoData",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
+            "uri": "/onboarding/step",
+            "name": "onboarding.step",
+            "controller": "App\\Http\\Controllers\\Onboarding\\OnboardingController@updateStep",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/onboarding",
+            "name": "onboarding.show",
+            "controller": "App\\Http\\Controllers\\Onboarding\\OnboardingController@show",
             "middleware": [
                 "web",
                 "auth"
@@ -3876,6 +4684,45 @@
             "uri": "/plans",
             "name": "plans.store",
             "controller": "App\\Http\\Controllers\\Domain\\SaaS\\PlanController@store",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/portal/dashboard",
+            "name": "portal.dashboard",
+            "controller": "App\\Http\\Controllers\\PortalController@dashboard",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
+            "uri": "/portal/project-payments",
+            "name": "portal.project-payments.store",
+            "controller": "App\\Http\\Controllers\\PortalController@storeProjectPayment",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
+            "uri": "/portal/proposals/{proposal}/decision",
+            "name": "portal.proposals.decision",
+            "controller": "App\\Http\\Controllers\\PortalController@decideProposal",
             "middleware": [
                 "web",
                 "auth"
@@ -5855,6 +6702,34 @@
         },
         {
             "methods": [
+                "PATCH"
+            ],
+            "uri": "/super-admin/companies/{organization}",
+            "name": "super-admin.companies.update",
+            "controller": "App\\Http\\Controllers\\SuperAdmin\\CompanyController@update",
+            "middleware": [
+                "web",
+                "auth",
+                "App\\Http\\Middleware\\SuperAdminMiddleware"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/super-admin/companies",
+            "name": "super-admin.companies.index",
+            "controller": "App\\Http\\Controllers\\SuperAdmin\\CompanyController@index",
+            "middleware": [
+                "web",
+                "auth",
+                "App\\Http\\Middleware\\SuperAdminMiddleware"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
                 "GET"
             ],
             "uri": "/super-admin/dashboard",
@@ -5947,7 +6822,8 @@
             "middleware": [
                 "web",
                 "auth",
-                "module.status:taskly"
+                "module.status:taskly",
+                "workspace.permission:taskly.manage"
             ],
             "parity_status": "EXACT"
         },
@@ -5961,7 +6837,52 @@
             "middleware": [
                 "web",
                 "auth",
+                "module.status:taskly",
+                "workspace.permission:taskly.manage"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
+            "uri": "/taskly/project-payments/{payment}/review",
+            "name": "taskly.payments.review",
+            "controller": "App\\Http\\Controllers\\TasklyController@reviewPayment",
+            "middleware": [
+                "web",
+                "auth",
+                "module.status:taskly",
+                "workspace.permission:taskly.manage"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/taskly/project-payments",
+            "name": "taskly.payments.index",
+            "controller": "App\\Http\\Controllers\\TasklyController@payments",
+            "middleware": [
+                "web",
+                "auth",
                 "module.status:taskly"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
+            "uri": "/taskly/project-payments",
+            "name": "taskly.payments.store",
+            "controller": "App\\Http\\Controllers\\TasklyController@storePayment",
+            "middleware": [
+                "web",
+                "auth",
+                "module.status:taskly",
+                "workspace.permission:taskly.manage"
             ],
             "parity_status": "EXACT"
         },
@@ -5989,6 +6910,50 @@
             "middleware": [
                 "web",
                 "auth",
+                "module.status:taskly",
+                "workspace.permission:taskly.manage"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/taskly/reports",
+            "name": "taskly.reports.index",
+            "controller": "App\\Http\\Controllers\\TasklyController@reports",
+            "middleware": [
+                "web",
+                "auth",
+                "module.status:taskly"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
+            "uri": "/taskly/setup/{resource}",
+            "name": "taskly.setup.store",
+            "controller": "App\\Http\\Controllers\\TasklyController@storeSetup",
+            "middleware": [
+                "web",
+                "auth",
+                "module.status:taskly",
+                "workspace.permission:taskly.manage"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/taskly/setup",
+            "name": "taskly.setup.index",
+            "controller": "App\\Http\\Controllers\\TasklyController@setup",
+            "middleware": [
+                "web",
+                "auth",
                 "module.status:taskly"
             ],
             "parity_status": "EXACT"
@@ -6003,7 +6968,8 @@
             "middleware": [
                 "web",
                 "auth",
-                "module.status:taskly"
+                "module.status:taskly",
+                "workspace.permission:taskly.manage"
             ],
             "parity_status": "EXACT"
         },
@@ -6017,7 +6983,8 @@
             "middleware": [
                 "web",
                 "auth",
-                "module.status:taskly"
+                "module.status:taskly",
+                "workspace.permission:taskly.manage"
             ],
             "parity_status": "EXACT"
         },
@@ -6031,7 +6998,8 @@
             "middleware": [
                 "web",
                 "auth",
-                "module.status:taskly"
+                "module.status:taskly",
+                "workspace.permission:taskly.manage"
             ],
             "parity_status": "EXACT"
         },
@@ -6045,7 +7013,8 @@
             "middleware": [
                 "web",
                 "auth",
-                "module.status:taskly"
+                "module.status:taskly",
+                "workspace.permission:taskly.manage"
             ],
             "parity_status": "EXACT"
         },
@@ -6056,6 +7025,21 @@
             "uri": "/taskly/timesheets",
             "name": "taskly.timesheets.store",
             "controller": "App\\Http\\Controllers\\TasklyController@timesheet",
+            "middleware": [
+                "web",
+                "auth",
+                "module.status:taskly",
+                "workspace.permission:taskly.manage"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "GET"
+            ],
+            "uri": "/taskly/{section}",
+            "name": "taskly.section",
+            "controller": "App\\Http\\Controllers\\ModuleSectionController@taskly",
             "middleware": [
                 "web",
                 "auth",
@@ -6505,9 +7489,35 @@
             "methods": [
                 "POST"
             ],
+            "uri": "/webhooks/{webhook}/rotate-secret",
+            "name": "webhooks.rotate",
+            "controller": "App\\Http\\Controllers\\WebhookController@rotate",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "POST"
+            ],
             "uri": "/webhooks/{webhook}/test",
             "name": "webhooks.test",
             "controller": "App\\Http\\Controllers\\WebhookController@test",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "PATCH"
+            ],
+            "uri": "/webhooks/{webhook}/toggle",
+            "name": "webhooks.toggle",
+            "controller": "App\\Http\\Controllers\\WebhookController@toggle",
             "middleware": [
                 "web",
                 "auth"
@@ -6521,6 +7531,19 @@
             "uri": "/webhooks/{webhook}",
             "name": "webhooks.destroy",
             "controller": "App\\Http\\Controllers\\WebhookController@destroy",
+            "middleware": [
+                "web",
+                "auth"
+            ],
+            "parity_status": "EXACT"
+        },
+        {
+            "methods": [
+                "PUT"
+            ],
+            "uri": "/webhooks/{webhook}",
+            "name": "webhooks.update",
+            "controller": "App\\Http\\Controllers\\WebhookController@update",
             "middleware": [
                 "web",
                 "auth"

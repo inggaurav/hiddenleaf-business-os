@@ -15,6 +15,7 @@ class AccountVendor extends Model
     protected $fillable = [
         'organization_id',
         'workspace_id',
+        'user_id',
         'name',
         'email',
         'contact',
@@ -51,6 +52,11 @@ class AccountVendor extends Model
     public function purchaseInvoices()
     {
         return $this->hasMany(PurchaseInvoice::class, 'vendor_id');
+    }
+
+    public function portalUser()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function payments()

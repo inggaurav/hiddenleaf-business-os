@@ -47,6 +47,7 @@ use App\Http\Controllers\POS\PosDiscountController;
 use App\Http\Controllers\POS\PosReportController;
 use App\Http\Controllers\POS\PosReturnController;
 use App\Http\Controllers\ProductServiceController;
+use App\Http\Controllers\PortalController;
 use App\Http\Controllers\PurchaseInvoiceController;
 use App\Http\Controllers\PurchaseReturnController;
 use App\Http\Controllers\SalesInvoiceController;
@@ -130,6 +131,9 @@ Route::middleware(['auth'])->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [HomeController::class, 'Dashboard'])->name('dashboard');
+    Route::get('/portal/dashboard', [PortalController::class, 'dashboard'])->name('portal.dashboard');
+    Route::post('/portal/proposals/{proposal}/decision', [PortalController::class, 'decideProposal'])->name('portal.proposals.decision');
+    Route::post('/portal/project-payments', [PortalController::class, 'storeProjectPayment'])->name('portal.project-payments.store');
 
     // Profile Management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -242,6 +246,17 @@ Route::middleware(['auth'])->group(function () {
         Route::post('appraisals', [HrmController::class, 'appraisal'])->name('appraisals.store');
         Route::post('documents', [HrmController::class, 'uploadDocument'])->name('documents.store');
         Route::get('documents/{document}/download', [HrmController::class, 'downloadDocument'])->name('documents.download');
+        Route::get('leave-balances', [HrmController::class, 'leaveBalances'])->name('leave-balances.index');
+        Route::get('set-salary', [HrmController::class, 'salaries'])->name('salaries.index');
+        Route::put('employees/{employee}/salary', [HrmController::class, 'setSalary'])->name('employees.salary');
+        Route::get('communications', [HrmController::class, 'communications'])->name('communications.index');
+        Route::post('announcements', [HrmController::class, 'storeAnnouncement'])->name('announcements.store');
+        Route::post('policies', [HrmController::class, 'storePolicy'])->name('policies.store');
+        Route::post('policies/{policy}/acknowledge', [HrmController::class, 'acknowledgePolicy'])->name('policies.acknowledge');
+        Route::get('lifecycle/{kind}', [HrmController::class, 'lifecycle'])->name('lifecycle.index');
+        Route::post('lifecycle/{kind}/types', [HrmController::class, 'storeEventType'])->name('lifecycle.types.store');
+        Route::post('lifecycle/{kind}', [HrmController::class, 'storeEvent'])->name('lifecycle.store');
+        Route::post('lifecycle/events/{event}/review', [HrmController::class, 'reviewEvent'])->name('lifecycle.review');
     });
 
     Route::middleware('module.status:lead')->prefix('crm')->name('crm.')->group(function () {
@@ -265,6 +280,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [TasklyController::class, 'index'])->name('index');
         Route::get('dashboard', [TasklyController::class, 'dashboard'])->name('dashboard');
         Route::get('projects/list', [TasklyController::class, 'index'])->name('projects.list');
+        Route::get('project-payments', [TasklyController::class, 'payments'])->name('payments.index');
+        Route::get('reports', [TasklyController::class, 'reports'])->name('reports.index');
+        Route::get('setup', [TasklyController::class, 'setup'])->name('setup.index');
         Route::middleware('workspace.permission:taskly.manage')->group(function () {
         Route::post('projects', [TasklyController::class, 'storeProject'])->name('projects.store');
         Route::post('tasks', [TasklyController::class, 'storeTask'])->name('tasks.store');
@@ -274,6 +292,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('timesheets', [TasklyController::class, 'timesheet'])->name('timesheets.store');
         Route::post('timesheets/{timesheet}/approve', [TasklyController::class, 'approveTime'])->name('timesheets.approve');
         Route::post('issues', [TasklyController::class, 'issue'])->name('issues.store');
+        Route::post('project-payments', [TasklyController::class, 'storePayment'])->name('payments.store');
+        Route::post('project-payments/{payment}/review', [TasklyController::class, 'reviewPayment'])->name('payments.review');
+        Route::post('setup/{resource}', [TasklyController::class, 'storeSetup'])->name('setup.store');
         });
     });
     Route::get('projects/dashboard', [TasklyController::class, 'dashboard'])->middleware('module.status:taskly');
@@ -335,6 +356,13 @@ Route::middleware(['auth'])->group(function () {
         Route::post('sites/{site}/sections', [LandingPageController::class, 'section'])->name('sections.store');
         Route::post('sites/{site}/pages', [LandingPageController::class, 'page'])->name('pages.store');
         Route::post('sites/{site}/publish', [LandingPageController::class, 'publish'])->name('publish');
+        Route::delete('sites/{site}', [LandingPageController::class, 'destroySite'])->name('sites.destroy');
+        Route::delete('sites/{site}/sections/{section}', [LandingPageController::class, 'destroySection'])->name('sections.destroy');
+        Route::delete('sites/{site}/pages/{page}', [LandingPageController::class, 'destroyPage'])->name('pages.destroy');
+        Route::post('marketplace', [LandingPageController::class, 'storeMarketplaceItem'])->name('marketplace.store');
+        Route::delete('marketplace/{item}', [LandingPageController::class, 'destroyMarketplaceItem'])->name('marketplace.destroy');
+        Route::post('subscribers', [LandingPageController::class, 'storeSubscriber'])->name('subscribers.store');
+        Route::post('subscribers/{subscriber}/unsubscribe', [LandingPageController::class, 'unsubscribe'])->name('subscribers.unsubscribe');
     });
 
     Route::middleware('module.status:productservice')->prefix('product-service')->name('product-service.')->group(function () {

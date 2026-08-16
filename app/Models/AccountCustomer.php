@@ -15,6 +15,7 @@ class AccountCustomer extends Model
     protected $fillable = [
         'organization_id',
         'workspace_id',
+        'user_id',
         'name',
         'email',
         'contact',
@@ -51,6 +52,11 @@ class AccountCustomer extends Model
     public function invoices()
     {
         return $this->hasMany(SalesInvoice::class, 'customer_id');
+    }
+
+    public function portalUser()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function payments()

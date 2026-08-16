@@ -11,18 +11,26 @@ use Illuminate\Support\Facades\DB;
 
 class TasklyDashboardService
 {
-    public function getMetrics(Workspace $workspace): array
+    public function getMetrics(Workspace $workspace, ?int $userId = null): array
     {
         $orgId = $workspace->organization_id;
         $wsId = $workspace->id;
 
-        $projects = TasklyProject::where('organization_id', $orgId)->where('workspace_id', $wsId)->get();
+        $projectQuery = TasklyProject::where('organization_id', $orgId)->where('workspace_id', $wsId);
+        if ($userId) {
+            $projectQuery->where(fn ($query) => $query->where('manager_id', $userId)->orWhereHas('members', fn ($members) => $members->where('users.id', $userId)));
+        }
+        $projects = $projectQuery->get();
+        $projectIds = $projects->pluck('id');
         $totalProjects = $projects->count();
         $activeProjects = $projects->where('status', 'active')->count();
         $completedProjects = $projects->where('status', 'completed')->count();
         $onHoldProjects = $projects->where('status', 'on_hold')->count();
 
         $tasks = TasklyTask::where('organization_id', $orgId)->where('workspace_id', $wsId);
+        if ($userId) {
+            $tasks->whereIn('project_id', $projectIds);
+        }
         $totalTasks = (clone $tasks)->count();
         $completedTasks = (clone $tasks)->whereNotNull('completed_at')->count();
         $openTasks = (clone $tasks)->whereNull('completed_at')->count();
@@ -39,6 +47,7 @@ class TasklyDashboardService
 
         $totalHoursTracked = (float) TasklyTimesheet::where('organization_id', $orgId)
             ->where('workspace_id', $wsId)
+            ->when($userId, fn ($query) => $query->whereIn('project_id', $projectIds))
             ->where('status', 'approved')
             ->sum('hours');
 
@@ -46,6 +55,7 @@ class TasklyDashboardService
             ->join('taskly_projects', 'taskly_projects.id', '=', 'taskly_milestones.project_id')
             ->where('taskly_projects.organization_id', $orgId)
             ->where('taskly_projects.workspace_id', $wsId)
+            ->when($userId, fn ($query) => $query->whereIn('taskly_projects.id', $projectIds))
             ->where('taskly_milestones.status', 'open')
             ->count();
 
@@ -81,12 +91,14 @@ class TasklyDashboardService
 
             $created = TasklyTask::where('organization_id', $orgId)
                 ->where('workspace_id', $wsId)
+                ->when($userId, fn ($query) => $query->whereIn('project_id', $projectIds))
                 ->whereYear('created_at', $year)
                 ->whereMonth('created_at', $month)
                 ->count();
 
             $completed = TasklyTask::where('organization_id', $orgId)
                 ->where('workspace_id', $wsId)
+                ->when($userId, fn ($query) => $query->whereIn('project_id', $projectIds))
                 ->whereNotNull('completed_at')
                 ->whereYear('completed_at', $year)
                 ->whereMonth('completed_at', $month)

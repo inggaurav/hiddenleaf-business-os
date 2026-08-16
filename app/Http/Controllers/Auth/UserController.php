@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\LoginDetail;
+use App\Models\AccountCustomer;
+use App\Models\AccountVendor;
 use App\Models\Plan;
 use App\Models\Role;
 use App\Models\User;
@@ -80,7 +82,7 @@ class UserController extends Controller
         ]);
 
         $role = $this->roleForOrganization((int) $validated['role_id'], $orgId);
-        $globalRole = in_array($role->name, ['company', 'company_admin'], true) ? $role->name : 'user';
+        $globalRole = in_array($role->name, ['company', 'company_admin', 'client', 'vendor'], true) ? $role->name : 'user';
 
         $user = User::create([
             'name' => $validated['name'],
@@ -96,6 +98,7 @@ class UserController extends Controller
         }
         if ($workspace) {
             $user->workspaces()->syncWithoutDetaching([$workspace->id => ['role_id' => $role->id]]);
+            $this->syncPortalParty($user, $workspace, $globalRole, $actor->id);
         }
 
         if ($actor->isSuperAdmin() && ! empty($validated['plan_id'])) {
@@ -142,7 +145,7 @@ class UserController extends Controller
         $user->update([
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'role' => in_array($role->name, ['company', 'company_admin'], true) ? $role->name : 'user',
+            'role' => in_array($role->name, ['company', 'company_admin', 'client', 'vendor'], true) ? $role->name : 'user',
         ]);
 
         if ($orgId) {
@@ -150,9 +153,27 @@ class UserController extends Controller
         }
         if ($wsId) {
             $user->workspaces()->syncWithoutDetaching([$wsId => ['role_id' => $role->id]]);
+            $workspace = Workspace::whereKey($wsId)->where('organization_id', $orgId)->firstOrFail();
+            $this->syncPortalParty($user, $workspace, $user->role, $request->user()->id);
         }
 
         return redirect()->route('users.index')->with('success', 'User and workspace role updated.');
+    }
+
+    private function syncPortalParty(User $user, Workspace $workspace, string $role, int $actorId): void
+    {
+        if ($role === 'client') {
+            AccountCustomer::updateOrCreate(
+                ['workspace_id' => $workspace->id, 'user_id' => $user->id],
+                ['organization_id' => $workspace->organization_id, 'name' => $user->name, 'email' => $user->email, 'is_active' => true, 'created_by' => $actorId]
+            );
+        }
+        if ($role === 'vendor') {
+            AccountVendor::updateOrCreate(
+                ['workspace_id' => $workspace->id, 'user_id' => $user->id],
+                ['organization_id' => $workspace->organization_id, 'name' => $user->name, 'email' => $user->email, 'is_active' => true, 'created_by' => $actorId]
+            );
+        }
     }
 
     public function destroy(Request $request, User $user)
