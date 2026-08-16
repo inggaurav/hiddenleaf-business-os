@@ -9,11 +9,16 @@ import { SectionHeader } from '@/Components/UI/SectionHeader';
 import { User, Lock, Save, ShieldCheck } from 'lucide-react';
 
 export default function ProfileEdit() {
-  const { auth } = usePage<any>().props;
+  const { auth, user } = usePage<any>().props;
+  const profile = user || auth?.user || {};
 
-  const { data, setData, post, processing, errors } = useForm({
-    name: auth?.user?.name || '',
-    email: auth?.user?.email || '',
+  const { data, setData, patch, processing, errors } = useForm({
+    name: profile.name || '',
+    email: profile.email || '',
+    phone: profile.phone || '',
+    lang: profile.lang || 'en',
+    theme: profile.theme || 'system',
+    avatar: null as File | null,
     current_password: '',
     password: '',
     password_confirmation: '',
@@ -21,7 +26,7 @@ export default function ProfileEdit() {
 
   const handleUpdateProfile = (e: React.FormEvent) => {
     e.preventDefault();
-    post('/profile');
+    patch('/profile', { forceFormData: true });
   };
 
   return (
@@ -54,6 +59,34 @@ export default function ProfileEdit() {
                 error={errors.email}
                 required
               />
+              <Input
+                label="Phone"
+                value={data.phone}
+                onChange={(e) => setData('phone', e.target.value)}
+                error={errors.phone}
+              />
+              <label className="space-y-1 text-sm text-gray-300">
+                <span>Language</span>
+                <select className="w-full rounded-lg border border-white/10 bg-gray-950 px-3 py-2" value={data.lang} onChange={(e) => setData('lang', e.target.value)}>
+                  <option value="en">English</option>
+                  <option value="es">Spanish</option>
+                  <option value="fr">French</option>
+                  <option value="de">German</option>
+                </select>
+              </label>
+              <label className="space-y-1 text-sm text-gray-300">
+                <span>Theme</span>
+                <select className="w-full rounded-lg border border-white/10 bg-gray-950 px-3 py-2" value={data.theme} onChange={(e) => setData('theme', e.target.value)}>
+                  <option value="system">System</option>
+                  <option value="light">Light</option>
+                  <option value="dark">Dark</option>
+                </select>
+              </label>
+              <label className="space-y-1 text-sm text-gray-300 sm:col-span-2">
+                <span>Avatar</span>
+                <input className="block w-full text-sm" type="file" accept="image/*" onChange={(e) => setData('avatar', e.target.files?.[0] || null)} />
+                {errors.avatar && <span className="text-xs text-red-400">{errors.avatar}</span>}
+              </label>
             </div>
           </Card>
 

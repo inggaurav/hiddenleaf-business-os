@@ -8,9 +8,16 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\ProfileController;
 use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\Automation\AutomationRuleController;
+use App\Http\Controllers\Automation\MrFoxMissionController;
 use App\Http\Controllers\BankTransferPaymentController;
+use App\Http\Controllers\CommandCenter\ApprovalCenterController;
+use App\Http\Controllers\CommandCenter\CommandCenterController;
+use App\Http\Controllers\Communications\CommunicationWebhookController;
+use App\Http\Controllers\Communications\UnifiedInboxController;
 use App\Http\Controllers\CrmController;
 use App\Http\Controllers\DatabaseNotificationController;
+use App\Http\Controllers\Diagnostics\HealthCheckController;
 use App\Http\Controllers\Domain\Auth\RoleController;
 use App\Http\Controllers\Domain\SaaS\CouponController;
 use App\Http\Controllers\Domain\SaaS\OrderController;
@@ -28,9 +35,11 @@ use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\MessengerController;
 use App\Http\Controllers\ModuleController;
+use App\Http\Controllers\MrFox\MrFoxChatController;
 use App\Http\Controllers\MultiTenancy\MemberController;
 use App\Http\Controllers\MultiTenancy\WorkspaceController;
 use App\Http\Controllers\NotificationTemplateController;
+use App\Http\Controllers\Onboarding\OnboardingController;
 use App\Http\Controllers\POS\PosBillingCounterController;
 use App\Http\Controllers\POS\PosController;
 use App\Http\Controllers\POS\PosDashboardController;
@@ -54,6 +63,7 @@ use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Middleware\EnsureTenantContext;
 use App\Http\Middleware\SuperAdminMiddleware;
+use App\Http\Middleware\VerifyCsrfToken;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
@@ -71,13 +81,13 @@ Route::get('/site/{slug}', [LandingPageController::class, 'publicSite'])->name('
 Route::get('/site/{slug}/{page}', [LandingPageController::class, 'publicPage'])->name('landing.page');
 
 // Public Diagnostics & Health Endpoints
-Route::get('/health/live', [\App\Http\Controllers\Diagnostics\HealthCheckController::class, 'live'])->name('health.live');
-Route::get('/health/ready', [\App\Http\Controllers\Diagnostics\HealthCheckController::class, 'ready'])->name('health.ready');
+Route::get('/health/live', [HealthCheckController::class, 'live'])->name('health.live');
+Route::get('/health/ready', [HealthCheckController::class, 'ready'])->name('health.ready');
 
 // Public Communications Webhook Endpoint
-Route::match(['get', 'post'], 'api/v1/webhooks/communications/{provider}', [\App\Http\Controllers\Communications\CommunicationWebhookController::class, 'handle'])
+Route::match(['get', 'post'], 'api/v1/webhooks/communications/{provider}', [CommunicationWebhookController::class, 'handle'])
     ->name('webhooks.communications')
-    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class, \App\Http\Middleware\EnsureTenantContext::class]);
+    ->withoutMiddleware([VerifyCsrfToken::class, EnsureTenantContext::class]);
 
 // Public & Guest Routes
 Route::middleware('guest')->group(function () {
@@ -103,6 +113,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/webhooks', [WebhookController::class, 'index'])->name('webhooks.index');
     Route::post('/webhooks', [WebhookController::class, 'store'])->name('webhooks.store');
+    Route::put('/webhooks/{webhook}', [WebhookController::class, 'update'])->name('webhooks.update');
+    Route::patch('/webhooks/{webhook}/toggle', [WebhookController::class, 'toggle'])->name('webhooks.toggle');
+    Route::post('/webhooks/{webhook}/rotate-secret', [WebhookController::class, 'rotate'])->name('webhooks.rotate');
     Route::post('/webhooks/{webhook}/test', [WebhookController::class, 'test'])->name('webhooks.test');
     Route::delete('/webhooks/{webhook}', [WebhookController::class, 'destroy'])->name('webhooks.destroy');
 
@@ -235,14 +248,16 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [CrmController::class, 'index'])->name('index');
         Route::get('dashboard', [CrmController::class, 'dashboard'])->name('dashboard');
         Route::get('leads/list', [CrmController::class, 'index'])->name('leads.list');
-        Route::post('pipelines', [CrmController::class, 'storePipeline'])->name('pipelines.store');
-        Route::post('leads', [CrmController::class, 'storeLead'])->name('leads.store');
-        Route::post('leads/{lead}/move', [CrmController::class, 'moveLead'])->name('leads.move');
-        Route::post('leads/{lead}/convert', [CrmController::class, 'convertLead'])->name('leads.convert');
-        Route::post('deals/{deal}/move', [CrmController::class, 'moveDeal'])->name('deals.move');
-        Route::post('webforms', [CrmController::class, 'storeWebform'])->name('webforms.store');
-        Route::post('{type}/{id}/notes', [CrmController::class, 'addNote'])->name('notes.store');
-        Route::post('{type}/{id}/activities', [CrmController::class, 'addActivity'])->name('activities.store');
+        Route::middleware('workspace.permission:crm.manage')->group(function () {
+            Route::post('pipelines', [CrmController::class, 'storePipeline'])->name('pipelines.store');
+            Route::post('leads', [CrmController::class, 'storeLead'])->name('leads.store');
+            Route::post('leads/{leadId}/move', [CrmController::class, 'moveLead'])->name('leads.move');
+            Route::post('leads/{leadId}/convert', [CrmController::class, 'convertLead'])->name('leads.convert');
+            Route::post('deals/{dealId}/move', [CrmController::class, 'moveDeal'])->name('deals.move');
+            Route::post('webforms', [CrmController::class, 'storeWebform'])->name('webforms.store');
+            Route::post('{type}/{id}/notes', [CrmController::class, 'addNote'])->name('notes.store');
+            Route::post('{type}/{id}/activities', [CrmController::class, 'addActivity'])->name('activities.store');
+        });
     });
     Route::post('crm/forms/{token}/submit', [CrmController::class, 'publicWebformSubmit'])->name('crm.webforms.submit')->withoutMiddleware([EnsureTenantContext::class]);
 
@@ -250,6 +265,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [TasklyController::class, 'index'])->name('index');
         Route::get('dashboard', [TasklyController::class, 'dashboard'])->name('dashboard');
         Route::get('projects/list', [TasklyController::class, 'index'])->name('projects.list');
+        Route::middleware('workspace.permission:taskly.manage')->group(function () {
         Route::post('projects', [TasklyController::class, 'storeProject'])->name('projects.store');
         Route::post('tasks', [TasklyController::class, 'storeTask'])->name('tasks.store');
         Route::post('tasks/{task}/move', [TasklyController::class, 'moveTask'])->name('tasks.move');
@@ -258,6 +274,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('timesheets', [TasklyController::class, 'timesheet'])->name('timesheets.store');
         Route::post('timesheets/{timesheet}/approve', [TasklyController::class, 'approveTime'])->name('timesheets.approve');
         Route::post('issues', [TasklyController::class, 'issue'])->name('issues.store');
+        });
     });
     Route::get('projects/dashboard', [TasklyController::class, 'dashboard'])->middleware('module.status:taskly');
 
@@ -438,53 +455,53 @@ Route::middleware(['auth'])->group(function () {
 
     // Mr. Fox Intelligence & Action Agent API
     Route::prefix('api/v1/mr-fox')->name('mr-fox.')->middleware('throttle:60,1')->group(function () {
-        Route::post('chat', [\App\Http\Controllers\MrFox\MrFoxChatController::class, 'chat'])->name('chat');
-        Route::get('insights', [\App\Http\Controllers\MrFox\MrFoxChatController::class, 'getInsights'])->name('insights');
-        Route::get('conversations', [\App\Http\Controllers\MrFox\MrFoxChatController::class, 'getConversations'])->name('conversations');
-        Route::get('conversations/{id}', [\App\Http\Controllers\MrFox\MrFoxChatController::class, 'getConversationMessages'])->name('conversations.show');
-        Route::post('actions/{id}/approve', [\App\Http\Controllers\MrFox\MrFoxChatController::class, 'approveAction'])->name('actions.approve');
-        Route::post('actions/{id}/reject', [\App\Http\Controllers\MrFox\MrFoxChatController::class, 'rejectAction'])->name('actions.reject');
+        Route::post('chat', [MrFoxChatController::class, 'chat'])->name('chat');
+        Route::get('insights', [MrFoxChatController::class, 'getInsights'])->name('insights');
+        Route::get('conversations', [MrFoxChatController::class, 'getConversations'])->name('conversations');
+        Route::get('conversations/{id}', [MrFoxChatController::class, 'getConversationMessages'])->name('conversations.show');
+        Route::post('actions/{id}/approve', [MrFoxChatController::class, 'approveAction'])->name('actions.approve');
+        Route::post('actions/{id}/reject', [MrFoxChatController::class, 'rejectAction'])->name('actions.reject');
     });
 
     // Unified Communications Inbox
-    Route::get('inbox', [\App\Http\Controllers\Communications\UnifiedInboxController::class, 'index'])->name('inbox.index');
+    Route::get('inbox', [UnifiedInboxController::class, 'index'])->name('inbox.index');
     Route::prefix('api/v1/communications')->name('communications.')->group(function () {
-        Route::get('conversations', [\App\Http\Controllers\Communications\UnifiedInboxController::class, 'getConversations'])->name('conversations');
-        Route::get('conversations/{id}', [\App\Http\Controllers\Communications\UnifiedInboxController::class, 'getThread'])->name('thread');
-        Route::post('conversations/{id}/reply', [\App\Http\Controllers\Communications\UnifiedInboxController::class, 'reply'])->name('reply');
-        Route::post('conversations/{id}/draft', [\App\Http\Controllers\Communications\UnifiedInboxController::class, 'draftReply'])->name('draft');
-        Route::post('conversations/{id}/link-crm', [\App\Http\Controllers\Communications\UnifiedInboxController::class, 'linkCrm'])->name('link-crm');
+        Route::get('conversations', [UnifiedInboxController::class, 'getConversations'])->name('conversations');
+        Route::get('conversations/{id}', [UnifiedInboxController::class, 'getThread'])->name('thread');
+        Route::post('conversations/{id}/reply', [UnifiedInboxController::class, 'reply'])->name('reply');
+        Route::post('conversations/{id}/draft', [UnifiedInboxController::class, 'draftReply'])->name('draft');
+        Route::post('conversations/{id}/link-crm', [UnifiedInboxController::class, 'linkCrm'])->name('link-crm');
     });
 
     // Automations & Missions
-    Route::get('automations', [\App\Http\Controllers\Automation\AutomationRuleController::class, 'index'])->name('automations.index');
-    Route::post('automations', [\App\Http\Controllers\Automation\AutomationRuleController::class, 'store'])->name('automations.store');
-    Route::patch('automations/{id}/toggle', [\App\Http\Controllers\Automation\AutomationRuleController::class, 'toggle'])->name('automations.toggle');
-    Route::get('automations/{id}/runs', [\App\Http\Controllers\Automation\AutomationRuleController::class, 'getRuns'])->name('automations.runs');
+    Route::get('automations', [AutomationRuleController::class, 'index'])->name('automations.index');
+    Route::post('automations', [AutomationRuleController::class, 'store'])->name('automations.store');
+    Route::patch('automations/{id}/toggle', [AutomationRuleController::class, 'toggle'])->name('automations.toggle');
+    Route::get('automations/{id}/runs', [AutomationRuleController::class, 'getRuns'])->name('automations.runs');
 
-    Route::get('missions', [\App\Http\Controllers\Automation\MrFoxMissionController::class, 'index'])->name('missions.index');
-    Route::post('missions', [\App\Http\Controllers\Automation\MrFoxMissionController::class, 'create'])->name('missions.store');
-    Route::get('missions/{id}', [\App\Http\Controllers\Automation\MrFoxMissionController::class, 'show'])->name('missions.show');
-    Route::post('missions/{id}/step', [\App\Http\Controllers\Automation\MrFoxMissionController::class, 'executeStep'])->name('missions.step');
-    Route::post('missions/{id}/control', [\App\Http\Controllers\Automation\MrFoxMissionController::class, 'control'])->name('missions.control');
+    Route::get('missions', [MrFoxMissionController::class, 'index'])->name('missions.index');
+    Route::post('missions', [MrFoxMissionController::class, 'create'])->name('missions.store');
+    Route::get('missions/{id}', [MrFoxMissionController::class, 'show'])->name('missions.show');
+    Route::post('missions/{id}/step', [MrFoxMissionController::class, 'executeStep'])->name('missions.step');
+    Route::post('missions/{id}/control', [MrFoxMissionController::class, 'control'])->name('missions.control');
 
     // Mr. Fox Executive Command Center & Approvals
-    Route::get('command-center', [\App\Http\Controllers\CommandCenter\CommandCenterController::class, 'index'])->name('command-center.index');
-    Route::get('command-center/health', [\App\Http\Controllers\CommandCenter\CommandCenterController::class, 'health'])->name('command-center.health');
-    Route::get('command-center/priorities', [\App\Http\Controllers\CommandCenter\CommandCenterController::class, 'priorities'])->name('command-center.priorities');
-    Route::get('command-center/briefing', [\App\Http\Controllers\CommandCenter\CommandCenterController::class, 'briefing'])->name('command-center.briefing');
-    Route::get('command-center/activity', [\App\Http\Controllers\CommandCenter\CommandCenterController::class, 'activity'])->name('command-center.activity');
-    Route::get('command-center/search', [\App\Http\Controllers\CommandCenter\CommandCenterController::class, 'search'])->name('command-center.search');
-    Route::get('command-center/approvals', [\App\Http\Controllers\CommandCenter\ApprovalCenterController::class, 'index'])->name('command-center.approvals.index');
-    Route::post('command-center/approvals/{id}/approve', [\App\Http\Controllers\CommandCenter\ApprovalCenterController::class, 'approve'])->name('command-center.approvals.approve');
-    Route::post('command-center/approvals/{id}/reject', [\App\Http\Controllers\CommandCenter\ApprovalCenterController::class, 'reject'])->name('command-center.approvals.reject');
+    Route::get('command-center', [CommandCenterController::class, 'index'])->name('command-center.index');
+    Route::get('command-center/health', [CommandCenterController::class, 'health'])->name('command-center.health');
+    Route::get('command-center/priorities', [CommandCenterController::class, 'priorities'])->name('command-center.priorities');
+    Route::get('command-center/briefing', [CommandCenterController::class, 'briefing'])->name('command-center.briefing');
+    Route::get('command-center/activity', [CommandCenterController::class, 'activity'])->name('command-center.activity');
+    Route::get('command-center/search', [CommandCenterController::class, 'search'])->name('command-center.search');
+    Route::get('command-center/approvals', [ApprovalCenterController::class, 'index'])->name('command-center.approvals.index');
+    Route::post('command-center/approvals/{id}/approve', [ApprovalCenterController::class, 'approve'])->name('command-center.approvals.approve');
+    Route::post('command-center/approvals/{id}/reject', [ApprovalCenterController::class, 'reject'])->name('command-center.approvals.reject');
 
     // Customer Onboarding Wizard & Demo Data
-    Route::get('onboarding', [\App\Http\Controllers\Onboarding\OnboardingController::class, 'show'])->name('onboarding.show');
-    Route::post('onboarding/step', [\App\Http\Controllers\Onboarding\OnboardingController::class, 'updateStep'])->name('onboarding.step');
-    Route::post('onboarding/complete', [\App\Http\Controllers\Onboarding\OnboardingController::class, 'complete'])->name('onboarding.complete');
-    Route::post('onboarding/demo-data/load', [\App\Http\Controllers\Onboarding\OnboardingController::class, 'loadDemoData'])->name('onboarding.demo.load');
-    Route::post('onboarding/demo-data/reset', [\App\Http\Controllers\Onboarding\OnboardingController::class, 'resetDemoData'])->name('onboarding.demo.reset');
+    Route::get('onboarding', [OnboardingController::class, 'show'])->name('onboarding.show');
+    Route::post('onboarding/step', [OnboardingController::class, 'updateStep'])->name('onboarding.step');
+    Route::post('onboarding/complete', [OnboardingController::class, 'complete'])->name('onboarding.complete');
+    Route::post('onboarding/demo-data/load', [OnboardingController::class, 'loadDemoData'])->name('onboarding.demo.load');
+    Route::post('onboarding/demo-data/reset', [OnboardingController::class, 'resetDemoData'])->name('onboarding.demo.reset');
 
     // General & System Settings
     Route::get('settings', [App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
@@ -506,12 +523,14 @@ Route::middleware(['auth'])->group(function () {
     // Email Templates
     Route::resource('email-templates', EmailTemplateController::class)->only(['index', 'show', 'store', 'update']);
     Route::post('email-templates/{emailTemplate}/preview', [EmailTemplateController::class, 'preview'])->name('email-templates.preview');
+    Route::post('email-templates/{emailTemplate}/reset', [EmailTemplateController::class, 'reset'])->name('email-templates.reset');
     Route::get('settings/email-templates', [EmailTemplateController::class, 'index'])->name('settings.email-templates.index');
     Route::post('settings/email-templates', [EmailTemplateController::class, 'store'])->name('settings.email-templates.store');
 
     // Notification Templates
     Route::resource('notification-templates', NotificationTemplateController::class)->only(['index', 'show', 'update']);
     Route::post('notification-templates/{notificationTemplate}/preview', [NotificationTemplateController::class, 'preview'])->name('notification-templates.preview');
+    Route::post('notification-templates/{notificationTemplate}/reset', [NotificationTemplateController::class, 'reset'])->name('notification-templates.reset');
     Route::get('notifications', [DatabaseNotificationController::class, 'index'])->name('notifications.index');
     Route::match(['post', 'patch'], 'notifications/read-all', [DatabaseNotificationController::class, 'markAllRead'])->name('notifications.read-all');
     Route::match(['post', 'patch'], 'notifications/{notification}/read', [DatabaseNotificationController::class, 'markRead'])->name('notifications.read');

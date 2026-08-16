@@ -66,6 +66,7 @@ class HandleInertiaRequests extends Middleware
             ->get()
             ->map(function ($n) {
                 $data = is_array($n->data) ? $n->data : (json_decode($n->data ?? '{}', true) ?: []);
+
                 return [
                     'id' => (string) $n->id,
                     'type' => $n->type,
@@ -81,7 +82,9 @@ class HandleInertiaRequests extends Middleware
 
     protected function resolveModules(Request $request, $user): array
     {
-        if (! $user) return [];
+        if (! $user) {
+            return [];
+        }
 
         if ($user->isSuperAdmin()) {
             $installedAddons = Addon::query()
@@ -99,22 +102,32 @@ class HandleInertiaRequests extends Middleware
 
         $orgId = (int) $request->session()->get('active_organization_id');
         $workspaceId = (int) $request->session()->get('active_workspace_id');
-        if ($orgId <= 0 || $workspaceId <= 0) return [];
+        if ($orgId <= 0 || $workspaceId <= 0) {
+            return [];
+        }
 
         $organization = Organization::find($orgId);
         $workspace = Workspace::where('organization_id', $orgId)->find($workspaceId);
-        if (! $organization || ! $workspace) return [];
+        if (! $organization || ! $workspace) {
+            return [];
+        }
 
         $entitled = [];
         if ($organization->plan_id) {
             $planModules = Plan::whereKey($organization->plan_id)->value('modules');
-            if (is_string($planModules)) $planModules = json_decode($planModules, true) ?: [];
-            if (is_array($planModules)) $entitled = $planModules;
+            if (is_string($planModules)) {
+                $planModules = json_decode($planModules, true) ?: [];
+            }
+            if (is_array($planModules)) {
+                $entitled = $planModules;
+            }
         }
 
         if ($entitled === []) {
             $subscription = Subscription::where('organization_id', $orgId)->where('status', 'active')->latest()->first();
-            if ($subscription?->plan) $entitled = (array) ($subscription->plan->modules ?? []);
+            if ($subscription?->plan) {
+                $entitled = (array) ($subscription->plan->modules ?? []);
+            }
         }
 
         $entitled = array_values(array_unique(array_map(
@@ -139,17 +152,15 @@ class HandleInertiaRequests extends Middleware
 
         $active = array_values(array_unique(array_merge($coreActive, $addonActive)));
 
-        // Fresh workspaces created before explicit activation retain their entitled bundled core modules.
-        if ($active === []) {
-            $bundled = ['account', 'hrm', 'crm', 'lead', 'pos', 'taskly', 'productservice', 'landingpage', 'sales', 'procurement'];
-            $active = array_values(array_intersect($entitled, $bundled));
-        }
-
         $enabled = array_values(array_intersect($entitled, $active));
         $enabled[] = 'core';
 
-        if (in_array('crm', $enabled, true) && ! in_array('lead', $enabled, true)) $enabled[] = 'lead';
-        if (in_array('lead', $enabled, true) && ! in_array('crm', $enabled, true)) $enabled[] = 'crm';
+        if (in_array('crm', $enabled, true) && ! in_array('lead', $enabled, true)) {
+            $enabled[] = 'lead';
+        }
+        if (in_array('lead', $enabled, true) && ! in_array('crm', $enabled, true)) {
+            $enabled[] = 'crm';
+        }
 
         return array_values(array_unique($enabled));
     }
@@ -166,20 +177,28 @@ class HandleInertiaRequests extends Middleware
         }
 
         $workspaceId = $request->session()->get('active_workspace_id');
-        if (! $workspaceId) return [];
+        if (! $workspaceId) {
+            return [];
+        }
 
         $membership = $user->workspaces()->where('workspaces.id', $workspaceId)->first();
-        if (! $membership || ! $membership->pivot->role_id) return [];
+        if (! $membership || ! $membership->pivot->role_id) {
+            return [];
+        }
 
         $role = Role::find($membership->pivot->role_id);
-        if (! $role) return [];
+        if (! $role) {
+            return [];
+        }
 
         return $role->permissions()->pluck('name')->toArray();
     }
 
     protected function resolveWorkspaces(Request $request, $user): array
     {
-        if ($user->isSuperAdmin()) return Workspace::select('id', 'name')->limit(50)->get()->toArray();
+        if ($user->isSuperAdmin()) {
+            return Workspace::select('id', 'name')->limit(50)->get()->toArray();
+        }
 
         $orgId = (int) $request->session()->get('active_organization_id');
         if ($orgId > 0 && ($user->role === 'company_admin' || $user->role === 'company' || $this->isActiveOrganizationOwner($request, $user))) {
@@ -192,6 +211,7 @@ class HandleInertiaRequests extends Middleware
     private function isActiveOrganizationOwner(Request $request, $user): bool
     {
         $orgId = (int) $request->session()->get('active_organization_id');
+
         return $orgId > 0 && Organization::whereKey($orgId)->where('owner_id', $user->id)->exists();
     }
 }

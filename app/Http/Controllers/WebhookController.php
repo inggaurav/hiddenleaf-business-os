@@ -16,18 +16,53 @@ class WebhookController extends Controller
     {
         $w = $this->workspace($r);
 
-        return Inertia::render('Webhooks/Index', ['webhooks' => Webhook::where('organization_id', $w->organization_id)->where('workspace_id', $w->id)->get()->makeHidden('secret')]);
+        return Inertia::render('Webhooks/Index', [
+            'webhooks' => Webhook::where('organization_id', $w->organization_id)->where('workspace_id', $w->id)
+                ->with(['deliveries' => fn ($query) => $query->latest()->limit(1)])
+                ->latest()->get()->makeHidden('secret'),
+            'events' => $this->events(),
+        ]);
     }
 
     public function store(Request $r, WebhookService $service)
     {
         $w = $this->workspace($r);
-        $data = $r->validate(['url' => ['required', 'url', 'max:2048'], 'event' => ['required', Rule::in(['order.paid', 'subscription.activated', 'invoice.posted', 'ticket.created', 'module.changed'])], 'method' => ['nullable', Rule::in(['POST', 'PUT'])], 'timeout_seconds' => ['nullable', 'integer', 'between:1,30']]);
+        $data = $this->validated($r);
         $service->validateUrl($data['url']);
         $secret = 'whsec_'.Str::random(48);
-        $hook = Webhook::create($data + ['organization_id' => $w->organization_id, 'workspace_id' => $w->id, 'method' => $data['method'] ?? 'POST', 'timeout_seconds' => $data['timeout_seconds'] ?? 10, 'secret' => $secret, 'is_active' => true, 'created_by' => $r->user()->id]);
+        $hook = Webhook::create($data + ['event' => $data['events'][0], 'organization_id' => $w->organization_id, 'workspace_id' => $w->id, 'method' => $data['method'] ?? 'POST', 'timeout_seconds' => $data['timeout_seconds'] ?? 10, 'secret' => $secret, 'is_active' => true, 'created_by' => $r->user()->id]);
 
         return back()->with('success', 'Webhook created. Copy secret now: '.$secret)->with('webhook_secret_'.$hook->id, $secret);
+    }
+
+    public function update(Request $r, Webhook $webhook, WebhookService $service)
+    {
+        $w = $this->workspace($r);
+        $this->tenant($webhook, $w);
+        $data = $this->validated($r);
+        $service->validateUrl($data['url']);
+        $webhook->update($data + ['event' => $data['events'][0]]);
+
+        return back()->with('success', 'Webhook updated.');
+    }
+
+    public function toggle(Request $r, Webhook $webhook)
+    {
+        $w = $this->workspace($r);
+        $this->tenant($webhook, $w);
+        $webhook->update(['is_active' => ! $webhook->is_active]);
+
+        return back()->with('success', $webhook->is_active ? 'Webhook enabled.' : 'Webhook disabled.');
+    }
+
+    public function rotate(Request $r, Webhook $webhook)
+    {
+        $w = $this->workspace($r);
+        $this->tenant($webhook, $w);
+        $secret = 'whsec_'.Str::random(48);
+        $webhook->update(['secret' => $secret]);
+
+        return back()->with('success', 'Webhook secret rotated. Copy it now: '.$secret)->with('webhook_secret_'.$webhook->id, $secret);
     }
 
     public function destroy(Request $r, Webhook $webhook)
@@ -59,5 +94,30 @@ class WebhookController extends Controller
     private function tenant(Webhook $h, Workspace $w): void
     {
         abort_unless((int) $h->organization_id === (int) $w->organization_id && (int) $h->workspace_id === (int) $w->id, 404);
+    }
+
+    private function validated(Request $request): array
+    {
+        $events = $this->events();
+
+        $data = $request->validate([
+            'url' => ['required', 'url', 'max:2048'],
+            'event' => ['nullable', 'required_without:events', Rule::in($events)],
+            'events' => ['nullable', 'required_without:event', 'array', 'min:1'],
+            'events.*' => ['required', Rule::in($events)],
+            'method' => ['nullable', Rule::in(['POST', 'PUT'])],
+            'timeout_seconds' => ['nullable', 'integer', 'between:1,30'],
+        ]);
+
+        $data['events'] = array_values(array_unique($data['events'] ?? [$data['event']]));
+        unset($data['event']);
+
+        return $data;
+    }
+
+    /** @return array<int, string> */
+    private function events(): array
+    {
+        return ['order.paid', 'subscription.activated', 'invoice.posted', 'ticket.created', 'module.changed'];
     }
 }

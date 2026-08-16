@@ -30,6 +30,12 @@ class EnsureTenantContext
             return $next($request);
         }
 
+        // Personal account settings are user-scoped and must remain available
+        // even before the user joins a company or selects a workspace.
+        if ($request->is('profile') || $request->is('profile/*')) {
+            return $next($request);
+        }
+
         // Resolve requested Organization ID (header overrides session, but MUST be verified)
         $requestedOrgId = $request->header('X-Organization-ID')
             ? (int) $request->header('X-Organization-ID')

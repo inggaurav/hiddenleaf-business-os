@@ -16,7 +16,7 @@ class HierarchicalSettingService
 
     private const SENSITIVE_PATTERN = '/(?:password|secret|private_key|api_key|access_key|token|webhook_key)$/i';
 
-    public function authorize(User $user, string $scope, ?Organization $organization, ?Workspace $workspace): int
+    public function authorize(User $user, string $scope, ?Organization $organization, ?Workspace $workspace, ?string $permission = null): int
     {
         if (! in_array($scope, self::SCOPES, true)) {
             throw new InvalidArgumentException('Invalid settings scope.');
@@ -34,7 +34,8 @@ class HierarchicalSettingService
 
         throw_unless($organization, AuthorizationException::class);
         $isOwner = (int) $organization->owner_id === (int) $user->id;
-        throw_unless($user->isSuperAdmin() || $isOwner, AuthorizationException::class);
+        $hasPermission = $permission && $workspace && $user->canInWorkspace($permission, $workspace);
+        throw_unless($user->isSuperAdmin() || $isOwner || $hasPermission, AuthorizationException::class);
 
         if ($scope === 'organization') {
             return $organization->id;

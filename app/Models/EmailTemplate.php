@@ -11,12 +11,19 @@ class EmailTemplate extends Model
 
     protected $fillable = [
         'name',
+        'module',
         'subject',
         'body',
         'variables',
+        'is_enabled',
         'workspace_id',
         'created_by',
     ];
+
+    protected function casts(): array
+    {
+        return ['variables' => 'array', 'is_enabled' => 'boolean'];
+    }
 
     public function templateLangs()
     {

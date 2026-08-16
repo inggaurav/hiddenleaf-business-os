@@ -1,61 +1,1238 @@
 {
-    "total_settings": 56,
+    "reference_root": "C:/Users/manag/Documents/Mr. Fox/workdo-dash-reference",
+    "generated_from": "App\\Domain\\Settings\\SettingsSectionRegistry",
+    "summary": {
+        "expected": 86,
+        "exact": 86,
+        "functionally_equivalent": 0,
+        "intentionally_replaced": 0,
+        "partial": 0,
+        "missing": 0
+    },
     "settings": [
-        "company_name",
-        "company_address",
-        "company_city",
-        "company_state",
-        "company_country",
-        "company_zipcode",
-        "company_telephone",
-        "company_email",
-        "company_logo",
-        "company_favicon",
-        "site_currency",
-        "site_currency_symbol",
-        "currency_format",
-        "date_format",
-        "time_format",
-        "site_date_format",
-        "invoice_prefix",
-        "invoice_starting_number",
-        "invoice_footer_title",
-        "invoice_footer_notes",
-        "invoice_qr_display",
-        "proposal_prefix",
-        "bill_prefix",
-        "pos_prefix",
-        "journal_prefix",
-        "customer_prefix",
-        "vendor_prefix",
-        "mail_driver",
-        "mail_host",
-        "mail_port",
-        "mail_username",
-        "mail_password",
-        "mail_encryption",
-        "mail_from_address",
-        "mail_from_name",
-        "stripe_key",
-        "stripe_secret",
-        "stripe_webhook_secret",
-        "stripe_enabled",
-        "paypal_client_id",
-        "paypal_secret",
-        "paypal_mode",
-        "paypal_enabled",
-        "storage_disk",
-        "aws_access_key_id",
-        "aws_secret_access_key",
-        "aws_default_region",
-        "aws_bucket",
-        "telegram_bot_token",
-        "slack_webhook_url",
-        "twilio_sid",
-        "twilio_token",
-        "twilio_from",
-        "zoom_client_id",
-        "zoom_client_secret",
-        "zoom_account_id"
+        {
+            "key": "ai_agent_api_key",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.ai",
+            "label": "API key",
+            "input_type": "password",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.integrations.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.ai.ai_agent_api_key",
+            "status": "EXACT"
+        },
+        {
+            "key": "ai_agent_model",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.ai",
+            "label": "Model",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.integrations.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.ai.ai_agent_model",
+            "status": "EXACT"
+        },
+        {
+            "key": "ai_agent_provider",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.ai",
+            "label": "Provider",
+            "input_type": "select",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.integrations.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.ai.ai_agent_provider",
+            "status": "EXACT"
+        },
+        {
+            "key": "allowedFileTypes",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.storage",
+            "label": "Allowed file types",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.integrations.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.storage.allowedFileTypes",
+            "status": "EXACT"
+        },
+        {
+            "key": "app_cluster",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.realtime",
+            "label": "Cluster / region",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.integrations.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.realtime.app_cluster",
+            "status": "EXACT"
+        },
+        {
+            "key": "app_id",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.realtime",
+            "label": "Application ID",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.integrations.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.realtime.app_id",
+            "status": "EXACT"
+        },
+        {
+            "key": "app_key",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.realtime",
+            "label": "Application key",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.integrations.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.realtime.app_key",
+            "status": "EXACT"
+        },
+        {
+            "key": "app_secret",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.realtime",
+            "label": "Application secret",
+            "input_type": "password",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.integrations.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.realtime.app_secret",
+            "status": "EXACT"
+        },
+        {
+            "key": "awsAccessKeyId",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.storage",
+            "label": "AWS access key",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.integrations.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.storage.awsAccessKeyId",
+            "status": "EXACT"
+        },
+        {
+            "key": "awsBucket",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.storage",
+            "label": "AWS bucket",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.integrations.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.storage.awsBucket",
+            "status": "EXACT"
+        },
+        {
+            "key": "awsDefaultRegion",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.storage",
+            "label": "AWS region",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.integrations.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.storage.awsDefaultRegion",
+            "status": "EXACT"
+        },
+        {
+            "key": "awsEndpoint",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.storage",
+            "label": "AWS endpoint",
+            "input_type": "url",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.integrations.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.storage.awsEndpoint",
+            "status": "EXACT"
+        },
+        {
+            "key": "awsSecretAccessKey",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.storage",
+            "label": "AWS secret key",
+            "input_type": "password",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.integrations.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.storage.awsSecretAccessKey",
+            "status": "EXACT"
+        },
+        {
+            "key": "awsUrl",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.storage",
+            "label": "AWS URL",
+            "input_type": "url",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.integrations.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.storage.awsUrl",
+            "status": "EXACT"
+        },
+        {
+            "key": "bankTransferEnabled",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.bank-transfer",
+            "label": "Enabled",
+            "input_type": "toggle",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.billing.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.bank-transfer.bankTransferEnabled",
+            "status": "EXACT"
+        },
+        {
+            "key": "calendarStartDay",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.system",
+            "label": "Calendar start day",
+            "input_type": "select",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.localization.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.system.calendarStartDay",
+            "status": "EXACT"
+        },
+        {
+            "key": "company_address",
+            "role": [
+                "company_owner",
+                "company_admin",
+                "authorized_team_admin"
+            ],
+            "section": "company.identity",
+            "label": "Address",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.company.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:company.identity.company_address",
+            "status": "EXACT"
+        },
+        {
+            "key": "company_city",
+            "role": [
+                "company_owner",
+                "company_admin",
+                "authorized_team_admin"
+            ],
+            "section": "company.identity",
+            "label": "City",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.company.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:company.identity.company_city",
+            "status": "EXACT"
+        },
+        {
+            "key": "company_country",
+            "role": [
+                "company_owner",
+                "company_admin",
+                "authorized_team_admin"
+            ],
+            "section": "company.identity",
+            "label": "Country",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.company.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:company.identity.company_country",
+            "status": "EXACT"
+        },
+        {
+            "key": "company_email",
+            "role": [
+                "company_owner",
+                "company_admin",
+                "authorized_team_admin"
+            ],
+            "section": "company.identity",
+            "label": "Email",
+            "input_type": "email",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.company.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:company.identity.company_email",
+            "status": "EXACT"
+        },
+        {
+            "key": "company_email_from_name",
+            "role": [
+                "company_owner",
+                "company_admin",
+                "authorized_team_admin"
+            ],
+            "section": "company.identity",
+            "label": "Email-from name",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.company.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:company.identity.company_email_from_name",
+            "status": "EXACT"
+        },
+        {
+            "key": "company_name",
+            "role": [
+                "company_owner",
+                "company_admin",
+                "authorized_team_admin"
+            ],
+            "section": "company.identity",
+            "label": "Company name",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.company.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:company.identity.company_name",
+            "status": "EXACT"
+        },
+        {
+            "key": "company_state",
+            "role": [
+                "company_owner",
+                "company_admin",
+                "authorized_team_admin"
+            ],
+            "section": "company.identity",
+            "label": "State",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.company.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:company.identity.company_state",
+            "status": "EXACT"
+        },
+        {
+            "key": "company_telephone",
+            "role": [
+                "company_owner",
+                "company_admin",
+                "authorized_team_admin"
+            ],
+            "section": "company.identity",
+            "label": "Phone",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.company.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:company.identity.company_telephone",
+            "status": "EXACT"
+        },
+        {
+            "key": "company_zipcode",
+            "role": [
+                "company_owner",
+                "company_admin",
+                "authorized_team_admin"
+            ],
+            "section": "company.identity",
+            "label": "Postal code",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.company.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:company.identity.company_zipcode",
+            "status": "EXACT"
+        },
+        {
+            "key": "contactUsDescription",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.cookies",
+            "label": "Cookie data behavior",
+            "input_type": "textarea",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.brand.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.cookies.contactUsDescription",
+            "status": "EXACT"
+        },
+        {
+            "key": "contactUsUrl",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.cookies",
+            "label": "Contact URL",
+            "input_type": "url",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.brand.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.cookies.contactUsUrl",
+            "status": "EXACT"
+        },
+        {
+            "key": "cookieDescription",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.cookies",
+            "label": "Cookie description",
+            "input_type": "textarea",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.brand.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.cookies.cookieDescription",
+            "status": "EXACT"
+        },
+        {
+            "key": "cookieTitle",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.cookies",
+            "label": "Cookie title",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.brand.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.cookies.cookieTitle",
+            "status": "EXACT"
+        },
+        {
+            "key": "currencySymbolPosition",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.currency",
+            "label": "Symbol position",
+            "input_type": "select",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.localization.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.currency.currencySymbolPosition",
+            "status": "EXACT"
+        },
+        {
+            "key": "currencySymbolSpace",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.currency",
+            "label": "Space before symbol",
+            "input_type": "toggle",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.localization.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.currency.currencySymbolSpace",
+            "status": "EXACT"
+        },
+        {
+            "key": "customColor",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.brand",
+            "label": "Custom theme color",
+            "input_type": "color",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.brand.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.brand.customColor",
+            "status": "EXACT"
+        },
+        {
+            "key": "dateFormat",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.system",
+            "label": "Date format",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.localization.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.system.dateFormat",
+            "status": "EXACT"
+        },
+        {
+            "key": "decimalFormat",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.currency",
+            "label": "Decimal precision",
+            "input_type": "number",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.localization.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.currency.decimalFormat",
+            "status": "EXACT"
+        },
+        {
+            "key": "decimalSeparator",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.currency",
+            "label": "Decimal separator",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.localization.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.currency.decimalSeparator",
+            "status": "EXACT"
+        },
+        {
+            "key": "defaultCurrency",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.currency",
+            "label": "Currency",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.localization.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.currency.defaultCurrency",
+            "status": "EXACT"
+        },
+        {
+            "key": "defaultLanguage",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.system",
+            "label": "Default language",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.localization.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.system.defaultLanguage",
+            "status": "EXACT"
+        },
+        {
+            "key": "driver",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.mail",
+            "label": "Transport",
+            "input_type": "select",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.notifications.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.mail.driver",
+            "status": "EXACT"
+        },
+        {
+            "key": "enableEmailVerification",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.system",
+            "label": "Email verification enabled",
+            "input_type": "toggle",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.localization.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.system.enableEmailVerification",
+            "status": "EXACT"
+        },
+        {
+            "key": "enableLogging",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.cookies",
+            "label": "Log consent",
+            "input_type": "toggle",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.brand.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.cookies.enableLogging",
+            "status": "EXACT"
+        },
+        {
+            "key": "enableRegistration",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.system",
+            "label": "Registration enabled",
+            "input_type": "toggle",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.localization.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.system.enableRegistration",
+            "status": "EXACT"
+        },
+        {
+            "key": "encryption",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.mail",
+            "label": "Encryption",
+            "input_type": "select",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.notifications.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.mail.encryption",
+            "status": "EXACT"
+        },
+        {
+            "key": "favicon",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.brand",
+            "label": "Favicon",
+            "input_type": "file",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.brand.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.brand.favicon",
+            "status": "EXACT"
+        },
+        {
+            "key": "floatNumber",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.currency",
+            "label": "Show decimals",
+            "input_type": "toggle",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.localization.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.currency.floatNumber",
+            "status": "EXACT"
+        },
+        {
+            "key": "footerText",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.brand",
+            "label": "Footer text",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.brand.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.brand.footerText",
+            "status": "EXACT"
+        },
+        {
+            "key": "fromAddress",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.mail",
+            "label": "From address",
+            "input_type": "email",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.notifications.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.mail.fromAddress",
+            "status": "EXACT"
+        },
+        {
+            "key": "host",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.mail",
+            "label": "Host",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.notifications.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.mail.host",
+            "status": "EXACT"
+        },
+        {
+            "key": "instructions",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.bank-transfer",
+            "label": "Bank instructions",
+            "input_type": "textarea",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.billing.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.bank-transfer.instructions",
+            "status": "EXACT"
+        },
+        {
+            "key": "landingPageEnabled",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.system",
+            "label": "Landing page enabled",
+            "input_type": "toggle",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.localization.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.system.landingPageEnabled",
+            "status": "EXACT"
+        },
+        {
+            "key": "logo_dark",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.brand",
+            "label": "Dark logo",
+            "input_type": "file",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.brand.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.brand.logo_dark",
+            "status": "EXACT"
+        },
+        {
+            "key": "logo_light",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.brand",
+            "label": "Light logo",
+            "input_type": "file",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.brand.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.brand.logo_light",
+            "status": "EXACT"
+        },
+        {
+            "key": "maxUploadSize",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.storage",
+            "label": "Maximum upload size (MB)",
+            "input_type": "number",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.integrations.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.storage.maxUploadSize",
+            "status": "EXACT"
+        },
+        {
+            "key": "metaDescription",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.seo",
+            "label": "Meta description",
+            "input_type": "textarea",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.brand.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.seo.metaDescription",
+            "status": "EXACT"
+        },
+        {
+            "key": "metaImage",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.seo",
+            "label": "Meta image",
+            "input_type": "file",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.brand.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.seo.metaImage",
+            "status": "EXACT"
+        },
+        {
+            "key": "metaKeywords",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.seo",
+            "label": "Keywords",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.brand.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.seo.metaKeywords",
+            "status": "EXACT"
+        },
+        {
+            "key": "metaTitle",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.seo",
+            "label": "Meta title",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.brand.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.seo.metaTitle",
+            "status": "EXACT"
+        },
+        {
+            "key": "password",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.mail",
+            "label": "Password",
+            "input_type": "password",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.notifications.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.mail.password",
+            "status": "EXACT"
+        },
+        {
+            "key": "port",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.mail",
+            "label": "Port",
+            "input_type": "number",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.notifications.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.mail.port",
+            "status": "EXACT"
+        },
+        {
+            "key": "provider",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.mail",
+            "label": "Mail provider",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.notifications.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.mail.provider",
+            "status": "EXACT"
+        },
+        {
+            "key": "registration_number",
+            "role": [
+                "company_owner",
+                "company_admin",
+                "authorized_team_admin"
+            ],
+            "section": "company.identity",
+            "label": "Registration number",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.company.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:company.identity.registration_number",
+            "status": "EXACT"
+        },
+        {
+            "key": "sidebarStyle",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.brand",
+            "label": "Sidebar style",
+            "input_type": "select",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.brand.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.brand.sidebarStyle",
+            "status": "EXACT"
+        },
+        {
+            "key": "sidebarVariant",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.brand",
+            "label": "Sidebar layout",
+            "input_type": "select",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.brand.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.brand.sidebarVariant",
+            "status": "EXACT"
+        },
+        {
+            "key": "storageType",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.storage",
+            "label": "Storage provider",
+            "input_type": "select",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.integrations.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.storage.storageType",
+            "status": "EXACT"
+        },
+        {
+            "key": "strictlyCookieDescription",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.cookies",
+            "label": "Necessary-cookie description",
+            "input_type": "textarea",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.brand.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.cookies.strictlyCookieDescription",
+            "status": "EXACT"
+        },
+        {
+            "key": "strictlyCookieTitle",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.cookies",
+            "label": "Necessary-cookie title",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.brand.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.cookies.strictlyCookieTitle",
+            "status": "EXACT"
+        },
+        {
+            "key": "strictlyNecessaryCookies",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.cookies",
+            "label": "Necessary cookies enabled",
+            "input_type": "toggle",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.brand.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.cookies.strictlyNecessaryCookies",
+            "status": "EXACT"
+        },
+        {
+            "key": "termsConditionsUrl",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.system",
+            "label": "Terms URL",
+            "input_type": "url",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.localization.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.system.termsConditionsUrl",
+            "status": "EXACT"
+        },
+        {
+            "key": "themeColor",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.brand",
+            "label": "Theme color",
+            "input_type": "color",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.brand.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.brand.themeColor",
+            "status": "EXACT"
+        },
+        {
+            "key": "themeMode",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.brand",
+            "label": "Theme mode",
+            "input_type": "select",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.brand.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.brand.themeMode",
+            "status": "EXACT"
+        },
+        {
+            "key": "thousandsSeparator",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.currency",
+            "label": "Thousands separator",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.localization.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.currency.thousandsSeparator",
+            "status": "EXACT"
+        },
+        {
+            "key": "timeFormat",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.system",
+            "label": "Time format",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.localization.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.system.timeFormat",
+            "status": "EXACT"
+        },
+        {
+            "key": "titleText",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.brand",
+            "label": "Application title",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.brand.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.brand.titleText",
+            "status": "EXACT"
+        },
+        {
+            "key": "username",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.mail",
+            "label": "Username",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.notifications.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.mail.username",
+            "status": "EXACT"
+        },
+        {
+            "key": "wasabiAccessKey",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.storage",
+            "label": "Wasabi access key",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.integrations.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.storage.wasabiAccessKey",
+            "status": "EXACT"
+        },
+        {
+            "key": "wasabiBucket",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.storage",
+            "label": "Wasabi bucket",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.integrations.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.storage.wasabiBucket",
+            "status": "EXACT"
+        },
+        {
+            "key": "wasabiRegion",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.storage",
+            "label": "Wasabi region",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.integrations.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.storage.wasabiRegion",
+            "status": "EXACT"
+        },
+        {
+            "key": "wasabiRoot",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.storage",
+            "label": "Wasabi root",
+            "input_type": "text",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.integrations.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.storage.wasabiRoot",
+            "status": "EXACT"
+        },
+        {
+            "key": "wasabiSecretKey",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.storage",
+            "label": "Wasabi secret key",
+            "input_type": "password",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.integrations.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.storage.wasabiSecretKey",
+            "status": "EXACT"
+        },
+        {
+            "key": "wasabiUrl",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.storage",
+            "label": "Wasabi URL",
+            "input_type": "url",
+            "workdo_source": "app/Http/Controllers/SettingController.php",
+            "permission": "settings.integrations.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.storage.wasabiUrl",
+            "status": "EXACT"
+        },
+        {
+            "key": "stripe_enabled",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.payments",
+            "label": "Stripe enabled",
+            "input_type": "toggle",
+            "workdo_source": "packages/workdo/Stripe/src/Http/Requests/UpdateStripeSettingsRequest.php",
+            "permission": "settings.billing.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.payments.stripe_enabled",
+            "status": "EXACT"
+        },
+        {
+            "key": "stripe_key",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.payments",
+            "label": "Stripe publishable key",
+            "input_type": "text",
+            "workdo_source": "packages/workdo/Stripe/src/Http/Requests/UpdateStripeSettingsRequest.php",
+            "permission": "settings.billing.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.payments.stripe_key",
+            "status": "EXACT"
+        },
+        {
+            "key": "stripe_secret",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.payments",
+            "label": "Stripe secret",
+            "input_type": "password",
+            "workdo_source": "packages/workdo/Stripe/src/Http/Requests/UpdateStripeSettingsRequest.php",
+            "permission": "settings.billing.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.payments.stripe_secret",
+            "status": "EXACT"
+        },
+        {
+            "key": "paypal_client_id",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.payments",
+            "label": "PayPal client ID",
+            "input_type": "text",
+            "workdo_source": "packages/workdo/Paypal/src/Http/Requests/UpdatePaypalSettingsRequest.php",
+            "permission": "settings.billing.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.payments.paypal_client_id",
+            "status": "EXACT"
+        },
+        {
+            "key": "paypal_enabled",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.payments",
+            "label": "PayPal enabled",
+            "input_type": "toggle",
+            "workdo_source": "packages/workdo/Paypal/src/Http/Requests/UpdatePaypalSettingsRequest.php",
+            "permission": "settings.billing.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.payments.paypal_enabled",
+            "status": "EXACT"
+        },
+        {
+            "key": "paypal_mode",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.payments",
+            "label": "PayPal mode",
+            "input_type": "select",
+            "workdo_source": "packages/workdo/Paypal/src/Http/Requests/UpdatePaypalSettingsRequest.php",
+            "permission": "settings.billing.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.payments.paypal_mode",
+            "status": "EXACT"
+        },
+        {
+            "key": "paypal_secret_key",
+            "role": [
+                "super_admin"
+            ],
+            "section": "platform.payments",
+            "label": "PayPal secret",
+            "input_type": "password",
+            "workdo_source": "packages/workdo/Paypal/src/Http/Requests/UpdatePaypalSettingsRequest.php",
+            "permission": "settings.billing.manage",
+            "module_dependency": null,
+            "hiddenleaf_mapping": "settings-registry:platform.payments.paypal_secret_key",
+            "status": "EXACT"
+        }
     ]
 }

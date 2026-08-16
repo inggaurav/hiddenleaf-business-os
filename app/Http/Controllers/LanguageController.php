@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\AuthorizesSettings;
 use App\Models\Language;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -10,8 +11,11 @@ use Inertia\Inertia;
 
 class LanguageController extends Controller
 {
-    public function index()
+    use AuthorizesSettings;
+
+    public function index(Request $request)
     {
+        $this->settingsWorkspace($request, 'settings.localization.manage');
         $languages = Language::all();
         $defaultLang = admin_setting('default_language', 'en');
 
@@ -21,13 +25,15 @@ class LanguageController extends Controller
         ]);
     }
 
-    public function create()
+    public function create(Request $request)
     {
+        $this->settingsWorkspace($request, 'settings.localization.manage');
         return Inertia::render('Languages/Create');
     }
 
     public function store(Request $request)
     {
+        $this->settingsWorkspace($request, 'settings.localization.manage');
         $validated = $request->validate([
             'code' => 'required|string|max:10|unique:languages,code',
             'name' => 'required|string|max:100',
@@ -57,13 +63,16 @@ class LanguageController extends Controller
         return redirect()->back()->with('success', 'Language switched successfully.');
     }
 
-    public function edit(Language $language)
+    public function edit(Request $request, Language $language)
     {
-        return $this->show($language->code);
+        $this->settingsWorkspace($request, 'settings.localization.manage');
+
+        return $this->show($request, $language->code);
     }
 
     public function update(Request $request, Language $language)
     {
+        $this->settingsWorkspace($request, 'settings.localization.manage');
         $validated = $request->validate([
             'name' => 'required|string|max:100',
             'status' => 'nullable|boolean',
@@ -74,8 +83,9 @@ class LanguageController extends Controller
         return redirect()->route('languages.index')->with('success', 'Language updated successfully.');
     }
 
-    public function show(string $lang)
+    public function show(Request $request, string $lang)
     {
+        $this->settingsWorkspace($request, 'settings.localization.manage');
         $language = Language::where('code', $lang)->first();
         $langDir = resource_path("lang/{$lang}");
         $translations = [];
@@ -93,6 +103,7 @@ class LanguageController extends Controller
 
     public function saveLanguageData(Request $request, string $lang)
     {
+        $this->settingsWorkspace($request, 'settings.localization.manage');
         $validated = $request->validate([
             'translations' => 'required|array',
         ]);
@@ -108,8 +119,9 @@ class LanguageController extends Controller
         return redirect()->back()->with('success', 'Translations saved successfully.');
     }
 
-    public function destroy(Language $language)
+    public function destroy(Request $request, Language $language)
     {
+        $this->settingsWorkspace($request, 'settings.localization.manage');
         if ($language->code === 'en') {
             return redirect()->back()->with('error', 'Cannot delete default English language.');
         }

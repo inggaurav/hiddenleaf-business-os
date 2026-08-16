@@ -28,6 +28,11 @@ export default function EmailTemplatesIndex() {
       ),
     },
     {
+      key: 'module',
+      header: 'Module / Status',
+      render: (row) => <div className="flex gap-2"><Badge size="sm">{row.module || 'general'}</Badge><Badge size="sm" variant={row.is_enabled === false ? 'neutral' : 'success'}>{row.is_enabled === false ? 'Disabled' : 'Enabled'}</Badge></div>,
+    },
+    {
       key: 'subject',
       header: 'Default Subject',
       sortable: true,

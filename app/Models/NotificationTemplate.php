@@ -13,7 +13,15 @@ class NotificationTemplate extends Model
         'name',
         'module',
         'variables',
+        'workspace_id',
+        'is_enabled',
+        'created_by',
     ];
+
+    protected function casts(): array
+    {
+        return ['variables' => 'array', 'is_enabled' => 'boolean'];
+    }
 
     public function templateLangs()
     {

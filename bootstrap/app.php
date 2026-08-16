@@ -16,6 +16,7 @@ use App\Http\Middleware\EnsurePosPermission;
 use App\Http\Middleware\EnsureProductServicePermission;
 use App\Http\Middleware\EnsureTenantContext;
 use App\Http\Middleware\EnsureWorkspaceModuleAccess;
+use App\Http\Middleware\EnsureWorkspacePermission;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\Installed;
 use App\Http\Middleware\RequestId;
@@ -23,6 +24,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Support\Facades\Route;
+use NunoMaduro\Collision\Adapters\Laravel\Commands\TestCommand;
 
 require_once __DIR__.'/../app/helpers.php';
 
@@ -44,6 +46,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ValidateParityEvidenceCommand::class,
         AccountingConcurrencyProbeCommand::class,
         SalesProcurementConcurrencyProbeCommand::class,
+        TestCommand::class,
     ])
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [
@@ -67,6 +70,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'account.permission' => EnsureAccountPermission::class,
             'product_service.permission' => EnsureProductServicePermission::class,
             'pos.permission' => EnsurePosPermission::class,
+            'workspace.permission' => EnsureWorkspacePermission::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
