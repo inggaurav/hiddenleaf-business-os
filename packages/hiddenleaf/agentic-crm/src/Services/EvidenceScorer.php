@@ -20,7 +20,9 @@ final class EvidenceScorer
 
     public function score(Finding $finding, ?\DateTimeImmutable $now = null): int
     {
-        $score = self::BASE[$finding->sourceType] ?? 35;
+        $attested = (bool) ($finding->metadata['source_attested'] ?? false);
+        $sourceType = $attested ? $finding->sourceType : 'model_inference';
+        $score = self::BASE[$sourceType] ?? 35;
         $score += min(10, max(0, $finding->corroborationCount - 1) * 5);
 
         $now ??= new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
