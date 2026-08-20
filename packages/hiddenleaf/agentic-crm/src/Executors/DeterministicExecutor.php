@@ -23,7 +23,7 @@ final class DeterministicExecutor implements TaskExecutor
     {
         $email = strtolower(trim((string) ($task->payload['email'] ?? '')));
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) throw new \InvalidArgumentException('Invalid email address.');
-        return new AgentRunResult([new Finding('email', $email, 'first_party_crm_history', 'deterministic_normalization')]);
+        return new AgentRunResult([new Finding('email', $email, 'first_party_crm_history', 'deterministic_normalization', null, null, 1, false, ['source_attested' => true, 'attested_by' => 'deterministic_executor'])]);
     }
 
     private function normalizePhone(AgentTask $task): AgentRunResult
@@ -32,7 +32,7 @@ final class DeterministicExecutor implements TaskExecutor
         $leadingPlus = str_starts_with(trim($raw), '+');
         $digits = preg_replace('/\D+/', '', $raw) ?? '';
         if (strlen($digits) < 7 || strlen($digits) > 15) throw new \InvalidArgumentException('Invalid phone number.');
-        return new AgentRunResult([new Finding('phone', ($leadingPlus ? '+' : '') . $digits, 'first_party_crm_history', 'deterministic_normalization')]);
+        return new AgentRunResult([new Finding('phone', ($leadingPlus ? '+' : '') . $digits, 'first_party_crm_history', 'deterministic_normalization', null, null, 1, false, ['source_attested' => true, 'attested_by' => 'deterministic_executor'])]);
     }
 
     private function normalizeDomain(AgentTask $task): AgentRunResult
@@ -42,6 +42,6 @@ final class DeterministicExecutor implements TaskExecutor
         $host = parse_url($value, PHP_URL_HOST);
         if (!$host) throw new \InvalidArgumentException('Invalid domain.');
         $host = preg_replace('/^www\./', '', $host) ?? $host;
-        return new AgentRunResult([new Finding('domain', $host, 'first_party_crm_history', 'deterministic_normalization')]);
+        return new AgentRunResult([new Finding('domain', $host, 'first_party_crm_history', 'deterministic_normalization', null, null, 1, false, ['source_attested' => true, 'attested_by' => 'deterministic_executor'])]);
     }
 }
