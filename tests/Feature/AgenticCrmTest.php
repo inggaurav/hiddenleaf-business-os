@@ -19,7 +19,7 @@ final class AgenticCrmTest extends TestCase
     public function test_strong_first_party_evidence_is_auto_applied(): void
     {
         $store = new InMemoryAgentStore();
-        $executor = $this->executor([new Finding('job_title', 'VP Sales', 'first_party_signed_email', 'signature_parse')]);
+        $executor = $this->executor([new Finding('job_title', 'VP Sales', 'first_party_signed_email', 'signature_parse', null, null, 1, false, ['source_attested' => true, 'attested_by' => 'gmail.signature'])]);
         $orchestrator = new AgentOrchestrator($store, $executor, $executor);
         $orchestrator->enqueue(AgentTask::create(1, 10, 'contact.research', AgentTask::LANE_RESEARCH, 'contact', '42'));
 
@@ -31,7 +31,7 @@ final class AgenticCrmTest extends TestCase
     public function test_medium_evidence_enters_human_review_and_can_be_approved(): void
     {
         $store = new InMemoryAgentStore();
-        $executor = $this->executor([new Finding('job_title', 'Director', 'social_profile', 'profile_extract')]);
+        $executor = $this->executor([new Finding('job_title', 'Director', 'social_profile', 'profile_extract', null, null, 1, false, ['source_attested' => true, 'attested_by' => 'profile.tool'])]);
         $orchestrator = new AgentOrchestrator($store, $executor, $executor);
         $orchestrator->enqueue(AgentTask::create(2, 20, 'contact.research', AgentTask::LANE_RESEARCH, 'contact', '99'));
         $orchestrator->runOne(2, 20, 'worker-b');
@@ -50,6 +50,16 @@ final class AgenticCrmTest extends TestCase
         $orchestrator = new AgentOrchestrator($store, $executor, $executor);
         $orchestrator->enqueue(AgentTask::create(1, 10, 'company.research', AgentTask::LANE_RESEARCH, 'company', 'acme'));
         $orchestrator->runOne(1, 10, 'worker-c');
+        $this->assertSame(ContactFact::REJECTED, array_values($store->facts)[0]->status);
+    }
+
+    public function test_unattested_claim_cannot_self_promote_to_first_party_evidence(): void
+    {
+        $store = new InMemoryAgentStore();
+        $executor = $this->executor([new Finding('job_title', 'CEO', 'first_party_signed_email', 'llm_claim')]);
+        $orchestrator = new AgentOrchestrator($store, $executor, $executor);
+        $orchestrator->enqueue(AgentTask::create(1, 10, 'contact.research', AgentTask::LANE_RESEARCH, 'contact', '77'));
+        $orchestrator->runOne(1, 10, 'worker-attestation');
         $this->assertSame(ContactFact::REJECTED, array_values($store->facts)[0]->status);
     }
 
