@@ -369,6 +369,7 @@ class ValidateParityEvidenceCommand extends Command
             $filePath = "{$parityDir}/{$file}";
             if (! File::exists($filePath)) {
                 $errors[] = "docs/parity/{$file} is missing.";
+
                 continue;
             }
 
@@ -410,4 +411,3 @@ class ValidateParityEvidenceCommand extends Command
         }
     }
 }
-

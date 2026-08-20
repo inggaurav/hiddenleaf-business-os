@@ -50,8 +50,8 @@ class BusinessDashboardSummaryTool implements MrFoxToolContract
     {
         $wsId = $context->getWorkspaceId();
 
-        $totalSales = (float) SalesInvoice::where('workspace_id', $wsId)->where('status', 'posted')->sum('total_amount');
-        $totalExpenses = (float) PurchaseInvoice::where('workspace_id', $wsId)->where('status', 'posted')->sum('total_amount');
+        $totalSales = (float) SalesInvoice::where('workspace_id', $wsId)->whereIn('status', [1, 2, 3])->sum('total_amount');
+        $totalExpenses = (float) PurchaseInvoice::where('workspace_id', $wsId)->whereIn('status', [1, 2, 3])->sum('total_amount');
         $netMargin = $totalSales - $totalExpenses;
         $openLeads = CrmLead::where('workspace_id', $wsId)->whereNull('converted_at')->count();
         $todayPos = (float) PosSale::where('workspace_id', $wsId)->whereDate('created_at', today())->sum('total');

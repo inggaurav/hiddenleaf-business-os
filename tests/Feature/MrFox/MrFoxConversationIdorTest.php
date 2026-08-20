@@ -52,15 +52,19 @@ class MrFoxConversationIdorTest extends TestCase
             'content' => 'Top secret financial acquisition plan details.',
         ]);
 
-        // User B attempts to access Tenant A conversation via API
-        $response = $this->actingAs($userB)->getJson("/api/v1/mr-fox/conversations/{$convA->id}");
+        // User B attempts to access Tenant A conversation via API with User B's workspace context
+        $response = $this->actingAs($userB)
+            ->withHeader('X-Workspace-ID', (string) $wsB->id)
+            ->getJson("/api/v1/mr-fox/conversations/{$convA->id}");
         $response->assertStatus(404);
 
         // User B attempts to post message to Tenant A conversation
-        $chatResponse = $this->actingAs($userB)->postJson('/api/v1/mr-fox/chat', [
-            'conversation_id' => $convA->id,
-            'message' => 'Injecting into foreign conversation',
-        ]);
+        $chatResponse = $this->actingAs($userB)
+            ->withHeader('X-Workspace-ID', (string) $wsB->id)
+            ->postJson('/api/v1/mr-fox/chat', [
+                'conversation_id' => $convA->id,
+                'message' => 'Injecting into foreign conversation',
+            ]);
         $chatResponse->assertStatus(404);
     }
 }

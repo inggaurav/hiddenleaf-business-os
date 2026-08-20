@@ -63,7 +63,7 @@ class SlackProvider implements CommunicationProviderContract
                 return ProviderMessageResult::success($ts, 'sent');
             }
 
-            return ProviderMessageResult::failure('Slack error: ' . ($response->json('error') ?? 'unknown_error'));
+            return ProviderMessageResult::failure('Slack error: '.($response->json('error') ?? 'unknown_error'));
         } catch (\Throwable $e) {
             return ProviderMessageResult::failure($e->getMessage());
         }
@@ -94,7 +94,7 @@ class SlackProvider implements CommunicationProviderContract
                 return ProviderMessageResult::success($ts, 'sent');
             }
 
-            return ProviderMessageResult::failure('Slack error: ' . ($response->json('error') ?? 'unknown_error'));
+            return ProviderMessageResult::failure('Slack error: '.($response->json('error') ?? 'unknown_error'));
         } catch (\Throwable $e) {
             return ProviderMessageResult::failure($e->getMessage());
         }
@@ -122,7 +122,7 @@ class SlackProvider implements CommunicationProviderContract
         }
 
         $sigBasestring = "v0:{$timestamp}:{$payload}";
-        $expected = 'v0=' . hash_hmac('sha256', $sigBasestring, $secret);
+        $expected = 'v0='.hash_hmac('sha256', $sigBasestring, $secret);
 
         return hash_equals($expected, (string) $signature);
     }

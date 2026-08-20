@@ -62,7 +62,7 @@ class MrFoxTenantIsolationTest extends TestCase
             'invoice_id' => 'INV-CONFIDENTIAL-A',
             'issue_date' => now()->subDays(10),
             'due_date' => now()->subDays(5),
-            'status' => 'posted',
+            'status' => 1,
             'total_amount' => 50000,
         ]);
 

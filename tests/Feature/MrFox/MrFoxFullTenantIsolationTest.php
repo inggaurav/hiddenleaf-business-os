@@ -84,8 +84,8 @@ class MrFoxFullTenantIsolationTest extends TestCase
         $leadA = CrmLead::create(['organization_id' => $this->orgA->id, 'workspace_id' => $this->wsA->id, 'pipeline_id' => $pipeA->id, 'stage_id' => $stageA->id, 'name' => 'Alpha Secret Lead', 'estimated_value' => 75000]);
         CrmDeal::create(['organization_id' => $this->orgA->id, 'workspace_id' => $this->wsA->id, 'lead_id' => $leadA->id, 'pipeline_id' => $pipeA->id, 'stage_id' => $stageA->id, 'name' => 'Alpha Secret Deal', 'value' => 75000, 'status' => 'open']);
 
-        SalesInvoice::create(['organization_id' => $this->orgA->id, 'workspace_id' => $this->wsA->id, 'customer_id' => 1, 'invoice_id' => 'INV-ALPHA-01', 'status' => 'posted', 'total_amount' => 33000, 'due_date' => now()->subDays(5)]);
-        PurchaseInvoice::create(['organization_id' => $this->orgA->id, 'workspace_id' => $this->wsA->id, 'vendor_id' => 1, 'invoice_id' => 'BILL-ALPHA-01', 'status' => 'posted', 'total_amount' => 12000, 'due_date' => now()->subDays(3)]);
+        SalesInvoice::create(['organization_id' => $this->orgA->id, 'workspace_id' => $this->wsA->id, 'customer_id' => 1, 'invoice_id' => 'INV-ALPHA-01', 'status' => 1, 'total_amount' => 33000, 'due_date' => now()->subDays(5)]);
+        PurchaseInvoice::create(['organization_id' => $this->orgA->id, 'workspace_id' => $this->wsA->id, 'vendor_id' => 1, 'invoice_id' => 'BILL-ALPHA-01', 'status' => 1, 'total_amount' => 12000, 'due_date' => now()->subDays(3)]);
 
         $whA = Warehouse::create(['organization_id' => $this->orgA->id, 'workspace_id' => $this->wsA->id, 'name' => 'Alpha Warehouse']);
         $prodA = ProductServiceItem::create(['organization_id' => $this->orgA->id, 'workspace_id' => $this->wsA->id, 'name' => 'Alpha Secret Part', 'sku' => 'ALPHA-001', 'type' => 'product', 'sale_price' => 500, 'purchase_price' => 300, 'reorder_level' => 15]);

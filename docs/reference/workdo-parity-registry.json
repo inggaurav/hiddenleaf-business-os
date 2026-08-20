@@ -2,13 +2,13 @@
     "schema_version": 1,
     "reference_repository": "https://github.com/inggaurav/workdo-dash-reference",
     "reference_sha": "0b996a0050abcdffa2770a82fbb9261eeb2805bd",
-    "generated_at": "2026-08-13T20:44:16+00:00",
+    "generated_at": "2026-08-20T17:54:44+00:00",
     "totals": {
         "all": 50,
         "MISSING": 0,
         "PARTIAL": 0,
-        "IMPLEMENTED_UNVERIFIED": 0,
-        "VERIFIED": 50,
+        "IMPLEMENTED_UNVERIFIED": 1,
+        "VERIFIED": 49,
         "DEFERRED_SEPARATELY_SOLD_ADDON": 0
     },
     "capabilities": [
@@ -1038,7 +1038,7 @@
             "hiddenleaf_tests": [
                 "tests/Feature/Modules/PosModuleTest.php"
             ],
-            "status": "VERIFIED"
+            "status": "IMPLEMENTED_UNVERIFIED"
         },
         {
             "id": "pos.returns-reconciliation",

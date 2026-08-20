@@ -32,7 +32,7 @@ class ModuleLoaderServiceProvider extends ServiceProvider
                         $registry->register(new ManifestAddonModule($addon));
                     });
             }
-        } catch (\Throwable $e) {
+        } catch (\Illuminate\Database\QueryException|\PDOException $e) {
             // Early boot or database uninitialized
         }
 

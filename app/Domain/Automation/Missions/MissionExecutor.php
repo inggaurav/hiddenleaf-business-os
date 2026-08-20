@@ -122,7 +122,7 @@ class MissionExecutor
             try {
                 $valResult = $this->validator->validate($tool, $inputParams);
                 if (! $valResult['valid']) {
-                    $errStr = 'Validation failed: ' . json_encode($valResult['errors']);
+                    $errStr = 'Validation failed: '.json_encode($valResult['errors']);
                     $step->update([
                         'status' => 'failed',
                         'observation' => $errStr,

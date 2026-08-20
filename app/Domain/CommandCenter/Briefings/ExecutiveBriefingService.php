@@ -7,14 +7,12 @@ use App\Domain\CommandCenter\Health\BusinessHealthService;
 use App\Domain\CommandCenter\Priorities\BusinessPriorityService;
 use App\Domain\CommandCenter\Recommendations\ExecutiveRecommendationService;
 use App\Models\AutomationRule;
-use App\Models\AutomationRun;
 use App\Models\CommunicationConversation;
 use App\Models\CrmLead;
 use App\Models\MrFoxActionProposal;
 use App\Models\MrFoxMission;
 use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
-use App\Models\TasklyTask;
 use App\Models\User;
 use App\Models\Workspace;
 
@@ -39,9 +37,9 @@ class ExecutiveBriefingService
         $recommendations = array_slice($this->recommendationService->getRecommendations($user, $workspace), 0, 5);
 
         // Summaries
-        $totalSales = (float) SalesInvoice::where('workspace_id', $wsId)->whereNotIn('status', ['draft', 0])->sum('total_amount');
-        $totalExpenses = (float) PurchaseInvoice::where('workspace_id', $wsId)->whereNotIn('status', ['draft', 0])->sum('total_amount');
-        $overdueReceivables = (float) SalesInvoice::where('workspace_id', $wsId)->whereNotIn('status', ['paid', 'draft', 0, 3])->where('due_date', '<', today())->sum('total_amount');
+        $totalSales = (float) SalesInvoice::where('workspace_id', $wsId)->whereNotIn('status', [0])->sum('total_amount');
+        $totalExpenses = (float) PurchaseInvoice::where('workspace_id', $wsId)->whereNotIn('status', [0])->sum('total_amount');
+        $overdueReceivables = (float) SalesInvoice::where('workspace_id', $wsId)->whereNotIn('status', [0, 3])->where('due_date', '<', today())->sum('total_amount');
 
         $activeLeads = CrmLead::where('workspace_id', $wsId)->whereNull('converted_at')->count();
         $qualifiedLeads = CrmLead::where('workspace_id', $wsId)->where('status', 'qualified')->count();

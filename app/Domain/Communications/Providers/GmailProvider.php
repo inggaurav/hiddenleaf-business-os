@@ -104,9 +104,9 @@ class GmailProvider implements CommunicationProviderContract
 
         try {
             // Build raw RFC 2822 email payload
-            $rawEmail = "To: {$message->recipient}\r\n" .
-                "Subject: {$message->subject}\r\n" .
-                "Content-Type: text/plain; charset=utf-8\r\n\r\n" .
+            $rawEmail = "To: {$message->recipient}\r\n".
+                "Subject: {$message->subject}\r\n".
+                "Content-Type: text/plain; charset=utf-8\r\n\r\n".
                 $message->bodyText;
 
             $encoded = rtrim(strtr(base64_encode($rawEmail), '+/', '-_'), '=');
@@ -138,11 +138,11 @@ class GmailProvider implements CommunicationProviderContract
         }
 
         try {
-            $rawEmail = "To: {$message->recipient}\r\n" .
-                "Subject: Re: {$conversation->subject}\r\n" .
-                "In-Reply-To: {$conversation->external_thread_id}\r\n" .
-                "References: {$conversation->external_thread_id}\r\n" .
-                "Content-Type: text/plain; charset=utf-8\r\n\r\n" .
+            $rawEmail = "To: {$message->recipient}\r\n".
+                "Subject: Re: {$conversation->subject}\r\n".
+                "In-Reply-To: {$conversation->external_thread_id}\r\n".
+                "References: {$conversation->external_thread_id}\r\n".
+                "Content-Type: text/plain; charset=utf-8\r\n\r\n".
                 $message->bodyText;
 
             $encoded = rtrim(strtr(base64_encode($rawEmail), '+/', '-_'), '=');

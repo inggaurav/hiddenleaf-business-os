@@ -12,12 +12,12 @@ class CommunicationProviderRegistry
 
     public function __construct()
     {
-        $this->register(new GmailProvider());
-        $this->register(new WhatsAppCloudProvider());
-        $this->register(new SlackProvider());
+        $this->register(new GmailProvider);
+        $this->register(new WhatsAppCloudProvider);
+        $this->register(new SlackProvider);
         $this->register(new MetaSocialProvider('facebook'));
         $this->register(new MetaSocialProvider('instagram'));
-        $this->register(new InternalMessengerProvider());
+        $this->register(new InternalMessengerProvider);
     }
 
     public function register(CommunicationProviderContract $provider): void

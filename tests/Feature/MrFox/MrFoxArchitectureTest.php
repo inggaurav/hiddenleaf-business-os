@@ -80,10 +80,12 @@ class MrFoxArchitectureTest extends TestCase
             'estimated_value' => 50000,
         ]);
 
-        $response = $this->actingAs($this->user)->postJson('/api/v1/mr-fox/chat', [
-            'message' => 'Check CRM leads in our pipeline',
-            'active_page' => 'CRM Leads',
-        ]);
+        $response = $this->actingAs($this->user)
+            ->withHeader('X-Workspace-ID', (string) $this->workspace->id)
+            ->postJson('/api/v1/mr-fox/chat', [
+                'message' => 'Check CRM leads in our pipeline',
+                'active_page' => 'CRM Leads',
+            ]);
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -110,7 +112,7 @@ class MrFoxArchitectureTest extends TestCase
             'invoice_id' => 'INV-TEST-001',
             'issue_date' => now()->subDays(30),
             'due_date' => now()->subDays(10),
-            'status' => 'posted',
+            'status' => 1,
             'total_amount' => 1000,
         ]);
 
@@ -126,7 +128,9 @@ class MrFoxArchitectureTest extends TestCase
             'reorder_level' => 10,
         ]);
 
-        $response = $this->actingAs($this->user)->getJson('/api/v1/mr-fox/insights');
+        $response = $this->actingAs($this->user)
+            ->withHeader('X-Workspace-ID', (string) $this->workspace->id)
+            ->getJson('/api/v1/mr-fox/insights');
 
         $response->assertStatus(200)
             ->assertJsonStructure([

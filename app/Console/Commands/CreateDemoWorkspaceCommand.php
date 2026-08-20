@@ -55,6 +55,7 @@ class CreateDemoWorkspaceCommand extends Command
 
         if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $this->error('A valid --email is required.');
+
             return self::FAILURE;
         }
 
@@ -228,6 +229,7 @@ class CreateDemoWorkspaceCommand extends Command
         } catch (\Throwable $exception) {
             report($exception);
             $this->error('Unable to create demo workspace: '.$exception->getMessage());
+
             return self::FAILURE;
         }
     }

@@ -144,7 +144,7 @@ class ActionApprovalService
                     'error_trace' => $e->getMessage(),
                 ]);
 
-                return ToolResult::error('Execution failed: ' . $e->getMessage());
+                return ToolResult::error('Execution failed: '.$e->getMessage());
             }
         });
     }

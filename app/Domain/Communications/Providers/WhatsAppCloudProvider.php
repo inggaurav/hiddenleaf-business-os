@@ -87,7 +87,7 @@ class WhatsAppCloudProvider implements CommunicationProviderContract
                 return ProviderMessageResult::success($msgId, 'sent');
             }
 
-            return ProviderMessageResult::failure("WhatsApp API Error: {$response->status()} - " . ($response->json('error.message') ?? $response->body()));
+            return ProviderMessageResult::failure("WhatsApp API Error: {$response->status()} - ".($response->json('error.message') ?? $response->body()));
         } catch (\Throwable $e) {
             return ProviderMessageResult::failure($e->getMessage());
         }
@@ -116,7 +116,7 @@ class WhatsAppCloudProvider implements CommunicationProviderContract
             return false;
         }
 
-        $expected = 'sha256=' . hash_hmac('sha256', $payload, $secret);
+        $expected = 'sha256='.hash_hmac('sha256', $payload, $secret);
 
         return hash_equals($expected, (string) $signatureHeader);
     }

@@ -6,7 +6,6 @@ use App\Domain\Automation\Contracts\AutomationActionContract;
 use App\Domain\MrFox\RiskLevel;
 use App\Models\AutomationRun;
 use App\Models\CrmNote;
-use App\Models\Notification;
 
 class CreateCrmNoteAction implements AutomationActionContract
 {

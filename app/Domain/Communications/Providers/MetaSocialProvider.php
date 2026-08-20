@@ -61,7 +61,7 @@ class MetaSocialProvider implements CommunicationProviderContract
                 return ProviderMessageResult::success($response->json('message_id') ?? uniqid('meta_msg_'), 'sent');
             }
 
-            return ProviderMessageResult::failure('Meta error: ' . ($response->json('error.message') ?? $response->body()));
+            return ProviderMessageResult::failure('Meta error: '.($response->json('error.message') ?? $response->body()));
         } catch (\Throwable $e) {
             return ProviderMessageResult::failure($e->getMessage());
         }
@@ -79,7 +79,7 @@ class MetaSocialProvider implements CommunicationProviderContract
         }
 
         $signature = $headers['x-hub-signature-256'][0] ?? $headers['x-hub-signature-256'] ?? '';
-        $expected = 'sha256=' . hash_hmac('sha256', $payload, $secret);
+        $expected = 'sha256='.hash_hmac('sha256', $payload, $secret);
 
         return hash_equals($expected, $signature);
     }

@@ -52,7 +52,7 @@ class MrFoxFinancialParityTest extends TestCase
             'invoice_id' => 'INV-MATCH-01',
             'issue_date' => now()->subDays(15),
             'due_date' => now()->subDays(5),
-            'status' => 'posted',
+            'status' => 1,
             'total_amount' => 15000,
         ]);
 
@@ -64,7 +64,7 @@ class MrFoxFinancialParityTest extends TestCase
             'invoice_id' => 'BILL-MATCH-01',
             'purchase_date' => now()->subDays(10),
             'due_date' => now()->addDays(10),
-            'status' => 'posted',
+            'status' => 1,
             'total_amount' => 6000,
         ]);
 

@@ -51,7 +51,7 @@ class SalesOutstandingSummaryTool implements MrFoxToolContract
 
         $postedInvoices = SalesInvoice::query()
             ->where('workspace_id', $wsId)
-            ->whereIn('status', ['posted', 'sent', 'partial', 1, 2])
+            ->whereIn('status', [1, 2])
             ->get();
 
         $reportService = app(AccountReportService::class);

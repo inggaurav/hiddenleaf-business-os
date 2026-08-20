@@ -5,7 +5,6 @@ namespace App\Domain\MrFox\Agent;
 use App\Domain\MrFox\Approvals\ActionApprovalService;
 use App\Domain\MrFox\Context\BusinessContextService;
 use App\Domain\MrFox\DTO\AiRequest;
-use App\Domain\MrFox\DTO\ToolContext;
 use App\Domain\MrFox\DTO\ToolResult;
 use App\Domain\MrFox\Observability\MrFoxAuditService;
 use App\Domain\MrFox\Observability\MrFoxUsageService;
@@ -97,6 +96,7 @@ class MrFoxAgent
                         'success' => false,
                         'summary' => "Tool '{$toolName}' is not recognized in registry.",
                     ];
+
                     continue;
                 }
 
@@ -111,6 +111,7 @@ class MrFoxAgent
                             'success' => false,
                             'summary' => "Access denied: Missing required permission '{$reqPermission}'.",
                         ];
+
                         continue;
                     }
                 }
@@ -121,8 +122,9 @@ class MrFoxAgent
                     $toolResults[] = [
                         'tool' => $toolName,
                         'success' => false,
-                        'summary' => 'Invalid parameters: ' . json_encode($validation['errors']),
+                        'summary' => 'Invalid parameters: '.json_encode($validation['errors']),
                     ];
+
                     continue;
                 }
                 $toolInput = $validation['sanitized'];
@@ -133,7 +135,7 @@ class MrFoxAgent
                 try {
                     // High / Critical risk requires approval proposal
                     if ($risk->requiresApproval()) {
-                        $humanSummary = "Proposed execution of {$toolName} with input: " . json_encode($toolInput);
+                        $humanSummary = "Proposed execution of {$toolName} with input: ".json_encode($toolInput);
                         $proposal = $this->approvalService->createProposal(
                             $toolContext,
                             $toolName,

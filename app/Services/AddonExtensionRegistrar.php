@@ -25,7 +25,7 @@ class AddonExtensionRegistrar
             if (! Schema::hasTable('addons')) {
                 return;
             }
-        } catch (\Throwable $e) {
+        } catch (\Illuminate\Database\QueryException|\PDOException $e) {
             return;
         }
 

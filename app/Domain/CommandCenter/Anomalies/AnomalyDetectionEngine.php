@@ -5,7 +5,6 @@ namespace App\Domain\CommandCenter\Anomalies;
 use App\Domain\CommandCenter\DTO\AnomalyDTO;
 use App\Models\AutomationRun;
 use App\Models\CommunicationMessage;
-use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
 use App\Models\User;
 use App\Models\Workspace;
@@ -31,13 +30,13 @@ class AnomalyDetectionEngine
         // 1. Financial: Sudden Surge in Overdue Invoices
         if ($isSuperAdmin || $this->permissionService->allows($user, $workspace, 'account.manage')) {
             $overdueInvoices = SalesInvoice::where('workspace_id', $wsId)
-                ->whereNotIn('status', ['paid', 'draft', 0, 3])
+                ->whereNotIn('status', [0, 3])
                 ->where('due_date', '<', today())
                 ->get();
 
             $overdueSum = (float) $overdueInvoices->sum('total_amount');
             $totalReceivables = (float) SalesInvoice::where('workspace_id', $wsId)
-                ->whereNotIn('status', ['paid', 'draft', 0, 3])
+                ->whereNotIn('status', [0, 3])
                 ->sum('total_amount');
 
             if ($totalReceivables > 0 && ($overdueSum / $totalReceivables) > 0.40) {
@@ -55,7 +54,7 @@ class AnomalyDetectionEngine
                     evidence: $overdueInvoices->take(3)->map(fn ($i) => [
                         'type' => 'invoice',
                         'id' => $i->id,
-                        'label' => "Invoice #{$i->invoice_id}: $" . number_format((float) $i->total_amount, 2),
+                        'label' => "Invoice #{$i->invoice_id}: $".number_format((float) $i->total_amount, 2),
                     ])->all()
                 );
             }

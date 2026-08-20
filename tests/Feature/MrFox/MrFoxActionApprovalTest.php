@@ -97,7 +97,9 @@ class MrFoxActionApprovalTest extends TestCase
         ]);
 
         // Approve proposal via API
-        $response = $this->actingAs($this->user)->postJson("/api/v1/mr-fox/actions/{$proposal->id}/approve");
+        $response = $this->actingAs($this->user)
+            ->withHeader('X-Workspace-ID', (string) $this->workspace->id)
+            ->postJson("/api/v1/mr-fox/actions/{$proposal->id}/approve");
 
         $response->assertStatus(200);
         $this->assertDatabaseHas('crm_leads', [
@@ -124,7 +126,9 @@ class MrFoxActionApprovalTest extends TestCase
             RiskLevel::HIGH
         );
 
-        $response = $this->actingAs($this->user)->postJson("/api/v1/mr-fox/actions/{$proposal->id}/reject");
+        $response = $this->actingAs($this->user)
+            ->withHeader('X-Workspace-ID', (string) $this->workspace->id)
+            ->postJson("/api/v1/mr-fox/actions/{$proposal->id}/reject");
         $response->assertStatus(200);
 
         $proposal->refresh();

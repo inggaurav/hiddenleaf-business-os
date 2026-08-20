@@ -5,8 +5,6 @@ namespace App\Domain\CommandCenter\Briefings;
 use App\Models\AutomationRun;
 use App\Models\CommunicationConversation;
 use App\Models\CrmLead;
-use App\Models\ProductServiceItem;
-use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
 use App\Models\Workspace;
 use Carbon\Carbon;
@@ -44,8 +42,8 @@ class ChangeDetectionService
         };
 
         // 1. Sales Volume Delta
-        $salesCurr = (float) SalesInvoice::where('workspace_id', $wsId)->whereNotIn('status', ['draft', 0])->whereBetween('created_at', [$startCurrent, $endCurrent])->sum('total_amount');
-        $salesPrev = (float) SalesInvoice::where('workspace_id', $wsId)->whereNotIn('status', ['draft', 0])->whereBetween('created_at', [$startPrev, $endPrev])->sum('total_amount');
+        $salesCurr = (float) SalesInvoice::where('workspace_id', $wsId)->whereNotIn('status', [0])->whereBetween('created_at', [$startCurrent, $endCurrent])->sum('total_amount');
+        $salesPrev = (float) SalesInvoice::where('workspace_id', $wsId)->whereNotIn('status', [0])->whereBetween('created_at', [$startPrev, $endPrev])->sum('total_amount');
         $salesDelta = $salesPrev > 0 ? round((($salesCurr - $salesPrev) / $salesPrev) * 100, 1) : ($salesCurr > 0 ? 100.0 : 0.0);
 
         // 2. New CRM Leads Delta

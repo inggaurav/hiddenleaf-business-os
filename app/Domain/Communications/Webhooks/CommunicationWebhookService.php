@@ -73,6 +73,7 @@ class CommunicationWebhookService
 
                 if (! $account) {
                     Log::warning('WhatsApp webhook received for unmapped phone_number_id', ['phone_number_id' => $phoneNumberId]);
+
                     continue;
                 }
 

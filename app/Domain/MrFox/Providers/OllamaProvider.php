@@ -14,7 +14,7 @@ class OllamaProvider implements AiProviderContract
         private string $host = 'http://localhost:11434',
         private string $model = 'llama3.2'
     ) {
-        $this->delegate = new OpenAiProvider('ollama-local', $model, rtrim($host, '/') . '/v1');
+        $this->delegate = new OpenAiProvider('ollama-local', $model, rtrim($host, '/').'/v1');
     }
 
     public function name(): string

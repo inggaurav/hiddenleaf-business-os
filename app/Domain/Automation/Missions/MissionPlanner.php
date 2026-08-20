@@ -28,15 +28,15 @@ class MissionPlanner
         $allowedTools = $mission->allowed_tools ?: array_keys($toolRegistry->all());
         $toolsListStr = implode(', ', $allowedTools);
 
-        $prompt = "You are the Mr. Fox Executive Mission Planner.\n" .
-            "Objective: {$mission->objective}\n" .
-            "Allowed Tools: {$toolsListStr}\n\n" .
-            "Generate a sequential plan with up to {$mission->max_steps} steps to accomplish this objective.\n" .
-            "Respond ONLY with a JSON array of step objects, where each object has:\n" .
-            "- \"tool\": exact tool name from the allowed list\n" .
-            "- \"params\": object containing the tool input arguments\n" .
-            "- \"description\": brief human-readable description of this step\n\n" .
-            "Do not include explanation outside the JSON array.";
+        $prompt = "You are the Mr. Fox Executive Mission Planner.\n".
+            "Objective: {$mission->objective}\n".
+            "Allowed Tools: {$toolsListStr}\n\n".
+            "Generate a sequential plan with up to {$mission->max_steps} steps to accomplish this objective.\n".
+            "Respond ONLY with a JSON array of step objects, where each object has:\n".
+            "- \"tool\": exact tool name from the allowed list\n".
+            "- \"params\": object containing the tool input arguments\n".
+            "- \"description\": brief human-readable description of this step\n\n".
+            'Do not include explanation outside the JSON array.';
 
         $provider = $this->providerRouter->resolve($context->workspace);
         $aiRes = $provider->chat(new AiRequest(messages: [
@@ -88,12 +88,12 @@ class MissionPlanner
         $mission->update([
             'plan_json' => $validatedSteps,
             'status' => 'queued',
-            'progress_summary' => 'Plan generated with ' . count($validatedSteps) . ' step(s).',
+            'progress_summary' => 'Plan generated with '.count($validatedSteps).' step(s).',
         ]);
 
         return [
             'steps' => $validatedSteps,
-            'plan_summary' => "Generated {$mission->name} plan with " . count($validatedSteps) . ' validated steps.',
+            'plan_summary' => "Generated {$mission->name} plan with ".count($validatedSteps).' validated steps.',
         ];
     }
 }

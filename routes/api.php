@@ -67,7 +67,7 @@ Route::prefix('v1')->group(function () {
             // Mr. Fox Executive Intelligence API
             Route::post('/mr-fox/chat', [\App\Http\Controllers\MrFox\MrFoxChatController::class, 'chat']);
             Route::get('/mr-fox/conversations', [\App\Http\Controllers\MrFox\MrFoxChatController::class, 'getConversations']);
-            Route::get('/mr-fox/conversations/{id}', [\App\Http\Controllers\MrFox\MrFoxChatController::class, 'getConversation']);
+            Route::get('/mr-fox/conversations/{id}', [\App\Http\Controllers\MrFox\MrFoxChatController::class, 'getConversationMessages']);
             Route::get('/mr-fox/insights', [\App\Http\Controllers\MrFox\MrFoxChatController::class, 'getInsights']);
             Route::post('/mr-fox/actions/{id}/approve', [\App\Http\Controllers\MrFox\MrFoxChatController::class, 'approveAction']);
             Route::post('/mr-fox/actions/{id}/reject', [\App\Http\Controllers\MrFox\MrFoxChatController::class, 'rejectAction']);

@@ -49,7 +49,7 @@ class PurchasePayablesSummaryTool implements MrFoxToolContract
 
         $postedBills = PurchaseInvoice::query()
             ->where('workspace_id', $wsId)
-            ->whereIn('status', ['posted', 'sent', 'partial'])
+            ->whereIn('status', [1, 2])
             ->get();
 
         $totalPayables = (float) $postedBills->sum('total_amount');

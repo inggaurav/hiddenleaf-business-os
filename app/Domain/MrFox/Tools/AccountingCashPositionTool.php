@@ -74,7 +74,7 @@ class AccountingCashPositionTool implements MrFoxToolContract
         $evidence = $safeAccounts->map(fn ($acc) => [
             'type' => 'bank_account',
             'id' => $acc['id'],
-            'label' => "{$acc['name']} ({$acc['code']}) - $" . number_format($acc['balance'], 2),
+            'label' => "{$acc['name']} ({$acc['code']}) - $".number_format($acc['balance'], 2),
             'route' => '/accounting/bank-accounts',
         ])->all();
 

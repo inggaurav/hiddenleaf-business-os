@@ -7,7 +7,6 @@ use App\Models\AutomationRun;
 use App\Models\CommunicationMessage;
 use App\Models\CrmLead;
 use App\Models\MrFoxActionProposal;
-use App\Models\MrFoxMission;
 use App\Models\SalesInvoice;
 use App\Models\TasklyTask;
 use App\Models\User;
@@ -35,7 +34,7 @@ class ExecutiveActivityTimelineService
         if ($isSuperAdmin || $this->permissionService->allows($user, $workspace, 'account.manage')) {
             $invoices = SalesInvoice::where('workspace_id', $wsId)->latest('updated_at')->take(5)->get();
             foreach ($invoices as $inv) {
-                $isPaid = in_array($inv->status, ['paid', 3], true);
+                $isPaid = (int) $inv->status === 3;
                 $events[] = new TimelineItemDTO(
                     id: "inv_{$inv->id}",
                     domain: 'finance',
@@ -79,7 +78,7 @@ class ExecutiveActivityTimelineService
                     domain: 'comms',
                     eventType: 'communication.message',
                     title: "Message from {$msg->sender_name}",
-                    description: substr($msg->body ?? '', 0, 80) . '...',
+                    description: substr($msg->body ?? '', 0, 80).'...',
                     timestamp: $msg->created_at->toIso8601String(),
                     actorName: $msg->sender_name,
                     route: '/communications/inbox',

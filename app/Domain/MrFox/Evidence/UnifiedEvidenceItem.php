@@ -54,7 +54,7 @@ class UnifiedEvidenceItem implements JsonSerializable
         return new self(
             type: 'knowledge_chunk',
             id: $chunkId,
-            label: "{$documentTitle}" . ($pageNumber ? " (p. {$pageNumber})" : ''),
+            label: "{$documentTitle}".($pageNumber ? " (p. {$pageNumber})" : ''),
             route: $route,
             snippet: $snippet,
             pageNumber: $pageNumber,

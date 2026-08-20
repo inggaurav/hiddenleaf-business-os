@@ -6,7 +6,6 @@ use App\Domain\MrFox\DTO\ToolContext;
 use App\Models\CrmLead;
 use App\Models\HrLeaveRequest;
 use App\Models\ProductServiceItem;
-use App\Models\PurchaseInvoice;
 use App\Models\SalesInvoice;
 use App\Models\TasklyTask;
 
@@ -20,7 +19,7 @@ class BusinessInsightService
         // 1. Receivables & Overdue Sales Invoices
         $overdueInvoices = SalesInvoice::query()
             ->where('workspace_id', $workspaceId)
-            ->where('status', 'posted')
+            ->whereIn('status', [1, 2])
             ->where('due_date', '<', now())
             ->get();
 

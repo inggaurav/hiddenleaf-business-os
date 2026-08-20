@@ -46,7 +46,7 @@ class MrFoxExecutiveToolsTest extends TestCase
             'issue_date' => now()->subDays(10)->toDateString(),
             'due_date' => now()->subDays(3)->toDateString(),
             'total_amount' => 88000,
-            'status' => 'sent',
+            'status' => 1,
         ]);
 
         CrmLead::create([
