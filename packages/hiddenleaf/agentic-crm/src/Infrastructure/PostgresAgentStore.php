@@ -28,7 +28,7 @@ final class PostgresAgentStore implements AgentStore
         $leaseSeconds = max(30, min(3600, $leaseSeconds));
         $this->pdo->beginTransaction();
         try {
-            $select = $this->pdo->prepare("SELECT * FROM agent_tasks WHERE organization_id=:org AND workspace_id=:ws AND status='queued' AND run_at<=NOW() AND (lease_until IS NULL OR lease_until<NOW()) ORDER BY run_at,id FOR UPDATE SKIP LOCKED LIMIT {$limit}");
+            $select = $this->pdo->prepare("SELECT * FROM agent_tasks WHERE organization_id=:org AND workspace_id=:ws AND run_at<=NOW() AND (status='queued' OR (status='leased' AND lease_until<NOW())) ORDER BY run_at,id FOR UPDATE SKIP LOCKED LIMIT {$limit}");
             $select->execute(['org' => $organizationId, 'ws' => $workspaceId]);
             $rows = $select->fetchAll(\PDO::FETCH_ASSOC);
             $update = $this->pdo->prepare("UPDATE agent_tasks SET status='leased', leased_by=:worker, lease_until=NOW() + (:lease || ' seconds')::interval, updated_at=NOW() WHERE id=:id");
