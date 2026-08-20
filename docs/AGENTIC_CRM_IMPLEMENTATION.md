@@ -10,7 +10,7 @@ This subsystem ports the useful architectural ideas from agent-first CRM systems
 
 ### Durable task queue
 
-`agent_tasks` is the source of truth for background work. Workers claim due tasks with PostgreSQL `FOR UPDATE SKIP LOCKED`. Claims have expiring leases, so crashed workers do not permanently strand work. Idempotency is enforced per organization and workspace.
+`agent_tasks` is the source of truth for background work. Workers claim due tasks with PostgreSQL `FOR UPDATE SKIP LOCKED`. Claims have expiring leases, so crashed workers do not permanently strand work. Expired leased tasks are reclaimable. Idempotency is enforced per organization and workspace.
 
 ### Two work lanes
 
@@ -20,6 +20,8 @@ This subsystem ports the useful architectural ideas from agent-first CRM systems
 ### Evidence ledger
 
 Every finding becomes an immutable `agent_evidence` row with source type, method, source URL, observation time, score, band, and metadata. Source classes are scored deterministically. First-party signed email, CRM history, calendar evidence, official company sites, and verified providers rank above generic web evidence. Model inference by itself is weak evidence.
+
+High-strength source classes are accepted only when the source was attested by a deterministic/tool layer (`metadata.source_attested=true`). An LLM cannot promote its own claim by labeling it `first_party_signed_email`, `verified_provider`, or another strong source type; unattested claims are scored as model inference.
 
 ### Fact policy
 
@@ -56,7 +58,7 @@ Required production environment values:
 - `GIDEON_AGENT_TIMEOUT=45`
 - `GIDEON_AGENT_ALLOW_HTTP=false`
 
-The existing Gideon runtime must implement `POST /v1/agent/research`, validate the `X-HiddenLeaf-Timestamp` and `X-HiddenLeaf-Signature` HMAC, enforce replay-window checks, and return evidence-bearing findings. No database credentials are sent to Gideon.
+The existing Gideon runtime must implement `POST /v1/agent/research`, validate the `X-HiddenLeaf-Timestamp` and `X-HiddenLeaf-Signature` HMAC, enforce replay-window checks, and return evidence-bearing findings. Tool adapters inside Gideon must stamp trustworthy findings with `metadata.source_attested=true` and an `attested_by` identifier. No database credentials are sent to Gideon.
 
 ## API permissions
 
@@ -74,17 +76,18 @@ The controller intentionally does not register public routes by itself. Routes m
 1. Intelligence never bypasses organization/workspace scope.
 2. Gideon never receives database credentials.
 3. LLM self-confidence is never accepted as evidence.
-4. Weak evidence never silently overwrites an active CRM fact.
-5. Tool invocation is deny-by-default.
-6. Network egress for custom agents is explicit-host allowlist only.
-7. Worker leases expire and can be reclaimed after crashes.
-8. Idempotent tasks cannot double-apply the same requested work within a tenant scope.
-9. Fact history is superseded, not destroyed.
-10. Human review is required for medium-strength evidence.
+4. LLM-provided source labels are not trusted without tool attestation.
+5. Weak evidence never silently overwrites an active CRM fact.
+6. Tool invocation is deny-by-default.
+7. Network egress for custom agents is explicit-host allowlist only.
+8. Worker leases expire and can be reclaimed after crashes.
+9. Idempotent tasks cannot double-apply the same requested work within a tenant scope.
+10. Fact history is superseded, not destroyed.
+11. Human review is required for medium-strength evidence.
 
 ## Verification added
 
-`tests/Feature/AgenticCrmTest.php` covers strong/medium/weak evidence policy, human approval, tenant-scoped idempotency, reasoned rechecks, custom-agent tool validation, and scoped tool invocation.
+`tests/Feature/AgenticCrmTest.php` covers strong/medium/weak evidence policy, tool-source attestation, human approval, tenant-scoped idempotency, reasoned rechecks, custom-agent tool validation, and scoped tool invocation.
 
 ## Integration blocker in this repository mirror
 
