@@ -81,8 +81,11 @@ class CrmController extends Controller
     public function convertLead(Request $request, CrmLead $lead, AuditLogger $audit)
     {
         $workspace = $this->workspace($request, 'crm.manage');
-        $this->tenant($lead, $workspace);
-        abort_unless($lead->status === 'open', 422, 'Lead already converted or closed.');
+        if ($lead->status !== 'open') {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'lead' => 'Lead already converted or closed.',
+            ]);
+        }
         $data = $request->validate([
             'name' => ['nullable', 'string'],
             'value' => ['nullable', 'numeric', 'min:0'],

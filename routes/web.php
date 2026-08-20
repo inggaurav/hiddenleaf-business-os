@@ -436,16 +436,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('ai-agent/chat/messages/{session}', [AIAgentChatPageController::class, 'getMessages'])->name('ai-agent.chat.messages');
     Route::post('ai-agent/chat', [AIAgentChatController::class, 'chat'])->name('ai-agent.chat.send');
 
-    // Mr. Fox Intelligence & Action Agent API
-    Route::prefix('api/v1/mr-fox')->name('mr-fox.')->middleware('throttle:60,1')->group(function () {
-        Route::post('chat', [\App\Http\Controllers\MrFox\MrFoxChatController::class, 'chat'])->name('chat');
-        Route::get('insights', [\App\Http\Controllers\MrFox\MrFoxChatController::class, 'getInsights'])->name('insights');
-        Route::get('conversations', [\App\Http\Controllers\MrFox\MrFoxChatController::class, 'getConversations'])->name('conversations');
-        Route::get('conversations/{id}', [\App\Http\Controllers\MrFox\MrFoxChatController::class, 'getConversationMessages'])->name('conversations.show');
-        Route::post('actions/{id}/approve', [\App\Http\Controllers\MrFox\MrFoxChatController::class, 'approveAction'])->name('actions.approve');
-        Route::post('actions/{id}/reject', [\App\Http\Controllers\MrFox\MrFoxChatController::class, 'rejectAction'])->name('actions.reject');
-    });
-
     // Unified Communications Inbox
     Route::get('inbox', [\App\Http\Controllers\Communications\UnifiedInboxController::class, 'index'])->name('inbox.index');
     Route::prefix('api/v1/communications')->name('communications.')->group(function () {

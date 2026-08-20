@@ -72,6 +72,41 @@ class DatabaseSeeder extends Seeder
         $memberRole->permissions()->sync(
             Permission::whereIn('name', ['workspace.view', 'workspace.switch', 'workspace.members.view'])->pluck('id')->toArray()
         );
+
+        $user = \App\Models\User::firstOrCreate(
+            ['email' => 'admin@hiddenleaf.test'],
+            [
+                'name' => 'HiddenLeaf Admin',
+                'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                'role' => 'company_admin',
+                'is_active' => true,
+            ]
+        );
+
+        $plan = \App\Models\Plan::firstOrCreate(
+            ['name' => 'Enterprise'],
+            ['modules' => ['lead', 'account', 'taskly'], 'created_by' => $user->id]
+        );
+
+        $org = \App\Models\Organization::firstOrCreate(
+            ['slug' => 'hiddenleaf-demo'],
+            ['name' => 'HiddenLeaf Demo', 'owner_id' => $user->id, 'plan_id' => $plan->id]
+        );
+
+        $ws = \App\Models\Workspace::firstOrCreate(
+            ['organization_id' => $org->id, 'name' => 'Main Workspace'],
+            ['slug' => 'main', 'created_by' => $user->id]
+        );
+
+        \Illuminate\Support\Facades\DB::table('organization_memberships')->updateOrInsert(
+            ['organization_id' => $org->id, 'user_id' => $user->id],
+            ['role' => 'owner', 'created_at' => now(), 'updated_at' => now()]
+        );
+
+        \Illuminate\Support\Facades\DB::table('workspace_memberships')->updateOrInsert(
+            ['workspace_id' => $ws->id, 'user_id' => $user->id],
+            ['role_id' => $adminRole->id, 'created_at' => now(), 'updated_at' => now()]
+        );
     }
 
     private function accountPermissions(): array

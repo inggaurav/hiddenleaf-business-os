@@ -2,9 +2,9 @@ name: HiddenLeaf BusinessOS CI
 
 on:
   push:
-    branches: [master, stage-1-workdo-core-real-build, integration/hiddenleaf-v1]
+    branches: [master, stage-1-workdo-core-real-build, integration/hiddenleaf-v1, 'release/*']
   pull_request:
-    branches: [master, stage-1-workdo-core-real-build, integration/hiddenleaf-v1]
+    branches: [master, stage-1-workdo-core-real-build, integration/hiddenleaf-v1, 'release/*']
 
 jobs:
   build-and-test:
