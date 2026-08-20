@@ -49,7 +49,7 @@
         "release:scan": "@php tools/release-scan.php"
     },
     "config": {
-        "optimize-autoloader": true,
+        "optimize-autoloader": false,
         "preferred-install": "dist",
         "sort-packages": true,
         "allow-plugins": {
