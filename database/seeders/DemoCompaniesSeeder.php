@@ -336,7 +336,7 @@ class DemoCompaniesSeeder extends Seeder
         ], [
             'customer_id' => $cust1->id,
             'issue_date' => now()->subDays(5)->toDateString(),
-            'status' => 'sent',
+            'status' => 1,
             'total_amount' => $isIndia ? 500000.00 : 10000.00,
         ]);
 
