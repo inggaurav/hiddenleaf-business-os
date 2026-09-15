@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class HrSalaryComponent extends Model
@@ -13,5 +14,10 @@ class HrSalaryComponent extends Model
     protected function casts(): array
     {
         return ['value' => 'decimal:4', 'is_taxable' => 'boolean'];
+    }
+
+    public function scopeForWorkspace(Builder $q, int $org, int $ws): Builder
+    {
+        return $q->where('organization_id', $org)->where('workspace_id', $ws);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class HrLeaveRequest extends Model
@@ -13,6 +14,11 @@ class HrLeaveRequest extends Model
     protected function casts(): array
     {
         return ['starts_on' => 'date', 'ends_on' => 'date', 'days' => 'decimal:2', 'reviewed_at' => 'datetime'];
+    }
+
+    public function scopeForWorkspace(Builder $q, int $org, int $ws): Builder
+    {
+        return $q->where('organization_id', $org)->where('workspace_id', $ws);
     }
 
     public function employee()

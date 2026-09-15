@@ -31,6 +31,11 @@ class HandleInertiaRequests extends Middleware
 
         $orgId = (int) $request->session()->get('active_organization_id');
         $org = $orgId > 0 ? Organization::find($orgId) : null;
+        $systemBrandName = config('settings.titleText')
+            ?: (config('settings.app_name') ?: config('app.name', 'HiddenLeaf BusinessOS'));
+        $effectiveBrandName = ($org && $org->brand_name) ? $org->brand_name : $systemBrandName;
+        $brandLogo = $org?->brand_logo_path ?: (config('settings.logo_dark') ?: null);
+        $brandFooterText = $org?->brand_footer_text ?: (config('settings.footerText') ?: null);
 
         return array_merge(parent::share($request), [
             'auth' => [
@@ -51,10 +56,17 @@ class HandleInertiaRequests extends Middleware
                 'workspace_title' => $request->session()->get('active_workspace_title'),
                 'available_workspaces' => $user ? $this->resolveWorkspaces($request, $user) : [],
                 'modules' => $this->resolveModules($request, $user),
-                'brand_name' => $org?->brand_name,
-                'brand_logo_path' => $org?->brand_logo_path,
+                'brand_name' => $effectiveBrandName,
+                'brand_logo_path' => $brandLogo,
                 'brand_primary_color' => $org?->brand_primary_color,
-                'brand_footer_text' => $org?->brand_footer_text,
+                'brand_footer_text' => $brandFooterText,
+            ],
+            'branding' => [
+                'brand_name' => $effectiveBrandName,
+                'system_name' => $systemBrandName,
+                'logo' => $brandLogo,
+                'primary_color' => $org?->brand_primary_color,
+                'footer_text' => $brandFooterText,
             ],
             'is_impersonating' => $request->session()->has('impersonator_id'),
             'impersonator_name' => $request->session()->has('impersonator_id')

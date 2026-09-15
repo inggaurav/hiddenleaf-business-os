@@ -5,15 +5,24 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
-class HrLeaveType extends Model
+class HrHoliday extends Model
 {
-    protected $table = 'hr_leave_types';
+    protected $table = 'hr_holidays';
 
-    protected $fillable = ['organization_id', 'workspace_id', 'name', 'annual_allowance', 'is_paid'];
+    protected $fillable = [
+        'organization_id',
+        'workspace_id',
+        'name',
+        'holiday_date',
+        'is_optional',
+    ];
 
     protected function casts(): array
     {
-        return ['annual_allowance' => 'decimal:2', 'is_paid' => 'boolean'];
+        return [
+            'holiday_date' => 'date',
+            'is_optional' => 'boolean',
+        ];
     }
 
     public function scopeForWorkspace(Builder $q, int $org, int $ws): Builder

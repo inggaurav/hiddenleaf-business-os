@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, router, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Check, ChevronDown, ChevronRight, LogOut, Menu, Search, Sparkles, X } from 'lucide-react';
 import {
   ALL_NAVIGATION_GROUPS,
@@ -137,10 +137,10 @@ export default function AppShell({ title, children, breadcrumbs }: AppShellProps
   const userPermissions = user?.permissions || [];
   const enabledModules = tenant?.modules || [];
 
-  const brandName = tenant?.brand_name || 'HiddenLeaf';
-  const brandLogo = tenant?.brand_logo_path;
-  const brandColor = tenant?.brand_primary_color;
-  const brandFooterText = tenant?.brand_footer_text;
+  const brandName = tenant?.brand_name || (page.props as any)?.branding?.brand_name || 'HiddenLeaf BusinessOS';
+  const brandLogo = tenant?.brand_logo_path || (page.props as any)?.branding?.logo;
+  const brandColor = tenant?.brand_primary_color || (page.props as any)?.branding?.primary_color;
+  const brandFooterText = tenant?.brand_footer_text || (page.props as any)?.branding?.footer_text;
 
   useEffect(() => {
     if (brandColor) {
@@ -175,6 +175,7 @@ export default function AppShell({ title, children, breadcrumbs }: AppShellProps
 
   return (
     <div className="min-h-screen bg-[var(--bg-0)] text-[var(--text-primary)] font-sans antialiased">
+      {title && <Head title={title} />}
       {/* Impersonation Banner */}
       {is_impersonating && (
         <div className="bg-amber-500/15 border-b border-amber-500/30 px-4 py-2 text-xs text-amber-400 flex items-center justify-between sticky top-0 z-50 backdrop-blur-md">
@@ -222,10 +223,9 @@ export default function AppShell({ title, children, breadcrumbs }: AppShellProps
             <div className="flex flex-col min-w-0">
               <span className="font-bold text-sm tracking-tight text-[var(--text-primary)] flex items-center gap-1.5 truncate">
                 {brandName}
-                {!tenant?.brand_name && <Badge variant="neutral" size="sm">OS</Badge>}
               </span>
               <span className="text-xs text-[var(--text-tertiary)] uppercase tracking-widest font-medium leading-none truncate">
-                {tenant?.brand_name ? (brandFooterText || 'Workspace') : 'BusinessOS'}
+                {tenant?.workspace_title || brandFooterText || 'Workspace'}
               </span>
             </div>
           </Link>

@@ -8,7 +8,9 @@ import { Input } from '@/Components/UI/Input';
 import { Checkbox } from '@/Components/UI/Checkbox';
 
 export default function Login() {
-  const { flash = {} } = usePage<{ flash?: { success?: string; error?: string } }>().props;
+  const page = usePage<any>();
+  const brandName = page.props?.branding?.brand_name || page.props?.tenant?.brand_name || 'HiddenLeaf BusinessOS';
+  const { flash = {} } = page.props;
   const [showPassword, setShowPassword] = useState(false);
   const { data, setData, post, processing, errors } = useForm({ email: '', password: '', remember: false });
   const installationComplete = Boolean(flash.success?.toLowerCase().includes('installation completed'));
@@ -19,14 +21,14 @@ export default function Login() {
   };
 
   return (
-    <GuestLayout title={installationComplete ? 'BusinessOS is ready' : 'Welcome back'} eyebrow="HiddenLeaf BusinessOS" description={installationComplete ? 'Your secure installation completed successfully. Sign in with the administrator account you created.' : 'Sign in to continue to your secure business workspace.'}>
+    <GuestLayout title={installationComplete ? `${brandName} is ready` : 'Welcome back'} eyebrow={brandName} description={installationComplete ? 'Your secure installation completed successfully. Sign in with the administrator account you created.' : 'Sign in to continue to your secure business workspace.'}>
       {installationComplete && (
         <div role="status" className="mb-4 rounded-2xl border border-emerald-400/25 bg-emerald-400/[0.08] p-5">
           <div className="flex items-start gap-3">
             <CheckCircle2 className="mt-0.5 h-6 w-6 shrink-0 text-emerald-400" aria-hidden="true" />
             <div>
-              <p className="font-semibold text-emerald-100">HiddenLeaf BusinessOS is ready.</p>
-              <p className="mt-1 text-sm leading-6 text-emerald-200/65">The installer is now locked. Use your administrator credentials below to open BusinessOS.</p>
+              <p className="font-semibold text-emerald-100">{brandName} is ready.</p>
+              <p className="mt-1 text-sm leading-6 text-emerald-200/65">The installer is now locked. Use your administrator credentials below to open {brandName}.</p>
             </div>
           </div>
           <a href="#sign-in-form" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-emerald-300 hover:text-emerald-200 focus-ring">Sign In <ArrowRight className="h-4 w-4" /></a>
@@ -66,7 +68,7 @@ export default function Login() {
             <Link href="/forgot-password" className="font-medium text-emerald-400 hover:text-emerald-300 focus-ring">Forgot password?</Link>
           </div>
           <Button type="submit" variant="primary" size="lg" loading={processing} className="w-full" icon={<ArrowRight className="h-4 w-4" />} iconPosition="right">
-            Sign In to BusinessOS
+            Sign In to {brandName}
           </Button>
         </form>
         <div className="mt-6 border-t border-white/[0.07] pt-5 text-center text-xs text-slate-500">

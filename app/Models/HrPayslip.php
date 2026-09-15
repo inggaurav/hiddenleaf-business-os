@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class HrPayslip extends Model
@@ -13,6 +14,16 @@ class HrPayslip extends Model
     protected function casts(): array
     {
         return ['period_start' => 'date', 'period_end' => 'date', 'gross_pay' => 'decimal:2', 'deductions' => 'decimal:2', 'net_pay' => 'decimal:2', 'paid_at' => 'datetime'];
+    }
+
+    public function scopeForWorkspace(Builder $q, int $org, int $ws): Builder
+    {
+        return $q->where('organization_id', $org)->where('workspace_id', $ws);
+    }
+
+    public function employee()
+    {
+        return $this->belongsTo(HrEmployee::class, 'employee_id');
     }
 
     public function lines()
