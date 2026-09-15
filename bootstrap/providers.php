@@ -12,4 +12,11 @@ return [
     SettingsServiceProvider::class,
     MrFoxServiceProvider::class,
     CollisionServiceProvider::class,
+    HiddenLeaf\Hrm\Providers\HrmServiceProvider::class,
+    HiddenLeaf\SmsNotifications\Providers\SmsServiceProvider::class,
+    HiddenLeaf\CrmDealsKanban\Providers\DealsKanbanServiceProvider::class,
+    HiddenLeaf\NoticeBoard\Providers\NoticeBoardServiceProvider::class,
+    HiddenLeaf\SuggestionBox\Providers\SuggestionBoxServiceProvider::class,
+    HiddenLeaf\SmartAnalytics\Providers\SmartAnalyticsServiceProvider::class,
+    HiddenLeaf\AIAdvisor\Providers\AIAdvisorServiceProvider::class,
 ];

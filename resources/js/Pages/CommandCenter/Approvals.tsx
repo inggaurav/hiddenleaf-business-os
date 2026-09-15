@@ -87,7 +87,7 @@ export default function ApprovalsIndex({ proposals: initialProposals }: Props) {
                                 <div className="space-y-1.5 max-w-2xl">
                                     <div className="flex items-center gap-2">
                                         <span className="text-sm font-bold text-slate-800 dark:text-white">{prop.human_summary}</span>
-                                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                                        <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${
                                             prop.status === 'pending' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' :
                                             prop.status === 'approved' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' :
                                             'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'

@@ -15,7 +15,7 @@ class CheckModuleStatus
     /**
      * @param  Closure(Request): Response  $next
      */
-    public function handle(Request $request, Closure $next, string $moduleName): Response
+    public function handle(Request $request, Closure $next, string ...$modules): Response
     {
         $workspaceId = $request->session()->get('active_workspace_id');
         if (! $workspaceId) {
@@ -30,8 +30,27 @@ class CheckModuleStatus
         $user = $request->user();
         $isSuperAdmin = $user && method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin();
 
-        if (! $this->addons->canUse($workspace, $moduleName, $isSuperAdmin)) {
-            abort(403, "Module {$moduleName} is not active for this workspace or included in its plan.");
+        $moduleList = [];
+        foreach ($modules as $mod) {
+            foreach (preg_split('/[|,]/', $mod) as $item) {
+                $trimmed = trim($item);
+                if ($trimmed !== '') {
+                    $moduleList[] = $trimmed;
+                }
+            }
+        }
+
+        $hasAccess = false;
+        foreach ($moduleList as $mod) {
+            if ($this->addons->canUse($workspace, $mod, $isSuperAdmin)) {
+                $hasAccess = true;
+                break;
+            }
+        }
+
+        if (! $hasAccess) {
+            $names = implode(', ', $moduleList);
+            abort(403, "Module {$names} is not active for this workspace or included in its plan.");
         }
 
         return $next($request);

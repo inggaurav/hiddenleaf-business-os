@@ -64,13 +64,7 @@ interface SalesDashboardProps {
   recentProposals: ProposalItem[];
 }
 
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 2,
-  }).format(amount || 0);
-}
+import { formatINR, formatINRShort } from '@/lib/format';
 
 export default function SalesDashboard({
   stats,
@@ -81,7 +75,7 @@ export default function SalesDashboard({
   const chartData = monthlySales.map((item) => ({
     label: item.month,
     value: item.sales,
-    formattedValue: formatCurrency(item.sales),
+    formattedValue: formatINR(item.sales),
   }));
 
   return (
@@ -117,13 +111,13 @@ export default function SalesDashboard({
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <MetricCard
             title="Total Sales Invoiced"
-            value={formatCurrency(stats.total_sales_amount)}
+            value={formatINRShort(stats.total_sales_amount)}
             icon={<DollarSign className="h-5 w-5 text-emerald-400" />}
             subtitle={`${stats.total_invoices} total invoices issued`}
           />
           <MetricCard
             title="Outstanding Receivables"
-            value={formatCurrency(stats.outstanding_receivables)}
+            value={formatINRShort(stats.outstanding_receivables)}
             icon={<Clock className="h-5 w-5 text-amber-400" />}
             trend={{
               value: stats.outstanding_receivables > 0 ? 'Pending collection' : 'Fully settled',
@@ -159,7 +153,7 @@ export default function SalesDashboard({
             title="Sales Returns"
             value={stats.total_returns}
             icon={<RotateCcw className="h-5 w-5 text-rose-400" />}
-            subtitle={formatCurrency(stats.returns_amount)}
+            subtitle={formatINR(stats.returns_amount)}
           />
           <MetricCard
             title="Active Invoices"
@@ -226,13 +220,13 @@ export default function SalesDashboard({
                       <div className="text-[11px] text-[var(--text-tertiary)] truncate">
                         {inv.customer_name}
                       </div>
-                      <div className="text-[10px] text-[var(--text-tertiary)]">
+                      <div className="text-xs text-[var(--text-tertiary)]">
                         {inv.issue_date}
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="text-xs font-bold text-emerald-400">
-                        {formatCurrency(inv.grand_total)}
+                        {formatINR(inv.grand_total)}
                       </div>
                       <Badge
                         variant={
@@ -281,13 +275,13 @@ export default function SalesDashboard({
                       <div className="text-[11px] text-[var(--text-tertiary)] truncate">
                         {prop.customer_name}
                       </div>
-                      <div className="text-[10px] text-[var(--text-tertiary)]">
+                      <div className="text-xs text-[var(--text-tertiary)]">
                         {prop.issue_date}
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="text-xs font-bold text-sky-400">
-                        {formatCurrency(prop.grand_total)}
+                        {formatINR(prop.grand_total)}
                       </div>
                       <Badge
                         variant={

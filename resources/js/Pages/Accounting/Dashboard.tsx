@@ -22,6 +22,7 @@ import { SimpleBarChart } from '@/Components/UI/Charts';
 
 interface DashboardStats {
   total_clients: number;
+  total_customers?: number;
   total_vendors: number;
   total_revenue: number;
   total_expense: number;
@@ -73,13 +74,7 @@ interface AccountingDashboardProps {
   financialHealth: FinancialHealth;
 }
 
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 2,
-  }).format(amount || 0);
-}
+import { formatINR, formatINRShort } from '@/lib/format';
 
 export default function AccountingDashboard({
   stats,
@@ -93,13 +88,13 @@ export default function AccountingDashboard({
   const customerChartData = monthlyCustomerPayments.map((item) => ({
     label: item.month,
     value: item.customer_payments || 0,
-    formattedValue: formatCurrency(item.customer_payments || 0),
+    formattedValue: formatINR(item.customer_payments || 0),
   }));
 
   const vendorChartData = monthlyVendorPayments.map((item) => ({
     label: item.month,
     value: item.vendor_payments || 0,
-    formattedValue: formatCurrency(item.vendor_payments || 0),
+    formattedValue: formatINR(item.vendor_payments || 0),
   }));
 
   return (
@@ -134,10 +129,10 @@ export default function AccountingDashboard({
         {/* Primary Metric Cards */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <MetricCard
-            title="Total Clients"
-            value={stats.total_clients}
+            title="Total Customers"
+            value={stats.total_customers ?? stats.total_clients ?? 0}
             icon={<Users className="h-5 w-5 text-indigo-400" />}
-            subtitle="Active paying customers"
+            subtitle="Active client profiles"
           />
           <MetricCard
             title="Total Vendors"
@@ -147,19 +142,19 @@ export default function AccountingDashboard({
           />
           <MetricCard
             title="Customer Payments"
-            value={formatCurrency(stats.total_customer_payment)}
+            value={formatINRShort(stats.total_customer_payment)}
             icon={<ArrowDownRight className="h-5 w-5 text-emerald-400" />}
             trend={{
-              value: stats.receivables > 0 ? `${formatCurrency(stats.receivables)} pending` : 'All collected',
+              value: stats.receivables > 0 ? `${formatINR(stats.receivables)} pending` : 'All collected',
               positive: stats.receivables === 0,
             }}
           />
           <MetricCard
             title="Vendor Payments"
-            value={formatCurrency(stats.total_vendor_payment)}
+            value={formatINRShort(stats.total_vendor_payment)}
             icon={<ArrowUpRight className="h-5 w-5 text-amber-400" />}
             trend={{
-              value: stats.payables > 0 ? `${formatCurrency(stats.payables)} outstanding` : 'Fully paid',
+              value: stats.payables > 0 ? `${formatINR(stats.payables)} outstanding` : 'Fully paid',
               neutral: true,
             }}
           />
@@ -169,19 +164,19 @@ export default function AccountingDashboard({
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <MetricCard
             title="Total Revenue"
-            value={formatCurrency(stats.total_revenue)}
+            value={formatINRShort(stats.total_revenue)}
             icon={<TrendingUp className="h-5 w-5 text-emerald-400" />}
             subtitle="Recognized earned income"
           />
           <MetricCard
             title="Total Expenses"
-            value={formatCurrency(stats.total_expense)}
+            value={formatINRShort(stats.total_expense)}
             icon={<TrendingDown className="h-5 w-5 text-rose-400" />}
             subtitle="Operational & COGS expense"
           />
           <MetricCard
             title="Net Profit"
-            value={formatCurrency(stats.net_profit)}
+            value={formatINRShort(stats.net_profit)}
             icon={<DollarSign className="h-5 w-5 text-emerald-400" />}
             trend={{
               value: stats.net_profit >= 0 ? 'Profitable' : 'Deficit',
@@ -190,7 +185,7 @@ export default function AccountingDashboard({
           />
           <MetricCard
             title="Cash & Bank Balance"
-            value={formatCurrency(stats.cash_bank_balance)}
+            value={formatINRShort(stats.cash_bank_balance)}
             icon={<CreditCard className="h-5 w-5 text-violet-400" />}
             subtitle="Liquid available funds"
           />
@@ -245,7 +240,7 @@ export default function AccountingDashboard({
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <Link
             href="/accounting/customers"
-            className="p-3.5 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] hover:border-purple-500/40 hover:bg-white/[0.02] spring-transition space-y-1 block"
+            className="p-3.5 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] hover:border-[var(--border-medium)] hover:bg-white/[0.02] spring-transition space-y-1 block"
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-[var(--text-primary)]">Customers</span>
@@ -256,7 +251,7 @@ export default function AccountingDashboard({
 
           <Link
             href="/accounting/vendors"
-            className="p-3.5 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] hover:border-purple-500/40 hover:bg-white/[0.02] spring-transition space-y-1 block"
+            className="p-3.5 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] hover:border-[var(--border-medium)] hover:bg-white/[0.02] spring-transition space-y-1 block"
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-[var(--text-primary)]">Vendors</span>
@@ -267,7 +262,7 @@ export default function AccountingDashboard({
 
           <Link
             href="/accounting/customer-payments"
-            className="p-3.5 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] hover:border-purple-500/40 hover:bg-white/[0.02] spring-transition space-y-1 block"
+            className="p-3.5 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] hover:border-[var(--border-medium)] hover:bg-white/[0.02] spring-transition space-y-1 block"
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-[var(--text-primary)]">Customer Payments</span>
@@ -278,7 +273,7 @@ export default function AccountingDashboard({
 
           <Link
             href="/accounting/vendor-payments"
-            className="p-3.5 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] hover:border-purple-500/40 hover:bg-white/[0.02] spring-transition space-y-1 block"
+            className="p-3.5 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] hover:border-[var(--border-medium)] hover:bg-white/[0.02] spring-transition space-y-1 block"
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-[var(--text-primary)]">Vendor Payments</span>
@@ -289,7 +284,7 @@ export default function AccountingDashboard({
 
           <Link
             href="/accounting/revenues"
-            className="p-3.5 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] hover:border-purple-500/40 hover:bg-white/[0.02] spring-transition space-y-1 block"
+            className="p-3.5 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] hover:border-[var(--border-medium)] hover:bg-white/[0.02] spring-transition space-y-1 block"
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-[var(--text-primary)]">Direct Revenues</span>
@@ -300,7 +295,7 @@ export default function AccountingDashboard({
 
           <Link
             href="/accounting/expenses"
-            className="p-3.5 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] hover:border-purple-500/40 hover:bg-white/[0.02] spring-transition space-y-1 block"
+            className="p-3.5 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] hover:border-[var(--border-medium)] hover:bg-white/[0.02] spring-transition space-y-1 block"
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-[var(--text-primary)]">Direct Expenses</span>
@@ -311,7 +306,7 @@ export default function AccountingDashboard({
 
           <Link
             href="/accounting/credit-notes"
-            className="p-3.5 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] hover:border-purple-500/40 hover:bg-white/[0.02] spring-transition space-y-1 block"
+            className="p-3.5 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] hover:border-[var(--border-medium)] hover:bg-white/[0.02] spring-transition space-y-1 block"
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-[var(--text-primary)]">Credit Notes</span>
@@ -322,7 +317,7 @@ export default function AccountingDashboard({
 
           <Link
             href="/accounting/debit-notes"
-            className="p-3.5 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] hover:border-purple-500/40 hover:bg-white/[0.02] spring-transition space-y-1 block"
+            className="p-3.5 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] hover:border-[var(--border-medium)] hover:bg-white/[0.02] spring-transition space-y-1 block"
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-[var(--text-primary)]">Debit Notes</span>
@@ -352,25 +347,25 @@ export default function AccountingDashboard({
             <div className="p-3 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] space-y-1">
               <span className="text-xs text-[var(--text-tertiary)]">Total Assets</span>
               <div className="text-base font-bold text-[var(--text-primary)]">
-                {formatCurrency(financialHealth?.assets || 0)}
+                {formatINR(financialHealth?.assets || 0)}
               </div>
             </div>
             <div className="p-3 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] space-y-1">
               <span className="text-xs text-[var(--text-tertiary)]">Total Liabilities</span>
               <div className="text-base font-bold text-rose-400">
-                {formatCurrency(financialHealth?.liabilities || 0)}
+                {formatINR(financialHealth?.liabilities || 0)}
               </div>
             </div>
             <div className="p-3 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] space-y-1">
               <span className="text-xs text-[var(--text-tertiary)]">Total Equity</span>
               <div className="text-base font-bold text-sky-400">
-                {formatCurrency(financialHealth?.equity || 0)}
+                {formatINR(financialHealth?.equity || 0)}
               </div>
             </div>
             <div className="p-3 rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] space-y-1">
               <span className="text-xs text-[var(--text-tertiary)]">Net Operating Income</span>
               <div className="text-base font-bold text-emerald-400">
-                {formatCurrency(financialHealth?.net_income || 0)}
+                {formatINR(financialHealth?.net_income || 0)}
               </div>
             </div>
           </div>
@@ -406,13 +401,13 @@ export default function AccountingDashboard({
                       <div className="text-[11px] text-[var(--text-tertiary)] truncate">
                         {item.description}
                       </div>
-                      <div className="text-[10px] text-[var(--text-tertiary)]">
+                      <div className="text-xs text-[var(--text-tertiary)]">
                         {item.date}
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="text-xs font-bold text-emerald-400">
-                        +{formatCurrency(item.amount)}
+                        +{formatINR(item.amount)}
                       </div>
                       <Badge variant={item.status === 'paid' ? 'success' : 'neutral'} size="sm">
                         {item.status}
@@ -452,13 +447,13 @@ export default function AccountingDashboard({
                       <div className="text-[11px] text-[var(--text-tertiary)] truncate">
                         {item.description}
                       </div>
-                      <div className="text-[10px] text-[var(--text-tertiary)]">
+                      <div className="text-xs text-[var(--text-tertiary)]">
                         {item.date}
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="text-xs font-bold text-rose-400">
-                        -{formatCurrency(item.amount)}
+                        -{formatINR(item.amount)}
                       </div>
                       <Badge variant={item.status === 'paid' ? 'success' : 'neutral'} size="sm">
                         {item.status}
@@ -501,7 +496,7 @@ export default function AccountingDashboard({
                       <div className="text-[11px] text-[var(--text-tertiary)] truncate">
                         {item.description}
                       </div>
-                      <div className="text-[10px] text-[var(--text-tertiary)]">
+                      <div className="text-xs text-[var(--text-tertiary)]">
                         {item.entry_date}
                       </div>
                     </div>

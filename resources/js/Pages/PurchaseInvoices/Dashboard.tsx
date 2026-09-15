@@ -59,13 +59,7 @@ interface ProcurementDashboardProps {
   recentReturns: PurchaseReturnItem[];
 }
 
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 2,
-  }).format(amount || 0);
-}
+import { formatINR, formatINRShort } from '@/lib/format';
 
 export default function PurchaseInvoicesDashboard({
   stats,
@@ -76,7 +70,7 @@ export default function PurchaseInvoicesDashboard({
   const chartData = monthlyPurchases.map((item) => ({
     label: item.month,
     value: item.purchases,
-    formattedValue: formatCurrency(item.purchases),
+    formattedValue: formatINR(item.purchases),
   }));
 
   return (
@@ -112,13 +106,13 @@ export default function PurchaseInvoicesDashboard({
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <MetricCard
             title="Total Purchases"
-            value={formatCurrency(stats.total_purchasing_amount)}
+            value={formatINRShort(stats.total_purchasing_amount)}
             icon={<DollarSign className="h-5 w-5 text-amber-400" />}
             subtitle={`${stats.total_purchase_invoices} total vendor bills`}
           />
           <MetricCard
             title="Outstanding Payables"
-            value={formatCurrency(stats.outstanding_payables)}
+            value={formatINRShort(stats.outstanding_payables)}
             icon={<Clock className="h-5 w-5 text-rose-400" />}
             trend={{
               value: stats.outstanding_payables > 0 ? 'Pending payment' : 'Fully settled',
@@ -135,7 +129,7 @@ export default function PurchaseInvoicesDashboard({
             title="Purchase Returns"
             value={stats.total_purchase_returns}
             icon={<RotateCcw className="h-5 w-5 text-sky-400" />}
-            subtitle={formatCurrency(stats.purchase_returns_amount)}
+            subtitle={formatINR(stats.purchase_returns_amount)}
           />
         </div>
 
@@ -161,7 +155,7 @@ export default function PurchaseInvoicesDashboard({
           />
           <MetricCard
             title="Debit Notes Value"
-            value={formatCurrency(stats.purchase_returns_amount)}
+            value={formatINRShort(stats.purchase_returns_amount)}
             icon={<DollarSign className="h-5 w-5 text-emerald-400" />}
             subtitle="Vendor credit returned"
           />
@@ -218,13 +212,13 @@ export default function PurchaseInvoicesDashboard({
                       <div className="text-[11px] text-[var(--text-tertiary)] truncate">
                         {inv.vendor_name}
                       </div>
-                      <div className="text-[10px] text-[var(--text-tertiary)]">
+                      <div className="text-xs text-[var(--text-tertiary)]">
                         {inv.issue_date}
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="text-xs font-bold text-amber-400">
-                        {formatCurrency(inv.grand_total)}
+                        {formatINR(inv.grand_total)}
                       </div>
                       <Badge
                         variant={
@@ -273,13 +267,13 @@ export default function PurchaseInvoicesDashboard({
                       <div className="text-[11px] text-[var(--text-tertiary)] truncate">
                         {ret.vendor_name}
                       </div>
-                      <div className="text-[10px] text-[var(--text-tertiary)]">
+                      <div className="text-xs text-[var(--text-tertiary)]">
                         {ret.created_at}
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="text-xs font-bold text-emerald-400">
-                        {formatCurrency(ret.total_amount)}
+                        {formatINR(ret.total_amount)}
                       </div>
                       <Badge variant="neutral" size="sm">
                         {ret.status}

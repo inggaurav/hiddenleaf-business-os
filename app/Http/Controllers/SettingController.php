@@ -176,4 +176,18 @@ class SettingController extends Controller
 
         return redirect()->back()->with('success', 'Application cache cleared successfully.');
     }
+
+    public function auditLog(Request $request)
+    {
+        $user = Auth::user();
+        $orgId = session('active_organization_id');
+
+        $logs = $orgId
+            ? \App\Models\AuditLog::where('organization_id', $orgId)->with('actor')->latest()->paginate(25)
+            : \App\Models\AuditLog::where('actor_id', $user->id)->with('actor')->latest()->paginate(25);
+
+        return Inertia::render('Settings/AuditLog', [
+            'logs' => $logs,
+        ]);
+    }
 }

@@ -70,7 +70,7 @@ export const SimpleBarChart: React.FC<BarChartProps> = ({
           return (
             <div key={idx} className="group relative flex flex-1 flex-col items-center gap-1">
               {/* Tooltip on hover */}
-              <div className="pointer-events-none absolute -top-10 z-20 hidden rounded-md bg-[var(--surface-3)] px-2 py-1 text-[10px] font-medium text-[var(--text-primary)] shadow-lg border border-[var(--border-subtle)] whitespace-nowrap group-hover:flex">
+              <div className="pointer-events-none absolute -top-10 z-20 hidden rounded-md bg-[var(--surface-3)] px-2 py-1 text-xs font-medium text-[var(--text-primary)] shadow-lg border border-[var(--border-subtle)] whitespace-nowrap group-hover:flex">
                 <span>{item.label}: {item.formattedValue ?? item.value}</span>
                 {item.secondaryFormattedValue && (
                   <span className="ml-1 text-[var(--text-secondary)]">({item.secondaryFormattedValue})</span>
@@ -157,7 +157,7 @@ export const ProgressDistribution: React.FC<ProgressDistributionProps> = ({
                 <span className="text-[var(--text-secondary)] truncate">{item.name}</span>
               </div>
               <span className="font-medium text-[var(--text-primary)] shrink-0">
-                {item.formattedValue ?? item.value} <span className="text-[10px] text-[var(--text-tertiary)]">({pct}%)</span>
+                {item.formattedValue ?? item.value} <span className="text-xs text-[var(--text-tertiary)]">({pct}%)</span>
               </span>
             </div>
           );

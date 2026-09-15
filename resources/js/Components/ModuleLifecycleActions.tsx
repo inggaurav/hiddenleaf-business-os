@@ -11,14 +11,14 @@ interface Props {
   lookups: any;
 }
 
-const inputClass = 'w-full px-3 py-2 rounded-xl bg-[var(--surface-2)] border border-[var(--border-subtle)] text-sm outline-none focus:border-purple-500/50';
+const inputClass = 'w-full px-3 py-2 rounded-xl bg-[var(--surface-2)] border border-[var(--border-subtle)] text-sm outline-none focus:border-[var(--border-strong)]/50';
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return <label className="space-y-1"><span className="block text-[11px] font-semibold text-[var(--text-secondary)]">{label}</span>{children}</label>;
 }
 
 function WorkflowCard({ title, description, children }: { title: string; description: string; children: React.ReactNode }) {
-  return <Card level={0} className="space-y-3"><div><h3 className="text-sm font-bold flex items-center gap-2"><PlayCircle className="w-4 h-4 text-purple-400" />{title}</h3><p className="text-[11px] text-[var(--text-tertiary)] mt-1">{description}</p></div>{children}</Card>;
+  return <Card level={0} className="space-y-3"><div><h3 className="text-sm font-bold flex items-center gap-2"><PlayCircle className="w-4 h-4 text-[var(--brand-primary)]" />{title}</h3><p className="text-[11px] text-[var(--text-tertiary)] mt-1">{description}</p></div>{children}</Card>;
 }
 
 function DealMove({ lookups }: any) {

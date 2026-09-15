@@ -54,8 +54,8 @@ export default function HelpdeskShow() {
 
             {/* Replies List */}
             {replies.map((rep: any) => (
-              <Card key={rep.id} level={0} className="space-y-3 bg-purple-950/10 border-purple-500/20">
-                <div className="flex items-center justify-between text-xs text-purple-300 pb-2 border-b border-purple-500/20">
+              <Card key={rep.id} level={0} className="space-y-3 bg-[var(--surface-2)] border-[var(--border-subtle)]">
+                <div className="flex items-center justify-between text-xs text-[var(--text-secondary)] pb-2 border-b border-[var(--border-subtle)]">
                   <span className="font-semibold">{rep.user?.name || 'Support Agent'}</span>
                   <span>{new Date(rep.created_at).toLocaleString()}</span>
                 </div>

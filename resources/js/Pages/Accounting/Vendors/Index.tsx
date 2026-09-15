@@ -100,7 +100,7 @@ export default function VendorsIndex({ vendors }: Props) {
               placeholder="Search vendors by name or email..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-xs bg-[var(--surface-1)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-purple-500"
+              className="w-full pl-9 pr-4 py-2 text-xs bg-[var(--surface-1)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-[var(--border-strong)]"
             />
           </div>
         </div>
@@ -130,7 +130,7 @@ export default function VendorsIndex({ vendors }: Props) {
                           </div>
                           <div>
                             <div>{v.name}</div>
-                            {v.tax_number && <div className="text-[10px] text-[var(--text-tertiary)]">Tax: {v.tax_number}</div>}
+                            {v.tax_number && <div className="text-xs text-[var(--text-tertiary)]">Tax: {v.tax_number}</div>}
                           </div>
                         </div>
                       </td>
@@ -142,7 +142,7 @@ export default function VendorsIndex({ vendors }: Props) {
                           </div>
                         )}
                         {v.contact && (
-                          <div className="flex items-center gap-1.5 text-[var(--text-tertiary)] text-[10px] mt-0.5">
+                          <div className="flex items-center gap-1.5 text-[var(--text-tertiary)] text-xs mt-0.5">
                             <Phone className="w-3 h-3" />
                             <span>{v.contact}</span>
                           </div>

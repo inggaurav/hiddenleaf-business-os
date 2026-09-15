@@ -72,13 +72,7 @@ interface TasklyDashboardProps {
   recentProjects: ProjectItem[];
 }
 
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 2,
-  }).format(amount || 0);
-}
+import { formatINR } from '@/lib/format';
 
 export default function TasklyDashboard({
   stats,
@@ -258,7 +252,7 @@ export default function TasklyDashboard({
                       <div className="text-[11px] text-[var(--text-tertiary)] truncate">
                         {task.project_name} • {task.stage_name}
                       </div>
-                      <div className="text-[10px] text-[var(--text-tertiary)]">
+                      <div className="text-xs text-[var(--text-tertiary)]">
                         Due: {task.due_on ?? 'No due date'}
                       </div>
                     </div>
@@ -311,9 +305,9 @@ export default function TasklyDashboard({
                         {project.name}
                       </div>
                       <div className="text-[11px] text-[var(--text-tertiary)]">
-                        Budget: {formatCurrency(project.budget)}
+                        Budget: {formatINR(project.budget)}
                       </div>
-                      <div className="text-[10px] text-[var(--text-tertiary)]">
+                      <div className="text-xs text-[var(--text-tertiary)]">
                         {project.starts_on ?? '—'} to {project.due_on ?? '—'}
                       </div>
                     </div>

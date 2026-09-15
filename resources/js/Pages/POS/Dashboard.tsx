@@ -20,14 +20,7 @@ import {
   Sparkles,
   Users,
 } from 'lucide-react';
-
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 2,
-  }).format(amount || 0);
-}
+import { formatINR, formatINRShort } from '@/lib/format';
 
 export default function PosDashboard() {
   const {
@@ -74,7 +67,7 @@ export default function PosDashboard() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <MetricCard
             title="Today's POS Sales"
-            value={formatCurrency(todayRevenue)}
+            value={formatINRShort(todayRevenue)}
             subtitle={`${todaySalesCount} checkout orders`}
             trend={{ value: '+14.8%', positive: true }}
             icon={<Store className="w-4 h-4 text-emerald-400" />}
@@ -82,9 +75,9 @@ export default function PosDashboard() {
 
           <MetricCard
             title="Average Basket Value"
-            value={formatCurrency(avgOrderValue)}
+            value={formatINRShort(avgOrderValue)}
             subtitle="Per transaction average"
-            icon={<ShoppingBag className="w-4 h-4 text-purple-400" />}
+            icon={<ShoppingBag className="w-4 h-4 text-[var(--text-secondary)]" />}
           />
 
           <MetricCard
@@ -96,7 +89,7 @@ export default function PosDashboard() {
 
           <MetricCard
             title="Total Refunded Returns"
-            value={formatCurrency(returnsAmount)}
+            value={formatINRShort(returnsAmount)}
             subtitle="Processed returns & voids"
             icon={<RotateCcw className="w-4 h-4 text-rose-400" />}
           />
@@ -108,7 +101,7 @@ export default function PosDashboard() {
           <Card level={0} className="lg:col-span-2 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
               <div className="flex items-center gap-2">
-                <Activity className="w-4 h-4 text-purple-400" />
+                <Activity className="w-4 h-4 text-[var(--text-secondary)]" />
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider">
                   POS Revenue Velocity (Last 10 Days)
                 </h3>
@@ -123,12 +116,12 @@ export default function PosDashboard() {
                   <div key={day.date} className="flex-1 flex flex-col items-center gap-2 group">
                     <div className="w-full flex items-end justify-center h-32">
                       <div
-                        className="w-full max-w-[28px] bg-gradient-to-t from-purple-600 to-purple-400 rounded-t transition-all group-hover:brightness-125 shadow-sm"
+                        className="w-full max-w-[28px] bg-gradient-to-t from-[var(--surface-3)] to-[var(--surface-2)] rounded-t transition-all group-hover:brightness-125 shadow-sm"
                         style={{ height: `${pct}%` }}
-                        title={`${day.date}: ${formatCurrency(day.sales)}`}
+                        title={`${day.date}: ${formatINR(day.sales)}`}
                       />
                     </div>
-                    <span className="text-[10px] font-semibold text-gray-400">{day.date}</span>
+                    <span className="text-xs font-semibold text-gray-400">{day.date}</span>
                   </div>
                 );
               })}
@@ -157,7 +150,7 @@ export default function PosDashboard() {
                   <div key={method} className="space-y-1">
                     <div className="flex items-center justify-between text-xs">
                       <span className="capitalize text-gray-300 font-medium">{method.replace('_', ' ')}</span>
-                      <span className="font-bold text-white">{formatCurrency(amount)}</span>
+                      <span className="font-bold text-white">{formatINR(amount)}</span>
                     </div>
                     <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
                       <div
@@ -197,7 +190,7 @@ export default function PosDashboard() {
                       <p className="text-[11px] text-gray-400 font-mono">SKU: {p.sku || 'N/A'}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-emerald-400">{formatCurrency(p.total_revenue)}</p>
+                      <p className="font-bold text-emerald-400">{formatINR(p.total_revenue)}</p>
                       <p className="text-[11px] text-gray-400">{p.total_quantity} units</p>
                     </div>
                   </div>
@@ -210,12 +203,12 @@ export default function PosDashboard() {
           <Card level={0} className="space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
               <div className="flex items-center gap-2">
-                <Store className="w-4 h-4 text-purple-400" />
+                <Store className="w-4 h-4 text-[var(--text-secondary)]" />
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider">
                   Recent POS Orders
                 </h3>
               </div>
-              <Link href="/pos/orders" className="text-xs text-purple-400 hover:text-purple-300 font-medium">
+              <Link href="/pos/orders" className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-medium">
                 View All →
               </Link>
             </div>
@@ -227,7 +220,7 @@ export default function PosDashboard() {
                 recentSales.map((sale: any) => (
                   <div key={sale.id} className="py-2.5 flex items-center justify-between text-xs">
                     <div>
-                      <span className="font-mono font-bold text-purple-300">
+                      <span className="font-mono font-bold text-[var(--text-primary)]">
                         {sale.sale_number || `POS-${sale.id}`}
                       </span>
                       <span className="text-gray-400 ml-2">
@@ -238,7 +231,7 @@ export default function PosDashboard() {
                       <Badge variant="neutral" size="sm">
                         {sale.payment_method || 'Cash'}
                       </Badge>
-                      <span className="font-bold text-white">{formatCurrency(sale.total)}</span>
+                      <span className="font-bold text-white">{formatINR(sale.total)}</span>
                     </div>
                   </div>
                 ))

@@ -67,7 +67,7 @@ export default function LanguagesIndex() {
         <div className="flex items-center justify-end gap-2">
           {currentLang !== row.code && (
             <Button
-              variant="secondary"
+              variant="outline"
               size="sm"
               onClick={() => handleSwitch(row.code)}
             >

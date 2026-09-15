@@ -25,6 +25,13 @@
             "App\\": "app/",
             "HiddenLeaf\\": "app/",
             "HiddenLeaf\\Kernel\\": "packages/hiddenleaf/kernel/src/",
+            "HiddenLeaf\\Hrm\\": ["hrm-plugin/src/", "modules/hrm/src/"],
+            "HiddenLeaf\\SmsNotifications\\": ["sms-plugin/src/"],
+            "HiddenLeaf\\CrmDealsKanban\\": ["crm-deals-kanban-plugin/src/"],
+            "HiddenLeaf\\NoticeBoard\\": ["notice-board-plugin/src/"],
+            "HiddenLeaf\\SuggestionBox\\": ["suggestion-box-plugin/src/"],
+            "HiddenLeaf\\SmartAnalytics\\": ["smart-analytics-plugin/src/"],
+            "HiddenLeaf\\AIAdvisor\\": ["ai-advisor-plugin/src/"],
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         },
@@ -49,7 +56,7 @@
         "release:scan": "@php tools/release-scan.php"
     },
     "config": {
-        "optimize-autoloader": true,
+        "optimize-autoloader": false,
         "preferred-install": "dist",
         "sort-packages": true,
         "allow-plugins": {

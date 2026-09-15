@@ -56,7 +56,7 @@ class HierarchicalSettingService
         ?Workspace $workspace = null,
         bool $public = false,
     ): Setting {
-        if (! preg_match('/^[a-z][a-z0-9_.-]{1,119}$/', $key)) {
+        if (! preg_match('/^[a-zA-Z][a-zA-Z0-9_.-]{1,119}$/', $key)) {
             throw new InvalidArgumentException("Invalid setting key: {$key}");
         }
 

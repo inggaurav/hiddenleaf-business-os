@@ -160,4 +160,74 @@ class HrmWorkflowTest extends TestCase
             );
         }
     }
+
+    public function test_india_statutory_payroll_calculation_and_compliance(): void
+    {
+        // 1. Employee with EPF + ESI + PT (Basic: ₹12,000)
+        $employeeLow = HrEmployee::create([
+            'organization_id' => $this->organization->id,
+            'workspace_id' => $this->workspace->id,
+            'employee_number' => 'EMP-IN-01',
+            'name' => 'Aarav Sharma',
+            'joined_at' => '2026-01-01',
+            'basic_salary' => 12000.00,
+            'status' => 'active',
+        ]);
+
+        $this->actingAs($this->user)
+            ->withSession(['active_organization_id' => $this->organization->id, 'active_workspace_id' => $this->workspace->id])
+            ->post('/hrm/payslips', [
+                'employee_id' => $employeeLow->id,
+                'period_start' => '2026-08-01',
+                'period_end' => '2026-08-31',
+                'india_statutory' => true,
+            ])
+            ->assertSessionHasNoErrors();
+
+        $payslipLow = HrPayslip::where('employee_id', $employeeLow->id)->with('lines')->firstOrFail();
+        // EPF: 12% of 12,000 = 1,440.00
+        // ESI: 0.75% of 12,000 = 90.00
+        // PT: > 10,000 in August = 200.00
+        // TDS: Net taxable < 7,00,000 => 0.00
+        // Total Deductions = 1,440 + 90 + 200 = 1,730.00
+        // Net Pay = 12,000 - 1,730 = 10,270.00
+        $this->assertSame('12000.00', (string) $payslipLow->gross_pay);
+        $this->assertSame('1730.00', (string) $payslipLow->deductions);
+        $this->assertSame('10270.00', (string) $payslipLow->net_pay);
+        $this->assertCount(4, $payslipLow->lines); // Basic + EPF + ESI + PT
+
+        // 2. High earner with EPF wage ceiling + ESI exempt + PT + TDS
+        $employeeHigh = HrEmployee::create([
+            'organization_id' => $this->organization->id,
+            'workspace_id' => $this->workspace->id,
+            'employee_number' => 'EMP-IN-02',
+            'name' => 'Priya Patel',
+            'joined_at' => '2026-01-01',
+            'basic_salary' => 80000.00,
+            'status' => 'active',
+        ]);
+
+        $this->actingAs($this->user)
+            ->withSession(['active_organization_id' => $this->organization->id, 'active_workspace_id' => $this->workspace->id])
+            ->post('/hrm/payslips', [
+                'employee_id' => $employeeHigh->id,
+                'period_start' => '2026-08-01',
+                'period_end' => '2026-08-31',
+                'india_statutory' => true,
+            ])
+            ->assertSessionHasNoErrors();
+
+        $payslipHigh = HrPayslip::where('employee_id', $employeeHigh->id)->with('lines')->firstOrFail();
+        // EPF capped at ₹15,000 * 12% = ₹1,800.00
+        // ESI: Gross ₹80,000 > ₹21,000 ceiling => Exempt (0.00)
+        // PT: > 10,000 in August = 200.00
+        // Annual gross = 80,000 * 12 = 9,60,000. Less standard deduction 75,000 = 8,85,000.
+        // Tax: 3L-7L (4L @ 5%) = 20,000; 7L-8.85L (1.85L @ 10%) = 18,500. Subtotal = 38,500 + 4% cess = 40,040.
+        // Monthly TDS = 40,040 / 12 = 3,336.67.
+        // Total Deductions = 1,800 + 200 + 3,336.67 = 5,336.67.
+        // Net Pay = 80,000 - 5,336.67 = 74,663.33.
+        $this->assertSame('80000.00', (string) $payslipHigh->gross_pay);
+        $this->assertSame('5336.67', (string) $payslipHigh->deductions);
+        $this->assertSame('74663.33', (string) $payslipHigh->net_pay);
+    }
 }

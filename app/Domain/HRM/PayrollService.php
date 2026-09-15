@@ -16,26 +16,65 @@ class PayrollService
 {
     public function __construct(private readonly AuditLogger $audit) {}
 
-    public function generate(HrEmployee $employee, string $start, string $end, User $actor): HrPayslip
+    public function generate(HrEmployee $employee, string $start, string $end, User $actor, array $options = []): HrPayslip
     {
-        return DB::transaction(function () use ($employee, $start, $end, $actor) {
+        return DB::transaction(function () use ($employee, $start, $end, $actor, $options) {
             $components = DB::table('hr_employee_salary_components as assigned')
                 ->join('hr_salary_components as component', 'component.id', '=', 'assigned.salary_component_id')
-                ->where('assigned.employee_id', $employee->id)->select('component.name', 'component.type', 'component.calculation', 'component.value as default_value', 'assigned.value')->get();
+                ->where('assigned.employee_id', $employee->id)
+                ->select('component.name', 'component.type', 'component.calculation', 'component.value as default_value', 'assigned.value')
+                ->get();
+
             $earnings = (float) $employee->basic_salary;
             $deductions = 0.0;
             $lines = [['name' => 'Basic Salary', 'type' => 'earning', 'amount' => $earnings]];
+
             foreach ($components as $component) {
                 $value = (float) ($component->value ?? $component->default_value);
                 $amount = $component->calculation === 'percentage' ? round((float) $employee->basic_salary * $value / 100, 2) : $value;
                 $component->type === 'deduction' ? $deductions += $amount : $earnings += $amount;
                 $lines[] = ['name' => $component->name, 'type' => $component->type, 'amount' => $amount];
             }
+
+            // India Statutory Payroll Auto-Calculation (PF, ESI, Professional Tax, TDS)
+            $enableStatutory = $options['india_statutory'] ?? (
+                ! empty($employee->pf_number) ||
+                ! empty($employee->uan_number) ||
+                ! empty($employee->esi_number) ||
+                (! empty($employee->country) && strtolower((string) $employee->country) === 'india') ||
+                ($options['statutory'] ?? false) === true
+            );
+            if ($enableStatutory) {
+                $calculator = app(IndiaStatutoryCalculator::class);
+                $statutoryResult = $calculator->calculate(
+                    (float) $employee->basic_salary,
+                    $earnings,
+                    array_merge(['period_end' => $end], $options)
+                );
+
+                foreach ($statutoryResult['employee_deductions'] as $statDeduction) {
+                    $deductions += $statDeduction['amount'];
+                    $lines[] = [
+                        'name' => $statDeduction['name'],
+                        'type' => 'deduction',
+                        'amount' => $statDeduction['amount'],
+                    ];
+                }
+            }
+
             $payslip = HrPayslip::create([
-                'organization_id' => $employee->organization_id, 'workspace_id' => $employee->workspace_id, 'employee_id' => $employee->id,
-                'period_start' => $start, 'period_end' => $end, 'gross_pay' => $earnings, 'deductions' => $deductions,
-                'net_pay' => $earnings - $deductions, 'status' => 'draft', 'created_by' => $actor->id,
+                'organization_id' => $employee->organization_id,
+                'workspace_id' => $employee->workspace_id,
+                'employee_id' => $employee->id,
+                'period_start' => $start,
+                'period_end' => $end,
+                'gross_pay' => $earnings,
+                'deductions' => $deductions,
+                'net_pay' => max(0.0, $earnings - $deductions),
+                'status' => 'draft',
+                'created_by' => $actor->id,
             ]);
+
             $payslip->lines()->createMany($lines);
             $this->audit->log($actor->id, $employee->organization_id, $employee->workspace_id, 'payroll.generated', 'hr_payslip', (string) $payslip->id, ['employee_id' => $employee->id, 'period_start' => $start, 'period_end' => $end, 'net_pay' => $payslip->net_pay], critical: true);
 

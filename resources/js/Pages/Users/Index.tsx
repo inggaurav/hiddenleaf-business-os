@@ -62,7 +62,7 @@ export default function UsersIndex() {
         <div className="flex items-center justify-end gap-1.5 flex-wrap">
           <Link href={`/users/${row.id}/edit`}><Button variant="ghost" size="sm">Edit</Button></Link>
           {isSuperAdmin && <Button variant="intelligence" size="sm" icon={<UserCheck className="w-3.5 h-3.5" />} onClick={() => confirm('Impersonate this tenant user session?') && router.post(`/users/${row.id}/impersonate`)}>Impersonate</Button>}
-          {isSuperAdmin && <Button variant="ghost" size="sm" icon={<CreditCard className="w-3.5 h-3.5 text-purple-400" />} onClick={() => { setPlanModalUser(row); setSelectedPlanId(plans[0]?.id ?? ''); }}>Plan</Button>}
+          {isSuperAdmin && <Button variant="ghost" size="sm" icon={<CreditCard className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />} onClick={() => { setPlanModalUser(row); setSelectedPlanId(plans[0]?.id ?? ''); }}>Plan</Button>}
           <Button variant="ghost" size="sm" icon={<KeyRound className="w-3.5 h-3.5 text-amber-400" />} onClick={() => setPasswordModalUser(row)}>Password</Button>
         </div>
       ),
@@ -76,7 +76,7 @@ export default function UsersIndex() {
           title="Team & User Administration"
           description="Manage workspace memberships, RBAC roles, password resets and account state."
           badge={<Badge variant="purple" size="sm">{users?.total ?? rows.length} Members</Badge>}
-          actions={<div className="flex items-center gap-2"><Link href="/users-login-history"><Button variant="secondary" size="sm" icon={<Activity className="w-4 h-4" />}>Login History</Button></Link><Link href="/users/create"><Button variant="primary" size="sm" icon={<Plus className="w-4 h-4" />}>Add Member</Button></Link></div>}
+          actions={<div className="flex items-center gap-2"><Link href="/users-login-history"><Button variant="outline" size="sm" icon={<Activity className="w-4 h-4" />}>Login History</Button></Link><Link href="/users/create"><Button variant="primary" size="sm" icon={<Plus className="w-4 h-4" />}>Add Member</Button></Link></div>}
         />
         <DataTable columns={columns} data={rows} searchPlaceholder="Search by name, email or role..." searchKeys={['name', 'email', 'workspace_role']} emptyTitle="No members found" emptyDescription="Add team members and assign workspace roles." />
 

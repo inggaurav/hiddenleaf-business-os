@@ -32,7 +32,7 @@ class EnsureTenantContext
 
         // Personal account settings are user-scoped and must remain available
         // even before the user joins a company or selects a workspace.
-        if ($request->is('profile') || $request->is('profile/*')) {
+        if ($request->is('profile') || $request->is('profile/*') || $request->is('users/leave-impersonation')) {
             return $next($request);
         }
 
@@ -54,6 +54,15 @@ class EnsureTenantContext
             }
         }
 
+        if ($user->isSuperAdmin() && ! $requestedOrgId) {
+            $fallbackOrg = \App\Models\Organization::where('is_active', true)->first();
+            if ($fallbackOrg) {
+                $requestedOrgId = $fallbackOrg->id;
+                $requestedWsId = $requestedWsId
+                    ?? optional($fallbackOrg->workspaces()->first())->id;
+            }
+        }
+
         // Super Admin or Impersonated session bypasses membership restriction if accessing admin panel or has no tenant context
         if ($user->isSuperAdmin() || $request->session()->has('impersonator_id')) {
             if ($request->is('admin*') || $request->is('super-admin*') || ! $requestedOrgId) {
@@ -70,8 +79,8 @@ class EnsureTenantContext
             return redirect('/login')->with('error', 'Please join or create an organization.');
         }
 
-        // VERIFY: Authenticated user must belong to requested organization (or be super admin)
-        $isOrgMember = $user->isSuperAdmin() || $user->organizations()->where('organizations.id', $requestedOrgId)->exists();
+        // VERIFY: Authenticated user must belong to requested organization (or be super admin / impersonator)
+        $isOrgMember = $user->isSuperAdmin() || $request->session()->has('impersonator_id') || $user->organizations()->where('organizations.id', $requestedOrgId)->exists();
         if (! $isOrgMember) {
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Unauthorized organization access.'], 403);
@@ -98,8 +107,9 @@ class EnsureTenantContext
                 abort(403, 'Workspace does not belong to the selected organization.');
             }
 
-            // VERIFY: Authenticated user MUST belong to Workspace (or be org owner/super admin)
+            // VERIFY: Authenticated user MUST belong to Workspace (or be org owner/super admin/impersonator)
             $isWsMember = $user->isSuperAdmin()
+                || $request->session()->has('impersonator_id')
                 || (int) $organization->owner_id === (int) $user->id
                 || $user->workspaces()->where('workspaces.id', $workspace->id)->exists();
 

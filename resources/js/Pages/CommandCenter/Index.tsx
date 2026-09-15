@@ -185,7 +185,7 @@ export default function CommandCenterIndex({
                                             <div className="flex items-center gap-2">
                                                 <span className="text-sm font-semibold text-slate-800 dark:text-white">{r.title}</span>
                                                 {r.badge && (
-                                                    <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                                                    <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
                                                         {r.badge}
                                                     </span>
                                                 )}
@@ -223,7 +223,7 @@ export default function CommandCenterIndex({
                         >
                             <Search className="w-3.5 h-3.5 text-slate-400" />
                             <span>Quick Search</span>
-                            <kbd className="px-1.5 py-0.5 text-[10px] bg-white dark:bg-slate-900 border rounded text-slate-400 shadow-sm">⌘K</kbd>
+                            <kbd className="px-1.5 py-0.5 text-xs bg-white dark:bg-slate-900 border rounded text-slate-400 shadow-sm">⌘K</kbd>
                         </button>
 
                         <Link
@@ -233,7 +233,7 @@ export default function CommandCenterIndex({
                             <ShieldCheck className="w-4 h-4" />
                             <span>Approvals</span>
                             {runningSystems.waiting_approvals > 0 && (
-                                <span className="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 bg-rose-500 text-white rounded-full text-[10px] font-bold ring-2 ring-white dark:ring-slate-900">
+                                <span className="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 bg-rose-500 text-white rounded-full text-xs font-bold ring-2 ring-white dark:ring-slate-900">
                                     {runningSystems.waiting_approvals}
                                 </span>
                             )}
@@ -349,7 +349,7 @@ export default function CommandCenterIndex({
                                                 </div>
                                             </div>
 
-                                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${getStatusColor(p.severity)}`}>
+                                            <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase border ${getStatusColor(p.severity)}`}>
                                                 {p.severity}
                                             </span>
                                         </div>
@@ -432,7 +432,7 @@ export default function CommandCenterIndex({
                                         <div key={item.id} className="pt-2.5 first:pt-0">
                                             <div className="flex items-center justify-between text-xs">
                                                 <span className="font-semibold text-slate-800 dark:text-slate-200">{item.title}</span>
-                                                <span className="text-[10px] text-slate-400 font-mono">
+                                                <span className="text-xs text-slate-400 font-mono">
                                                     {new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                 </span>
                                             </div>

@@ -4,7 +4,7 @@ import AppShell from '@/Layouts/AppShell';
 import { Card } from '@/Components/UI/Card';
 import { Badge } from '@/Components/UI/Badge';
 import { Button } from '@/Components/UI/Button';
-import { Building2, Search, Users, Layers } from 'lucide-react';
+import { Building2, Search, Users, Layers, LogIn } from 'lucide-react';
 
 export default function CompaniesIndex() {
   const { companies, plans = [], filters = {} } = usePage<any>().props;
@@ -34,17 +34,34 @@ export default function CompaniesIndex() {
           {(companies?.data || []).map((company: any) => (
             <Card key={company.id} level={0} className="grid grid-cols-1 xl:grid-cols-[1.4fr_.8fr_.8fr_.8fr_auto] gap-4 items-center">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center"><Building2 className="w-5 h-5 text-purple-400" /></div>
+                <div className="w-10 h-10 rounded-xl bg-[var(--surface-2)] border border-[var(--border-subtle)] flex items-center justify-center"><Building2 className="w-5 h-5 text-[var(--text-secondary)]" /></div>
                 <div className="min-w-0"><div className="font-bold text-sm truncate">{company.name}</div><div className="text-[11px] text-[var(--text-tertiary)] truncate">{company.owner?.name || 'No owner'} · {company.owner?.email || '—'}</div></div>
               </div>
 
-              <div className="text-xs"><div className="text-[10px] uppercase text-[var(--text-tertiary)] mb-1">Usage</div><div className="flex gap-3"><span className="inline-flex items-center gap-1"><Layers className="w-3.5 h-3.5" />{company.workspaces_count} workspaces</span><span className="inline-flex items-center gap-1"><Users className="w-3.5 h-3.5" />{company.members_count} members</span></div></div>
+              <div className="text-xs"><div className="text-xs uppercase text-[var(--text-tertiary)] mb-1">Usage</div><div className="flex gap-3"><span className="inline-flex items-center gap-1"><Layers className="w-3.5 h-3.5" />{company.workspaces_count} workspaces</span><span className="inline-flex items-center gap-1"><Users className="w-3.5 h-3.5" />{company.members_count} members</span></div></div>
 
-              <label className="space-y-1"><span className="text-[10px] uppercase text-[var(--text-tertiary)]">Plan</span><select value={company.plan_id || ''} onChange={(e) => updateCompany(company, { plan_id: e.target.value ? Number(e.target.value) : null })} className="w-full px-2.5 py-2 rounded-lg bg-[var(--surface-2)] border border-[var(--border-subtle)] text-xs"><option value="">No plan</option>{plans.map((plan: any) => <option key={plan.id} value={plan.id}>{plan.name}</option>)}</select></label>
+              <label className="space-y-1"><span className="text-xs uppercase text-[var(--text-tertiary)]">Plan</span><select value={company.plan_id || ''} onChange={(e) => updateCompany(company, { plan_id: e.target.value ? Number(e.target.value) : null })} className="w-full px-2.5 py-2 rounded-lg bg-[var(--surface-2)] border border-[var(--border-subtle)] text-xs"><option value="">No plan</option>{plans.map((plan: any) => <option key={plan.id} value={plan.id}>{plan.name}</option>)}</select></label>
 
-              <div><div className="text-[10px] uppercase text-[var(--text-tertiary)] mb-1">Status</div><Badge variant={company.is_active ? 'success' : 'neutral'} size="sm" dot>{company.is_active ? 'Active' : 'Suspended'}</Badge></div>
+              <div><div className="text-xs uppercase text-[var(--text-tertiary)] mb-1">Status</div><Badge variant={company.is_active ? 'success' : 'neutral'} size="sm" dot>{company.is_active ? 'Active' : 'Suspended'}</Badge></div>
 
-              <Button variant={company.is_active ? 'outline' : 'primary'} size="sm" onClick={() => updateCompany(company, { is_active: !company.is_active })}>{company.is_active ? 'Suspend' : 'Activate'}</Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  icon={<LogIn className="w-3.5 h-3.5" />}
+                  onClick={() => {
+                    if (confirm(`Login as ${company.owner?.name || company.name}? You will be impersonating their account.`)) {
+                      router.post(`/users/${company.owner?.id}/impersonate`, {}, {
+                        onSuccess: () => router.visit('/dashboard'),
+                      });
+                    }
+                  }}
+                  disabled={!company.owner?.id}
+                >
+                  Login as
+                </Button>
+                <Button variant={company.is_active ? 'outline' : 'neutral'} size="sm" onClick={() => updateCompany(company, { is_active: !company.is_active })}>{company.is_active ? 'Suspend' : 'Activate'}</Button>
+              </div>
             </Card>
           ))}
         </div>

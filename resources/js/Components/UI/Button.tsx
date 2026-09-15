@@ -1,7 +1,14 @@
 import React, { forwardRef } from 'react';
 import { Loader2 } from 'lucide-react';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'intelligence' | 'outline';
+export type ButtonVariant =
+  | 'neutral'      // default — replaces old "primary" for everyday actions
+  | 'outline'      // secondary / cancel
+  | 'ghost'        // table row actions, icon-adjacent
+  | 'danger'       // destructive only
+  | 'intelligence' // MrFox AI actions ONLY — do not use for anything else
+  | 'primary'      // @deprecated — kept for backwards compat, maps to neutral
+  | 'secondary';   // alias for outline
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
@@ -12,45 +19,56 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   children?: React.ReactNode;
 }
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
-  variant = 'primary',
-  size = 'md',
-  loading = false,
-  icon,
-  iconPosition = 'left',
-  children,
-  className = '',
-  disabled,
-  ...props
-}, ref) => {
-  const baseClasses =
-    'inline-flex items-center justify-center font-medium rounded-xl select-none spring-transition focus:outline-none focus:ring-2 focus:ring-purple-500/50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer';
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>((
+  {
+    variant = 'neutral',
+    size = 'md',
+    loading = false,
+    icon,
+    iconPosition = 'left',
+    children,
+    className = '',
+    disabled,
+    ...props
+  },
+  ref,
+) => {
+  const base =
+    'inline-flex items-center justify-center font-medium rounded-xl select-none spring-transition focus:outline-none focus-ring disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer';
 
-  const sizeClasses = {
-    sm: 'text-xs px-3 py-1.5 gap-1.5',
-    md: 'text-sm px-4 py-2 gap-2',
-    lg: 'text-base px-5 py-2.5 gap-2.5',
+  const sizes = {
+    sm: 'text-xs px-3 py-1.5 gap-1.5 h-7',
+    md: 'text-[13px] px-4 py-2 gap-2 h-9',
+    lg: 'text-sm px-5 py-2.5 gap-2 h-11',
   };
 
-  const variantClasses: Record<ButtonVariant, string> = {
+  const variants: Record<ButtonVariant, string> = {
+    // Solid neutral — replaces old purple "primary"
+    neutral:
+      'bg-[var(--surface-3)] hover:bg-[var(--border-medium)] text-[var(--text-primary)] border border-[var(--border-medium)] hover:border-[var(--border-strong)] active:scale-[0.98]',
+    // Alias for old "primary" — same as neutral, removes purple
     primary:
-      'bg-gradient-to-tr from-purple-600 to-indigo-600 text-white shadow-lg hover:shadow-purple-500/25 hover:scale-[1.01] active:scale-[0.99]',
-    secondary:
-      'bg-[var(--surface-1)] hover:bg-[var(--surface-2)] text-[var(--text-primary)] border border-[var(--border-subtle)] hover:border-[var(--border-medium)]',
+      'bg-[var(--surface-3)] hover:bg-[var(--border-medium)] text-[var(--text-primary)] border border-[var(--border-medium)] hover:border-[var(--border-strong)] active:scale-[0.98]',
+    // Transparent with border — secondary actions, cancel
     outline:
-      'bg-transparent hover:bg-white/[0.05] text-[var(--text-primary)] border border-[var(--border-subtle)] hover:border-[var(--border-medium)]',
-    danger:
-      'bg-rose-600 hover:bg-rose-500 text-white shadow-md shadow-rose-900/20 hover:scale-[1.01] active:scale-[0.99]',
+      'bg-transparent hover:bg-white/[0.04] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)] hover:border-[var(--border-medium)] active:scale-[0.98]',
+    secondary:
+      'bg-transparent hover:bg-white/[0.04] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)] hover:border-[var(--border-medium)] active:scale-[0.98]',
+    // No background — table row actions
     ghost:
-      'bg-transparent hover:bg-white/[0.05] text-[var(--text-secondary)] hover:text-[var(--text-primary)]',
+      'bg-transparent hover:bg-white/[0.05] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-transparent active:scale-[0.98]',
+    // Destructive — terminate, reject, delete
+    danger:
+      'bg-rose-600 hover:bg-rose-500 text-white border border-rose-500/30 shadow-sm active:scale-[0.98]',
+    // MrFox AI ONLY — purple gradient
     intelligence:
-      'bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 text-white shadow-lg shadow-purple-600/30 hover:shadow-purple-500/50 hover:scale-[1.01] active:scale-[0.99] border border-purple-400/30',
+      'bg-gradient-to-r from-[var(--brand-primary)] to-[var(--fox-purple)] text-white border border-[var(--brand-primary)]/30 shadow-md active:scale-[0.98]',
   };
 
   return (
     <button
       ref={ref}
-      className={`${baseClasses} ${sizeClasses[size]} ${variantClasses[variant]} ${className}`}
+      className={`${base} ${sizes[size]} ${variants[variant]} ${className}`}
       disabled={disabled || loading}
       {...props}
     >

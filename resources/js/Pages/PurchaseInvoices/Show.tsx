@@ -25,7 +25,7 @@ export default function PurchaseInvoiceShow() {
                 </Button>
               </Link>
               <Link href={`/purchase-invoices/${invoice?.id}/edit`}>
-                <Button variant="secondary" size="sm" icon={<Edit className="w-4 h-4" />}>
+                <Button variant="outline" size="sm" icon={<Edit className="w-4 h-4" />}>
                   Edit
                 </Button>
               </Link>

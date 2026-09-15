@@ -35,7 +35,7 @@ export default function ModuleSection() {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <Badge variant="purple" size="sm">{module}</Badge>
-              <span className="text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]">Workspace Module</span>
+              <span className="text-xs uppercase tracking-wider text-[var(--text-tertiary)]">Workspace Module</span>
               <Badge variant={canManage ? 'success' : 'neutral'} size="sm">{canManage ? 'Manage' : 'View only'}</Badge>
             </div>
             <h1 className="text-xl font-bold text-[var(--text-primary)]">{title}</h1>
@@ -49,7 +49,7 @@ export default function ModuleSection() {
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder={`Search ${title.toLowerCase()}...`}
-              className="w-full pl-9 pr-3 py-2 rounded-xl bg-[var(--surface-2)] border border-[var(--border-subtle)] text-sm outline-none focus:border-purple-500/50"
+              className="w-full pl-9 pr-3 py-2 rounded-xl bg-[var(--surface-2)] border border-[var(--border-subtle)] text-sm outline-none focus:border-[var(--border-strong)]/50"
             />
           </div>
         </div>

@@ -192,7 +192,7 @@ export default function MissionsIndex({ missions: initialMissions }: Props) {
                                     >
                                         <div className="flex items-center justify-between mb-1">
                                             <span className="font-semibold text-sm text-slate-800 dark:text-white truncate">{m.name}</span>
-                                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                            <span className={`px-2 py-0.5 rounded text-xs font-bold ${
                                                 m.status === 'completed' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' :
                                                 m.status === 'waiting_for_approval' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' :
                                                 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300'
@@ -260,7 +260,7 @@ export default function MissionsIndex({ missions: initialMissions }: Props) {
                                                     <div className="flex-1">
                                                         <div className="flex items-center justify-between">
                                                             <span className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200">Step {s.sequence}: {s.tool_name}</span>
-                                                            <span className="text-[10px] font-semibold text-slate-400 uppercase">{s.status}</span>
+                                                            <span className="text-xs font-semibold text-slate-400 uppercase">{s.status}</span>
                                                         </div>
                                                         {s.observation && (
                                                             <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">{s.observation}</p>

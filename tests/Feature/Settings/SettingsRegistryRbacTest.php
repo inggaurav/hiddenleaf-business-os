@@ -66,6 +66,59 @@ class SettingsRegistryRbacTest extends TestCase
         ])->assertForbidden();
     }
 
+    public function test_super_admin_can_save_camelcase_platform_settings_and_branding(): void
+    {
+        $this->seed();
+        $superAdmin = User::factory()->create(['role' => 'super_admin']);
+
+        $response = $this->actingAs($superAdmin)->post('/settings', [
+            '_section' => 'platform.brand',
+            'values' => [
+                'titleText' => 'HiddenLeaf Enterprise OS',
+                'footerText' => 'Copyright 2026 HiddenLeaf Inc.',
+                'themeColor' => '#6366f1',
+                'customColor' => '#4f46e5',
+                'sidebarVariant' => 'compact',
+                'sidebarStyle' => 'dark',
+                'themeMode' => 'system',
+                'layoutDirection' => 'ltr',
+            ],
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success', 'Settings saved successfully.');
+
+        $this->assertDatabaseHas('settings', [
+            'scope' => 'platform',
+            'scope_id' => 0,
+            'key' => 'titleText',
+            'value' => 'HiddenLeaf Enterprise OS',
+        ]);
+
+        $this->assertDatabaseHas('settings', [
+            'scope' => 'platform',
+            'scope_id' => 0,
+            'key' => 'customColor',
+            'value' => '#4f46e5',
+        ]);
+
+        // Also test platform.system with calendarStartDay
+        $response2 = $this->actingAs($superAdmin)->post('/settings', [
+            '_section' => 'platform.system',
+            'values' => [
+                'defaultLanguage' => 'en',
+                'calendarStartDay' => 'monday',
+            ],
+        ]);
+        $response2->assertRedirect();
+        $this->assertDatabaseHas('settings', [
+            'scope' => 'platform',
+            'scope_id' => 0,
+            'key' => 'calendarStartDay',
+            'value' => 'monday',
+        ]);
+    }
+
     public function test_ordinary_team_member_cannot_open_administrative_settings(): void
     {
         $this->seed();

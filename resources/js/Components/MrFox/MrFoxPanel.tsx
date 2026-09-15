@@ -374,7 +374,7 @@ export const MrFoxPanel: React.FC<MrFoxPanelProps> = ({
                   {/* Executed Tools Indicators */}
                   {msg.tools && msg.tools.length > 0 && (
                     <div className="pt-2 border-t border-white/10 space-y-1.5">
-                      <div className="text-[10px] font-semibold uppercase tracking-wider text-purple-300 flex items-center gap-1">
+                      <div className="text-xs font-semibold uppercase tracking-wider text-purple-300 flex items-center gap-1">
                         <Sparkles className="w-3 h-3 text-purple-400" />
                         Operational Tools Invoked
                       </div>
@@ -382,7 +382,7 @@ export const MrFoxPanel: React.FC<MrFoxPanelProps> = ({
                         {msg.tools.map((t, idx) => (
                           <span
                             key={idx}
-                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-950/40 border border-purple-500/30 text-[10px] text-purple-200"
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-950/40 border border-purple-500/30 text-xs text-purple-200"
                           >
                             <CheckCircle2 className="w-2.5 h-2.5 text-emerald-400" />
                             {t.tool}
@@ -395,7 +395,7 @@ export const MrFoxPanel: React.FC<MrFoxPanelProps> = ({
                   {/* Structured Evidence Chips */}
                   {msg.evidence && msg.evidence.length > 0 && (
                     <div className="pt-2 border-t border-white/10 space-y-1.5">
-                      <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-1">
+                      <div className="text-xs font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-1">
                         <Layers className="w-3 h-3 text-gray-400" />
                         Grounded ERP Evidence
                       </div>
@@ -430,7 +430,7 @@ export const MrFoxPanel: React.FC<MrFoxPanelProps> = ({
                               <ShieldCheck className="w-3.5 h-3.5" />
                               Action Approval Required ({prop.risk_level})
                             </span>
-                            <span className="text-[10px] uppercase font-bold text-amber-300">Proposal #{prop.proposal_id}</span>
+                            <span className="text-xs uppercase font-bold text-amber-300">Proposal #{prop.proposal_id}</span>
                           </div>
                           <p className="text-[11px] text-gray-300">{prop.human_summary}</p>
                           <div className="flex items-center gap-2 pt-1">
@@ -454,7 +454,7 @@ export const MrFoxPanel: React.FC<MrFoxPanelProps> = ({
                 </div>
 
                 {msg.createdAt && (
-                  <span className="text-[10px] text-gray-500 mt-1 px-1">{msg.createdAt}</span>
+                  <span className="text-xs text-gray-500 mt-1 px-1">{msg.createdAt}</span>
                 )}
               </div>
             ))}
@@ -496,7 +496,7 @@ export const MrFoxPanel: React.FC<MrFoxPanelProps> = ({
                 Send
               </Button>
             </form>
-            <p className="text-[10px] text-[var(--text-tertiary)] text-center mt-2">
+            <p className="text-xs text-[var(--text-tertiary)] text-center mt-2">
               Protected by multi-tenant RBAC policies and immutable audit ledger.
             </p>
           </div>

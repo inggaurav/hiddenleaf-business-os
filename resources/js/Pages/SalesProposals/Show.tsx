@@ -41,7 +41,7 @@ export default function SalesProposalShow() {
                 </Button>
               )}
               <Link href={`/sales-proposals/${proposal?.id}/edit`}>
-                <Button variant="secondary" size="sm" icon={<Edit className="w-4 h-4" />}>
+                <Button variant="outline" size="sm" icon={<Edit className="w-4 h-4" />}>
                   Edit
                 </Button>
               </Link>

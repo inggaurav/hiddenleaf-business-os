@@ -25,7 +25,7 @@ export default function TransferShow() {
                 </Button>
               </Link>
               <Button
-                variant="secondary"
+                variant="outline"
                 size="sm"
                 icon={<Printer className="w-4 h-4" />}
                 onClick={() => window.print()}

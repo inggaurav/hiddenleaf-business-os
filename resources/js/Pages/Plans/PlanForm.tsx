@@ -53,7 +53,7 @@ export default function PlanForm({ mode }: Props) {
         type={type}
         value={String(form.data[name] ?? '')}
         onChange={(event) => form.setData(name as any, type === 'number' ? Number(event.target.value) : event.target.value as any)}
-        className="w-full px-3 py-2.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border-subtle)] text-sm outline-none focus:border-purple-500/50"
+        className="w-full px-3 py-2.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border-subtle)] text-sm outline-none focus:border-[var(--border-strong)]"
       />
       {(form.errors as any)[name] && <span className="text-[11px] text-rose-400">{(form.errors as any)[name]}</span>}
     </label>
@@ -75,7 +75,7 @@ export default function PlanForm({ mode }: Props) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {field('name', 'Plan Name', 'text')}
             {field('number_of_users', 'Included Users')}
-            <label className="md:col-span-2 space-y-1.5"><span className="text-xs font-semibold text-[var(--text-secondary)]">Description</span><textarea value={form.data.description} onChange={(event) => form.setData('description', event.target.value)} rows={3} className="w-full px-3 py-2.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border-subtle)] text-sm outline-none focus:border-purple-500/50" /></label>
+            <label className="md:col-span-2 space-y-1.5"><span className="text-xs font-semibold text-[var(--text-secondary)]">Description</span><textarea value={form.data.description} onChange={(event) => form.setData('description', event.target.value)} rows={3} className="w-full px-3 py-2.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border-subtle)] text-sm outline-none focus:border-[var(--border-strong)]" /></label>
             {field('workspace_limit', 'Workspace Limit')}
             {field('storage_limit', 'Storage Limit (MB)')}
           </div>
@@ -113,13 +113,13 @@ export default function PlanForm({ mode }: Props) {
                   key={mod.alias}
                   type="button"
                   onClick={() => toggleModule(mod.alias)}
-                  className={`text-left p-3 rounded-xl border transition-colors ${selected ? 'border-purple-500/50 bg-purple-500/10' : 'border-[var(--border-subtle)] bg-[var(--surface-2)] hover:border-purple-500/30'}`}
+                  className={`text-left p-3 rounded-xl border transition-colors ${selected ? 'border-[var(--border-strong)] bg-[var(--surface-2)]' : 'border-[var(--border-subtle)] bg-[var(--surface-2)] hover:border-[var(--border-medium)]'}`}
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-0"><Package className="w-4 h-4 text-purple-400 flex-shrink-0" /><span className="text-xs font-semibold truncate">{mod.name}</span></div>
+                    <div className="flex items-center gap-2 min-w-0"><Package className="w-4 h-4 text-[var(--text-tertiary)] flex-shrink-0" /><span className="text-xs font-semibold truncate">{mod.name}</span></div>
                     {selected && <Check className="w-4 h-4 text-emerald-400" />}
                   </div>
-                  <div className="mt-1 text-[10px] text-[var(--text-tertiary)]">{mod.alias} · {mod.type}</div>
+                  <div className="mt-1 text-xs text-[var(--text-tertiary)]">{mod.alias} · {mod.type}</div>
                 </button>
               );
             })}

@@ -24,7 +24,7 @@ export const MrFoxLauncher: React.FC<MrFoxLauncherProps> = ({
         </div>
 
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-bounce">
+          <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-bounce">
             {unreadCount}
           </span>
         )}
@@ -39,10 +39,10 @@ export const MrFoxLauncher: React.FC<MrFoxLauncherProps> = ({
             Ready
           </span>
         </div>
-        <span className="text-[10px] text-[var(--text-secondary)]">AI Assistant</span>
+        <span className="text-xs text-[var(--text-secondary)]">AI Assistant</span>
       </div>
 
-      <kbd className="hidden sm:inline-block text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--surface-2)] border border-[var(--border-subtle)] text-[var(--text-tertiary)] ml-1">
+      <kbd className="hidden sm:inline-block text-xs font-mono px-1.5 py-0.5 rounded bg-[var(--surface-2)] border border-[var(--border-subtle)] text-[var(--text-tertiary)] ml-1">
         ⌘J
       </kbd>
     </button>

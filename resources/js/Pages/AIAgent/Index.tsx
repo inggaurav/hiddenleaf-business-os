@@ -59,7 +59,7 @@ export default function AIAgentIndex() {
           badge={<Badge variant="purple" size="sm">Neural Assistant</Badge>}
           actions={
             <Link href="/settings">
-              <Button variant="secondary" size="sm" icon={<Settings className="w-3.5 h-3.5" />}>
+              <Button variant="outline" size="sm" icon={<Settings className="w-3.5 h-3.5" />}>
                 Configure AI Provider
               </Button>
             </Link>

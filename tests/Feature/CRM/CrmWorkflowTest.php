@@ -176,4 +176,57 @@ class CrmWorkflowTest extends TestCase
             ->post("/crm/leads/{$foreignLead->id}/convert", ['name' => 'Foreign Hack'])
             ->assertNotFound();
     }
+
+    public function test_crm_dashboard_tasks_calendar_and_task_toggle(): void
+    {
+        $session = ['active_organization_id' => $this->organization->id, 'active_workspace_id' => $this->workspace->id];
+
+        // 1. Schedule a new task via CRM tasks endpoint
+        $dueAt = now()->addDays(2)->format('Y-m-d H:i:s');
+        $response = $this->actingAs($this->user)
+            ->withSession($session)
+            ->post('/crm/tasks', [
+                'title' => 'Follow-up on Enterprise Contract',
+                'type' => 'call',
+                'due_at' => $dueAt,
+            ]);
+        $response->assertRedirect();
+        $response->assertSessionHas('success', 'CRM Task scheduled.');
+
+        $this->assertDatabaseHas('crm_activities', [
+            'workspace_id' => $this->workspace->id,
+            'title' => 'Follow-up on Enterprise Contract',
+            'type' => 'call',
+        ]);
+
+        $task = \Illuminate\Support\Facades\DB::table('crm_activities')
+            ->where('workspace_id', $this->workspace->id)
+            ->where('title', 'Follow-up on Enterprise Contract')
+            ->first();
+
+        $this->assertNull($task->completed_at);
+
+        // 2. Fetch dashboard and assert calendarTasks are supplied
+        $dashboardResponse = $this->actingAs($this->user)
+            ->withSession($session)
+            ->get('/crm/dashboard');
+        $dashboardResponse->assertOk();
+        $dashboardResponse->assertInertia(fn (\Inertia\Testing\AssertableInertia $page) => $page
+            ->component('CRM/Dashboard')
+            ->has('calendarTasks', 1)
+            ->where('calendarTasks.0.title', 'Follow-up on Enterprise Contract')
+            ->where('calendarTasks.0.is_completed', false)
+            ->has('teamMembers')
+        );
+
+        // 3. Toggle task completion
+        $toggleResponse = $this->actingAs($this->user)
+            ->withSession($session)
+            ->post("/crm/activities/{$task->id}/toggle");
+        $toggleResponse->assertRedirect();
+        $toggleResponse->assertSessionHas('success', 'Task marked completed.');
+
+        $updatedTask = \Illuminate\Support\Facades\DB::table('crm_activities')->where('id', $task->id)->first();
+        $this->assertNotNull($updatedTask->completed_at);
+    }
 }

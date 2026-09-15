@@ -133,7 +133,7 @@ export const AlertDialog: React.FC<AlertDialogProps> = ({
         <div className="flex items-center justify-end gap-3 pt-3 border-t border-[var(--border-subtle)]">
           <Button
             ref={cancelBtnRef}
-            variant="secondary"
+            variant="outline"
             size="sm"
             onClick={onClose}
             disabled={loading}

@@ -220,7 +220,7 @@ export default function AutomationIndex({ rules, recentRuns, triggers, actions }
                                     <div className="space-y-1">
                                         <div className="flex items-center gap-2">
                                             <span className="font-semibold text-sm text-slate-800 dark:text-white">{rule.name}</span>
-                                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                            <span className={`px-2 py-0.5 rounded text-xs font-bold ${
                                                 rule.enabled 
                                                     ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
                                                     : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'

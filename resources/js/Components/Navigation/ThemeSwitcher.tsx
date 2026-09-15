@@ -55,7 +55,7 @@ export const ThemeSwitcher: React.FC = () => {
         onClick={() => handleSelect('dark')}
         className={`p-1.5 rounded-lg text-xs spring-transition cursor-pointer ${
           theme === 'dark' 
-            ? 'bg-purple-600/30 text-purple-300 font-semibold shadow-sm' 
+            ? 'bg-[var(--surface-3)] text-[var(--text-primary)] font-semibold shadow-sm' 
             : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'
         }`}
         title="Dark Mode"
@@ -71,7 +71,7 @@ export const ThemeSwitcher: React.FC = () => {
         onClick={() => handleSelect('light')}
         className={`p-1.5 rounded-lg text-xs spring-transition cursor-pointer ${
           theme === 'light' 
-            ? 'bg-purple-600/30 text-purple-300 font-semibold shadow-sm' 
+            ? 'bg-[var(--surface-3)] text-[var(--text-primary)] font-semibold shadow-sm' 
             : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'
         }`}
         title="Light Mode"
@@ -87,7 +87,7 @@ export const ThemeSwitcher: React.FC = () => {
         onClick={() => handleSelect('system')}
         className={`p-1.5 rounded-lg text-xs spring-transition cursor-pointer ${
           theme === 'system' 
-            ? 'bg-purple-600/30 text-purple-300 font-semibold shadow-sm' 
+            ? 'bg-[var(--surface-3)] text-[var(--text-primary)] font-semibold shadow-sm' 
             : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'
         }`}
         title="System Preference"

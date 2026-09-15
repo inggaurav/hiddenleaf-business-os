@@ -110,7 +110,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
         </IconButton>
 
         {unreadCount > 0 && (
-          <span className="absolute top-1 right-1 w-2 h-2 bg-purple-500 rounded-full animate-pulse" />
+          <span className="absolute top-1 right-1 w-2 h-2 bg-[var(--brand-primary)] rounded-full animate-pulse" />
         )}
       </div>
 
@@ -126,7 +126,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                 Notifications
               </h3>
               {unreadCount > 0 && (
-                <span className="px-1.5 py-0.5 rounded-full bg-purple-600/20 text-purple-300 text-[10px] font-bold border border-purple-500/30">
+                <span className="px-1.5 py-0.5 rounded-full bg-[var(--surface-3)] text-[var(--text-primary)] text-xs font-bold border border-purple-500/30">
                   {unreadCount} new
                 </span>
               )}
@@ -136,7 +136,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
               <button
                 type="button"
                 onClick={markAllAsRead}
-                className="text-[11px] text-purple-400 hover:text-purple-300 font-medium cursor-pointer"
+                className="text-[11px] text-[var(--brand-primary)] hover:text-[var(--brand-primary-hover)] font-medium cursor-pointer"
               >
                 Mark all read
               </button>
@@ -160,14 +160,14 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                   <div
                     key={n.id}
                     className={`p-3.5 flex items-start gap-3 text-xs spring-transition ${
-                      isUnread ? 'bg-purple-950/20' : 'hover:bg-white/[0.02]'
+                      isUnread ? 'bg-[var(--surface-2)]' : 'hover:bg-white/[0.02]'
                     }`}
                   >
                     <div className="mt-0.5">
                       {n.type === 'warning' ? (
                         <AlertCircle className="w-4 h-4 text-amber-400" />
                       ) : (
-                        <Info className="w-4 h-4 text-purple-400" />
+                        <Info className="w-4 h-4 text-[var(--brand-primary)]" />
                       )}
                     </div>
 
@@ -176,7 +176,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                         <span className={`font-semibold truncate ${isUnread ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>
                           {n.title}
                         </span>
-                        <span className="text-[10px] text-[var(--text-tertiary)] whitespace-nowrap">
+                        <span className="text-xs text-[var(--text-tertiary)] whitespace-nowrap">
                           {n.created_at}
                         </span>
                       </div>
@@ -187,7 +187,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                       <button
                         type="button"
                         onClick={() => markAsRead(n.id)}
-                        className="p-1 text-[var(--text-tertiary)] hover:text-purple-300 spring-transition"
+                        className="p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] spring-transition"
                         title="Mark as read"
                       >
                         <Check className="w-3.5 h-3.5" />

@@ -68,8 +68,8 @@ export default function RoleForm({ mode }: { mode: 'create' | 'edit' }) {
                     {items.map((permission: any) => {
                       const checked = form.data.permissions.includes(permission.id);
                       return (
-                        <button key={permission.id} type="button" onClick={() => toggle(permission.id)} className={`p-3 rounded-xl border text-left transition-colors ${checked ? 'bg-purple-500/10 border-purple-500/40' : 'bg-white/[0.02] border-[var(--border-subtle)] hover:border-purple-500/20'}`}>
-                          <div className="flex items-start justify-between gap-2"><div><div className="text-xs font-semibold">{permission.resource || permission.name}</div><div className="text-[10px] text-[var(--text-tertiary)] mt-1">{permission.action || permission.name}</div></div>{checked && <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />}</div>
+                        <button key={permission.id} type="button" onClick={() => toggle(permission.id)} className={`p-3 rounded-xl border text-left transition-colors ${checked ? 'bg-[var(--surface-2)] border-[var(--border-strong)]' : 'bg-white/[0.02] border-[var(--border-subtle)] hover:border-[var(--border-medium)]'}`}>
+                          <div className="flex items-start justify-between gap-2"><div><div className="text-xs font-semibold">{permission.resource || permission.name}</div><div className="text-xs text-[var(--text-tertiary)] mt-1">{permission.action || permission.name}</div></div>{checked && <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />}</div>
                         </button>
                       );
                     })}

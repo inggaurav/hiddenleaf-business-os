@@ -9,6 +9,7 @@ use App\Models\Plan;
 use App\Models\Role;
 use App\Models\Subscription;
 use App\Models\UserActiveModule;
+use App\Models\User;
 use App\Models\Workspace;
 use App\Models\WorkspaceAddon;
 use Illuminate\Http\Request;
@@ -27,6 +28,9 @@ class HandleInertiaRequests extends Middleware
     {
         $user = $request->user();
         $isOwner = $user ? $this->isActiveOrganizationOwner($request, $user) : false;
+
+        $orgId = (int) $request->session()->get('active_organization_id');
+        $org = $orgId > 0 ? Organization::find($orgId) : null;
 
         return array_merge(parent::share($request), [
             'auth' => [
@@ -47,7 +51,15 @@ class HandleInertiaRequests extends Middleware
                 'workspace_title' => $request->session()->get('active_workspace_title'),
                 'available_workspaces' => $user ? $this->resolveWorkspaces($request, $user) : [],
                 'modules' => $this->resolveModules($request, $user),
+                'brand_name' => $org?->brand_name,
+                'brand_logo_path' => $org?->brand_logo_path,
+                'brand_primary_color' => $org?->brand_primary_color,
+                'brand_footer_text' => $org?->brand_footer_text,
             ],
+            'is_impersonating' => $request->session()->has('impersonator_id'),
+            'impersonator_name' => $request->session()->has('impersonator_id')
+                ? optional(User::find($request->session()->get('impersonator_id')))->name
+                : null,
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),

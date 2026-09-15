@@ -219,7 +219,7 @@ export default function ProductServiceDashboard({
                       <div className="text-[11px] text-[var(--text-tertiary)] truncate">
                         {move.warehouse_name} • {move.reason}
                       </div>
-                      <div className="text-[10px] text-[var(--text-tertiary)]">
+                      <div className="text-xs text-[var(--text-tertiary)]">
                         {move.created_at}
                       </div>
                     </div>
@@ -269,7 +269,7 @@ export default function ProductServiceDashboard({
                       <div className="text-[11px] text-[var(--text-tertiary)] truncate">
                         {trf.from_warehouse} → {trf.to_warehouse}
                       </div>
-                      <div className="text-[10px] text-[var(--text-tertiary)]">
+                      <div className="text-xs text-[var(--text-tertiary)]">
                         {trf.product_name} ({trf.quantity} units) • {trf.date}
                       </div>
                     </div>

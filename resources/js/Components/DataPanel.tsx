@@ -24,7 +24,7 @@ export default function DataPanel({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {data.map(([key, value]) => (
             <Card key={key} level={0} className="space-y-3">
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider text-purple-300">
+              <h3 className="text-xs font-bold text-white uppercase tracking-wider text-[var(--text-primary)]">
                 {key.replace(/_/g, ' ')}
               </h3>
               {Array.isArray(value) ? (

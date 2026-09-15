@@ -59,7 +59,7 @@ function SectionForm({ section, resolved }: { section: SettingsSection; resolved
         <label key={field.key} className="space-y-2 text-sm text-[var(--text-secondary)]">
           <span>{field.label}</span>
           <textarea
-            className="min-h-28 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-3 py-2 text-[var(--text-primary)]"
+            className="min-h-28 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-2)] px-3 py-2 text-[var(--text-primary)]"
             value={data.values[field.key] ?? ''}
             onChange={(event) => update(field.key, event.target.value)}
           />
@@ -90,10 +90,10 @@ function SectionForm({ section, resolved }: { section: SettingsSection; resolved
           <input
             type="file"
             accept=".png,.jpg,.jpeg,.webp,.svg,.ico"
-            className="block w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-raised)] px-3 py-2 text-sm"
+            className="block w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-2)] px-3 py-2 text-sm"
             onChange={(event) => update(field.key, event.target.files?.[0] || null)}
           />
-          {typeof resolved[field.key] === 'string' && resolved[field.key] && <span className="block truncate text-xs text-[var(--text-muted)]">Current: {resolved[field.key]}</span>}
+          {typeof resolved[field.key] === 'string' && resolved[field.key] && <span className="block truncate text-xs text-[var(--text-tertiary)]">Current: {resolved[field.key]}</span>}
           {error && <span className="text-xs text-red-400">{error}</span>}
         </label>
       );
@@ -117,7 +117,7 @@ function SectionForm({ section, resolved }: { section: SettingsSection; resolved
         <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[var(--border-subtle)] pb-4">
           <div>
             <div className="flex items-center gap-2">
-              <Settings2 className="h-4 w-4 text-purple-400" />
+              <Settings2 className="h-4 w-4 text-[var(--text-tertiary)]" />
               <h2 className="font-semibold text-[var(--text-primary)]">{section.label}</h2>
             </div>
             <div className="mt-2 flex flex-wrap gap-2">

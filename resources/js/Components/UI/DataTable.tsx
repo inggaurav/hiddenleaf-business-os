@@ -175,7 +175,7 @@ export function DataTable<T = any>({
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-[var(--border-subtle)] bg-[var(--surface-2)] text-[10px] font-bold uppercase tracking-wider text-[var(--text-tertiary)]">
+            <tr className="border-b border-[var(--border-subtle)] bg-[var(--surface-2)] text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)]">
               {columns.map((col, idx) => {
                 const effectiveKey = (col.accessorKey || col.key) as string | keyof T | undefined;
                 const isSorted = sortKey && effectiveKey && sortKey === effectiveKey;
@@ -289,7 +289,7 @@ export function DataTable<T = any>({
                 <div className="grid grid-cols-2 gap-2 text-xs bg-[var(--surface-2)] p-2.5 rounded-xl border border-[var(--border-subtle)]">
                   {metaCols.map((col, idx) => (
                     <div key={idx} className="space-y-0.5 min-w-0">
-                      <span className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wider block truncate">
+                      <span className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider block truncate">
                         {col.header}
                       </span>
                       <div className="text-[var(--text-secondary)] truncate">

@@ -304,7 +304,7 @@ export default function OnboardingWizard({ workspace, brand, isCompleted }: Prop
                                         <p className="text-[11px] text-slate-400">Sync customer inquiries and send brand-aligned replies.</p>
                                     </div>
                                 </div>
-                                <span className="px-2.5 py-1 bg-slate-700/60 text-slate-300 rounded-lg text-[10px] font-semibold">Configured in Settings</span>
+                                <span className="px-2.5 py-1 bg-slate-700/60 text-slate-300 rounded-lg text-xs font-semibold">Configured in Settings</span>
                             </div>
 
                             <div className="p-4 bg-slate-800/60 border border-slate-700/80 rounded-2xl flex items-center justify-between">
@@ -315,7 +315,7 @@ export default function OnboardingWizard({ workspace, brand, isCompleted }: Prop
                                         <p className="text-[11px] text-slate-400">Real-time messaging via Meta Cloud Business API.</p>
                                     </div>
                                 </div>
-                                <span className="px-2.5 py-1 bg-slate-700/60 text-slate-300 rounded-lg text-[10px] font-semibold">Configured in Settings</span>
+                                <span className="px-2.5 py-1 bg-slate-700/60 text-slate-300 rounded-lg text-xs font-semibold">Configured in Settings</span>
                             </div>
 
                             <div className="p-4 bg-slate-800/60 border border-slate-700/80 rounded-2xl flex items-center justify-between">
@@ -326,7 +326,7 @@ export default function OnboardingWizard({ workspace, brand, isCompleted }: Prop
                                         <p className="text-[11px] text-slate-400">Internal alerts and client Slack Connect channels.</p>
                                     </div>
                                 </div>
-                                <span className="px-2.5 py-1 bg-slate-700/60 text-slate-300 rounded-lg text-[10px] font-semibold">Configured in Settings</span>
+                                <span className="px-2.5 py-1 bg-slate-700/60 text-slate-300 rounded-lg text-xs font-semibold">Configured in Settings</span>
                             </div>
                         </div>
 

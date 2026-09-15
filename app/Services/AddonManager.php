@@ -47,11 +47,14 @@ class AddonManager
         $addon = $this->find($alias);
 
         if ($addon) {
-            return WorkspaceAddon::query()
+            $viaAddon = WorkspaceAddon::query()
                 ->where('workspace_id', $workspace->id)
                 ->where('addon_id', $addon->id)
                 ->where('is_active', true)
                 ->exists();
+            if ($viaAddon) {
+                return true;
+            }
         }
 
         return UserActiveModule::query()

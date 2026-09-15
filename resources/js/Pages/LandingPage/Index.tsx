@@ -35,7 +35,7 @@ export default function LandingPageIndex({ plans = [] }: { plans?: any[] }) {
           </div>
           <div>
             <span className="text-sm font-bold tracking-tight text-white block">HiddenLeaf</span>
-            <span className="text-[10px] font-medium text-violet-400 block -mt-1">BusinessOS 2026</span>
+            <span className="text-xs font-medium text-violet-400 block -mt-1">BusinessOS 2026</span>
           </div>
         </Link>
 
@@ -75,7 +75,7 @@ export default function LandingPageIndex({ plans = [] }: { plans?: any[] }) {
             </Button>
           </Link>
           <Link href="/login">
-            <Button variant="secondary" size="lg">
+            <Button variant="outline" size="lg">
               Live Demo Access
             </Button>
           </Link>

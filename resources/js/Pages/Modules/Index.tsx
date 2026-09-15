@@ -68,7 +68,7 @@ export default function ModulesIndex() {
                 <div className="pt-4 mt-4 border-t border-white/10 flex items-center justify-between gap-3">
                   <div>
                     <div className="text-xs text-gray-300">Workspace Activation</div>
-                    <div className="text-[10px] text-gray-500">Data is preserved when disabled.</div>
+                    <div className="text-xs text-gray-500">Data is preserved when disabled.</div>
                   </div>
                   <Switch checked={active} onChange={() => handleToggle(mod)} disabled={toggleDisabled} />
                 </div>

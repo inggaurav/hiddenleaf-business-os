@@ -41,7 +41,23 @@ class CrmController extends Controller
         $leadCount = (clone $leads)->count();
         $converted = (clone $leads)->whereNotNull('converted_at')->count();
 
-        return Inertia::render('CRM/Index', ['pipelines' => CrmPipeline::where('workspace_id', $workspace->id)->with('stages')->get(), 'leads' => (clone $leads)->latest()->paginate(30), 'deals' => (clone $deals)->latest()->paginate(30), 'metrics' => ['leads' => $leadCount, 'open_leads' => (clone $leads)->where('status', 'open')->count(), 'deals' => (clone $deals)->count(), 'pipeline_value' => (float) (clone $deals)->where('status', 'open')->sum('value'), 'won_value' => (float) (clone $deals)->where('status', 'won')->sum('value'), 'conversion_rate' => $leadCount > 0 ? round(($converted / $leadCount) * 100, 2) : 0, 'stage_distribution' => (clone $deals)->select('stage_id', DB::raw('COUNT(*) as aggregate'))->groupBy('stage_id')->pluck('aggregate', 'stage_id')]]);
+        $loadedLeads = (clone $leads)->with(['pipeline:id,name', 'stage:id,name', 'assignedUser:id,name,email'])->withCount('notes');
+
+        return Inertia::render('CRM/Index', [
+            'pipelines' => CrmPipeline::where('workspace_id', $workspace->id)->with('stages')->get(),
+            'leads' => (clone $loadedLeads)->latest()->paginate(30),
+            'allLeads' => (clone $loadedLeads)->latest()->get(),
+            'deals' => (clone $deals)->with(['pipeline:id,name', 'stage:id,name', 'assignedUser:id,name,email'])->latest()->paginate(30),
+            'metrics' => [
+                'leads' => $leadCount,
+                'open_leads' => (clone $leads)->where('status', 'open')->count(),
+                'deals' => (clone $deals)->count(),
+                'pipeline_value' => (float) (clone $deals)->where('status', 'open')->sum('value'),
+                'won_value' => (float) (clone $deals)->where('status', 'won')->sum('value'),
+                'conversion_rate' => $leadCount > 0 ? round(($converted / $leadCount) * 100, 2) : 0,
+                'stage_distribution' => (clone $deals)->select('stage_id', DB::raw('COUNT(*) as aggregate'))->groupBy('stage_id')->pluck('aggregate', 'stage_id'),
+            ],
+        ]);
     }
 
     public function storePipeline(Request $request)
@@ -71,15 +87,22 @@ class CrmController extends Controller
         return back()->with('success', 'Lead created.');
     }
 
-    public function moveLead(Request $request, int $leadId)
+    public function moveLead(Request $request, int $leadId, AuditLogger $audit)
     {
         $workspace = $this->workspace($request, 'crm.manage');
         $lead = CrmLead::findOrFail($leadId);
         $this->tenant($lead, $workspace);
         $this->assertAssignedRecord($request, $workspace, $lead);
         $data = $request->validate(['stage_id' => ['required', 'integer']]);
-        $this->pipelineStage($workspace, $lead->pipeline_id, $data['stage_id']);
-        $lead->update($data);
+        $stage = $this->pipelineStage($workspace, $lead->pipeline_id, $data['stage_id']);
+
+        DB::transaction(function () use ($lead, $stage, $request, $workspace, $audit) {
+            $lead->update(['stage_id' => $stage->id]);
+            $audit->log($request->user()->id, $workspace->organization_id, $workspace->id, 'lead.moved', 'crm_lead', (string) $lead->id, [
+                'stage_id' => $stage->id,
+                'stage_name' => $stage->name,
+            ]);
+        });
 
         return back()->with('success', 'Lead stage updated.');
     }
@@ -222,6 +245,28 @@ class CrmController extends Controller
         return response()->json(['status' => 'success', 'message' => 'Thank you for your submission. Our team will contact you soon.']);
     }
 
+    public function storeDeal(Request $request)
+    {
+        $workspace = $this->workspace($request, 'crm.manage');
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'value' => ['required', 'numeric', 'min:0'],
+            'pipeline_id' => ['nullable', 'integer', 'exists:crm_pipelines,id'],
+            'stage_id' => ['nullable', 'integer', 'exists:crm_stages,id'],
+            'lead_id' => ['nullable', 'integer', 'exists:crm_leads,id'],
+            'assigned_to' => ['nullable', 'integer', 'exists:users,id'],
+            'expected_close_date' => ['nullable', 'date'],
+            'expected_close_on' => ['nullable', 'date'],
+            'probability' => ['nullable', 'integer', 'min:0', 'max:100'],
+            'source' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $dealService = app(\HiddenLeaf\CrmDealsKanban\Domain\Services\DealService::class);
+        $deal = $dealService->createDeal($workspace, $data, $request->user());
+
+        return back()->with('success', "Deal [{$deal->name}] created.");
+    }
+
     public function moveDeal(Request $request, int $dealId, AuditLogger $audit)
     {
         $workspace = $this->workspace($request, 'crm.manage');
@@ -231,9 +276,16 @@ class CrmController extends Controller
         abort_unless($deal->status === 'open', 422, 'Closed deals cannot move.');
         $data = $request->validate(['stage_id' => ['required', 'integer'], 'loss_reason' => ['nullable', 'string']]);
         $stage = $this->pipelineStage($workspace, $deal->pipeline_id, $data['stage_id']);
-        $status = $stage->is_closed ? ($stage->outcome ?? 'lost') : 'open';
+        $status = $stage->is_closed ? ($stage->outcome ?? (strtolower($stage->name) === 'won' ? 'won' : 'lost')) : 'open';
         DB::transaction(function () use ($deal, $data, $status, $stage, $request, $workspace, $audit) {
-            $deal->update(['stage_id' => $stage->id, 'status' => $status, 'closed_at' => $status === 'open' ? null : now(), 'loss_reason' => $status === 'lost' ? ($data['loss_reason'] ?? null) : null]);
+            $deal->update([
+                'stage_id' => $stage->id,
+                'status' => $status,
+                'probability' => (int) ($stage->probability ?? $stage->default_probability ?? $deal->probability),
+                'actual_close_date' => $status === 'open' ? null : today()->toDateString(),
+                'closed_at' => $status === 'open' ? null : now(),
+                'loss_reason' => $status === 'lost' ? ($data['loss_reason'] ?? null) : null,
+            ]);
             if ($status !== 'open') {
                 $audit->log($request->user()->id, $workspace->organization_id, $workspace->id, 'deal.'.$status, 'crm_deal', (string) $deal->id, ['value' => $deal->value], critical: true);
             }
@@ -263,6 +315,106 @@ class CrmController extends Controller
         DB::table('crm_activities')->insert($data + ['organization_id' => $workspace->organization_id, 'workspace_id' => $workspace->id, 'subject_type' => $subject->getMorphClass(), 'subject_id' => $subject->id, 'created_by' => $request->user()->id, 'created_at' => now(), 'updated_at' => now()]);
 
         return back()->with('success', 'Activity added.');
+    }
+
+    public function storeTask(Request $request)
+    {
+        $workspace = $this->workspace($request, 'crm.manage');
+        $data = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'type' => ['required', Rule::in(['call', 'meeting', 'email', 'task'])],
+            'due_at' => ['required', 'date'],
+            'assigned_to' => ['nullable', 'integer'],
+            'subject_type' => ['nullable', 'string'],
+            'subject_id' => ['nullable', 'integer'],
+        ]);
+
+        if (! empty($data['assigned_to'])) {
+            $this->assignee($workspace, $data['assigned_to']);
+        }
+
+        DB::table('crm_activities')->insert([
+            'organization_id' => $workspace->organization_id,
+            'workspace_id' => $workspace->id,
+            'subject_type' => $data['subject_type'] ?? null,
+            'subject_id' => $data['subject_id'] ?? null,
+            'type' => $data['type'],
+            'title' => $data['title'],
+            'due_at' => $data['due_at'],
+            'assigned_to' => $data['assigned_to'] ?? $request->user()->id,
+            'created_by' => $request->user()->id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return back()->with('success', 'CRM Task scheduled.');
+    }
+
+    public function toggleActivity(Request $request, int $id)
+    {
+        $workspace = $this->workspace($request, 'crm.manage');
+        $activity = DB::table('crm_activities')
+            ->where('organization_id', $workspace->organization_id)
+            ->where('workspace_id', $workspace->id)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        $completedAt = $activity->completed_at ? null : now();
+        DB::table('crm_activities')->where('id', $id)->update(['completed_at' => $completedAt, 'updated_at' => now()]);
+
+        return back()->with('success', $completedAt ? 'Task marked completed.' : 'Task reopened.');
+    }
+
+    public function showLead(Request $request, int $leadId): \Illuminate\Http\JsonResponse
+    {
+        $workspace = $this->workspace($request, 'crm.view');
+        $lead = CrmLead::with([
+            'pipeline:id,name',
+            'stage:id,name',
+            'assignedUser:id,name,email',
+            'notes.creator:id,name',
+            'activities.creator:id,name',
+            'files.uploader:id,name',
+        ])->findOrFail($leadId);
+        $this->tenant($lead, $workspace);
+
+        return response()->json([
+            'lead'       => $lead,
+            'pipelines'  => CrmPipeline::where('workspace_id', $workspace->id)->with('stages')->get(),
+            'teamMembers'=> $workspace->members()->get(['users.id', 'users.name', 'users.email']),
+            'canManage'  => $this->isWorkspaceManager($request, $workspace)
+                            || $request->user()->canInWorkspace('crm.manage', $workspace),
+        ]);
+    }
+
+    public function uploadFile(Request $request, string $type, int $id)
+    {
+        $workspace = $this->workspace($request, 'crm.manage');
+        $subject = $this->subject($type, $id, $workspace);
+        $this->assertAssignedRecord($request, $workspace, $subject);
+
+        $request->validate([
+            'file' => ['required', 'file', 'max:20480'],
+        ]);
+
+        $file = $request->file('file');
+        $storedPath = $file->store("{$type}s/{$subject->id}", 'public');
+
+        \HiddenLeaf\CrmDealsKanban\Models\CrmDealFile::create([
+            'workspace_id' => $workspace->id,
+            'deal_id'      => $type === 'deal' ? $subject->id : null,
+            'lead_id'      => $type === 'lead' ? $subject->id : null,
+            'user_id'      => $request->user()->id,
+            'file_path'    => $storedPath,
+            'file_name'    => $file->getClientOriginalName(),
+            'file_size'    => $file->getSize(),
+            'path'         => $storedPath,
+            'name'         => $file->getClientOriginalName(),
+            'size'         => $file->getSize(),
+            'mime_type'    => $file->getClientMimeType(),
+        ]);
+
+        return back()->with('success', 'File attached.');
     }
 
     private function workspace(Request $request, string $permission): Workspace

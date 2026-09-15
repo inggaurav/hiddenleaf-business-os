@@ -264,7 +264,7 @@ export function createFormPage(config: FormConfig) {
                     <h4 className="text-xs font-bold text-white uppercase tracking-wider">Line Items</h4>
                     <Button
                       type="button"
-                      variant="secondary"
+                      variant="outline"
                       size="sm"
                       onClick={() => setData('items', [...data.items, { item_name: '', quantity: 1, price: 0 }])}
                     >
@@ -374,7 +374,7 @@ export function createShowPage(config: ShowConfig) {
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {entries.map(([key, value]) => (
                 <div key={key} className="p-3 rounded-lg bg-white/[0.02] border border-white/5 space-y-1">
-                  <dt className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                  <dt className="text-xs font-bold uppercase tracking-wider text-gray-400">
                     {humanize(key)}
                   </dt>
                   <dd className="text-xs font-semibold text-white break-words">

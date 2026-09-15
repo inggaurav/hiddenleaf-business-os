@@ -40,6 +40,7 @@ use App\Http\Controllers\MultiTenancy\MemberController;
 use App\Http\Controllers\MultiTenancy\WorkspaceController;
 use App\Http\Controllers\NotificationTemplateController;
 use App\Http\Controllers\Onboarding\OnboardingController;
+use App\Http\Controllers\OrganizationBrandingController;
 use App\Http\Controllers\POS\PosBillingCounterController;
 use App\Http\Controllers\POS\PosController;
 use App\Http\Controllers\POS\PosDashboardController;
@@ -259,19 +260,26 @@ Route::middleware(['auth'])->group(function () {
         Route::post('lifecycle/events/{event}/review', [HrmController::class, 'reviewEvent'])->name('lifecycle.review');
     });
 
-    Route::middleware('module.status:lead')->prefix('crm')->name('crm.')->group(function () {
+    Route::middleware('module.status:lead,crm,crm-deals-kanban')->prefix('crm')->name('crm.')->group(function () {
         Route::get('/', [CrmController::class, 'index'])->name('index');
         Route::get('dashboard', [CrmController::class, 'dashboard'])->name('dashboard');
         Route::get('leads/list', [CrmController::class, 'index'])->name('leads.list');
+        Route::get('deals', [\HiddenLeaf\CrmDealsKanban\Http\Controllers\DealKanbanController::class, 'kanban'])->name('deals');
+        Route::get('kanban', [\HiddenLeaf\CrmDealsKanban\Http\Controllers\DealKanbanController::class, 'kanban'])->name('kanban');
+        Route::get('leads/{leadId}', [CrmController::class, 'showLead'])->name('leads.show');
         Route::middleware('workspace.permission:crm.manage')->group(function () {
             Route::post('pipelines', [CrmController::class, 'storePipeline'])->name('pipelines.store');
             Route::post('leads', [CrmController::class, 'storeLead'])->name('leads.store');
             Route::post('leads/{leadId}/move', [CrmController::class, 'moveLead'])->name('leads.move');
             Route::post('leads/{leadId}/convert', [CrmController::class, 'convertLead'])->name('leads.convert');
+            Route::post('deals', [CrmController::class, 'storeDeal'])->name('deals.store');
             Route::post('deals/{dealId}/move', [CrmController::class, 'moveDeal'])->name('deals.move');
             Route::post('webforms', [CrmController::class, 'storeWebform'])->name('webforms.store');
             Route::post('{type}/{id}/notes', [CrmController::class, 'addNote'])->name('notes.store');
             Route::post('{type}/{id}/activities', [CrmController::class, 'addActivity'])->name('activities.store');
+            Route::post('tasks', [CrmController::class, 'storeTask'])->name('tasks.store');
+            Route::post('activities/{id}/toggle', [CrmController::class, 'toggleActivity'])->name('activities.toggle');
+            Route::post('{type}/{id}/files', [CrmController::class, 'uploadFile'])->name('files.store');
         });
     });
     Route::post('crm/forms/{token}/submit', [CrmController::class, 'publicWebformSubmit'])->name('crm.webforms.submit')->withoutMiddleware([EnsureTenantContext::class]);
@@ -533,6 +541,8 @@ Route::middleware(['auth'])->group(function () {
 
     // General & System Settings
     Route::get('settings', [App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
+    Route::get('settings/branding', [OrganizationBrandingController::class, 'edit'])->name('settings.branding');
+    Route::put('organization/branding', [OrganizationBrandingController::class, 'update'])->name('organization.branding.update');
     Route::post('settings', [App\Http\Controllers\SettingController::class, 'store'])->name('settings.store');
     Route::post('settings/brand', [App\Http\Controllers\SettingController::class, 'saveBrandSettings'])->name('settings.brand.store');
     Route::post('settings/email', [App\Http\Controllers\SettingController::class, 'saveEmailSettings'])->name('settings.email.store');
@@ -542,6 +552,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('settings/currency', [App\Http\Controllers\SettingController::class, 'saveCurrencySettings'])->name('settings.currency.store');
     Route::post('settings/cookie', [App\Http\Controllers\SettingController::class, 'saveCookieSettings'])->name('settings.cookie.store');
     Route::post('settings/cache-clear', [App\Http\Controllers\SettingController::class, 'clearCache'])->name('settings.cache.clear');
+    Route::get('settings/audit', [App\Http\Controllers\SettingController::class, 'auditLog'])->name('settings.audit');
 
     // Localization / Languages
     Route::resource('languages', LanguageController::class);

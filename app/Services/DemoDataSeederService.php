@@ -56,7 +56,7 @@ class DemoDataSeederService
                 'pipeline_id' => $pipeline->id,
                 'stage_id' => $stageLead->id,
                 'name' => '[DEMO] Apex Cloud Systems',
-                'phone' => '+1 (555) 234-5678',
+                'phone' => '+91 98123 45678',
                 'company' => 'Apex Cloud Inc.',
                 'estimated_value' => 18500.00,
                 'status' => 'qualified',

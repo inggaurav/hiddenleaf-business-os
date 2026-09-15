@@ -5,10 +5,7 @@ import { Card } from '@/Components/UI/Card';
 import { Badge } from '@/Components/UI/Badge';
 import { Button } from '@/Components/UI/Button';
 import { Check, CreditCard, Plus, Users, Boxes, Layers } from 'lucide-react';
-
-function money(value: any) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(Number(value || 0));
-}
+import { formatINR } from '@/lib/format';
 
 export default function PlansIndex() {
   const { plans = [], canCreate = false } = usePage<any>().props;
@@ -36,20 +33,20 @@ export default function PlansIndex() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="p-3 rounded-xl bg-white/[0.03] border border-[var(--border-subtle)]"><div className="text-[10px] text-[var(--text-tertiary)] uppercase">Monthly</div><div className="font-bold mt-1">{money(plan.package_price_monthly)}</div></div>
-                    <div className="p-3 rounded-xl bg-white/[0.03] border border-[var(--border-subtle)]"><div className="text-[10px] text-[var(--text-tertiary)] uppercase">Yearly</div><div className="font-bold mt-1">{money(plan.package_price_yearly)}</div></div>
+                    <div className="p-3 rounded-xl bg-white/[0.03] border border-[var(--border-subtle)]"><div className="text-xs text-[var(--text-tertiary)] uppercase">Monthly</div><div className="font-bold mt-1">{formatINR(plan.package_price_monthly)}</div></div>
+                    <div className="p-3 rounded-xl bg-white/[0.03] border border-[var(--border-subtle)]"><div className="text-xs text-[var(--text-tertiary)] uppercase">Yearly</div><div className="font-bold mt-1">{formatINR(plan.package_price_yearly)}</div></div>
                   </div>
 
                   <div className="grid grid-cols-3 gap-2 text-[11px] text-[var(--text-secondary)]">
-                    <div className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5 text-purple-400" />{plan.number_of_users} users</div>
-                    <div className="flex items-center gap-1.5"><Layers className="w-3.5 h-3.5 text-purple-400" />{plan.workspace_limit} workspace{Number(plan.workspace_limit) === 1 ? '' : 's'}</div>
-                    <div className="flex items-center gap-1.5"><Boxes className="w-3.5 h-3.5 text-purple-400" />{modules.length} modules</div>
+                    <div className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />{plan.number_of_users} users</div>
+                    <div className="flex items-center gap-1.5"><Layers className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />{plan.workspace_limit} workspace{Number(plan.workspace_limit) === 1 ? '' : 's'}</div>
+                    <div className="flex items-center gap-1.5"><Boxes className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />{modules.length} modules</div>
                   </div>
 
                   <div className="space-y-2">
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-tertiary)]">Included Modules</div>
+                    <div className="text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)]">Included Modules</div>
                     <div className="flex flex-wrap gap-1.5">
-                      {modules.length ? modules.map((module) => <span key={module} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-purple-500/10 border border-purple-500/20 text-[10px] text-purple-300"><Check className="w-3 h-3" />{module}</span>) : <span className="text-[11px] text-amber-300">No modules assigned</span>}
+                      {modules.length ? modules.map((module) => <span key={module} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-[var(--surface-2)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)]"><Check className="w-3 h-3" />{module}</span>) : <span className="text-[11px] text-amber-300">No modules assigned</span>}
                     </div>
                   </div>
                 </div>

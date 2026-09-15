@@ -5,6 +5,7 @@ import AppShell from '@/Layouts/AppShell';
 import { MetricCard } from '@/Components/UI/Card';
 import { DataTable, Column } from '@/Components/UI/DataTable';
 import { SectionHeader } from '@/Components/UI/SectionHeader';
+import { formatINRShort } from '@/lib/format';
 
 type RecordRow = Record<string, any>;
 
@@ -38,7 +39,7 @@ function displayValue(value: unknown): React.ReactNode {
 function metricValue(key: string, value: unknown): string | number {
   const numeric = Number(value ?? 0);
   if (/revenue|value|payroll|cost|sales|purchases|transfers/.test(key)) {
-    return new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(Number.isFinite(numeric) ? numeric : 0);
+    return formatINRShort(Number.isFinite(numeric) ? numeric : 0);
   }
   if (/rate/.test(key)) return `${Number.isFinite(numeric) ? numeric : 0}%`;
   return Number.isFinite(numeric) ? numeric : String(value ?? '—');

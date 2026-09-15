@@ -110,7 +110,7 @@ export default function Register() {
 
           <div className="pt-4 border-t border-[var(--border-subtle)] text-center text-xs text-gray-400">
             Already have an active account?{' '}
-            <Link href="/login" className="text-purple-400 hover:text-white font-semibold">
+            <Link href="/login" className="text-[var(--text-primary)] hover:underline font-semibold">
               Sign In
             </Link>
           </div>

@@ -100,7 +100,7 @@ export default function HelpdeskIndex() {
           actions={
             <div className="flex items-center gap-2">
               <Link href="/helpdesk-categories">
-                <Button variant="secondary" size="sm" icon={<FolderTree className="w-4 h-4" />}>
+                <Button variant="outline" size="sm" icon={<FolderTree className="w-4 h-4" />}>
                   Categories
                 </Button>
               </Link>

@@ -109,7 +109,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
             onKeyDown={handleKeyDown}
             className="w-full bg-transparent py-4 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none"
           />
-          <kbd className="hidden sm:inline-block text-[10px] font-mono bg-white/10 px-2 py-0.5 rounded text-[var(--text-tertiary)]">ESC</kbd>
+          <kbd className="hidden sm:inline-block text-xs font-mono bg-white/10 px-2 py-0.5 rounded text-[var(--text-tertiary)]">ESC</kbd>
         </div>
 
         <div id="command-palette-results" role="listbox" ref={listRef} className="max-h-96 overflow-y-auto p-2 space-y-1">
@@ -126,15 +126,15 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
                 className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-xs cursor-pointer border ${isSelected ? 'bg-purple-600/20 border-purple-500/30' : 'border-transparent hover:bg-white/[0.04]'}`}
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${isSelected ? 'bg-purple-600/30 text-purple-300' : 'bg-white/5 text-[var(--text-tertiary)]'}`}><Icon className="w-4 h-4" /></div>
+                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${isSelected ? 'bg-[var(--surface-3)] text-[var(--text-primary)]' : 'bg-white/5 text-[var(--text-tertiary)]'}`}><Icon className="w-4 h-4" /></div>
                   <div className="truncate">
                     <div className="font-semibold text-[var(--text-primary)] truncate">{item.name}</div>
                     {item.description && <div className="text-[11px] text-[var(--text-tertiary)] truncate">{item.description}</div>}
                   </div>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-                  {item.category && <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--surface-2)] border border-[var(--border-subtle)] text-[var(--text-tertiary)]">{item.category}</span>}
-                  {isSelected && <ArrowRight className="w-3.5 h-3.5 text-purple-400" />}
+                  {item.category && <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--surface-2)] border border-[var(--border-subtle)] text-[var(--text-tertiary)]">{item.category}</span>}
+                  {isSelected && <ArrowRight className="w-3.5 h-3.5 text-[var(--brand-primary)]" />}
                 </div>
               </div>
             );
@@ -143,7 +143,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
 
         <div className="px-4 py-2 border-t border-[var(--border-subtle)] bg-[var(--surface-2)] flex items-center justify-between text-[11px] text-[var(--text-tertiary)]">
           <div className="flex items-center gap-3"><span>↑↓ Navigate</span><span>↵ Select</span><span>ESC Close</span></div>
-          {onOpenMrFox && <button type="button" onClick={() => { onClose(); onOpenMrFox(); }} className="text-purple-400 hover:text-purple-300 font-medium">Ask Mr Fox</button>}
+          {onOpenMrFox && <button type="button" onClick={() => { onClose(); onOpenMrFox(); }} className="text-[var(--brand-primary)] hover:text-[var(--text-primary)] font-medium">Ask Mr Fox</button>}
         </div>
       </div>
     </div>

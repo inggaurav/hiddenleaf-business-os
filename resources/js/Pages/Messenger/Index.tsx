@@ -68,7 +68,7 @@ export default function MessengerIndex() {
                 <div className="truncate flex-1">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-white truncate">General Workspace</span>
-                    <span className="text-[10px] text-gray-500">Live</span>
+                    <span className="text-xs text-gray-500">Live</span>
                   </div>
                   <p className="text-[11px] text-gray-400 truncate mt-0.5">Workspace broadcast stream</p>
                 </div>
@@ -128,7 +128,7 @@ export default function MessengerIndex() {
                     >
                       <p>{m.text}</p>
                     </div>
-                    <span className="text-[10px] text-gray-500 mt-1 px-1">{m.time}</span>
+                    <span className="text-xs text-gray-500 mt-1 px-1">{m.time}</span>
                   </div>
                 );
               })}

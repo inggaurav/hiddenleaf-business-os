@@ -101,21 +101,45 @@ class CrmDashboardService
             'created_at' => $d->created_at->format('M d, Y'),
         ]);
 
-        // Recent CRM Activities
-        $recentActivities = DB::table('crm_activities')
-            ->where('organization_id', $orgId)
-            ->where('workspace_id', $wsId)
-            ->when($userId, fn ($query) => $query->where('assigned_to', $userId))
-            ->latest('created_at')
-            ->limit(5)
-            ->get()
-            ->map(fn ($act) => [
-                'id' => $act->id,
-                'title' => $act->title,
-                'type' => $act->type,
-                'due_at' => $act->due_at,
-                'created_at' => Carbon::parse($act->created_at)->format('M d, Y'),
-            ]);
+        // Recent & Upcoming CRM Tasks/Activities
+        $allActivities = DB::table('crm_activities')
+            ->leftJoin('users as assigned', 'assigned.id', '=', 'crm_activities.assigned_to')
+            ->where('crm_activities.organization_id', $orgId)
+            ->where('crm_activities.workspace_id', $wsId)
+            ->when($userId, fn ($query) => $query->where('crm_activities.assigned_to', $userId))
+            ->select(
+                'crm_activities.*',
+                'assigned.name as assigned_name'
+            )
+            ->latest('crm_activities.created_at')
+            ->limit(50)
+            ->get();
+
+        $recentActivities = $allActivities->take(6)->map(fn ($act) => [
+            'id' => $act->id,
+            'title' => $act->title,
+            'type' => $act->type,
+            'due_at' => $act->due_at,
+            'completed_at' => $act->completed_at,
+            'assigned_name' => $act->assigned_name,
+            'created_at' => Carbon::parse($act->created_at)->format('M d, Y'),
+        ]);
+
+        $calendarTasks = $allActivities->filter(fn ($act) => ! empty($act->due_at))->map(fn ($act) => [
+            'id' => $act->id,
+            'title' => $act->title,
+            'type' => $act->type,
+            'date' => Carbon::parse($act->due_at)->format('Y-m-d'),
+            'due_at' => $act->due_at,
+            'completed_at' => $act->completed_at,
+            'is_completed' => ! empty($act->completed_at),
+            'subject_type' => $act->subject_type,
+            'subject_id' => $act->subject_id,
+            'assigned_name' => $act->assigned_name,
+        ])->values();
+
+        $teamMembers = $workspace->members()
+            ->get(['users.id', 'users.name', 'users.email']);
 
         return [
             'stats' => [
@@ -136,6 +160,8 @@ class CrmDashboardService
             'recentLeads' => $recentLeads,
             'recentDeals' => $recentDeals,
             'recentActivities' => $recentActivities,
+            'calendarTasks' => $calendarTasks,
+            'teamMembers' => $teamMembers,
         ];
     }
 }

@@ -139,7 +139,7 @@ export default function Inbox({ conversations: initialConversations, accounts }:
         switch (provider) {
             case 'gmail': return <Mail className="w-4 h-4 text-red-500" />;
             case 'whatsapp': return <MessageSquare className="w-4 h-4 text-emerald-500" />;
-            case 'slack': return <Hash className="w-4 h-4 text-purple-500" />;
+            case 'slack': return <Hash className="w-4 h-4 text-[var(--text-secondary)]" />;
             case 'instagram': return <Instagram className="w-4 h-4 text-pink-500" />;
             case 'facebook': return <Facebook className="w-4 h-4 text-blue-600" />;
             default: return <User className="w-4 h-4 text-slate-500" />;
@@ -211,7 +211,7 @@ export default function Inbox({ conversations: initialConversations, accounts }:
                                                 <span className="truncate">{conv.participant_name}</span>
                                             </div>
                                             {conv.priority_score >= 75 && (
-                                                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                                                <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
                                                     Urgent
                                                 </span>
                                             )}
@@ -260,7 +260,7 @@ export default function Inbox({ conversations: initialConversations, accounts }:
                                             }`}>
                                                 <p className="whitespace-pre-wrap">{msg.body_text}</p>
                                             </div>
-                                            <span className="text-[10px] text-slate-400 mt-1 px-1">{msg.sent_at ? new Date(msg.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</span>
+                                            <span className="text-xs text-slate-400 mt-1 px-1">{msg.sent_at ? new Date(msg.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</span>
                                         </div>
                                     );
                                 })}

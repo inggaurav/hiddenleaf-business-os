@@ -25,7 +25,7 @@ export default function SalesInvoiceShow() {
                 </Button>
               </Link>
               <Link href={`/sales-invoices/${invoice?.id}/edit`}>
-                <Button variant="secondary" size="sm" icon={<Edit className="w-4 h-4" />}>
+                <Button variant="outline" size="sm" icon={<Edit className="w-4 h-4" />}>
                   Edit
                 </Button>
               </Link>

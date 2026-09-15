@@ -17,6 +17,7 @@ export default defineConfig({
         alias: {
             '@': path.resolve(import.meta.dirname, './resources/js'),
             '@ui': path.resolve(import.meta.dirname, './packages/hiddenleaf/ui/src'),
+            '@hiddenleaf/ui': path.resolve(import.meta.dirname, './packages/hiddenleaf/ui/src'),
         },
     },
 });

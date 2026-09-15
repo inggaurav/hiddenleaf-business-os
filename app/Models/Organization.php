@@ -18,6 +18,10 @@ class Organization extends Model
         'plan_expires_at',
         'is_active',
         'settings',
+        'brand_name',
+        'brand_logo_path',
+        'brand_primary_color',
+        'brand_footer_text',
     ];
 
     protected $casts = [

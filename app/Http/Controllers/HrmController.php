@@ -32,7 +32,7 @@ class HrmController extends Controller
                 'employee' => $employee,
                 'attendance' => HrAttendance::where('workspace_id', $workspace->id)->where('employee_id', $employee->id)->latest('attendance_date')->limit(10)->get(),
                 'leaves' => HrLeaveRequest::where('workspace_id', $workspace->id)->where('employee_id', $employee->id)->with('type')->latest()->get(),
-                'payslips' => HrPayslip::where('workspace_id', $workspace->id)->where('employee_id', $employee->id)->latest('period_end')->get(),
+                'payslips' => HrPayslip::where('workspace_id', $workspace->id)->where('employee_id', $employee->id)->with('lines')->latest('period_end')->get(),
                 'events' => DB::table('hr_employee_events')->where('workspace_id', $workspace->id)->where('employee_id', $employee->id)->latest('event_date')->get(),
                 'policies' => DB::table('hr_policies')->where('workspace_id', $workspace->id)->where('status', 'active')->latest()->get(),
             ]);
@@ -42,7 +42,7 @@ class HrmController extends Controller
         return Inertia::render('HRM/Dashboard', ['metrics' => $data['stats']] + $data);
     }
 
-    public function index(Request $request)
+    public function index(Request $request, HrmDashboardService $dashboardService)
     {
         $workspace = $this->workspace($request, 'hrm.view');
 
@@ -50,19 +50,20 @@ class HrmController extends Controller
         if (! $this->isWorkspaceManager($request, $workspace)) {
             $employees->where('user_id', $request->user()->id);
         }
+
+        $dashboardData = $dashboardService->getMetrics($workspace);
+        $stats = $dashboardData['stats'] ?? [];
+
         return Inertia::render('HRM/Index', [
             'employees' => $employees->paginate(30),
-            'attendanceToday' => HrAttendance::where('workspace_id', $workspace->id)->whereDate('attendance_date', today())->count(),
-            'pendingLeaves' => HrLeaveRequest::where('workspace_id', $workspace->id)->where('status', 'pending')->count(),
-            'payrollTotal' => HrPayslip::where('workspace_id', $workspace->id)->whereMonth('period_end', now()->month)->sum('net_pay'),
-            'metrics' => [
-                'employees' => HrEmployee::forWorkspace($workspace->organization_id, $workspace->id)->where('status', 'active')->count(),
-                'attendance_today' => HrAttendance::where('workspace_id', $workspace->id)->whereDate('attendance_date', today())->count(),
-                'pending_leaves' => HrLeaveRequest::where('workspace_id', $workspace->id)->where('status', 'pending')->count(),
-                'payroll_month' => (float) HrPayslip::where('workspace_id', $workspace->id)->whereMonth('period_end', now()->month)->whereYear('period_end', now()->year)->sum('net_pay'),
-                'departments' => DB::table('hr_departments')->where('workspace_id', $workspace->id)->count(),
-                'upcoming_holidays' => DB::table('hr_holidays')->where('workspace_id', $workspace->id)->whereDate('holiday_date', '>=', today())->count(),
-            ],
+            'attendanceToday' => $stats['present_today'] ?? 0,
+            'pendingLeaves' => $stats['pending_leaves'] ?? 0,
+            'payrollTotal' => $stats['payroll_month'] ?? 0,
+            'metrics' => $stats,
+            'stats' => $stats,
+            'department_distribution' => $dashboardData['department_distribution'] ?? [],
+            'employees_on_leave_today' => $dashboardData['employees_on_leave_today'] ?? [],
+            'employees_without_attendance' => $dashboardData['employees_without_attendance'] ?? [],
         ]);
     }
 
@@ -172,9 +173,20 @@ class HrmController extends Controller
     public function generatePayslip(Request $request, PayrollService $payroll)
     {
         $workspace = $this->workspace($request, 'hrm.manage');
-        $data = $request->validate(['employee_id' => ['required', 'integer'], 'period_start' => ['required', 'date'], 'period_end' => ['required', 'date', 'after_or_equal:period_start']]);
+        $data = $request->validate([
+            'employee_id' => ['required', 'integer'],
+            'period_start' => ['required', 'date'],
+            'period_end' => ['required', 'date', 'after_or_equal:period_start'],
+            'india_statutory' => ['nullable', 'boolean'],
+            'statutory' => ['nullable', 'boolean'],
+            'state' => ['nullable', 'string', 'max:50'],
+            'is_epf_exempt' => ['nullable', 'boolean'],
+            'is_esi_exempt' => ['nullable', 'boolean'],
+            'is_pt_exempt' => ['nullable', 'boolean'],
+            'tds_monthly' => ['nullable', 'numeric', 'min:0'],
+        ]);
         $employee = HrEmployee::forWorkspace($workspace->organization_id, $workspace->id)->findOrFail($data['employee_id']);
-        $payroll->generate($employee, $data['period_start'], $data['period_end'], $request->user());
+        $payroll->generate($employee, $data['period_start'], $data['period_end'], $request->user(), $data);
 
         return back()->with('success', 'Payslip generated.');
     }

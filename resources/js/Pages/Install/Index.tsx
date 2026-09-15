@@ -386,7 +386,7 @@ export default function InstallIndex({ steps, requirements = {}, modules = [], b
                 <p className="text-sm font-medium text-slate-200">Connection status</p>
                 <p className={`mt-1 text-xs ${databaseState === 'success' ? 'text-emerald-300' : databaseState === 'error' ? 'text-rose-300' : 'text-slate-500'}`}>{databaseMessage || 'Not tested yet.'}</p>
               </div>
-              <Button type="button" variant="secondary" loading={databaseState === 'testing'} onClick={testDatabase} icon={<Database className="h-4 w-4" />} className="shrink-0">Test Connection</Button>
+              <Button type="button" variant="outline" loading={databaseState === 'testing'} onClick={testDatabase} icon={<Database className="h-4 w-4" />} className="shrink-0">Test Connection</Button>
             </div>
             {databaseState === 'error' && <div className="mt-4"><ErrorBanner message={databaseMessage} onRetry={testDatabase} /></div>}
           </StepBody>
@@ -417,7 +417,7 @@ export default function InstallIndex({ steps, requirements = {}, modules = [], b
                     {licenseMessage || 'Not checked yet.'}
                   </p>
                 </div>
-                <Button type="button" variant="secondary" loading={licenseState === 'validating'} onClick={validateLicenseInput} icon={<ShieldCheck className="h-4 w-4" />}>Validate License</Button>
+                <Button type="button" variant="outline" loading={licenseState === 'validating'} onClick={validateLicenseInput} icon={<ShieldCheck className="h-4 w-4" />}>Validate License</Button>
               </div>
               <p className="mt-3 border-t border-white/[0.07] pt-3 text-xs leading-5 text-slate-500">Validation checks the signature, activation state, expiry, and licensed domain without installing the application. No signing keys or token internals are exposed.</p>
             </div>

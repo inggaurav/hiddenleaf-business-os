@@ -1,0 +1,135 @@
+{
+    "id": "hiddenleaf-hrm-complete",
+    "alias": "hrm",
+    "name": "HRM \u2014 Human Resource Management",
+    "version": "1.0.0",
+    "minimum_core": "1.0.0",
+    "description": "Complete HR management: employees, recruitment (ATS), onboarding, attendance, leave, payroll runs, training, timesheets, appraisals, disciplinary, and exit management.",
+    "author": "HiddenLeaf",
+    "url": "https://hiddenleaf.in",
+    "dependencies": [],
+    "permissions": [
+        "hrm.view",
+        "hrm.manage"
+    ],
+    "navigation": [
+        {
+            "label": "HRM",
+            "route": "/hrm",
+            "icon": "users",
+            "children": [
+                {
+                    "label": "Dashboard",
+                    "route": "/hrm"
+                },
+                {
+                    "label": "Employees",
+                    "route": "/hrm/employees"
+                },
+                {
+                    "label": "Recruitment",
+                    "route": "/hrm/recruitment"
+                },
+                {
+                    "label": "Onboarding",
+                    "route": "/hrm/onboarding"
+                },
+                {
+                    "label": "Attendance",
+                    "route": "/hrm/attendance"
+                },
+                {
+                    "label": "Leave",
+                    "route": "/hrm/leave"
+                },
+                {
+                    "label": "Timesheets",
+                    "route": "/hrm/timesheets"
+                },
+                {
+                    "label": "Payroll",
+                    "route": "/hrm/payroll"
+                },
+                {
+                    "label": "Training",
+                    "route": "/hrm/training"
+                },
+                {
+                    "label": "Appraisals",
+                    "route": "/hrm/appraisals"
+                },
+                {
+                    "label": "Disciplinary",
+                    "route": "/hrm/disciplinary"
+                },
+                {
+                    "label": "Exit",
+                    "route": "/hrm/exit"
+                }
+            ]
+        }
+    ],
+    "settings": {
+        "probation_days": {
+            "type": "integer",
+            "default": 90,
+            "label": "Default probation period (days)"
+        },
+        "notice_period_days": {
+            "type": "integer",
+            "default": 30,
+            "label": "Default notice period (days)"
+        },
+        "work_hours_per_day": {
+            "type": "integer",
+            "default": 8,
+            "label": "Standard work hours per day"
+        },
+        "overtime_rate_multiplier": {
+            "type": "decimal",
+            "default": 1.5,
+            "label": "Overtime rate multiplier"
+        },
+        "payslip_currency": {
+            "type": "string",
+            "default": "INR",
+            "label": "Payroll currency"
+        },
+        "allow_self_attendance": {
+            "type": "boolean",
+            "default": true,
+            "label": "Allow employees to mark own attendance"
+        },
+        "leave_year_start": {
+            "type": "string",
+            "default": "01-01",
+            "label": "Leave year start (MM-DD)"
+        }
+    },
+    "mrfox_tools": [
+        "HrAttendanceSummaryTool",
+        "HrEmployeeSummaryTool",
+        "HrPendingLeaveTool",
+        "HrRecruitmentPipelineTool",
+        "HrTimesheetSummaryTool",
+        "HrTrainingSummaryTool",
+        "HrExitStatusTool",
+        "HrPayrollRunSummaryTool"
+    ],
+    "hiddenleaf": {
+        "mrfox": {
+            "tools": [
+                "HiddenLeaf\\Hrm\\Domain\\MrFox\\Tools\\HrAttendanceSummaryTool",
+                "HiddenLeaf\\Hrm\\Domain\\MrFox\\Tools\\HrEmployeeSummaryTool",
+                "HiddenLeaf\\Hrm\\Domain\\MrFox\\Tools\\HrPendingLeaveTool",
+                "HiddenLeaf\\Hrm\\Domain\\MrFox\\Tools\\HrRecruitmentPipelineTool",
+                "HiddenLeaf\\Hrm\\Domain\\MrFox\\Tools\\HrTimesheetSummaryTool",
+                "HiddenLeaf\\Hrm\\Domain\\MrFox\\Tools\\HrTrainingSummaryTool",
+                "HiddenLeaf\\Hrm\\Domain\\MrFox\\Tools\\HrExitStatusTool",
+                "HiddenLeaf\\Hrm\\Domain\\MrFox\\Tools\\HrPayrollRunSummaryTool"
+            ]
+        }
+    },
+    "checksum": "f511738e1e09747ee14e56f94787720beb42242d55324744ffac71d365be9067",
+    "signature": "Ld52FtozLVxmCSuqZ5v1c3l5tXZnyea1XJ/bxbaI+i8Vwu54UmlS4kddPckhNcMRjHNbj+GJNp0CsuJMEdbsf1cPNvyaF/b5A87PV4VyOG7xndaEA7rCWPrbw74uPFI43jI72JVlImln70myalbXyOdjfa6ZCMia4k6Zn+dsjabyNgJRHFAVN1faYgxBhRrVCBxNVNq/YWuJwXiON1PvTcGxzWyec+FWoahktVj2TJHvwxmtpsNBet0x6Mp9k5/1BXBxiEhLWQu8UDa2ZFvkDkyGG4wq0Yt1oiNr0qVOHpIFubO9jUtfR5R7bDcua20x/yoIGhHlmub7hxoi3Qojqg=="
+}

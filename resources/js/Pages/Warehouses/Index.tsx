@@ -91,7 +91,7 @@ export default function WarehousesIndex() {
           actions={
             <div className="flex items-center gap-2">
               <Link href="/transfers">
-                <Button variant="secondary" size="sm" icon={<ArrowRightLeft className="w-4 h-4" />}>
+                <Button variant="outline" size="sm" icon={<ArrowRightLeft className="w-4 h-4" />}>
                   Stock Transfers
                 </Button>
               </Link>

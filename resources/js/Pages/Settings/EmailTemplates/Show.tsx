@@ -63,7 +63,7 @@ export default function EmailTemplateShow() {
               required
             />
 
-            <div className="p-3.5 rounded-xl bg-purple-950/20 border border-purple-500/20 text-xs text-purple-300">
+            <div className="p-3.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)]">
               <strong>Available Variables:</strong> {Array.isArray(template?.variables) ? template.variables.join(', ') : (template?.variables || '{app_name}, {user_name}, {user_email}, {workspace_title}, {invoice_url}')}
             </div>
 

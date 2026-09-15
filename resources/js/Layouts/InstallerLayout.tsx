@@ -65,7 +65,7 @@ export default function InstallerLayout({ steps, currentStep, children }: Instal
                     }`}
                   >
                     <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border ${active ? 'border-emerald-300 bg-emerald-400 text-slate-950' : complete ? 'border-emerald-400/40 bg-emerald-400/10 text-emerald-300' : 'border-white/15 text-slate-600'}`}>
-                      {complete ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : active ? <Circle className="h-2.5 w-2.5 fill-current" aria-hidden="true" /> : <span className="text-[10px] font-semibold">{index + 1}</span>}
+                      {complete ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : active ? <Circle className="h-2.5 w-2.5 fill-current" aria-hidden="true" /> : <span className="text-xs font-semibold">{index + 1}</span>}
                     </span>
                     <span className="hidden lg:inline">{step.label}</span>
                     <span className="lg:hidden">{step.shortLabel}</span>
