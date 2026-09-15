@@ -155,6 +155,10 @@ class DemoCompaniesSeeder extends Seeder
                     'brand_name' => $companyInfo['brand_name'],
                     'brand_primary_color' => $companyInfo['brand_primary_color'],
                     'brand_footer_text' => $companyInfo['brand_footer_text'],
+                    'settings' => [
+                        'currency' => $companyInfo['currency'],
+                        'country' => $companyInfo['country'],
+                    ],
                 ]
             );
 
